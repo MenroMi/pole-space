@@ -17,7 +17,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   }
 
   if (error === 'expired' && email) {
-    const resendWithEmail = resendVerificationAction.bind(null, decodeURIComponent(email))
+    const resendWithEmail = resendVerificationAction.bind(null, email)
     return (
       <main>
         <h1>Link expired</h1>
@@ -29,11 +29,16 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     )
   }
 
-  if (error === 'invalid') {
+  if (error === 'invalid' || error === 'expired' || error === 'server') {
+    const message =
+      error === 'server'
+        ? 'We could not verify your email. Please try again later.'
+        : 'This verification link is invalid. Please sign up again.'
+    const heading = error === 'server' ? 'Something went wrong' : 'Invalid link'
     return (
       <main>
-        <h1>Invalid link</h1>
-        <p>This verification link is invalid. Please sign up again.</p>
+        <h1>{heading}</h1>
+        <p>{message}</p>
       </main>
     )
   }
