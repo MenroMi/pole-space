@@ -33,6 +33,4 @@
 
 ## Infrastructure
 
-**Neon DB not connected**
-- `DATABASE_URL` in `.env.local` is empty — `npm run build` will fail until set
-- Steps: create DB on neon.tech → copy connection string → paste into `.env.local` → run `npx prisma db push`
+~~**Neon DB not connected**~~ ✅ Resolved — DB connected, schema pushed (2026-04-19)
