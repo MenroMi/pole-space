@@ -53,13 +53,6 @@
 - ~~`name` field validation is not tested (empty name, name < 2 chars)~~
 - ~~Fix: add a test case for short/empty name before shipping to production~~
 - 3 tests added: 2 in `validation.test.ts` (min/max message strings), 1 in `SignupForm.test.tsx` (UI render)
-**`src/features/auth/components/SignupForm.tsx`**
-- `name` field uses Zod defaults (`"String must contain at least 2 character(s)"`) — inconsistent with password field which has a custom message
-- Fix: add `.min(2, 'Name must be at least 2 characters')` and `.max(50, 'Name is too long')` to `signupSchema.name`
-
-**`src/features/auth/components/SignupForm.test.tsx`**
-- `name` field validation is not tested (empty name, name < 2 chars)
-- Fix: add a test case for short/empty name before shipping to production
 
 ## Feature Gaps
 
