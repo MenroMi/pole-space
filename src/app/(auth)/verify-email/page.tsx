@@ -1,4 +1,4 @@
-import { resendVerificationAction } from '@/features/auth/actions'
+import { resendVerificationAction } from '@/features/auth'
 
 type Props = {
   searchParams: Promise<{ sent?: string; error?: string; email?: string }>
