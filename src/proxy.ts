@@ -6,11 +6,12 @@ const protectedRoutes = ['/profile', '/admin']
 export function getProtectedRedirect(
   pathname: string,
   isAuthenticated: boolean,
-  requestUrl: string
+  requestUrl: string,
+  search: string = ''
 ): URL | null {
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route))
   if (isProtected && !isAuthenticated) {
-    const callbackUrl = encodeURIComponent(pathname)
+    const callbackUrl = encodeURIComponent(pathname + search)
     return new URL(`/login?callbackUrl=${callbackUrl}`, requestUrl)
   }
   return null
@@ -20,7 +21,8 @@ export default auth((req) => {
   const redirectUrl = getProtectedRedirect(
     req.nextUrl.pathname,
     !!req.auth,
-    req.url
+    req.url,
+    req.nextUrl.search
   )
   if (redirectUrl) {
     return NextResponse.redirect(redirectUrl)

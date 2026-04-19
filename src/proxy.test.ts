@@ -6,7 +6,7 @@ vi.mock('@/shared/lib/auth', () => ({
 
 vi.mock('next/server', () => ({
   NextResponse: {
-    redirect: vi.fn(),
+    redirect: vi.fn((url: URL) => ({ redirectUrl: url })),
   },
 }))
 
@@ -34,6 +34,13 @@ describe('getProtectedRedirect', () => {
   it('returns a redirect URL for /admin sub-path when unauthenticated', () => {
     const url = getProtectedRedirect('/admin/moves', false, 'http://localhost')
     expect(url).not.toBeNull()
+    expect(url!.pathname).toBe('/login')
     expect(url!.searchParams.get('callbackUrl')).toBe('/admin/moves')
+  })
+
+  it('preserves query string in callbackUrl', () => {
+    const url = getProtectedRedirect('/admin', false, 'http://localhost', '?filter=active')
+    expect(url).not.toBeNull()
+    expect(url!.searchParams.get('callbackUrl')).toBe('/admin?filter=active')
   })
 })
