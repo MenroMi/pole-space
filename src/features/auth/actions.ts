@@ -61,12 +61,17 @@ export async function resendVerificationAction(email: string) {
 
   if (!user || user.emailVerified !== null) {
     redirect('/verify-email?error=invalid')
-    return
   }
 
   await deleteUserTokens(email)
   const token = await generateVerificationToken(email)
-  await sendVerificationEmail(email, token)
+
+  try {
+    await sendVerificationEmail(email, token)
+  } catch {
+    await deleteUserTokens(email)
+    redirect('/verify-email?error=send-failed')
+  }
 
   redirect('/verify-email?sent=true')
 }

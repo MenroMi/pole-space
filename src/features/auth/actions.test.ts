@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn((url: string) => {
+    const e = new Error('NEXT_REDIRECT')
+    ;(e as unknown as Record<string, unknown>).digest = `NEXT_REDIRECT;replace;${url};307;`
+    throw e
+  }),
+}))
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_pw'),
@@ -68,7 +74,7 @@ describe('signupAction', () => {
     mockCreate.mockResolvedValue({ id: 'new-user' })
     mockSendEmail.mockResolvedValue(undefined)
 
-    await signupAction(validData)
+    await expect(signupAction(validData)).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -157,7 +163,7 @@ describe('resendVerificationAction', () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null })
     mockSendEmail.mockResolvedValue(undefined)
 
-    await resendVerificationAction('alice@example.com')
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com')
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com')
@@ -168,7 +174,7 @@ describe('resendVerificationAction', () => {
   it('redirects to invalid if user not found', async () => {
     mockFindUnique.mockResolvedValue(null)
 
-    await resendVerificationAction('nobody@example.com')
+    await expect(resendVerificationAction('nobody@example.com')).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid')
     expect(mockGenToken).not.toHaveBeenCalled()
@@ -177,9 +183,19 @@ describe('resendVerificationAction', () => {
   it('redirects to invalid if user already verified', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: new Date() })
 
-    await resendVerificationAction('verified@example.com')
+    await expect(resendVerificationAction('verified@example.com')).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid')
     expect(mockGenToken).not.toHaveBeenCalled()
+  })
+
+  it('deletes token and redirects to send-failed if email sending fails', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null })
+    mockSendEmail.mockRejectedValue(new Error('Resend error'))
+
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com')
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=send-failed')
   })
 })
