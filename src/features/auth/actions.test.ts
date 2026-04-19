@@ -53,7 +53,7 @@ const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>
 const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>
 const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>
-const mockRedirect = redirect as ReturnType<typeof vi.fn>
+const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>
 
 const validData = { name: 'Alice', email: 'alice@example.com', password: 'password123' }
 

@@ -48,7 +48,7 @@ describe('authorize', () => {
   const getAuthorize = () => {
     const provider = authConfig.providers.find(
       (p: { id: string }) => p.id === 'credentials'
-    ) as { options: { authorize: (creds: Record<string, string>) => Promise<unknown> } }
+    ) as unknown as { options: { authorize: (creds: Record<string, string>) => Promise<unknown> } }
     return provider.options.authorize
   }
 
