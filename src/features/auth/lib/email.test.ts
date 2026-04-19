@@ -38,4 +38,9 @@ describe('sendVerificationEmail', () => {
 
     await expect(sendVerificationEmail('user@example.com', 'abc-token-123')).rejects.toThrow()
   })
+
+  // RESEND_FROM is a module-level const evaluated at import time. Testing a different
+  // env var value would require vi.resetModules() + dynamic import, adding complexity
+  // for low marginal value. The fallback ('onboarding@resend.dev') is exercised implicitly
+  // by the tests above; the RESEND_FROM override path is verified by code inspection.
 })

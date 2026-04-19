@@ -2,9 +2,7 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// from: using Resend's shared test domain for development.
-// Replace with a verified domain before production launch.
-const FROM = 'onboarding@resend.dev'
+const FROM = process.env.RESEND_FROM ?? 'onboarding@resend.dev'
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
   const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
