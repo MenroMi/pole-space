@@ -1,22 +1,10 @@
-import NextAuth, { type NextAuthConfig, type DefaultSession } from 'next-auth'
+import NextAuth, { type NextAuthConfig } from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import Google from 'next-auth/providers/google'
 import Facebook from 'next-auth/providers/facebook'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
-
-declare module 'next-auth' {
-  interface Session {
-    user: DefaultSession['user'] & { role?: string }
-  }
-}
-
-declare module '@auth/core/jwt' {
-  interface JWT {
-    role?: string
-  }
-}
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
