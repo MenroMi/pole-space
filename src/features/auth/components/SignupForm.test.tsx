@@ -23,6 +23,16 @@ describe('SignupForm', () => {
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument()
   })
 
+  it('shows validation error for short name on submit', async () => {
+    const user = userEvent.setup()
+    render(<SignupForm />)
+    await user.type(screen.getByLabelText(/name/i), 'A')
+    await user.type(screen.getByLabelText(/email/i), 'a@b.com')
+    await user.type(screen.getByLabelText(/password/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /create account/i }))
+    expect(await screen.findByText('Name must be at least 2 characters')).toBeInTheDocument()
+  })
+
   it('shows validation error for short password on submit', async () => {
     const user = userEvent.setup()
     render(<SignupForm />)
