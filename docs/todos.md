@@ -24,6 +24,20 @@
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
+### Email sender domain (post-MVP)
+- `src/features/auth/lib/email.ts` uses `onboarding@resend.dev` (Resend shared test domain)
+- Fix: configure a verified sender domain in Resend and update the FROM constant before production launch
+
+## UX / Validation
+
+**`src/features/auth/components/SignupForm.tsx`**
+- `name` field uses Zod defaults (`"String must contain at least 2 character(s)"`) — inconsistent with password field which has a custom message
+- Fix: add `.min(2, 'Name must be at least 2 characters')` and `.max(50, 'Name is too long')` to `signupSchema.name`
+
+**`src/features/auth/components/SignupForm.test.tsx`**
+- `name` field validation is not tested (empty name, name < 2 chars)
+- Fix: add a test case for short/empty name before shipping to production
+
 ## Feature Gaps
 
 **`src/features/catalog/actions.ts`**
