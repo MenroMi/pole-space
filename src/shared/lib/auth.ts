@@ -31,6 +31,10 @@ export const authConfig = {
 
         if (!user?.password) return null
 
+        if (user.emailVerified === null) {
+          throw new Error('Please verify your email first')
+        }
+
         const valid = await bcrypt.compare(
           credentials.password as string,
           user.password
