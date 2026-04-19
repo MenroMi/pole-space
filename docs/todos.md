@@ -14,6 +14,16 @@
 - Fix: remove `userId` param, get it from `auth()` session instead
 - Priority: must fix before profile routes go live
 
+### Auth rate limiting (post-MVP)
+- No rate limiting on `/api/auth/signin` — brute force possible
+- No rate limiting on signup — email bombing possible
+- Fix: add rate limiting middleware (e.g. Upstash Ratelimit) before public launch
+
+### Auth edge cases (post-MVP)
+- OAuth user tries to login via credentials (no password set) — returns generic error, no helpful message
+- Expired session doesn't preserve `callbackUrl` on redirect to login
+- No account lockout after N failed login attempts
+
 ## Feature Gaps
 
 **`src/features/catalog/actions.ts`**
