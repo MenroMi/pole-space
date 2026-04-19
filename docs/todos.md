@@ -24,6 +24,19 @@
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
+### Timing oracle in email verification (post-MVP)
+- `src/app/api/auth/verify/route.ts` — expired token branch does an extra DB delete before redirecting; missing token returns immediately. An attacker can distinguish "token never existed" from "token existed but expired" by response time.
+- Fix: add artificial delay or consolidate both cases to the same response path
+
+### Email in verification URL (post-MVP)
+- `src/app/api/auth/verify/route.ts` passes `email` as a plain query param (`?error=expired&email=...`)
+- Email appears in server logs, referrer headers, and analytics tools
+- Fix: remove email from URL and prompt the user to re-enter it on the expired page, OR accept the trade-off and document it
+
+### Proxy matcher scope (minor)
+- `src/proxy.ts` matcher runs on every route; only `/profile` and `/admin` are actually protected
+- Fix: narrow matcher to `['/profile/:path*', '/admin/:path*']` for explicitness, or keep broad if adding more protected routes soon
+
 ### Email sender domain (post-MVP)
 - `src/features/auth/lib/email.ts` uses `onboarding@resend.dev` (Resend shared test domain)
 - Fix: configure a verified sender domain in Resend and update the FROM constant before production launch
