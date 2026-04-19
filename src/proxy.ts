@@ -3,19 +3,30 @@ import { NextResponse } from 'next/server'
 
 const protectedRoutes = ['/profile', '/admin']
 
-export default auth((req) => {
-  const isProtected = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route)
-  )
+export function getProtectedRedirect(
+  pathname: string,
+  isAuthenticated: boolean,
+  requestUrl: string
+): URL | null {
+  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route))
+  if (isProtected && !isAuthenticated) {
+    const callbackUrl = encodeURIComponent(pathname)
+    return new URL(`/login?callbackUrl=${callbackUrl}`, requestUrl)
+  }
+  return null
+}
 
-  if (isProtected && !req.auth) {
-    const callbackUrl = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)
-    return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, req.url)
-    )
+export default auth((req) => {
+  const redirectUrl = getProtectedRedirect(
+    req.nextUrl.pathname,
+    !!req.auth,
+    req.url
+  )
+  if (redirectUrl) {
+    return NextResponse.redirect(redirectUrl)
   }
 })
 
 export const config = {
-  matcher: ['/((?!api/auth|_next/static|_next/image|favicon\\.ico).*)'],
+  matcher: ['/profile/:path*', '/admin/:path*'],
 }
