@@ -1,0 +1,602 @@
+# Instincts generated from https://github.com/MenroMi/pole-dance-catalog
+# Generated: 2026-04-19T16:25:56.697Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: pole-dance-catalog-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, fix, chore, docs
+
+## Evidence
+
+- 21 commits analyzed
+- Detected conventional commit pattern
+- Examples: chore: add resend, react-hook-form, zod, @hookform/resolvers, feat(auth): add Zod validation schemas for login and signup
+
+---
+id: pole-dance-catalog-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Commit Length
+
+## Action
+
+Write moderate-length commit messages (~59 characters)
+
+## Evidence
+
+- Average commit message length: 59 chars
+- Based on 21 commits
+
+---
+id: pole-dance-catalog-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: pole-dance-catalog-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: pole-dance-catalog-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Export Style
+
+## Action
+
+Prefer mixed exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: mixed
+
+---
+id: pole-dance-catalog-arch-feature-based
+trigger: "when adding a new feature"
+confidence: 0.85
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Arch Feature Based
+
+## Action
+
+Create a new folder in src/features/ with all related code colocated
+
+## Evidence
+
+- Feature-based module organization detected
+- Structure: src/features/[feature-name]/
+
+---
+id: pole-dance-catalog-test-colocate
+trigger: "when writing tests"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Test Colocate
+
+## Action
+
+Place test file next to the source file (e.g., Button.test.tsx next to Button.tsx)
+
+## Evidence
+
+- Colocated test pattern detected
+- Tests live alongside source files
+
+---
+id: pole-dance-catalog-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Test Framework
+
+## Action
+
+Use vitest as the test framework
+
+## Evidence
+
+- Test framework detected: vitest
+- File pattern: *.test.ts
+
+---
+id: pole-dance-catalog-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: pole-dance-catalog-test-mocking
+trigger: "when mocking dependencies in tests"
+confidence: 0.75
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Test Mocking
+
+## Action
+
+Use vi.mock for mocking
+
+## Evidence
+
+- Mocking pattern detected: vi.mock
+- Consistent across test files
+
+---
+id: pole-dance-catalog-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~27x per month
+- Files: src/features/auth/lib/*, src/features/auth/*, src/shared/lib/*
+
+---
+id: pole-dance-catalog-workflow-feature-implementation-with-tests
+trigger: "when doing feature implementation with tests"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Workflow Feature Implementation With Tests
+
+## Action
+
+Follow the feature-implementation-with-tests workflow:
+1. Create or update the implementation file (e.g., utility, action, component).
+2. Create or update the corresponding test file for the implementation.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: src/features/auth/lib/validation.ts, src/features/auth/lib/validation.test.ts, src/features/auth/lib/tokens.ts
+
+---
+id: pole-dance-catalog-workflow-route-or-page-handler-addition-and-fix
+trigger: "when doing route or page handler addition and fix"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Workflow Route Or Page Handler Addition And Fix
+
+## Action
+
+Follow the route-or-page-handler-addition-and-fix workflow:
+1. Create or update a route or page handler file.
+2. Shortly after, make a fix or enhancement to the same file.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: src/app/api/auth/verify/route.ts, src/app/(auth)/verify-email/page.tsx, src/proxy.ts
+
+---
+id: pole-dance-catalog-workflow-form-component-creation-with-validation
+trigger: "when doing form component creation with validation"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Workflow Form Component Creation With Validation
+
+## Action
+
+Follow the form-component-creation-with-validation workflow:
+1. Create the form component file (e.g., LoginForm.tsx, SignupForm.tsx) using RHF and Zod.
+2. Create the corresponding test file for the form component.
+3. Update or create the validation schema file.
+4. Wire the form component into the relevant page.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/features/auth/components/LoginForm.tsx, src/features/auth/components/LoginForm.test.tsx, src/features/auth/components/SignupForm.tsx
+
+---
+id: pole-dance-catalog-instinct-file-naming
+trigger: "When creating or renaming a file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct File Naming
+
+## Action
+
+Use camelCase for file names
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/features/auth/components/LoginForm.tsx
+
+---
+id: pole-dance-catalog-instinct-function-naming
+trigger: "When defining a function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/shared/lib/auth.ts
+
+---
+id: pole-dance-catalog-instinct-class-naming
+trigger: "When defining a class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Class Naming
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/shared/lib/auth.ts
+
+---
+id: pole-dance-catalog-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/shared/lib/auth.ts
+
+---
+id: pole-dance-catalog-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Import Style
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/features/auth/components/LoginForm.tsx
+
+---
+id: pole-dance-catalog-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Export Style
+
+## Action
+
+Use mixed export style (both named and default exports as appropriate)
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.ts
+- Pattern in src/shared/lib/auth.ts
+
+---
+id: pole-dance-catalog-instinct-test-file-pattern
+trigger: "When creating a test file"
+confidence: 0.95
+domain: testing
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Test File Pattern
+
+## Action
+
+Name the test file with the pattern *.test.ts
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.test.ts
+- Pattern in src/features/auth/components/LoginForm.test.tsx
+
+---
+id: pole-dance-catalog-instinct-test-framework
+trigger: "When writing tests"
+confidence: 0.95
+domain: testing
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Test Framework
+
+## Action
+
+Use vitest as the testing framework
+
+## Evidence
+
+- Pattern in *.test.ts files
+- Mention of vitest in testing config
+
+---
+id: pole-dance-catalog-instinct-test-mocking
+trigger: "When mocking modules in tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Test Mocking
+
+## Action
+
+Use vi.mock for mocking
+
+## Evidence
+
+- Pattern in *.test.ts files
+- Mention of vi.mock in tests
+
+---
+id: pole-dance-catalog-instinct-unit-tests
+trigger: "When writing tests for a new feature or utility"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Unit Tests
+
+## Action
+
+Write unit tests for the implementation
+
+## Evidence
+
+- Pattern in src/features/auth/lib/validation.test.ts
+- Pattern in src/shared/lib/auth.test.ts
+
+---
+id: pole-dance-catalog-instinct-git-commit-format
+trigger: "When writing a commit message"
+confidence: 0.95
+domain: git
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Git Commit Format
+
+## Action
+
+Use Conventional Commits format: <type>(<scope>): <description>
+
+## Evidence
+
+- Seen in commit 'feat(auth): add Zod validation schemas for login and signup'
+- Seen in commit 'fix(auth): add error handling to resendVerificationAction'
+
+---
+id: pole-dance-catalog-instinct-git-commit-types
+trigger: "When choosing a commit type"
+confidence: 0.95
+domain: git
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Git Commit Types
+
+## Action
+
+Use one of: feat, fix, chore, docs as the type prefix
+
+## Evidence
+
+- Seen in commit 'chore: add resend, react-hook-form, zod, @hookform/resolvers'
+- Seen in commit 'docs: add email sender domain and UX validation todos'
+
+---
+id: pole-dance-catalog-instinct-feature-implementation-with-tests
+trigger: "When adding a new feature, utility, or form and ensuring it is tested"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Feature Implementation With Tests
+
+## Action
+
+Create or update the implementation file, then create or update the corresponding test file
+
+## Evidence
+
+- Workflow 'feature-implementation-with-tests'
+- Pattern in src/features/auth/lib/validation.ts and validation.test.ts
+
+---
+id: pole-dance-catalog-instinct-route-handler-addition-and-fix
+trigger: "When introducing a new route or page and then quickly iterating to fix or improve it"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Route Handler Addition And Fix
+
+## Action
+
+Create or update a route or page handler file, then shortly after, make a fix or enhancement to the same file
+
+## Evidence
+
+- Workflow 'route-or-page-handler-addition-and-fix'
+- Pattern in src/app/api/auth/verify/route.ts
+
+---
+id: pole-dance-catalog-instinct-form-component-creation-with-validation
+trigger: "When adding a new form (e.g., login, signup) with validation and tests"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: MenroMi/pole-dance-catalog
+---
+
+# Pole Dance Catalog Instinct Form Component Creation With Validation
+
+## Action
+
+Create the form component file using RHF and Zod, create the corresponding test file, update or create the validation schema file, and wire the form component into the relevant page
+
+## Evidence
+
+- Workflow 'form-component-creation-with-validation'
+- Pattern in src/features/auth/components/LoginForm.tsx, LoginForm.test.tsx, and validation.ts
+
