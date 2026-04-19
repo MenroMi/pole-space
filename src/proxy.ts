@@ -9,7 +9,7 @@ export default auth((req) => {
   )
 
   if (isProtected && !req.auth) {
-    const callbackUrl = encodeURIComponent(req.nextUrl.pathname)
+    const callbackUrl = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search)
     return NextResponse.redirect(
       new URL(`/login?callbackUrl=${callbackUrl}`, req.url)
     )
