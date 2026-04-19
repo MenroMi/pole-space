@@ -53,7 +53,11 @@ describe('createMoveAction', () => {
     mockAuth.mockResolvedValue(adminSession)
     mockCreate.mockResolvedValue({ id: 'move-1' })
     const result = await createMoveAction(validInput)
-    expect(mockCreate).toHaveBeenCalled()
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ title: validInput.title, difficulty: validInput.difficulty }),
+      })
+    )
     expect(result).toEqual({ id: 'move-1' })
   })
 })
