@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { LoginForm } from './LoginForm'
@@ -10,6 +10,10 @@ vi.mock('@/features/auth/actions', () => ({
 import { loginAction } from '@/features/auth/actions'
 const mockLoginAction = loginAction as ReturnType<typeof vi.fn>
 
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('LoginForm', () => {
   it('renders email and password fields and a submit button', () => {
     render(<LoginForm />)
@@ -19,29 +23,32 @@ describe('LoginForm', () => {
   })
 
   it('shows validation error when email is empty on submit', async () => {
+    const user = userEvent.setup()
     render(<LoginForm />)
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
     expect(await screen.findByText(/invalid email/i)).toBeInTheDocument()
   })
 
   it('calls loginAction with form data on valid submit', async () => {
     mockLoginAction.mockResolvedValue(undefined)
+    const user = userEvent.setup()
     render(<LoginForm />)
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText(/email/i), 'a@b.com')
+    await user.type(screen.getByLabelText(/password/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     expect(mockLoginAction).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password123' })
   })
 
   it('displays server error returned from loginAction', async () => {
     mockLoginAction.mockResolvedValue({ error: 'Invalid credentials' })
+    const user = userEvent.setup()
     render(<LoginForm />)
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await user.type(screen.getByLabelText(/email/i), 'a@b.com')
+    await user.type(screen.getByLabelText(/password/i), 'password123')
+    await user.click(screen.getByRole('button', { name: /sign in/i }))
 
     expect(await screen.findByText('Invalid credentials')).toBeInTheDocument()
   })

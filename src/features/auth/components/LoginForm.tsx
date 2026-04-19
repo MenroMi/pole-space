@@ -24,15 +24,27 @@ export function LoginForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="email">Email</label>
-        <input id="email" type="email" {...register('email')} />
-        {errors.email && <p>{errors.email.message}</p>}
+        <input
+          id="email"
+          type="email"
+          aria-describedby={errors.email ? 'email-error' : undefined}
+          aria-invalid={!!errors.email}
+          {...register('email')}
+        />
+        {errors.email && <p id="email-error" role="alert">{errors.email.message}</p>}
       </div>
       <div>
         <label htmlFor="password">Password</label>
-        <input id="password" type="password" {...register('password')} />
-        {errors.password && <p>{errors.password.message}</p>}
+        <input
+          id="password"
+          type="password"
+          aria-describedby={errors.password ? 'password-error' : undefined}
+          aria-invalid={!!errors.password}
+          {...register('password')}
+        />
+        {errors.password && <p id="password-error" role="alert">{errors.password.message}</p>}
       </div>
-      {errors.root && <p>{errors.root.message}</p>}
+      {errors.root && <p role="alert">{errors.root.message}</p>}
       <button type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Signing in...' : 'Sign in'}
       </button>
