@@ -2,45 +2,53 @@
 
 ## Security
 
-### Auth guards in Server Actions (before connecting to routes)
+### ~~Auth guards in Server Actions~~ ✅ Resolved (2026-04-19)
 
-**`src/features/admin/actions.ts`**
-- `createMoveAction` and `deleteMoveAction` have no role check
-- Fix: add `auth()` from `@/shared/lib/auth` + verify `session.user.role === 'ADMIN'` at the top of each action
-- Priority: must fix before admin routes go live
+~~**`src/features/admin/actions.ts`**~~
+- ~~`createMoveAction` and `deleteMoveAction` have no role check~~
+- `requireAdmin()` guard added — throws `Unauthorized` if session is null or role ≠ ADMIN; 6 unit tests
 
-**`src/features/profile/actions.ts`**
-- `updateProgressAction` takes `userId` as a parameter — caller could pass any userId
-- Fix: remove `userId` param, get it from `auth()` session instead
-- Priority: must fix before profile routes go live
+~~**`src/features/profile/actions.ts`**~~
+- ~~`updateProgressAction` takes `userId` as a parameter — caller could pass any userId~~
+- `userId` removed from `getUserProgressAction` and `updateProgressAction`; derived from `auth()` session via `requireAuth()` helper; 4 unit tests
 
-### Auth rate limiting (post-MVP)
+## Post-Features Security Hardening
+
+> Implement after core feature set is complete, before public launch.
+
+### Rate limiting on auth endpoints
 - No rate limiting on `/api/auth/signin` — brute force possible
 - No rate limiting on signup — email bombing possible
-- Fix: add rate limiting middleware (e.g. Upstash Ratelimit) before public launch
+- Fix: add Upstash Ratelimit middleware to `/api/auth/signin` and `signupAction`
 
-### Auth edge cases (post-MVP)
+### Auth edge cases
 - OAuth user tries to login via credentials (no password set) — returns generic error, no helpful message
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
-### Timing oracle in email verification (post-MVP)
-- `src/app/api/auth/verify/route.ts` — expired token branch does an extra DB delete before redirecting; missing token returns immediately. An attacker can distinguish "token never existed" from "token existed but expired" by response time.
-- Fix: add artificial delay or consolidate both cases to the same response path
+### Timing oracle in email verification
+- `src/app/api/auth/verify/route.ts` — expired token branch does an extra DB delete before redirecting; missing token returns immediately
+- An attacker can distinguish "token never existed" from "token existed but expired" by response time
+- Fix: consolidate both error cases to the same response path (skip delete, redirect immediately)
 
-### Email in verification URL (post-MVP)
+### Email in verification URL
 - `src/app/api/auth/verify/route.ts` passes `email` as a plain query param (`?error=expired&email=...`)
 - Email appears in server logs, referrer headers, and analytics tools
-- Fix: remove email from URL and prompt the user to re-enter it on the expired page, OR accept the trade-off and document it
+- Fix: remove email from URL, prompt user to re-enter it on the expired page
+
+### E2e / browser tests (Playwright)
+- No browser-level coverage for login/signup flows
+- Fix: set up Playwright, add e2e tests for: signup → verify email → login → access protected route
 
 ### ~~Proxy matcher scope (minor)~~ ✅ Resolved (2026-04-19)
 - ~~`src/proxy.ts` matcher runs on every route; only `/profile` and `/admin` are actually protected~~
 - ~~Fix: narrow matcher to `['/profile/:path*', '/admin/:path*']` for explicitness, or keep broad if adding more protected routes soon~~
 - Narrowed to `['/profile/:path*', '/admin/:path*']`; `getProtectedRedirect` extracted for testability; 5 unit tests added
 
-### Email sender domain (post-MVP)
-- `src/features/auth/lib/email.ts` uses `onboarding@resend.dev` (Resend shared test domain)
-- Fix: configure a verified sender domain in Resend and update the FROM constant before production launch
+### ~~Email sender domain~~ ✅ Partially resolved (2026-04-19)
+- ~~`src/features/auth/lib/email.ts` uses `onboarding@resend.dev` (Resend shared test domain)~~
+- Code: `FROM` now reads from `RESEND_FROM` env var (fallback: `onboarding@resend.dev`)
+- **Action required:** configure a verified sender domain in Resend dashboard, then set `RESEND_FROM=noreply@yourdomain.com` in `.env.local` and Vercel env vars
 
 ## UX / Validation
 
