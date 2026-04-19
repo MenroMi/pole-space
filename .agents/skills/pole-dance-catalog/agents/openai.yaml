@@ -1,0 +1,6 @@
+interface:
+  display_name: "Pole Dance Catalog"
+  short_description: "Repo-specific patterns and workflows for pole-dance-catalog"
+  default_prompt: "Use the pole-dance-catalog repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
