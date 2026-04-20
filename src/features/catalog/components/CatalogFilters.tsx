@@ -94,8 +94,18 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
           placeholder="Search moves..."
           value={searchValue}
           onChange={e => handleSearchChange(e.target.value)}
-          className="pl-9"
+          className="pl-9 pr-9"
         />
+        {searchValue && (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={() => navigate({ resetSearch: true })}
+            className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <Accordion
@@ -121,32 +131,35 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
                 <button
                   type="button"
                   onClick={() => navigate({ category, difficulty: null })}
-                  className={cn(
-                    'text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent',
-                    filters.category === category && !filters.difficulty
-                      ? 'text-primary'
-                      : 'text-on-surface-variant'
-                  )}
+                  className="text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent text-on-surface-variant"
                 >
                   All levels
                 </button>
-                {DIFFICULTIES.map(difficulty => (
-                  <button
-                    key={difficulty}
-                    type="button"
-                    aria-label={`${difficulty} in ${category}`}
-                    onClick={() => navigate({ category, difficulty })}
-                    className={cn(
-                      'text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent',
-                      filters.category === category &&
-                        filters.difficulty === difficulty
-                        ? 'text-primary'
-                        : 'text-on-surface-variant'
-                    )}
-                  >
-                    {difficulty}
-                  </button>
-                ))}
+                {DIFFICULTIES.map(difficulty => {
+                  const difficultyActive =
+                    filters.category === category &&
+                    filters.difficulty === difficulty
+                  return (
+                    <button
+                      key={difficulty}
+                      type="button"
+                      aria-label={`${difficulty} in ${category}`}
+                      onClick={() =>
+                        difficultyActive
+                          ? navigate({ difficulty: null })
+                          : navigate({ category, difficulty })
+                      }
+                      className={cn(
+                        'text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent',
+                        difficultyActive
+                          ? 'text-primary'
+                          : 'text-on-surface-variant'
+                      )}
+                    >
+                      {difficulty}
+                    </button>
+                  )
+                })}
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -155,12 +168,11 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
 
       {isActive && (
         <Button
-          variant="ghost"
-          size="sm"
+          variant="secondary"
           onClick={() =>
             navigate({ category: null, difficulty: null, resetSearch: true })
           }
-          className="self-start"
+          className="w-full"
         >
           <X className="h-4 w-4" />
           Clear filters

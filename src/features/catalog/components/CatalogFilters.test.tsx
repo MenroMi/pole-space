@@ -34,17 +34,29 @@ describe('CatalogFilters', () => {
     expect(mockReplace).not.toHaveBeenCalled()
   })
 
-  it('clicking "All levels" inside SPINS navigates with category only', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />)
-    // SPINS auto-expanded; "All levels" visible in tree
+  it('clicking "All levels" selects category and clears any difficulty', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />)
     fireEvent.click(screen.getByRole('button', { name: 'All levels' }))
     expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS')
+  })
+
+  it('"All levels" is never highlighted as active', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS' }} />)
+    // Category SPINS is active with no difficulty — "All levels" button should
+    // NOT show as active, because it is an action shortcut, not a state toggle
+    expect(screen.getByRole('button', { name: 'All levels' }).className).not.toContain('text-primary')
   })
 
   it('clicking a difficulty inside a category navigates with both params', () => {
     render(<CatalogFilters filters={{ category: 'SPINS' }} />)
     fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }))
     expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER')
+  })
+
+  it('clicking active difficulty toggles only difficulty off, keeps category', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS')
   })
 
   it('clicking "All levels" clears existing difficulty', () => {
@@ -117,6 +129,25 @@ describe('CatalogFilters', () => {
     expect(input.value).toBe('jade')
     fireEvent.click(screen.getByRole('button', { name: /clear filters/i }))
     expect(input.value).toBe('')
+  })
+
+  it('search clear button is hidden when search is empty', () => {
+    render(<CatalogFilters filters={{}} />)
+    expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument()
+  })
+
+  it('search clear button is visible when search has value', () => {
+    render(<CatalogFilters filters={{ search: 'jade' }} />)
+    expect(screen.getByRole('button', { name: /clear search/i })).toBeInTheDocument()
+  })
+
+  it('search clear button clears input and resets search in URL but keeps category', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />)
+    const input = screen.getByRole('textbox', { name: /search/i }) as HTMLInputElement
+    expect(input.value).toBe('jade')
+    fireEvent.click(screen.getByRole('button', { name: /clear search/i }))
+    expect(input.value).toBe('')
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS')
   })
 
   it('leaves all accordions collapsed after manual collapse + Clear filters', () => {
