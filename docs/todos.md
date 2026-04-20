@@ -73,6 +73,14 @@
 - `signupAction` doesn't return the created user
 - Fix: return `prisma.user.create(...)` result if callers need the user ID
 
+**Multi-select filters in catalog**
+- Сейчас category и difficulty — single value каждый. Нельзя выбрать сразу SPINS+HOLDS или BEGINNER+INTERMEDIATE
+- 3 варианта реализации (см. архитектурное обсуждение от 2026-04-20):
+  - **A (рекомендуемый):** независимый multi-select. `category: Category[]`, `difficulty: Difficulty[]`. URL: `?category=SPINS,HOLDS&difficulty=BEGINNER`. Accordion type="multiple", клик по уровню = toggle. Prisma `where: { category: { in: [...] }, difficulty: { in: [...] } }`
+  - **B (pair-based):** точные пары `[{SPINS, BEGINNER}, {HOLDS, ADVANCED}]`. Кастомное URL-кодирование. Выражает точные пары, но сложнее data model
+  - **C (orthogonal):** перестроить UI — категории и уровни как независимые секции чекбоксов, без вложенности accordion'ом
+- Breaking change: URL-схема, MoveFilters type, getMovesAction, CatalogPage validation, CatalogFilters UI и тесты
+
 ## Architecture Notes
 
 **`src/app/(main)/catalog/page.tsx`**
