@@ -1,2 +1,5 @@
 export { getMovesAction } from './actions'
-export type { MoveWithTags, MoveFilters } from './types'
+export type { MoveWithTags, MoveFilters, PaginatedResult } from './types'
+export { default as MoveCard } from './components/MoveCard'
+export { default as MoveGrid } from './components/MoveGrid'
+export { default as CatalogFilters } from './components/CatalogFilters'
