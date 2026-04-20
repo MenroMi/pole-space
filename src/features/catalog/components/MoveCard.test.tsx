@@ -76,5 +76,6 @@ describe('MoveCard', () => {
     render(<MoveCard move={move} />)
     const badge = screen.getByText('INTERMEDIATE')
     expect(badge.className).toContain('bg-primary-container')
+    expect(badge.className).toContain('text-on-surface')
   })
 })

@@ -9,7 +9,7 @@ function extractVideoId(youtubeUrl: string): string | null {
 
 const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {
   BEGINNER: { className: 'bg-secondary-container text-on-secondary-container' },
-  INTERMEDIATE: { className: 'bg-primary-container text-on-primary' },
+  INTERMEDIATE: { className: 'bg-primary-container text-on-surface' },
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
 }
 
@@ -26,7 +26,7 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
   return (
     <Link
       href={`/moves/${move.id}`}
-      className="block bg-surface-container hover:bg-surface-container-high rounded-xl overflow-hidden transition-colors"
+      className="block bg-surface-container hover:bg-surface-high rounded-xl overflow-hidden transition-colors"
     >
       {imageSrc && (
         <div className="relative aspect-video">
