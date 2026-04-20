@@ -4,6 +4,6 @@ import { getMovesAction } from '@/features/catalog'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const moves = await getMovesAction()
-  return NextResponse.json(moves)
+  const result = await getMovesAction()
+  return NextResponse.json(result.items)
 }

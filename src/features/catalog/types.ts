@@ -1,5 +1,5 @@
 import type { Move, Tag } from '@prisma/client'
-import type { MoveFilters } from '@/shared/types'
+import type { MoveFilters, PaginatedResult } from '@/shared/types'
 
-export type { MoveFilters }
+export type { MoveFilters, PaginatedResult }
 export type MoveWithTags = Move & { tags: Tag[] }
