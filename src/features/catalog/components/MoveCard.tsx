@@ -1,6 +1,6 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { ImageOff } from 'lucide-react'
+import MoveCardImage from './MoveCardImage'
 import type { MoveWithTags } from '../types'
 
 function extractVideoId(youtubeUrl: string): string | null {
@@ -31,7 +31,7 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
     >
       <div className="relative aspect-video bg-accent flex items-center justify-center">
         {imageSrc ? (
-          <Image src={imageSrc} alt={move.title} fill className="object-cover" />
+          <MoveCardImage src={imageSrc} alt={move.title} />
         ) : (
           <ImageOff className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
         )}
