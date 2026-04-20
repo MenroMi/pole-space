@@ -95,3 +95,7 @@
 ~~**Neon DB not connected**~~ ✅ Resolved — DB connected, schema pushed (2026-04-19)
 
 ~~**Vitest picks up .worktrees/ test files**~~ ✅ Resolved (2026-04-20) — added `'.worktrees/**'` to `exclude` in `vitest.config.ts`
+
+**Prettier + ESLint not configured**
+- Проект без форматтера и линтера — стиль зависит от желания конкретного реализатора/ревьюера
+- Fix: отдельной feature branch настроить Prettier (с Tailwind plugin для сортировки классов) + ESLint (Next.js config + typescript-eslint). Добавить npm scripts `lint`, `format`, и pre-commit hook (lint-staged + husky или simple-git-hooks)
