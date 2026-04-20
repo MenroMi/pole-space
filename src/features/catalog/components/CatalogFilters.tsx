@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Category, Difficulty } from '@prisma/client'
 import type { MoveFilters } from '../types'
@@ -14,8 +14,13 @@ interface CatalogFiltersProps {
 export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   const router = useRouter()
   const [searchValue, setSearchValue] = useState(filters.search ?? '')
+  const isFirstRender = useRef(true)
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     const timer = setTimeout(() => {
       const params = new URLSearchParams()
       if (filters.category) params.set('category', filters.category)
@@ -25,6 +30,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
       router.replace(`/catalog${query ? `?${query}` : ''}`)
     }, 300)
     return () => clearTimeout(timer)
+    // Only searchValue is debounced; category/difficulty trigger immediate nav via click handlers.
   }, [searchValue]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isActive = !!filters.category || !!filters.difficulty || !!filters.search
@@ -40,7 +46,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
         className="w-full bg-surface-high rounded-lg px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant"
       />
 
-      <nav className="flex flex-col gap-1">
+      <nav aria-label="Filter by category" className="flex flex-col gap-1">
         {CATEGORIES.map(category => (
           <div key={category}>
             <button
@@ -57,6 +63,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
                 <button
                   key={difficulty}
                   type="button"
+                  aria-label={`${difficulty} in ${category}`}
                   onClick={() =>
                     router.replace(`/catalog?category=${category}&difficulty=${difficulty}`)
                   }

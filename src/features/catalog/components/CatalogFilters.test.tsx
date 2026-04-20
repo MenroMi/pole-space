@@ -29,7 +29,7 @@ describe('CatalogFilters', () => {
     render(<CatalogFilters filters={{}} />)
     const spinsButton = screen.getByRole('button', { name: 'SPINS' })
     const spinsSection = spinsButton.parentElement!
-    fireEvent.click(within(spinsSection).getByRole('button', { name: 'BEGINNER' }))
+    fireEvent.click(within(spinsSection).getByRole('button', { name: 'BEGINNER in SPINS' }))
     expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER')
   })
 
@@ -48,7 +48,7 @@ describe('CatalogFilters', () => {
     render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'INTERMEDIATE' }} />)
     const spinsButton = screen.getByRole('button', { name: 'SPINS' })
     const spinsSection = spinsButton.parentElement!
-    expect(within(spinsSection).getByRole('button', { name: 'INTERMEDIATE' }).className).toContain('text-primary')
+    expect(within(spinsSection).getByRole('button', { name: 'INTERMEDIATE in SPINS' }).className).toContain('text-primary')
   })
 
   it('Clear filters button is visible when a filter is active', () => {
@@ -81,6 +81,12 @@ describe('CatalogFilters', () => {
     const input = screen.getByRole('textbox', { name: /search/i })
     fireEvent.change(input, { target: { value: 'jade' } })
     act(() => vi.advanceTimersByTime(100))
+    expect(mockReplace).not.toHaveBeenCalled()
+  })
+
+  it('does not trigger router.replace on initial mount with no search', () => {
+    render(<CatalogFilters filters={{}} />)
+    act(() => vi.advanceTimersByTime(500))
     expect(mockReplace).not.toHaveBeenCalled()
   })
 })
