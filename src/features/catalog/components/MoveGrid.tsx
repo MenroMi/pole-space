@@ -1,8 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { getMovesAction } from '../actions'
-import type { MoveWithTags } from '../types'
-import type { MoveFilters } from '@/shared/types'
+import type { MoveWithTags, MoveFilters } from '../types'
 import MoveCard from './MoveCard'
 
 const PAGE_SIZE = 12

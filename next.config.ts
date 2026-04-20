@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { hostname: 'img.youtube.com' },
-      { hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
 };
