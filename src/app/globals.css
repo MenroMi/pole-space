@@ -36,6 +36,10 @@
   --font-display: var(--font-space-grotesk);
 }
 
+@utility font-display {
+  font-family: var(--font-display);
+}
+
 body {
   background-color: var(--surface);
   color: var(--on-surface);
