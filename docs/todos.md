@@ -79,6 +79,19 @@
 - When filling in UI, call `getMovesAction` directly in the Server Component — do NOT fetch via `/api/moves`
 - Fetching your own API route from a Server Component is an RSC anti-pattern (unnecessary network hop)
 
+**PageShell usage pattern**
+- Pages that need an aside (filters, related content, etc.) wrap their content in `<PageShell aside={...}>`
+- Pages without an aside render `{children}` directly — no PageShell needed
+- The aside content is page-specific: e.g. CatalogFilters on /catalog, related moves on /moves/[id]
+- `(main)/layout.tsx` provides only Header + Footer — PageShell lives at the page level, not the layout level
+
+**Font utilities**
+- `font-display` → Space Grotesk (headings, wordmark, move titles)
+- `font-sans` → Manrope (body text, labels, form fields)
+- Both defined as `@utility` in `globals.css` (Tailwind v4 does not auto-generate font utilities beyond sans/serif/mono)
+
 ## Infrastructure
 
 ~~**Neon DB not connected**~~ ✅ Resolved — DB connected, schema pushed (2026-04-19)
+
+~~**Vitest picks up .worktrees/ test files**~~ ✅ Resolved (2026-04-20) — added `'.worktrees/**'` to `exclude` in `vitest.config.ts`
