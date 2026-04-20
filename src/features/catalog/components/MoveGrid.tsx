@@ -45,7 +45,8 @@ export default function MoveGrid({ initialMoves, initialHasMore, filters }: Move
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [hasMore, filters])
+  // filters is stable for this component's lifetime — parent remounts via `key` prop when filters change
+  }, [hasMore]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="p-6">
