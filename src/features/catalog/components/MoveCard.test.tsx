@@ -78,4 +78,12 @@ describe('MoveCard', () => {
     expect(badge.className).toContain('bg-primary-container')
     expect(badge.className).toContain('text-on-surface')
   })
+
+  it('renders placeholder icon when imageUrl is null and youtubeUrl has no valid id', () => {
+    const move = { ...baseMove, imageUrl: null, youtubeUrl: '' }
+    const { container } = render(<MoveCard move={move} />)
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    // lucide icons render as svg
+    expect(container.querySelector('svg')).toBeInTheDocument()
+  })
 })

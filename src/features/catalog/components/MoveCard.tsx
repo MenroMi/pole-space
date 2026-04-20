@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { ImageOff } from 'lucide-react'
 import type { MoveWithTags } from '../types'
 
 function extractVideoId(youtubeUrl: string): string | null {
@@ -28,11 +29,13 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
       href={`/moves/${move.id}`}
       className="block bg-surface-container hover:bg-surface-high rounded-xl overflow-hidden transition-colors"
     >
-      {imageSrc && (
-        <div className="relative aspect-video">
+      <div className="relative aspect-video bg-accent flex items-center justify-center">
+        {imageSrc ? (
           <Image src={imageSrc} alt={move.title} fill className="object-cover" />
-        </div>
-      )}
+        ) : (
+          <ImageOff className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
+        )}
+      </div>
       <div className="p-4 flex flex-col gap-2">
         <span
           className={`self-start text-xs font-semibold px-2 py-0.5 rounded-full ${badge.className}`}
