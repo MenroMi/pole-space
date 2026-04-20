@@ -117,12 +117,12 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
               {category}
             </AccordionTrigger>
             <AccordionContent>
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-0.5">
                 <button
                   type="button"
                   onClick={() => navigate({ category, difficulty: null })}
                   className={cn(
-                    'text-left py-1 px-2 text-sm rounded-sm hover:bg-accent',
+                    'text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent',
                     filters.category === category && !filters.difficulty
                       ? 'text-primary'
                       : 'text-on-surface-variant'
@@ -137,7 +137,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
                     aria-label={`${difficulty} in ${category}`}
                     onClick={() => navigate({ category, difficulty })}
                     className={cn(
-                      'text-left py-1 px-2 text-sm rounded-sm hover:bg-accent',
+                      'text-left py-2 pl-6 pr-3 text-sm rounded-md transition-colors hover:bg-accent',
                       filters.category === category &&
                         filters.difficulty === difficulty
                         ? 'text-primary'
