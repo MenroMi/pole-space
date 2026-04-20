@@ -119,6 +119,26 @@ describe('CatalogFilters', () => {
     expect(input.value).toBe('')
   })
 
+  it('leaves all accordions collapsed after manual collapse + Clear filters', () => {
+    // Regression: Radix Accordion switches from controlled → uncontrolled if
+    // value becomes undefined, which used to leave a random section open.
+    const { rerender } = render(
+      <CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />
+    )
+    // User manually collapses SPINS
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    expect(screen.getByRole('button', { name: 'SPINS' })).toHaveAttribute('data-state', 'closed')
+
+    // User clicks Clear filters — parent re-renders with cleared filters
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }))
+    rerender(<CatalogFilters filters={{}} />)
+
+    // All category triggers should be closed
+    for (const category of ['SPINS', 'CLIMBS', 'HOLDS', 'COMBOS', 'FLOORWORK']) {
+      expect(screen.getByRole('button', { name: category })).toHaveAttribute('data-state', 'closed')
+    }
+  })
+
   it('search input triggers router.replace after 300ms debounce', () => {
     render(<CatalogFilters filters={{}} />)
     fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {

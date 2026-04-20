@@ -24,8 +24,10 @@ interface CatalogFiltersProps {
 export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   const router = useRouter()
   const [searchValue, setSearchValue] = useState(filters.search ?? '')
-  const [openCategory, setOpenCategory] = useState<string | undefined>(
-    filters.category
+  // Always keep a string ('' = none open) so Radix Accordion stays in controlled mode.
+  // Passing `undefined` would flip it to uncontrolled and cause stale internal state.
+  const [openCategory, setOpenCategory] = useState<string>(
+    filters.category ?? ''
   )
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prevCategoryRef = useRef<Category | undefined>(filters.category)
@@ -35,7 +37,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   // so manually collapsing/expanding isn't fought by the effect.
   useEffect(() => {
     if (filters.category !== prevCategoryRef.current) {
-      setOpenCategory(filters.category ?? undefined)
+      setOpenCategory(filters.category ?? '')
     }
     prevCategoryRef.current = filters.category
   }, [filters.category])
