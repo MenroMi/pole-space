@@ -18,7 +18,7 @@ export default function HeaderNav() {
           key={href}
           href={href}
           className={`text-sm font-medium transition-colors ${
-            pathname.startsWith(href)
+            pathname === href || pathname.startsWith(href + '/')
               ? 'text-primary'
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
