@@ -159,4 +159,35 @@ describe('MoveGrid', () => {
       resolveLoad({ items: [], total: 12, page: 2, pageSize: 12 })
     })
   })
+
+  it('does not setState after unmount during fetch', async () => {
+    let resolveLoad!: (value: unknown) => void
+    mockGetMovesAction.mockReturnValue(new Promise(res => { resolveLoad = res }))
+
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { unmount } = render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />
+    )
+
+    act(() => {
+      capturedObserverCallback(
+        [{ isIntersecting: true }] as IntersectionObserverEntry[],
+        {} as IntersectionObserver
+      )
+    })
+
+    unmount()
+
+    await act(async () => {
+      resolveLoad({ items: [{ id: 'm12', title: 'Late', description: null, difficulty: 'BEGINNER', category: 'SPINS', youtubeUrl: '', imageUrl: null, createdAt: new Date(), updatedAt: new Date(), tags: [] }], total: 13, page: 2, pageSize: 12 })
+    })
+
+    const stateUpdateWarning = consoleError.mock.calls.find(call =>
+      typeof call[0] === 'string' && call[0].includes('unmounted component')
+    )
+    expect(stateUpdateWarning).toBeUndefined()
+
+    consoleError.mockRestore()
+  })
 })

@@ -26,25 +26,36 @@ export default function MoveGrid({ initialMoves, initialHasMore, filters }: Move
     const sentinel = sentinelRef.current
     if (!sentinel) return
 
+    let cancelled = false
+
     const observer = new IntersectionObserver(async ([entry]) => {
       if (!entry.isIntersecting || isLoadingRef.current) return
 
       isLoadingRef.current = true
       setLoading(true)
 
-      const nextPage = pageRef.current + 1
-      const result = await getMovesAction({ ...filters, page: nextPage, pageSize: PAGE_SIZE })
+      try {
+        const nextPage = pageRef.current + 1
+        const result = await getMovesAction({ ...filters, page: nextPage, pageSize: PAGE_SIZE })
 
-      pageRef.current = nextPage
-      isLoadingRef.current = false
+        if (cancelled) return
 
-      setMoves(prev => [...prev, ...result.items])
-      setHasMore(result.items.length >= PAGE_SIZE)
-      setLoading(false)
+        pageRef.current = nextPage
+        setMoves(prev => [...prev, ...result.items])
+        setHasMore(result.items.length >= PAGE_SIZE)
+      } finally {
+        if (!cancelled) {
+          isLoadingRef.current = false
+          setLoading(false)
+        }
+      }
     })
 
     observer.observe(sentinel)
-    return () => observer.disconnect()
+    return () => {
+      cancelled = true
+      observer.disconnect()
+    }
   // filters is stable for this component's lifetime — parent remounts via `key` prop when filters change
   }, [hasMore]) // eslint-disable-line react-hooks/exhaustive-deps
 
