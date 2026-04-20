@@ -16,6 +16,8 @@ export interface MoveFilters {
   difficulty?: Difficulty
   search?: string
   tags?: string[]
+  page?: number
+  pageSize?: number
 }
 
 export interface PaginatedResult<T> {
