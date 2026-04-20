@@ -39,6 +39,41 @@ describe('CatalogFilters', () => {
     expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS')
   })
 
+  it('clicking category preserves existing search param', () => {
+    render(<CatalogFilters filters={{ search: 'jade' }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&search=jade')
+  })
+
+  it('clicking difficulty preserves existing search param', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />)
+    const spinsButton = screen.getByRole('button', { name: 'SPINS' })
+    const spinsSection = spinsButton.parentElement!
+    fireEvent.click(within(spinsSection).getByRole('button', { name: 'BEGINNER in SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER&search=jade')
+  })
+
+  it('clicking category during typing includes typed value in URL', () => {
+    render(<CatalogFilters filters={{}} />)
+    fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
+      target: { value: 'jade' },
+    })
+    // click happens BEFORE the 300ms debounce fires
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&search=jade')
+  })
+
+  it('clicking category during typing cancels pending debounce (no later duplicate call)', () => {
+    render(<CatalogFilters filters={{}} />)
+    fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
+      target: { value: 'jade' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    mockReplace.mockClear()
+    act(() => vi.advanceTimersByTime(500))
+    expect(mockReplace).not.toHaveBeenCalled()
+  })
+
   it('active category link has text-primary class', () => {
     render(<CatalogFilters filters={{ category: 'SPINS' }} />)
     expect(screen.getByRole('button', { name: 'SPINS' }).className).toContain('text-primary')
@@ -67,6 +102,14 @@ describe('CatalogFilters', () => {
     expect(mockReplace).toHaveBeenCalledWith('/catalog')
   })
 
+  it('Clear filters resets the search input value', () => {
+    render(<CatalogFilters filters={{ search: 'jade' }} />)
+    const input = screen.getByRole('textbox', { name: /search/i }) as HTMLInputElement
+    expect(input.value).toBe('jade')
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }))
+    expect(input.value).toBe('')
+  })
+
   it('search input triggers router.replace after 300ms debounce', () => {
     render(<CatalogFilters filters={{}} />)
     const input = screen.getByRole('textbox', { name: /search/i })
@@ -84,7 +127,7 @@ describe('CatalogFilters', () => {
     expect(mockReplace).not.toHaveBeenCalled()
   })
 
-  it('does not trigger router.replace on initial mount with no search', () => {
+  it('does not trigger router.replace on initial mount', () => {
     render(<CatalogFilters filters={{}} />)
     act(() => vi.advanceTimersByTime(500))
     expect(mockReplace).not.toHaveBeenCalled()
