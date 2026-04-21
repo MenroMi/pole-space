@@ -85,7 +85,10 @@ export async function changePasswordAction(data: {
   const parsed = changePasswordSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
   if (!user?.password) return { success: false as const, error: 'Password change is not available' };
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);

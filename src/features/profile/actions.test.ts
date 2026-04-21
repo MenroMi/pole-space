@@ -137,6 +137,60 @@ describe('updateProfileAction', () => {
   });
 });
 
+describe('uploadAvatarAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(uploadAvatarAction(new FormData())).rejects.toThrow('Unauthorized');
+  });
+
+  it('returns error when no file provided', async () => {
+    mockAuth.mockResolvedValue(session);
+    const result = await uploadAvatarAction(new FormData());
+    expect(result).toEqual({ success: false, error: 'No file provided' });
+  });
+
+  it('returns error for non-image file type', async () => {
+    mockAuth.mockResolvedValue(session);
+    const formData = new FormData();
+    formData.append('avatar', new File(['data'], 'doc.pdf', { type: 'application/pdf' }));
+    const result = await uploadAvatarAction(formData);
+    expect(result).toEqual({ success: false, error: 'Only image files are allowed' });
+  });
+
+  it('returns error when file exceeds 5MB', async () => {
+    mockAuth.mockResolvedValue(session);
+    const formData = new FormData();
+    formData.append(
+      'avatar',
+      new File([new ArrayBuffer(6 * 1024 * 1024)], 'big.jpg', { type: 'image/jpeg' }),
+    );
+    const result = await uploadAvatarAction(formData);
+    expect(result).toEqual({ success: false, error: 'File size must be under 5MB' });
+  });
+
+  it('uploads file and updates user image', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUploadStream.mockImplementation(
+      (_opts: unknown, cb: (err: null, res: { secure_url: string }) => void) => {
+        cb(null, { secure_url: 'https://res.cloudinary.com/test/image/upload/user-user-123' });
+        return { end: vi.fn() };
+      },
+    );
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const formData = new FormData();
+    formData.append('avatar', new File(['data'], 'photo.jpg', { type: 'image/jpeg' }));
+    const result = await uploadAvatarAction(formData);
+    expect(result).toEqual({
+      success: true,
+      imageUrl: 'https://res.cloudinary.com/test/image/upload/user-user-123',
+    });
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      data: { image: 'https://res.cloudinary.com/test/image/upload/user-user-123' },
+    });
+  });
+});
+
 describe('changePasswordAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
@@ -147,7 +201,7 @@ describe('changePasswordAction', () => {
 
   it('returns error when user has no password (OAuth account)', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserFindUnique.mockResolvedValue({ id: 'user-123', password: null });
+    mockUserFindUnique.mockResolvedValue({ password: null });
     const result = await changePasswordAction({
       currentPassword: 'old',
       newPassword: 'newpassword123',
@@ -158,7 +212,7 @@ describe('changePasswordAction', () => {
 
   it('returns error when current password is incorrect', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserFindUnique.mockResolvedValue({ id: 'user-123', password: 'hashed' });
+    mockUserFindUnique.mockResolvedValue({ password: 'hashed' });
     mockBcryptCompare.mockResolvedValue(false);
     const result = await changePasswordAction({
       currentPassword: 'wrong',
@@ -170,7 +224,7 @@ describe('changePasswordAction', () => {
 
   it('updates password and returns success when current password is correct', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserFindUnique.mockResolvedValue({ id: 'user-123', password: 'hashed' });
+    mockUserFindUnique.mockResolvedValue({ password: 'hashed' });
     mockBcryptCompare.mockResolvedValue(true);
     mockBcryptHash.mockResolvedValue('newhashed');
     mockUserUpdate.mockResolvedValue({ id: 'user-123' });
