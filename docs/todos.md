@@ -138,3 +138,19 @@
   - **C. Chips (selected filters bar)** — отдельная строка под фильтрами с выбранными значениями в виде chips (`× SPIN`, `× BEGINNER`), клик по X снимает. Клик по кнопке в accordion добавляет.
 - Backend: `getMovesAction` пока ожидает `category?: Category` и `difficulty?: Difficulty` — нужно менять на массивы.
 - Решение отложено до ресёрча (см. выше).
+
+## Database
+
+**`prisma/schema.prisma` — `UserProgress` relations missing `onDelete: Cascade`**
+
+- `UserProgress.user` and `UserProgress.move` relations use the default `onDelete: RESTRICT`
+- Deleting a User or Move that has any progress records will fail with a FK violation at DB level
+- Fix: add `onDelete: Cascade` to both relations in `UserProgress` and run a migration
+- Contrast: `UserFavourite` (added in Stage 2C) correctly uses `onDelete: Cascade`
+
+**`prisma/migrations/` — baseline uses `"public".` schema qualifier, subsequent migrations do not**
+
+- Baseline migration (20240101000000) uses explicit `"public".` schema qualifier on all table/type names (Prisma introspection output)
+- New migrations (e.g. add_user_favourite) omit the qualifier — they rely on PostgreSQL's default `search_path = public`
+- Safe on Neon and standard PostgreSQL setups; could break if `search_path` is non-default
+- No action needed unless the project moves to a non-default schema
