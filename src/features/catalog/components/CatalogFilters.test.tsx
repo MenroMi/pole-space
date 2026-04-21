@@ -59,6 +59,18 @@ describe('CatalogFilters', () => {
     expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS')
   })
 
+  it('clicking active category trigger clears category and difficulty', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog')
+  })
+
+  it('clicking active category trigger preserves search', () => {
+    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }))
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?search=jade')
+  })
+
   it('clicking "All levels" clears existing difficulty', () => {
     render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />)
     fireEvent.click(screen.getByRole('button', { name: 'All levels' }))

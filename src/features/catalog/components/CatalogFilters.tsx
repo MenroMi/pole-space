@@ -119,6 +119,11 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
         {CATEGORIES.map(category => (
           <AccordionItem key={category} value={category}>
             <AccordionTrigger
+              onClick={() => {
+                if (filters.category === category) {
+                  navigate({ category: null, difficulty: null })
+                }
+              }}
               className={cn(
                 'text-sm font-semibold font-sans',
                 filters.category === category && 'text-primary'
