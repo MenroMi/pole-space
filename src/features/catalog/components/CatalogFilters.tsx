@@ -1,7 +1,8 @@
 'use client'
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { Category, Difficulty } from '@prisma/client'
+import { useRouter } from 'next/navigation'
+import { useState, useRef } from 'react'
+
 import type { MoveFilters } from '../types'
 
 const CATEGORIES = Object.values(Category)
@@ -30,10 +31,8 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
       debounceRef.current = null
     }
 
-    const nextCategory =
-      'category' in overrides ? overrides.category : filters.category
-    const nextDifficulty =
-      'difficulty' in overrides ? overrides.difficulty : filters.difficulty
+    const nextCategory = 'category' in overrides ? overrides.category : filters.category
+    const nextDifficulty = 'difficulty' in overrides ? overrides.difficulty : filters.difficulty
     const nextSearch = overrides.resetSearch ? '' : searchValue
 
     if (overrides.resetSearch) setSearchValue('')
@@ -66,36 +65,36 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   const isActive = !!filters.category || !!filters.difficulty || !!filters.search
 
   return (
-    <div className="p-4 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 p-4">
       <input
         type="text"
         aria-label="Search moves"
         placeholder="Search moves..."
         value={searchValue}
-        onChange={e => handleSearchChange(e.target.value)}
-        className="w-full bg-surface-high rounded-lg px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant"
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className="w-full rounded-lg bg-surface-high px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant"
       />
 
       <nav aria-label="Filter by category" className="flex flex-col gap-1">
-        {CATEGORIES.map(category => (
+        {CATEGORIES.map((category) => (
           <div key={category}>
             <button
               type="button"
               onClick={() => navigate({ category, difficulty: null })}
-              className={`w-full text-left py-1.5 text-sm font-semibold font-sans ${
+              className={`w-full py-1.5 text-left font-sans text-sm font-semibold ${
                 filters.category === category ? 'text-primary' : 'text-on-surface'
               }`}
             >
               {category}
             </button>
-            <div className="pl-4 flex flex-col">
-              {DIFFICULTIES.map(difficulty => (
+            <div className="flex flex-col pl-4">
+              {DIFFICULTIES.map((difficulty) => (
                 <button
                   key={difficulty}
                   type="button"
                   aria-label={`${difficulty} in ${category}`}
                   onClick={() => navigate({ category, difficulty })}
-                  className={`text-left py-1 text-sm ${
+                  className={`py-1 text-left text-sm ${
                     filters.category === category && filters.difficulty === difficulty
                       ? 'text-primary'
                       : 'text-on-surface-variant'
@@ -112,10 +111,8 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
       {isActive && (
         <button
           type="button"
-          onClick={() =>
-            navigate({ category: null, difficulty: null, resetSearch: true })
-          }
-          className="text-sm text-on-surface-variant underline text-left"
+          onClick={() => navigate({ category: null, difficulty: null, resetSearch: true })}
+          className="text-left text-sm text-on-surface-variant underline"
         >
           Clear filters
         </button>

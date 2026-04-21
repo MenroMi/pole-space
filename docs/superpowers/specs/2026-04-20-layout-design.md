@@ -17,6 +17,7 @@ Two separate layouts: `(main)` for authenticated/catalog pages and `(auth)` for 
 - `src/shared/components/Footer.tsx` — bottom nav footer.
 
 Usage on a page:
+
 ```tsx
 // (main)/catalog/page.tsx
 export default function CatalogPage() {
@@ -35,6 +36,7 @@ Pages without an aside (e.g. future landing) render `{children}` directly withou
 ## 2. Main Layout — `(main)/layout.tsx`
 
 Renders:
+
 ```
 <Header />
 {children}   ← page content (may or may not use PageShell)
@@ -50,6 +52,7 @@ No grid structure at this level — grid lives inside `PageShell`.
 **Files:** `src/shared/components/Header.tsx` + `src/shared/components/HeaderNav.tsx`
 
 `Header.tsx` — Server Component:
+
 - Reads session via `auth()` to determine account icon link (`/profile` or `/login`)
 - `position: sticky; top: 0; z-index: 50`
 - Background: `surface` (#131313) at 70% opacity + `backdrop-filter: blur(20px)` (glassmorphism rule)
@@ -59,6 +62,7 @@ No grid structure at this level — grid lives inside `PageShell`.
 - No explicit border — separation achieved by glassmorphism alone (No-Line rule)
 
 `HeaderNav.tsx` — Client Component (`'use client'`):
+
 - Uses `usePathname()` to highlight the active link
 - Nav links: `Catalog` → `/catalog`, `Moves` → `/moves`
 - Active link styled with `primary` (#dcb8ff) color
@@ -112,17 +116,18 @@ No Header, no Footer, no aside.
 
 All colors from the Stitch design system:
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `surface` | #131313 | Main canvas, auth background |
-| `surface-container-low` | #1b1b1b | Aside background |
-| `surface-container` | #1f1f1f | Auth card background |
-| `surface-container-lowest` | #0e0e0e | Footer background |
-| `on-surface` | #e2e2e2 | Body text (never pure white) |
-| `primary` | #dcb8ff | Active nav links, accents |
-| `outline-variant` | #4b4450 | Ghost borders at 15% opacity if needed |
+| Token                      | Value   | Usage                                  |
+| -------------------------- | ------- | -------------------------------------- |
+| `surface`                  | #131313 | Main canvas, auth background           |
+| `surface-container-low`    | #1b1b1b | Aside background                       |
+| `surface-container`        | #1f1f1f | Auth card background                   |
+| `surface-container-lowest` | #0e0e0e | Footer background                      |
+| `on-surface`               | #e2e2e2 | Body text (never pure white)           |
+| `primary`                  | #dcb8ff | Active nav links, accents              |
+| `outline-variant`          | #4b4450 | Ghost borders at 15% opacity if needed |
 
 Typography:
+
 - Wordmark + nav labels: Space Grotesk
 - Body + footer label: Manrope
 
@@ -130,16 +135,16 @@ Typography:
 
 ## 8. Files Created / Modified
 
-| File | Action |
-|------|--------|
-| `src/app/(main)/layout.tsx` | Create |
-| `src/app/(auth)/layout.tsx` | Create |
-| `src/shared/components/Header.tsx` | Create |
-| `src/shared/components/HeaderNav.tsx` | Create |
-| `src/shared/components/Footer.tsx` | Create |
-| `src/shared/components/PageShell.tsx` | Create |
-| `src/app/globals.css` | Modify — add font imports (Space Grotesk, Manrope), CSS custom properties for design tokens |
-| `src/app/layout.tsx` | Modify — update font variables |
+| File                                  | Action                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `src/app/(main)/layout.tsx`           | Create                                                                                      |
+| `src/app/(auth)/layout.tsx`           | Create                                                                                      |
+| `src/shared/components/Header.tsx`    | Create                                                                                      |
+| `src/shared/components/HeaderNav.tsx` | Create                                                                                      |
+| `src/shared/components/Footer.tsx`    | Create                                                                                      |
+| `src/shared/components/PageShell.tsx` | Create                                                                                      |
+| `src/app/globals.css`                 | Modify — add font imports (Space Grotesk, Manrope), CSS custom properties for design tokens |
+| `src/app/layout.tsx`                  | Modify — update font variables                                                              |
 
 ---
 

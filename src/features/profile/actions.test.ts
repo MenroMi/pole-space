@@ -13,8 +13,9 @@ vi.mock('@/shared/lib/auth', () => ({
   auth: vi.fn(),
 }))
 
-import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+
 import { getUserProgressAction, updateProgressAction } from './actions'
 
 const mockAuth = auth as ReturnType<typeof vi.fn>
@@ -37,7 +38,7 @@ describe('getUserProgressAction', () => {
     mockFindMany.mockResolvedValue([{ id: 'progress-1' }])
     const result = await getUserProgressAction()
     expect(mockFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: 'user-123' } })
+      expect.objectContaining({ where: { userId: 'user-123' } }),
     )
     expect(result).toEqual([{ id: 'progress-1' }])
   })
@@ -57,8 +58,12 @@ describe('updateProgressAction', () => {
     expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { userId_moveId: { userId: 'user-123', moveId: 'move-1' } },
-        create: expect.objectContaining({ userId: 'user-123', moveId: 'move-1', status: 'IN_PROGRESS' }),
-      })
+        create: expect.objectContaining({
+          userId: 'user-123',
+          moveId: 'move-1',
+          status: 'IN_PROGRESS',
+        }),
+      }),
     )
     expect(result).toEqual({ id: 'progress-1' })
   })

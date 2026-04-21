@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('next/navigation', () => ({
@@ -40,12 +41,12 @@ vi.mock('next-auth', async () => {
   return { AuthError }
 })
 
-import { redirect } from 'next/navigation'
-import { prisma } from '@/shared/lib/prisma'
-import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib/tokens'
 import { sendVerificationEmail } from '@/features/auth/lib/email'
-import { signupAction, loginAction, resendVerificationAction } from './actions'
+import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib/tokens'
 import { signIn } from '@/shared/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+
+import { signupAction, loginAction, resendVerificationAction } from './actions'
 
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>
 const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>
@@ -82,7 +83,7 @@ describe('signupAction', () => {
           email: 'alice@example.com',
           emailVerified: null,
         }),
-      })
+      }),
     )
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com')
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token')
@@ -154,7 +155,9 @@ describe('loginAction', () => {
     const redirectError = Object.assign(new Error('NEXT_REDIRECT'), { digest: 'NEXT_REDIRECT' })
     mockSignIn.mockRejectedValue(redirectError)
 
-    await expect(loginAction({ email: 'a@b.com', password: 'pass' })).rejects.toThrow('NEXT_REDIRECT')
+    await expect(loginAction({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
+      'NEXT_REDIRECT',
+    )
   })
 })
 

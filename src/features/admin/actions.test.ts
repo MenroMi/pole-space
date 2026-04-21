@@ -13,8 +13,9 @@ vi.mock('@/shared/lib/auth', () => ({
   auth: vi.fn(),
 }))
 
-import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+
 import { createMoveAction, deleteMoveAction } from './actions'
 
 const mockAuth = auth as ReturnType<typeof vi.fn>
@@ -55,8 +56,11 @@ describe('createMoveAction', () => {
     const result = await createMoveAction(validInput)
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ title: validInput.title, difficulty: validInput.difficulty }),
-      })
+        data: expect.objectContaining({
+          title: validInput.title,
+          difficulty: validInput.difficulty,
+        }),
+      }),
     )
     expect(result).toEqual({ id: 'move-1' })
   })

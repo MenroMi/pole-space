@@ -1,8 +1,9 @@
 'use client'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signupSchema } from '../lib/validation'
+import { useForm } from 'react-hook-form'
+
 import { signupAction } from '../actions'
+import { signupSchema } from '../lib/validation'
 import type { SignupFormData } from '../lib/validation'
 
 export function SignupForm() {
@@ -31,7 +32,11 @@ export function SignupForm() {
           aria-invalid={!!errors.name}
           {...register('name')}
         />
-        {errors.name && <p id="name-error" role="alert">{errors.name.message}</p>}
+        {errors.name && (
+          <p id="name-error" role="alert">
+            {errors.name.message}
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="email">Email</label>
@@ -42,7 +47,11 @@ export function SignupForm() {
           aria-invalid={!!errors.email}
           {...register('email')}
         />
-        {errors.email && <p id="email-error" role="alert">{errors.email.message}</p>}
+        {errors.email && (
+          <p id="email-error" role="alert">
+            {errors.email.message}
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="password">Password</label>
@@ -53,7 +62,11 @@ export function SignupForm() {
           aria-invalid={!!errors.password}
           {...register('password')}
         />
-        {errors.password && <p id="password-error" role="alert">{errors.password.message}</p>}
+        {errors.password && (
+          <p id="password-error" role="alert">
+            {errors.password.message}
+          </p>
+        )}
       </div>
       {errors.root && <p role="alert">{errors.root.message}</p>}
       <button type="submit" disabled={isSubmitting}>

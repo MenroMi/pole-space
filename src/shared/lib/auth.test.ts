@@ -1,7 +1,8 @@
+import bcrypt from 'bcryptjs'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('next-auth', () => ({
-  default: (config: unknown) => ({
+  default: (_config: unknown) => ({
     handlers: {},
     auth: vi.fn(),
     signIn: vi.fn(),
@@ -23,7 +24,7 @@ vi.mock('bcryptjs', () => ({
 }))
 
 import { prisma } from '@/shared/lib/prisma'
-import bcrypt from 'bcryptjs'
+
 import { authConfig } from './auth'
 
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>
@@ -47,7 +48,7 @@ describe('authConfig', () => {
 describe('authorize', () => {
   const getAuthorize = () => {
     const provider = authConfig.providers.find(
-      (p: { id: string }) => p.id === 'credentials'
+      (p: { id: string }) => p.id === 'credentials',
     ) as unknown as { options: { authorize: (creds: Record<string, string>) => Promise<unknown> } }
     return provider.options.authorize
   }
@@ -69,7 +70,7 @@ describe('authorize', () => {
     mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: null })
     const authorize = getAuthorize()
     await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
-      'Please verify your email first'
+      'Please verify your email first',
     )
   })
 

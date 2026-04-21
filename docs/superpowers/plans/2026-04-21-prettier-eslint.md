@@ -12,22 +12,23 @@
 
 ## File Map
 
-| Action | Path | Purpose |
-|--------|------|---------|
-| Create | `eslint.config.mjs` | ESLint flat config |
-| Create | `.prettierrc.json` | Prettier options |
-| Create | `.prettierignore` | Prettier ignore list |
-| Create | `.git-blame-ignore-revs` | Mask prettier-baseline commit in git blame |
-| Create | `.husky/pre-commit` | Runs lint-staged on commit |
-| Modify | `package.json` | devDeps, scripts, lint-staged config |
-| Modify | `src/**` | All TS/TSX files — prettier formatting + eslint auto-fix |
-| Modify | `docs/todos.md` | Mark tech debt resolved |
+| Action | Path                     | Purpose                                                  |
+| ------ | ------------------------ | -------------------------------------------------------- |
+| Create | `eslint.config.mjs`      | ESLint flat config                                       |
+| Create | `.prettierrc.json`       | Prettier options                                         |
+| Create | `.prettierignore`        | Prettier ignore list                                     |
+| Create | `.git-blame-ignore-revs` | Mask prettier-baseline commit in git blame               |
+| Create | `.husky/pre-commit`      | Runs lint-staged on commit                               |
+| Modify | `package.json`           | devDeps, scripts, lint-staged config                     |
+| Modify | `src/**`                 | All TS/TSX files — prettier formatting + eslint auto-fix |
+| Modify | `docs/todos.md`          | Mark tech debt resolved                                  |
 
 ---
 
 ## Task 1: Create worktree
 
 **Files:**
+
 - Creates: `.worktrees/lint-format/`
 
 - [ ] **Step 1: Create worktree from main**
@@ -39,6 +40,7 @@ git worktree add .worktrees/lint-format -b feature/lint-format
 ```
 
 Expected output:
+
 ```
 Preparing worktree (new branch 'feature/lint-format')
 HEAD is now at <sha> ...
@@ -59,6 +61,7 @@ All remaining tasks run from inside `.worktrees/lint-format/`.
 ## Task 2: Install packages
 
 **Files:**
+
 - Modify: `package.json` (devDependencies block)
 
 All packages use `--save-exact`. Install in one command to resolve peer deps together.
@@ -93,6 +96,7 @@ Expected: all five packages listed with exact versions (no `(deduped)` warning i
 ## Task 3: Create `eslint.config.mjs`
 
 **Files:**
+
 - Create: `eslint.config.mjs`
 
 - [ ] **Step 1: Create the file**
@@ -153,6 +157,7 @@ export default defineConfig([
 ```
 
 Notes:
+
 - `import/no-unresolved: 'off'` — TypeScript handles resolution; without the `eslint-import-resolver-typescript` resolver the plugin cannot follow `@/` aliases and would produce false positives.
 - `pathGroups` makes the plugin classify `@/` imports as "internal" (not external) for ordering purposes.
 - `'@typescript-eslint/no-unused-vars': 'off'` — disabled in favour of `unused-imports/no-unused-vars` which also handles import statements.
@@ -171,6 +176,7 @@ Expected: JSON output starting with `{`. If you see `Error: Could not find confi
 ## Task 4: Create `.prettierrc.json` and `.prettierignore`
 
 **Files:**
+
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 
@@ -216,6 +222,7 @@ Expected: either `src/app/layout.tsx` (file needs formatting) or ✓ (already fo
 ## Task 5: Update `package.json` — scripts and lint-staged
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Add scripts**
@@ -286,6 +293,7 @@ Expected: `valid`. A syntax error means a missing comma or bracket in the JSON y
 ## Task 6: Initialize Husky and create pre-commit hook
 
 **Files:**
+
 - Create: `.husky/pre-commit`
 
 - [ ] **Step 1: Run husky init**
@@ -449,6 +457,7 @@ npm run lint:fix
 ```
 
 This auto-fixes:
+
 - `import/order` — reorders import groups and adds blank lines between groups
 - `unused-imports/no-unused-imports` — removes unused import statements
 
@@ -489,6 +498,7 @@ This lists unique error patterns by frequency. Warnings are not your concern in 
 Common errors you may encounter and their fixes:
 
 **`import/no-duplicates`** — two lines import from the same module path:
+
 ```ts
 // before
 import { foo } from '@/shared/lib/bar'
@@ -499,6 +509,7 @@ import { foo, baz } from '@/shared/lib/bar'
 ```
 
 **`unused-imports/no-unused-imports`** (if not auto-fixed) — an import is never referenced:
+
 ```ts
 // before
 import { something } from 'somewhere' // never used
@@ -507,6 +518,7 @@ import { something } from 'somewhere' // never used
 ```
 
 **`@typescript-eslint/no-explicit-any`** — only triggered if typescript-eslint's recommended rules include it. Replace `any` with the proper type or `unknown`:
+
 ```ts
 // before
 function handle(data: any) { ... }
@@ -516,6 +528,7 @@ function handle(data: unknown) { ... }
 ```
 
 **`react/display-name`** — a component defined with `forwardRef` or as an anonymous arrow lacks a name. Add a `displayName`:
+
 ```ts
 const MyComponent = React.forwardRef<HTMLDivElement, Props>((props, ref) => (
   <div ref={ref} {...props} />
@@ -524,6 +537,7 @@ MyComponent.displayName = 'MyComponent'
 ```
 
 **`@next/next/no-img-element`** — if any `<img>` tag exists outside the filters-accordion branch (main doesn't have `MoveCardImage.tsx` yet, so this is unlikely). If it fires on a legitimate use (e.g. external images needing `onLoad`), suppress with:
+
 ```ts
 {/* eslint-disable-next-line @next/next/no-img-element */}
 <img src={src} alt={alt} onLoad={handleLoad} />
@@ -557,6 +571,7 @@ git commit -m "fix(lint): resolve remaining eslint errors"
 ## Task 12: Mark tech debt resolved — Commit #6
 
 **Files:**
+
 - Modify: `docs/todos.md`
 
 - [ ] **Step 1: Strike through the Prettier + ESLint entry in todos.md**
@@ -565,6 +580,7 @@ Find the section:
 
 ```markdown
 **Prettier + ESLint not configured**
+
 - Проект без форматтера и линтера — стиль зависит от желания конкретного реализатора/ревьюера
 - Fix: отдельной feature branch настроить Prettier (с Tailwind plugin для сортировки классов) + ESLint (Next.js config + typescript-eslint). Добавить npm scripts `lint`, `format`, и pre-commit hook (lint-staged + husky или simple-git-hooks)
 ```
@@ -573,6 +589,7 @@ Replace with:
 
 ```markdown
 ~~**Prettier + ESLint not configured**~~ ✅ Resolved (2026-04-21)
+
 - Prettier 3 + `prettier-plugin-tailwindcss`, ESLint 9 flat config with `eslint-config-next/core-web-vitals` + TypeScript + import/unused-imports plugins, Husky 9 + lint-staged. Pre-commit auto-formats staged files and blocks on errors. `.git-blame-ignore-revs` masks the formatting baseline commit.
 ```
 
@@ -583,6 +600,7 @@ npm run lint && npm run format:check && npm run typecheck && npm test -- --run
 ```
 
 Expected:
+
 - `npm run lint` — exits 0
 - `npm run format:check` — `All matched files use Prettier code style!`
 - `npm run typecheck` — exits 0 (no output)

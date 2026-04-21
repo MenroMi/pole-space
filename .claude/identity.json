@@ -6,10 +6,7 @@
     "codeComments": true,
     "explanations": true
   },
-  "domains": [
-    "typescript",
-    "next.js"
-  ],
+  "domains": ["typescript", "next.js"],
   "suggestedBy": "ecc-tools-repo-analysis",
   "createdAt": "2026-04-19T16:25:56.697Z"
 }

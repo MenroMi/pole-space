@@ -1,7 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import MoveCard from './MoveCard'
+import { describe, it, expect, vi } from 'vitest'
+
 import type { MoveWithTags } from '../types'
+
+import MoveCard from './MoveCard'
 
 vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
@@ -43,7 +45,10 @@ describe('MoveCard', () => {
   })
 
   it('uses imageUrl when provided', () => {
-    const move = { ...baseMove, imageUrl: 'https://res.cloudinary.com/demo/image/upload/sample.jpg' }
+    const move = {
+      ...baseMove,
+      imageUrl: 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
+    }
     render(<MoveCard move={move} />)
     const img = screen.getByRole('img')
     expect(img).toHaveAttribute('src', 'https://res.cloudinary.com/demo/image/upload/sample.jpg')

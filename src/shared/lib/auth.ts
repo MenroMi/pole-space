@@ -1,9 +1,10 @@
-import NextAuth, { type NextAuthConfig } from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import Google from 'next-auth/providers/google'
-import Facebook from 'next-auth/providers/facebook'
-import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
+import NextAuth, { type NextAuthConfig } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+import Facebook from 'next-auth/providers/facebook'
+import Google from 'next-auth/providers/google'
+
 import { prisma } from './prisma'
 
 export const authConfig = {
@@ -35,10 +36,7 @@ export const authConfig = {
           throw new Error('Please verify your email first')
         }
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        )
+        const valid = await bcrypt.compare(credentials.password as string, user.password)
 
         return valid ? user : null
       },

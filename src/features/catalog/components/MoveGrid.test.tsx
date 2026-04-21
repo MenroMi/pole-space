@@ -1,15 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
-import MoveGrid from './MoveGrid'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { getMovesAction } from '../actions'
 import type { MoveWithTags } from '../types'
+
+import MoveGrid from './MoveGrid'
 
 vi.mock('../actions', () => ({ getMovesAction: vi.fn() }))
 
 vi.mock('./MoveCard', () => ({
-  default: ({ move }: { move: MoveWithTags }) => (
-    <div data-testid="move-card">{move.title}</div>
-  ),
+  default: ({ move }: { move: MoveWithTags }) => <div data-testid="move-card">{move.title}</div>,
 }))
 
 const mockGetMovesAction = getMovesAction as ReturnType<typeof vi.fn>
@@ -44,7 +44,7 @@ beforeEach(() => {
     vi.fn(function (this: unknown, cb: IntersectionObserverCallback) {
       capturedObserverCallback = cb
       return { observe: observeMock, disconnect: disconnectMock }
-    })
+    }),
   )
 })
 
@@ -73,11 +73,13 @@ describe('MoveGrid', () => {
     await act(async () => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
-    expect(mockGetMovesAction).toHaveBeenCalledWith(expect.objectContaining({ page: 2, pageSize: 12 }))
+    expect(mockGetMovesAction).toHaveBeenCalledWith(
+      expect.objectContaining({ page: 2, pageSize: 12 }),
+    )
   })
 
   it('appends new moves to existing list after load more', async () => {
@@ -89,7 +91,7 @@ describe('MoveGrid', () => {
     await act(async () => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
@@ -107,18 +109,18 @@ describe('MoveGrid', () => {
         initialMoves={initialMoves}
         initialHasMore={true}
         filters={{ category: 'SPINS', difficulty: 'BEGINNER' }}
-      />
+      />,
     )
 
     await act(async () => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
     expect(mockGetMovesAction).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'SPINS', difficulty: 'BEGINNER', page: 2 })
+      expect.objectContaining({ category: 'SPINS', difficulty: 'BEGINNER', page: 2 }),
     )
   })
 
@@ -131,7 +133,7 @@ describe('MoveGrid', () => {
     await act(async () => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
@@ -142,14 +144,18 @@ describe('MoveGrid', () => {
 
   it('shows loading spinner while fetching', async () => {
     let resolveLoad!: (value: unknown) => void
-    mockGetMovesAction.mockReturnValue(new Promise(res => { resolveLoad = res }))
+    mockGetMovesAction.mockReturnValue(
+      new Promise((res) => {
+        resolveLoad = res
+      }),
+    )
 
     render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />)
 
     act(() => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
@@ -162,29 +168,51 @@ describe('MoveGrid', () => {
 
   it('does not setState after unmount during fetch', async () => {
     let resolveLoad!: (value: unknown) => void
-    mockGetMovesAction.mockReturnValue(new Promise(res => { resolveLoad = res }))
+    mockGetMovesAction.mockReturnValue(
+      new Promise((res) => {
+        resolveLoad = res
+      }),
+    )
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     const { unmount } = render(
-      <MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />,
     )
 
     act(() => {
       capturedObserverCallback(
         [{ isIntersecting: true }] as IntersectionObserverEntry[],
-        {} as IntersectionObserver
+        {} as IntersectionObserver,
       )
     })
 
     unmount()
 
     await act(async () => {
-      resolveLoad({ items: [{ id: 'm12', title: 'Late', description: null, difficulty: 'BEGINNER', category: 'SPINS', youtubeUrl: '', imageUrl: null, createdAt: new Date(), updatedAt: new Date(), tags: [] }], total: 13, page: 2, pageSize: 12 })
+      resolveLoad({
+        items: [
+          {
+            id: 'm12',
+            title: 'Late',
+            description: null,
+            difficulty: 'BEGINNER',
+            category: 'SPINS',
+            youtubeUrl: '',
+            imageUrl: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            tags: [],
+          },
+        ],
+        total: 13,
+        page: 2,
+        pageSize: 12,
+      })
     })
 
-    const stateUpdateWarning = consoleError.mock.calls.find(call =>
-      typeof call[0] === 'string' && call[0].includes('unmounted component')
+    const stateUpdateWarning = consoleError.mock.calls.find(
+      (call) => typeof call[0] === 'string' && call[0].includes('unmounted component'),
     )
     expect(stateUpdateWarning).toBeUndefined()
 

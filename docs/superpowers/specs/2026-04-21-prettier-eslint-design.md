@@ -17,13 +17,13 @@ Introduce automated code formatting (Prettier) and linting (ESLint) to the proje
 
 ## Decisions (resolved during brainstorming)
 
-| # | Question | Choice |
-|---|----------|--------|
-| 1 | What runs on `git commit`? | Full pre-commit: `lint-staged` runs `eslint --fix` + `prettier --write` on staged files; errors block the commit. |
-| 2 | Hook manager? | `husky` (mainstream, documented, `.husky/` directory, installed via `prepare` script). |
-| 3 | How to onboard legacy code? | Split commits: `style: apply prettier baseline` → `fix(lint): apply auto-fixable eslint rules` → `fix(lint): resolve remaining eslint errors`. The prettier-baseline SHA is added to `.git-blame-ignore-revs` so `git blame` skips it. |
-| 4 | Prettier style? | `singleQuote: true`, `semi: false`, `trailingComma: "all"`, `printWidth: 100`, `tabWidth: 2`, plugin `prettier-plugin-tailwindcss` (sorts Tailwind classes — important for Tailwind v4 to avoid merge conflicts). |
-| 5 | ESLint rule scope? | Standard: `eslint-config-next/core-web-vitals` + `eslint-config-next/typescript` + `eslint-plugin-import` + `eslint-plugin-unused-imports` + `eslint-config-prettier/flat` last. |
+| #   | Question                    | Choice                                                                                                                                                                                                                                 |
+| --- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | What runs on `git commit`?  | Full pre-commit: `lint-staged` runs `eslint --fix` + `prettier --write` on staged files; errors block the commit.                                                                                                                      |
+| 2   | Hook manager?               | `husky` (mainstream, documented, `.husky/` directory, installed via `prepare` script).                                                                                                                                                 |
+| 3   | How to onboard legacy code? | Split commits: `style: apply prettier baseline` → `fix(lint): apply auto-fixable eslint rules` → `fix(lint): resolve remaining eslint errors`. The prettier-baseline SHA is added to `.git-blame-ignore-revs` so `git blame` skips it. |
+| 4   | Prettier style?             | `singleQuote: true`, `semi: false`, `trailingComma: "all"`, `printWidth: 100`, `tabWidth: 2`, plugin `prettier-plugin-tailwindcss` (sorts Tailwind classes — important for Tailwind v4 to avoid merge conflicts).                      |
+| 5   | ESLint rule scope?          | Standard: `eslint-config-next/core-web-vitals` + `eslint-config-next/typescript` + `eslint-plugin-import` + `eslint-plugin-unused-imports` + `eslint-config-prettier/flat` last.                                                       |
 
 ## Packages to install (all `--save-exact`, `--save-dev`)
 
@@ -91,6 +91,7 @@ export default defineConfig([
 ```
 
 Notes:
+
 - `prettier` from `eslint-config-prettier/flat` MUST come last — it disables stylistic rules from earlier configs.
 - `.worktrees/**` is ignored so feature branches worked on in parallel worktrees are not linted by the main worktree.
 
@@ -171,7 +172,7 @@ Numbered sequence — each step is its own commit so the diff and intent stay re
 5. **`fix(lint): resolve remaining eslint errors`** — any errors that auto-fix couldn't handle get manual fixes. Warnings stay as they are (we are not chasing zero warnings at this stage).
 6. **`docs(todos): mark prettier + eslint as resolved`** — strike through the tech-debt entry in `docs/todos.md`.
 
-After step 1, pre-commit will already run on staged files; commits #2 onwards must `git add` *after* running the formatter so `lint-staged` doesn't re-run on already-formatted content.
+After step 1, pre-commit will already run on staged files; commits #2 onwards must `git add` _after_ running the formatter so `lint-staged` doesn't re-run on already-formatted content.
 
 ## Verification
 

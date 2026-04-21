@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
@@ -18,16 +18,16 @@ vi.mock('@/features/auth/lib/tokens', () => ({
   deleteVerificationToken: vi.fn(),
 }))
 
-import { prisma } from '@/shared/lib/prisma'
 import { deleteVerificationToken } from '@/features/auth/lib/tokens'
+import { prisma } from '@/shared/lib/prisma'
+
 import { GET } from './route'
 
 const mockFindUnique = prisma.verificationToken.findUnique as ReturnType<typeof vi.fn>
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>
 const mockDeleteVerToken = deleteVerificationToken as ReturnType<typeof vi.fn>
 
-const makeReq = (search: string) =>
-  new NextRequest(`http://localhost/api/auth/verify${search}`)
+const makeReq = (search: string) => new NextRequest(`http://localhost/api/auth/verify${search}`)
 
 beforeEach(() => vi.clearAllMocks())
 

@@ -1,10 +1,11 @@
 'use server'
 import { prisma } from '@/shared/lib/prisma'
 import type { MoveFilters, PaginatedResult } from '@/shared/types'
+
 import type { MoveWithTags } from './types'
 
 export async function getMovesAction(
-  filters: MoveFilters = {}
+  filters: MoveFilters = {},
 ): Promise<PaginatedResult<MoveWithTags>> {
   const page = filters.page ?? 1
   const pageSize = filters.pageSize ?? 12

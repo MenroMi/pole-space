@@ -1,3 +1,4 @@
+import * as resendModule from 'resend'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('resend', () => {
@@ -12,9 +13,8 @@ vi.mock('resend', () => {
 })
 
 import { sendVerificationEmail } from './email'
-import * as resendModule from 'resend'
 
-const mockSend = (resendModule as any).__mockSend
+const mockSend = (resendModule as unknown as Record<string, unknown>).__mockSend
 
 beforeEach(() => mockSend.mockClear())
 
@@ -29,7 +29,7 @@ describe('sendVerificationEmail', () => {
         to: 'user@example.com',
         subject: expect.any(String),
         html: expect.stringContaining('abc-token-123'),
-      })
+      }),
     )
   })
 

@@ -13,6 +13,7 @@
 ### Task 1: Initialize Next.js project and install dependencies
 
 **Files:**
+
 - Create: `package.json`, `next.config.ts`, `tailwind.config.ts`, `tsconfig.json`, `.gitignore`
 
 - [ ] **Step 1: Run create-next-app**
@@ -63,6 +64,7 @@ git commit -m "chore: initialize Next.js project"
 ### Task 2: Configure Vitest
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/test-setup.ts`
 - Modify: `package.json` (add test scripts)
@@ -100,6 +102,7 @@ import '@testing-library/jest-dom'
 - [ ] **Step 3: Add test scripts to package.json**
 
 In `package.json`, add to `"scripts"`:
+
 ```json
 "test": "vitest",
 "test:run": "vitest run"
@@ -125,6 +128,7 @@ git commit -m "chore: configure Vitest + RTL"
 ### Task 3: Create environment files
 
 **Files:**
+
 - Create: `.env.example`
 - Create: `.env.local`
 
@@ -151,6 +155,7 @@ cp .env.example .env.local
 ```
 
 Fill in:
+
 - `DATABASE_URL` — Neon connection string (from neon.tech dashboard)
 - `NEXTAUTH_SECRET` — generate with: `openssl rand -base64 32`
 
@@ -170,6 +175,7 @@ git commit -m "chore: add environment variable template"
 ### Task 4: Initialize Prisma and write schema
 
 **Files:**
+
 - Create: `prisma/schema.prisma`
 
 - [ ] **Step 1: Initialize Prisma**
@@ -311,6 +317,7 @@ git commit -m "feat: add Prisma schema — User, Move, UserProgress, Tag"
 ### Task 5: Create Prisma client singleton
 
 **Files:**
+
 - Create: `src/shared/lib/prisma.ts`
 - Create: `src/shared/lib/prisma.test.ts`
 
@@ -377,6 +384,7 @@ git commit -m "feat: add Prisma client singleton"
 ### Task 6: Set up NextAuth v5
 
 **Files:**
+
 - Create: `src/shared/lib/auth.ts`
 - Create: `src/shared/lib/auth.test.ts`
 - Create: `src/app/api/auth/[...nextauth]/route.ts`
@@ -447,10 +455,7 @@ export const authConfig = {
 
         if (!user?.password) return null
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        )
+        const valid = await bcrypt.compare(credentials.password as string, user.password)
 
         return valid ? user : null
       },
@@ -507,6 +512,7 @@ git commit -m "feat: configure NextAuth v5 — Google, Facebook, Credentials"
 ### Task 7: Set up Cloudinary utility
 
 **Files:**
+
 - Create: `src/shared/lib/cloudinary.ts`
 - Create: `src/shared/lib/cloudinary.test.ts`
 
@@ -560,7 +566,7 @@ export { cloudinary }
 
 export function getCloudinaryUrl(
   publicId: string,
-  options: { width?: number; height?: number; quality?: number } = {}
+  options: { width?: number; height?: number; quality?: number } = {},
 ): string {
   const { width, height, quality = 80 } = options
   const transforms = [`q_${quality}`, 'f_auto']
@@ -592,6 +598,7 @@ git commit -m "feat: add Cloudinary utility with URL builder"
 ### Task 8: Create shared types
 
 **Files:**
+
 - Create: `src/shared/types/index.ts`
 
 - [ ] **Step 1: Write shared types**
@@ -637,6 +644,7 @@ git commit -m "feat: add shared TypeScript types"
 ### Task 9: Scaffold feature modules
 
 **Files:**
+
 - Create: `src/features/auth/{index,actions,types}.ts`
 - Create: `src/features/catalog/{index,actions,types}.ts`
 - Create: `src/features/moves/{index,actions,types}.ts`
@@ -827,11 +835,7 @@ export async function getUserProgressAction(userId: string): Promise<ProgressWit
   })
 }
 
-export async function updateProgressAction(
-  userId: string,
-  moveId: string,
-  status: LearnStatus
-) {
+export async function updateProgressAction(userId: string, moveId: string, status: LearnStatus) {
   return prisma.userProgress.upsert({
     where: { userId_moveId: { userId, moveId } },
     create: { userId, moveId, status },
@@ -858,6 +862,7 @@ git commit -m "feat: scaffold all feature modules with Server Actions"
 ### Task 10: Set up App Router page shells
 
 **Files:**
+
 - Modify: `src/app/layout.tsx`
 - Modify: `src/app/page.tsx`
 - Create: `src/app/(auth)/login/page.tsx`
@@ -887,9 +892,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   )
 }

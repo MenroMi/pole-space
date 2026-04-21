@@ -11,6 +11,7 @@ vi.mock('@/shared/lib/prisma', () => ({
 }))
 
 import { prisma } from '@/shared/lib/prisma'
+
 import { getMovesAction } from './actions'
 
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>
@@ -34,19 +35,17 @@ describe('getMovesAction', () => {
   it('applies skip=(page-1)*pageSize and take=pageSize for page 2', async () => {
     mockTransaction.mockResolvedValue([mockMoves, 24])
     await getMovesAction({ page: 2, pageSize: 12 })
-    expect(mockFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 12, take: 12 })
-    )
+    expect(mockFindMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 12, take: 12 }))
   })
 
   it('filters by category', async () => {
     mockTransaction.mockResolvedValue([[mockMoves[0]], 1])
     await getMovesAction({ category: 'SPINS' })
     expect(mockFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ category: 'SPINS' }) })
+      expect.objectContaining({ where: expect.objectContaining({ category: 'SPINS' }) }),
     )
     expect(mockCount).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ category: 'SPINS' }) })
+      expect.objectContaining({ where: expect.objectContaining({ category: 'SPINS' }) }),
     )
   })
 
@@ -54,7 +53,7 @@ describe('getMovesAction', () => {
     mockTransaction.mockResolvedValue([[mockMoves[0]], 1])
     await getMovesAction({ difficulty: 'BEGINNER' })
     expect(mockFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ difficulty: 'BEGINNER' }) })
+      expect.objectContaining({ where: expect.objectContaining({ difficulty: 'BEGINNER' }) }),
     )
   })
 
@@ -66,7 +65,7 @@ describe('getMovesAction', () => {
         where: expect.objectContaining({
           title: { contains: 'jade', mode: 'insensitive' },
         }),
-      })
+      }),
     )
   })
 

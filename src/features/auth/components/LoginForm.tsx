@@ -1,8 +1,9 @@
 'use client'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema } from '../lib/validation'
+import { useForm } from 'react-hook-form'
+
 import { loginAction } from '../actions'
+import { loginSchema } from '../lib/validation'
 import type { LoginFormData } from '../lib/validation'
 
 export function LoginForm() {
@@ -31,7 +32,11 @@ export function LoginForm() {
           aria-invalid={!!errors.email}
           {...register('email')}
         />
-        {errors.email && <p id="email-error" role="alert">{errors.email.message}</p>}
+        {errors.email && (
+          <p id="email-error" role="alert">
+            {errors.email.message}
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="password">Password</label>
@@ -42,7 +47,11 @@ export function LoginForm() {
           aria-invalid={!!errors.password}
           {...register('password')}
         />
-        {errors.password && <p id="password-error" role="alert">{errors.password.message}</p>}
+        {errors.password && (
+          <p id="password-error" role="alert">
+            {errors.password.message}
+          </p>
+        )}
       </div>
       {errors.root && <p role="alert">{errors.root.message}</p>}
       <button type="submit" disabled={isSubmitting}>

@@ -1,5 +1,7 @@
 import Link from 'next/link'
+
 import { auth } from '@/shared/lib/auth'
+
 import HeaderNav from './HeaderNav'
 
 export default async function Header() {
@@ -13,7 +15,7 @@ export default async function Header() {
     >
       <Link
         href="/"
-        className="font-display text-lg font-semibold lowercase tracking-tight text-on-surface"
+        className="font-display text-lg font-semibold tracking-tight text-on-surface lowercase"
       >
         kinetic gallery
       </Link>
@@ -24,9 +26,17 @@ export default async function Header() {
         <button
           type="button"
           aria-label="Search"
-          className="text-on-surface-variant hover:text-on-surface transition-colors"
+          className="text-on-surface-variant transition-colors hover:text-on-surface"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
@@ -36,9 +46,17 @@ export default async function Header() {
           href={accountHref}
           data-testid="account-link"
           aria-label="Account"
-          className="text-on-surface-variant hover:text-on-surface transition-colors"
+          className="text-on-surface-variant transition-colors hover:text-on-surface"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
             <circle cx="12" cy="8" r="4" />
             <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
           </svg>

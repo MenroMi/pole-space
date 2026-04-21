@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, act, within } from '@testing-library/react'
 import { useRouter } from 'next/navigation'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import CatalogFilters from './CatalogFilters'
 
 vi.mock('next/navigation', () => ({ useRouter: vi.fn() }))
@@ -50,7 +51,9 @@ describe('CatalogFilters', () => {
     const spinsButton = screen.getByRole('button', { name: 'SPINS' })
     const spinsSection = spinsButton.parentElement!
     fireEvent.click(within(spinsSection).getByRole('button', { name: 'BEGINNER in SPINS' }))
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER&search=jade')
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/catalog?category=SPINS&difficulty=BEGINNER&search=jade',
+    )
   })
 
   it('clicking category during typing includes typed value in URL', () => {
@@ -83,7 +86,9 @@ describe('CatalogFilters', () => {
     render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'INTERMEDIATE' }} />)
     const spinsButton = screen.getByRole('button', { name: 'SPINS' })
     const spinsSection = spinsButton.parentElement!
-    expect(within(spinsSection).getByRole('button', { name: 'INTERMEDIATE in SPINS' }).className).toContain('text-primary')
+    expect(
+      within(spinsSection).getByRole('button', { name: 'INTERMEDIATE in SPINS' }).className,
+    ).toContain('text-primary')
   })
 
   it('Clear filters button is visible when a filter is active', () => {

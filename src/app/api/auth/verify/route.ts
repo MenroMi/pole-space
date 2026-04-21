@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/shared/lib/prisma'
+
 import { deleteVerificationToken } from '@/features/auth/lib/tokens'
+import { prisma } from '@/shared/lib/prisma'
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get('token')
@@ -21,9 +22,7 @@ export async function GET(req: NextRequest) {
     if (verificationToken.expires < new Date()) {
       await deleteVerificationToken(token)
       const email = encodeURIComponent(verificationToken.identifier)
-      return NextResponse.redirect(
-        new URL(`/verify-email?error=expired&email=${email}`, req.url)
-      )
+      return NextResponse.redirect(new URL(`/verify-email?error=expired&email=${email}`, req.url))
     }
 
     await prisma.$transaction([

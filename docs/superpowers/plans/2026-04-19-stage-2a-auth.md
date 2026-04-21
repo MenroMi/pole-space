@@ -16,37 +16,38 @@
 
 ## File Map
 
-| Action | Path |
-|---|---|
-| Create | `src/features/auth/lib/validation.ts` |
-| Create | `src/features/auth/lib/tokens.ts` |
-| Create | `src/features/auth/lib/email.ts` |
-| Create | `src/features/auth/components/LoginForm.tsx` |
-| Create | `src/features/auth/components/SignupForm.tsx` |
-| Create | `src/app/(auth)/verify-email/page.tsx` |
-| Create | `src/app/api/auth/verify/route.ts` |
-| Create | `src/middleware.ts` |
-| Create | `src/features/auth/lib/validation.test.ts` |
-| Create | `src/features/auth/lib/tokens.test.ts` |
-| Create | `src/features/auth/lib/email.test.ts` |
-| Create | `src/features/auth/actions.test.ts` |
-| Create | `src/features/auth/components/LoginForm.test.tsx` |
+| Action | Path                                               |
+| ------ | -------------------------------------------------- |
+| Create | `src/features/auth/lib/validation.ts`              |
+| Create | `src/features/auth/lib/tokens.ts`                  |
+| Create | `src/features/auth/lib/email.ts`                   |
+| Create | `src/features/auth/components/LoginForm.tsx`       |
+| Create | `src/features/auth/components/SignupForm.tsx`      |
+| Create | `src/app/(auth)/verify-email/page.tsx`             |
+| Create | `src/app/api/auth/verify/route.ts`                 |
+| Create | `src/middleware.ts`                                |
+| Create | `src/features/auth/lib/validation.test.ts`         |
+| Create | `src/features/auth/lib/tokens.test.ts`             |
+| Create | `src/features/auth/lib/email.test.ts`              |
+| Create | `src/features/auth/actions.test.ts`                |
+| Create | `src/features/auth/components/LoginForm.test.tsx`  |
 | Create | `src/features/auth/components/SignupForm.test.tsx` |
-| Modify | `src/features/auth/actions.ts` |
-| Modify | `src/features/auth/types.ts` |
-| Modify | `src/features/auth/index.ts` |
-| Modify | `src/shared/lib/auth.ts` |
-| Modify | `src/shared/lib/auth.test.ts` |
-| Modify | `src/app/(auth)/login/page.tsx` |
-| Modify | `src/app/(auth)/signup/page.tsx` |
-| Modify | `package.json` |
-| Modify | `docs/todos.md` |
+| Modify | `src/features/auth/actions.ts`                     |
+| Modify | `src/features/auth/types.ts`                       |
+| Modify | `src/features/auth/index.ts`                       |
+| Modify | `src/shared/lib/auth.ts`                           |
+| Modify | `src/shared/lib/auth.test.ts`                      |
+| Modify | `src/app/(auth)/login/page.tsx`                    |
+| Modify | `src/app/(auth)/signup/page.tsx`                   |
+| Modify | `package.json`                                     |
+| Modify | `docs/todos.md`                                    |
 
 ---
 
 ### Task 1: Install and pin dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install four new packages with exact version pinning**
@@ -79,6 +80,7 @@ git commit -m "chore: add resend, react-hook-form, zod, @hookform/resolvers"
 ### Task 2: Validation schemas
 
 **Files:**
+
 - Create: `src/features/auth/lib/validation.ts`
 - Create: `src/features/auth/lib/validation.test.ts`
 - Modify: `src/features/auth/types.ts`
@@ -112,7 +114,11 @@ describe('loginSchema', () => {
 
 describe('signupSchema', () => {
   it('accepts valid name, email, and password', () => {
-    const result = signupSchema.safeParse({ name: 'Alice', email: 'a@b.com', password: 'password123' })
+    const result = signupSchema.safeParse({
+      name: 'Alice',
+      email: 'a@b.com',
+      password: 'password123',
+    })
     expect(result.success).toBe(true)
   })
 
@@ -192,6 +198,7 @@ git commit -m "feat(auth): add Zod validation schemas for login and signup"
 ### Task 3: Token utilities
 
 **Files:**
+
 - Create: `src/features/auth/lib/tokens.ts`
 - Create: `src/features/auth/lib/tokens.test.ts`
 
@@ -227,9 +234,7 @@ describe('generateVerificationToken', () => {
   it('returns a UUID string', async () => {
     mockCreate.mockResolvedValue({})
     const token = await generateVerificationToken('user@example.com')
-    expect(token).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    )
+    expect(token).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
   })
 
   it('generates a unique token on each call', async () => {
@@ -252,7 +257,7 @@ describe('generateVerificationToken', () => {
           token: expect.any(String),
           expires: expect.any(Date),
         }),
-      })
+      }),
     )
     const expires: Date = mockCreate.mock.calls[0][0].data.expires
     const ms = expires.getTime()
@@ -332,6 +337,7 @@ git commit -m "feat(auth): add verification token utilities"
 ### Task 4: Email utility
 
 **Files:**
+
 - Create: `src/features/auth/lib/email.ts`
 - Create: `src/features/auth/lib/email.test.ts`
 
@@ -365,7 +371,7 @@ describe('sendVerificationEmail', () => {
         to: 'user@example.com',
         subject: expect.any(String),
         html: expect.stringContaining('abc-token-123'),
-      })
+      }),
     )
   })
 
@@ -433,6 +439,7 @@ git commit -m "feat(auth): add sendVerificationEmail via Resend"
 ### Task 5: Update signupAction
 
 **Files:**
+
 - Modify: `src/features/auth/actions.ts`
 - Create: `src/features/auth/actions.test.ts`
 
@@ -510,7 +517,7 @@ describe('signupAction', () => {
           email: 'alice@example.com',
           emailVerified: null,
         }),
-      })
+      }),
     )
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com')
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token')
@@ -608,6 +615,7 @@ git commit -m "feat(auth): rewrite signupAction with Zod, email verification, an
 ### Task 6: Add loginAction and resendVerificationAction
 
 **Files:**
+
 - Modify: `src/features/auth/actions.ts`
 - Modify: `src/features/auth/actions.test.ts`
 
@@ -691,7 +699,9 @@ describe('loginAction', () => {
     const redirectError = Object.assign(new Error('NEXT_REDIRECT'), { digest: 'NEXT_REDIRECT' })
     mockSignIn.mockRejectedValue(redirectError)
 
-    await expect(loginAction({ email: 'a@b.com', password: 'pass' })).rejects.toThrow('NEXT_REDIRECT')
+    await expect(loginAction({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
+      'NEXT_REDIRECT',
+    )
   })
 })
 
@@ -797,6 +807,7 @@ git commit -m "feat(auth): add loginAction and resendVerificationAction"
 ### Task 7: Update `authorize()` in auth.ts to check emailVerified
 
 **Files:**
+
 - Modify: `src/shared/lib/auth.ts`
 - Modify: `src/shared/lib/auth.test.ts`
 
@@ -853,9 +864,9 @@ describe('authConfig', () => {
 
 describe('authorize', () => {
   const getAuthorize = () => {
-    const provider = authConfig.providers.find(
-      (p: { id: string }) => p.id === 'credentials'
-    ) as { authorize: (creds: Record<string, string>) => Promise<unknown> }
+    const provider = authConfig.providers.find((p: { id: string }) => p.id === 'credentials') as {
+      authorize: (creds: Record<string, string>) => Promise<unknown>
+    }
     return provider.authorize
   }
 
@@ -876,7 +887,7 @@ describe('authorize', () => {
     mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: null })
     const authorize = getAuthorize()
     await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
-      'Please verify your email first'
+      'Please verify your email first',
     )
   })
 
@@ -954,6 +965,7 @@ git commit -m "feat(auth): require emailVerified in credentials authorize()"
 ### Task 8: Email verification route handler
 
 **Files:**
+
 - Create: `src/app/api/auth/verify/route.ts`
 
 This is a Route Handler (GET). It receives `?token=`, validates the token, and redirects. No tests needed — manual test in the full flow.
@@ -985,9 +997,7 @@ export async function GET(req: NextRequest) {
   if (verificationToken.expires < new Date()) {
     await deleteVerificationToken(token)
     const email = encodeURIComponent(verificationToken.identifier)
-    return NextResponse.redirect(
-      new URL(`/verify-email?error=expired&email=${email}`, req.url)
-    )
+    return NextResponse.redirect(new URL(`/verify-email?error=expired&email=${email}`, req.url))
   }
 
   await prisma.user.update({
@@ -1020,6 +1030,7 @@ git commit -m "feat(auth): add email verification route handler GET /api/auth/ve
 ### Task 9: Verify email page
 
 **Files:**
+
 - Create: `src/app/(auth)/verify-email/page.tsx`
 
 This is a Server Component. It reads `searchParams` to determine state: `?sent=true`, `?error=invalid`, `?error=expired&email=xxx`, or default.
@@ -1098,6 +1109,7 @@ git commit -m "feat(auth): add verify-email page with sent/expired/invalid state
 ### Task 10: LoginForm component
 
 **Files:**
+
 - Create: `src/features/auth/components/LoginForm.tsx`
 - Create: `src/features/auth/components/LoginForm.test.tsx`
 
@@ -1230,6 +1242,7 @@ git commit -m "feat(auth): add LoginForm with RHF + Zod"
 ### Task 11: SignupForm component
 
 **Files:**
+
 - Create: `src/features/auth/components/SignupForm.tsx`
 - Create: `src/features/auth/components/SignupForm.test.tsx`
 
@@ -1377,6 +1390,7 @@ git commit -m "feat(auth): add SignupForm with RHF + Zod"
 ### Task 12: Update login and signup pages
 
 **Files:**
+
 - Modify: `src/app/(auth)/login/page.tsx`
 - Modify: `src/app/(auth)/signup/page.tsx`
 
@@ -1430,6 +1444,7 @@ git commit -m "feat(auth): wire LoginForm and SignupForm into login/signup pages
 ### Task 13: Route protection middleware
 
 **Files:**
+
 - Create: `src/middleware.ts`
 
 Protects `/profile` and `/admin`. All other routes are public.
@@ -1445,15 +1460,11 @@ import { NextResponse } from 'next/server'
 const protectedRoutes = ['/profile', '/admin']
 
 export default auth((req) => {
-  const isProtected = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route)
-  )
+  const isProtected = protectedRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
 
   if (isProtected && !req.auth) {
     const callbackUrl = encodeURIComponent(req.nextUrl.pathname)
-    return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, req.url)
-    )
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url))
   }
 })
 
@@ -1486,6 +1497,7 @@ git commit -m "feat(auth): add middleware to protect /profile and /admin routes"
 ### Task 14: Update exports, run full test suite, update docs
 
 **Files:**
+
 - Modify: `src/features/auth/index.ts`
 - Modify: `docs/todos.md`
 
@@ -1520,6 +1532,7 @@ Under **Security**, add:
 
 ```markdown
 ### Email sender domain (post-MVP)
+
 - `src/features/auth/lib/email.ts` uses `onboarding@resend.dev` (Resend shared test domain)
 - Fix: configure a verified sender domain in Resend and update the FROM constant before production launch
 ```
@@ -1539,27 +1552,27 @@ git commit -m "feat(auth): update exports and document Resend sender domain TODO
 
 **Spec coverage check:**
 
-| Spec requirement | Covered by task |
-|---|---|
-| Email/password signup | Task 5 (signupAction) |
-| Email verification via Resend | Tasks 3, 4, 5 |
-| Resend verification | Task 6 (resendVerificationAction) |
-| Verify route `/api/auth/verify?token=` | Task 8 |
-| Verify-email page (sent/expired/invalid states) | Task 9 |
-| Google + Facebook OAuth redirect to `/catalog` | Already in auth.ts (no code needed — signIn redirectTo in loginAction covers credentials; OAuth pages can add `callbackUrl=/catalog` later via pages config) |
-| Login credentials with emailVerified check | Task 7 |
-| Login redirect to `/catalog` | Task 6 (loginAction → signIn redirectTo) |
-| LoginForm (RHF + Zod) | Task 10 |
-| SignupForm (RHF + Zod) | Task 11 |
-| Route protection `/profile`, `/admin` | Task 13 |
-| Redirect to `/login?callbackUrl=` when unauth | Task 13 |
-| Validation schemas (loginSchema, signupSchema) | Task 2 |
-| Error: "Email already in use" | Task 5 |
-| Error: Resend fail → delete user | Task 5 |
-| Error: token invalid → /verify-email?error=invalid | Task 8 |
-| Error: token expired → /verify-email?error=expired | Task 8 |
-| Error: email not verified on login | Task 7 |
-| Error: wrong password → generic error | Task 7 |
+| Spec requirement                                   | Covered by task                                                                                                                                              |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Email/password signup                              | Task 5 (signupAction)                                                                                                                                        |
+| Email verification via Resend                      | Tasks 3, 4, 5                                                                                                                                                |
+| Resend verification                                | Task 6 (resendVerificationAction)                                                                                                                            |
+| Verify route `/api/auth/verify?token=`             | Task 8                                                                                                                                                       |
+| Verify-email page (sent/expired/invalid states)    | Task 9                                                                                                                                                       |
+| Google + Facebook OAuth redirect to `/catalog`     | Already in auth.ts (no code needed — signIn redirectTo in loginAction covers credentials; OAuth pages can add `callbackUrl=/catalog` later via pages config) |
+| Login credentials with emailVerified check         | Task 7                                                                                                                                                       |
+| Login redirect to `/catalog`                       | Task 6 (loginAction → signIn redirectTo)                                                                                                                     |
+| LoginForm (RHF + Zod)                              | Task 10                                                                                                                                                      |
+| SignupForm (RHF + Zod)                             | Task 11                                                                                                                                                      |
+| Route protection `/profile`, `/admin`              | Task 13                                                                                                                                                      |
+| Redirect to `/login?callbackUrl=` when unauth      | Task 13                                                                                                                                                      |
+| Validation schemas (loginSchema, signupSchema)     | Task 2                                                                                                                                                       |
+| Error: "Email already in use"                      | Task 5                                                                                                                                                       |
+| Error: Resend fail → delete user                   | Task 5                                                                                                                                                       |
+| Error: token invalid → /verify-email?error=invalid | Task 8                                                                                                                                                       |
+| Error: token expired → /verify-email?error=expired | Task 8                                                                                                                                                       |
+| Error: email not verified on login                 | Task 7                                                                                                                                                       |
+| Error: wrong password → generic error              | Task 7                                                                                                                                                       |
 
 **OAuth redirect note:** The spec says OAuth should redirect to `/catalog`. NextAuth handles this via the `pages.signIn` config or `callbackUrl`. The default NextAuth behavior after OAuth is to redirect to `/`. To redirect to `/catalog`, add `pages: { signIn: '/login' }` to `authConfig` and pass `callbackUrl=/catalog` from the login page. This is a minor addition; it can be done as a small follow-up within Task 12 or left to Stage 2B. No spec gap — just implementation detail.
 

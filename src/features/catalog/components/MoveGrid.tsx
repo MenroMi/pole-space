@@ -1,7 +1,9 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+
 import { getMovesAction } from '../actions'
 import type { MoveWithTags, MoveFilters } from '../types'
+
 import MoveCard from './MoveCard'
 
 const PAGE_SIZE = 12
@@ -40,7 +42,7 @@ export default function MoveGrid({ initialMoves, initialHasMore, filters }: Move
         if (cancelled) return
 
         pageRef.current = nextPage
-        setMoves(prev => [...prev, ...result.items])
+        setMoves((prev) => [...prev, ...result.items])
         setHasMore(result.items.length >= PAGE_SIZE)
       } finally {
         if (!cancelled) {
@@ -55,19 +57,19 @@ export default function MoveGrid({ initialMoves, initialHasMore, filters }: Move
       cancelled = true
       observer.disconnect()
     }
-  // filters is stable for this component's lifetime — parent remounts via `key` prop when filters change
+    // filters is stable for this component's lifetime — parent remounts via `key` prop when filters change
   }, [hasMore]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {moves.map(move => (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {moves.map((move) => (
           <MoveCard key={move.id} move={move} />
         ))}
       </div>
       {loading && (
         <div className="flex justify-center py-8" data-testid="loading-spinner">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
       {hasMore && <div ref={sentinelRef} data-testid="sentinel" />}

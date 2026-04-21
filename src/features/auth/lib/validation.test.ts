@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+
 import { loginSchema, signupSchema } from './validation'
 
 describe('loginSchema', () => {
@@ -22,7 +23,11 @@ describe('loginSchema', () => {
 
 describe('signupSchema', () => {
   it('accepts valid name, email, and password', () => {
-    const result = signupSchema.safeParse({ name: 'Alice', email: 'a@b.com', password: 'password123' })
+    const result = signupSchema.safeParse({
+      name: 'Alice',
+      email: 'a@b.com',
+      password: 'password123',
+    })
     expect(result.success).toBe(true)
   })
 

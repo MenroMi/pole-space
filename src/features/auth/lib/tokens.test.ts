@@ -11,6 +11,7 @@ vi.mock('@/shared/lib/prisma', () => ({
 }))
 
 import { prisma } from '@/shared/lib/prisma'
+
 import { generateVerificationToken, deleteVerificationToken, deleteUserTokens } from './tokens'
 
 const mockCreate = prisma.verificationToken.create as ReturnType<typeof vi.fn>
@@ -23,9 +24,7 @@ describe('generateVerificationToken', () => {
   it('returns a UUID string', async () => {
     mockCreate.mockResolvedValue({})
     const token = await generateVerificationToken('user@example.com')
-    expect(token).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    )
+    expect(token).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
   })
 
   it('generates a unique token on each call', async () => {
@@ -48,7 +47,7 @@ describe('generateVerificationToken', () => {
           token: expect.any(String),
           expires: expect.any(Date),
         }),
-      })
+      }),
     )
     const expires: Date = mockCreate.mock.calls[0][0].data.expires
     const ms = expires.getTime()

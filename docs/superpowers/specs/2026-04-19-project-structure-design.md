@@ -15,17 +15,17 @@ Next.js 14+ App Router приложение для каталога pole dance �
 
 ## Tech Stack
 
-| Слой | Технология |
-|------|-----------|
-| Frontend + API | Next.js 14+ (App Router) + TypeScript |
-| Стилизация | Tailwind CSS |
-| БД | PostgreSQL (Neon, free tier) |
-| ORM | Prisma |
-| Auth | NextAuth v5 (Google + Facebook OAuth + Credentials) |
-| Видео | YouTube IFrame API |
-| Хранилище фото | Cloudinary (free tier) |
-| Деплой | Vercel (free tier) |
-| Тесты | Vitest + React Testing Library |
+| Слой           | Технология                                          |
+| -------------- | --------------------------------------------------- |
+| Frontend + API | Next.js 14+ (App Router) + TypeScript               |
+| Стилизация     | Tailwind CSS                                        |
+| БД             | PostgreSQL (Neon, free tier)                        |
+| ORM            | Prisma                                              |
+| Auth           | NextAuth v5 (Google + Facebook OAuth + Credentials) |
+| Видео          | YouTube IFrame API                                  |
+| Хранилище фото | Cloudinary (free tier)                              |
+| Деплой         | Vercel (free tier)                                  |
+| Тесты          | Vitest + React Testing Library                      |
 
 ---
 
@@ -191,21 +191,26 @@ enum LearnStatus { WANT_TO_LEARN IN_PROGRESS LEARNED }
 ## Conventions
 
 ### Именование файлов
+
 - Компоненты — `PascalCase.tsx` (`MoveCard.tsx`)
 - Всё остальное — `kebab-case.ts` (`use-moves.ts`, `actions.ts`)
 - Тесты рядом с файлом — `MoveCard.test.tsx`
 
 ### Экспорты фич
+
 Каждая фича экспортирует публичный API через `index.ts`:
+
 ```ts
 // features/catalog/index.ts
 export { CatalogPage } from './components/CatalogPage'
 export { useMovesFilter } from './hooks/use-moves-filter'
 export type { MoveFilters } from './types'
 ```
+
 Импорты снаружи — только через `index.ts`, не напрямую внутрь фичи.
 
 ### Server Actions vs Route Handlers
+
 - Мутации (create/update/delete) → Server Actions в `actions.ts`
 - Публичные API / webhooks → Route Handlers в `app/api/`
 
