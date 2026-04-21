@@ -1,16 +1,16 @@
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma/client'
-import 'dotenv/config'
-import { config } from 'dotenv'
-import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { config } from 'dotenv';
+import { Pool } from 'pg';
 
-config({ path: '.env.local', override: true })
+config({ path: '.env.local', override: true });
 
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set')
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 const moves = [
   // SPINS
@@ -161,26 +161,26 @@ const moves = [
     category: 'FLOORWORK' as const,
     youtubeUrl: 'https://www.youtube.com/watch?v=floorspin001',
   },
-]
+];
 
 async function main() {
-  console.log(`Seeding ${moves.length} moves...`)
+  console.log(`Seeding ${moves.length} moves...`);
 
-  const existing = await prisma.move.count()
+  const existing = await prisma.move.count();
   if (existing > 0) {
     console.log(
       `Skipping — database already has ${existing} moves. Delete them first if you want to re-seed.`,
-    )
-    return
+    );
+    return;
   }
 
-  const result = await prisma.move.createMany({ data: moves })
-  console.log(`Created ${result.count} moves.`)
+  const result = await prisma.move.createMany({ data: moves });
+  console.log(`Created ${result.count} moves.`);
 }
 
 main()
   .catch((err) => {
-    console.error(err)
-    process.exit(1)
+    console.error(err);
+    process.exit(1);
   })
-  .finally(() => prisma.$disconnect())
+  .finally(() => prisma.$disconnect());

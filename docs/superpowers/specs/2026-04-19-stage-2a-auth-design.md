@@ -106,13 +106,13 @@ src/
 
 ```ts
 // loginSchema
-email: z.string().email()
-password: z.string().min(1, 'Required')
+email: z.string().email();
+password: z.string().min(1, 'Required');
 
 // signupSchema
-name: z.string().min(2).max(50)
-email: z.string().email()
-password: z.string().min(8).max(100)
+name: z.string().min(2).max(50);
+email: z.string().email();
+password: z.string().min(8).max(100);
 ```
 
 ---
@@ -147,7 +147,7 @@ All versions to be pinned.
 
 ```ts
 // Protected routes
-const protectedRoutes = ['/profile', '/admin']
+const protectedRoutes = ['/profile', '/admin'];
 
 // If no session → redirect to /login?callbackUrl=<current>
 // All other routes → public

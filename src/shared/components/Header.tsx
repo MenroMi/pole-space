@@ -1,12 +1,12 @@
-import Link from 'next/link'
+import Link from 'next/link';
 
-import { auth } from '@/shared/lib/auth'
+import { auth } from '@/shared/lib/auth';
 
-import HeaderNav from './HeaderNav'
+import HeaderNav from './HeaderNav';
 
 export default async function Header() {
-  const session = await auth()
-  const accountHref = session ? '/profile' : '/login'
+  const session = await auth();
+  const accountHref = session ? '/profile' : '/login';
 
   return (
     <header
@@ -63,5 +63,5 @@ export default async function Header() {
         </Link>
       </div>
     </header>
-  )
+  );
 }

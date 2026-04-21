@@ -90,27 +90,27 @@ git commit -m "chore: add resend, react-hook-form, zod, @hookform/resolvers"
 Create `src/features/auth/lib/validation.test.ts`:
 
 ```ts
-import { describe, it, expect } from 'vitest'
-import { loginSchema, signupSchema } from './validation'
+import { describe, it, expect } from 'vitest';
+import { loginSchema, signupSchema } from './validation';
 
 describe('loginSchema', () => {
   it('accepts valid email and password', () => {
-    const result = loginSchema.safeParse({ email: 'a@b.com', password: 'secret' })
-    expect(result.success).toBe(true)
-  })
+    const result = loginSchema.safeParse({ email: 'a@b.com', password: 'secret' });
+    expect(result.success).toBe(true);
+  });
 
   it('rejects missing password', () => {
-    const result = loginSchema.safeParse({ email: 'a@b.com', password: '' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('password')
-  })
+    const result = loginSchema.safeParse({ email: 'a@b.com', password: '' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toContain('password');
+  });
 
   it('rejects invalid email', () => {
-    const result = loginSchema.safeParse({ email: 'not-an-email', password: 'secret' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('email')
-  })
-})
+    const result = loginSchema.safeParse({ email: 'not-an-email', password: 'secret' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toContain('email');
+  });
+});
 
 describe('signupSchema', () => {
   it('accepts valid name, email, and password', () => {
@@ -118,28 +118,28 @@ describe('signupSchema', () => {
       name: 'Alice',
       email: 'a@b.com',
       password: 'password123',
-    })
-    expect(result.success).toBe(true)
-  })
+    });
+    expect(result.success).toBe(true);
+  });
 
   it('rejects name shorter than 2 characters', () => {
-    const result = signupSchema.safeParse({ name: 'A', email: 'a@b.com', password: 'password123' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('name')
-  })
+    const result = signupSchema.safeParse({ name: 'A', email: 'a@b.com', password: 'password123' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toContain('name');
+  });
 
   it('rejects password shorter than 8 characters', () => {
-    const result = signupSchema.safeParse({ name: 'Alice', email: 'a@b.com', password: 'short' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('password')
-  })
+    const result = signupSchema.safeParse({ name: 'Alice', email: 'a@b.com', password: 'short' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toContain('password');
+  });
 
   it('rejects invalid email', () => {
-    const result = signupSchema.safeParse({ name: 'Alice', email: 'bad', password: 'password123' })
-    expect(result.success).toBe(false)
-    expect(result.error?.issues[0].path).toContain('email')
-  })
-})
+    const result = signupSchema.safeParse({ name: 'Alice', email: 'bad', password: 'password123' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].path).toContain('email');
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -153,21 +153,21 @@ Expected: FAIL — module not found.
 - [ ] **Step 3: Create `src/features/auth/lib/validation.ts`**
 
 ```ts
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, 'Required'),
-})
+});
 
 export const signupSchema = z.object({
   name: z.string().min(2).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
-})
+});
 
-export type LoginFormData = z.infer<typeof loginSchema>
-export type SignupFormData = z.infer<typeof signupSchema>
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type SignupFormData = z.infer<typeof signupSchema>;
 ```
 
 - [ ] **Step 4: Update `src/features/auth/types.ts` to re-export from validation**
@@ -175,7 +175,7 @@ export type SignupFormData = z.infer<typeof signupSchema>
 Replace the entire file with:
 
 ```ts
-export type { LoginFormData, SignupFormData } from './lib/validation'
+export type { LoginFormData, SignupFormData } from './lib/validation';
 ```
 
 - [ ] **Step 5: Run tests to verify they pass**
@@ -209,7 +209,7 @@ The `VerificationToken` model uses `identifier` (email string) + `token` (UUID) 
 Create `src/features/auth/lib/tokens.test.ts`:
 
 ```ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
@@ -219,36 +219,36 @@ vi.mock('@/shared/lib/prisma', () => ({
       deleteMany: vi.fn(),
     },
   },
-}))
+}));
 
-import { prisma } from '@/shared/lib/prisma'
-import { generateVerificationToken, deleteVerificationToken, deleteUserTokens } from './tokens'
+import { prisma } from '@/shared/lib/prisma';
+import { generateVerificationToken, deleteVerificationToken, deleteUserTokens } from './tokens';
 
-const mockCreate = prisma.verificationToken.create as ReturnType<typeof vi.fn>
-const mockDelete = prisma.verificationToken.delete as ReturnType<typeof vi.fn>
-const mockDeleteMany = prisma.verificationToken.deleteMany as ReturnType<typeof vi.fn>
+const mockCreate = prisma.verificationToken.create as ReturnType<typeof vi.fn>;
+const mockDelete = prisma.verificationToken.delete as ReturnType<typeof vi.fn>;
+const mockDeleteMany = prisma.verificationToken.deleteMany as ReturnType<typeof vi.fn>;
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => vi.clearAllMocks());
 
 describe('generateVerificationToken', () => {
   it('returns a UUID string', async () => {
-    mockCreate.mockResolvedValue({})
-    const token = await generateVerificationToken('user@example.com')
-    expect(token).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-  })
+    mockCreate.mockResolvedValue({});
+    const token = await generateVerificationToken('user@example.com');
+    expect(token).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+  });
 
   it('generates a unique token on each call', async () => {
-    mockCreate.mockResolvedValue({})
-    const a = await generateVerificationToken('user@example.com')
-    const b = await generateVerificationToken('user@example.com')
-    expect(a).not.toBe(b)
-  })
+    mockCreate.mockResolvedValue({});
+    const a = await generateVerificationToken('user@example.com');
+    const b = await generateVerificationToken('user@example.com');
+    expect(a).not.toBe(b);
+  });
 
   it('creates token in DB with correct identifier and 24h expiry', async () => {
-    mockCreate.mockResolvedValue({})
-    const before = Date.now()
-    await generateVerificationToken('user@example.com')
-    const after = Date.now()
+    mockCreate.mockResolvedValue({});
+    const before = Date.now();
+    await generateVerificationToken('user@example.com');
+    const after = Date.now();
 
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -258,29 +258,29 @@ describe('generateVerificationToken', () => {
           expires: expect.any(Date),
         }),
       }),
-    )
-    const expires: Date = mockCreate.mock.calls[0][0].data.expires
-    const ms = expires.getTime()
-    expect(ms).toBeGreaterThanOrEqual(before + 24 * 60 * 60 * 1000 - 100)
-    expect(ms).toBeLessThanOrEqual(after + 24 * 60 * 60 * 1000 + 100)
-  })
-})
+    );
+    const expires: Date = mockCreate.mock.calls[0][0].data.expires;
+    const ms = expires.getTime();
+    expect(ms).toBeGreaterThanOrEqual(before + 24 * 60 * 60 * 1000 - 100);
+    expect(ms).toBeLessThanOrEqual(after + 24 * 60 * 60 * 1000 + 100);
+  });
+});
 
 describe('deleteVerificationToken', () => {
   it('deletes token by token string', async () => {
-    mockDelete.mockResolvedValue({})
-    await deleteVerificationToken('some-token-uuid')
-    expect(mockDelete).toHaveBeenCalledWith({ where: { token: 'some-token-uuid' } })
-  })
-})
+    mockDelete.mockResolvedValue({});
+    await deleteVerificationToken('some-token-uuid');
+    expect(mockDelete).toHaveBeenCalledWith({ where: { token: 'some-token-uuid' } });
+  });
+});
 
 describe('deleteUserTokens', () => {
   it('deletes all tokens for an email', async () => {
-    mockDeleteMany.mockResolvedValue({ count: 2 })
-    await deleteUserTokens('user@example.com')
-    expect(mockDeleteMany).toHaveBeenCalledWith({ where: { identifier: 'user@example.com' } })
-  })
-})
+    mockDeleteMany.mockResolvedValue({ count: 2 });
+    await deleteUserTokens('user@example.com');
+    expect(mockDeleteMany).toHaveBeenCalledWith({ where: { identifier: 'user@example.com' } });
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -294,26 +294,26 @@ Expected: FAIL — module not found.
 - [ ] **Step 3: Create `src/features/auth/lib/tokens.ts`**
 
 ```ts
-import crypto from 'crypto'
-import { prisma } from '@/shared/lib/prisma'
+import crypto from 'crypto';
+import { prisma } from '@/shared/lib/prisma';
 
 export async function generateVerificationToken(email: string): Promise<string> {
-  const token = crypto.randomUUID()
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  const token = crypto.randomUUID();
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   await prisma.verificationToken.create({
     data: { identifier: email, token, expires },
-  })
+  });
 
-  return token
+  return token;
 }
 
 export async function deleteVerificationToken(token: string): Promise<void> {
-  await prisma.verificationToken.delete({ where: { token } })
+  await prisma.verificationToken.delete({ where: { token } });
 }
 
 export async function deleteUserTokens(email: string): Promise<void> {
-  await prisma.verificationToken.deleteMany({ where: { identifier: email } })
+  await prisma.verificationToken.deleteMany({ where: { identifier: email } });
 }
 ```
 
@@ -346,25 +346,25 @@ git commit -m "feat(auth): add verification token utilities"
 Create `src/features/auth/lib/email.test.ts`:
 
 ```ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const mockSend = vi.fn()
+const mockSend = vi.fn();
 
 vi.mock('resend', () => ({
   Resend: vi.fn().mockImplementation(() => ({
     emails: { send: mockSend },
   })),
-}))
+}));
 
-import { sendVerificationEmail } from './email'
+import { sendVerificationEmail } from './email';
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => vi.clearAllMocks());
 
 describe('sendVerificationEmail', () => {
   it('calls Resend with correct to, subject, and verification URL', async () => {
-    mockSend.mockResolvedValue({ data: { id: 'email-id' }, error: null })
+    mockSend.mockResolvedValue({ data: { id: 'email-id' }, error: null });
 
-    await sendVerificationEmail('user@example.com', 'abc-token-123')
+    await sendVerificationEmail('user@example.com', 'abc-token-123');
 
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -372,15 +372,15 @@ describe('sendVerificationEmail', () => {
         subject: expect.any(String),
         html: expect.stringContaining('abc-token-123'),
       }),
-    )
-  })
+    );
+  });
 
   it('throws if Resend returns an error', async () => {
-    mockSend.mockResolvedValue({ data: null, error: { message: 'API error' } })
+    mockSend.mockResolvedValue({ data: null, error: { message: 'API error' } });
 
-    await expect(sendVerificationEmail('user@example.com', 'abc-token-123')).rejects.toThrow()
-  })
-})
+    await expect(sendVerificationEmail('user@example.com', 'abc-token-123')).rejects.toThrow();
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -394,27 +394,27 @@ Expected: FAIL — module not found.
 - [ ] **Step 3: Create `src/features/auth/lib/email.ts`**
 
 ```ts
-import { Resend } from 'resend'
+import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // from: using Resend's shared test domain for development.
 // Replace with a verified domain before production launch.
-const FROM = 'onboarding@resend.dev'
+const FROM = 'onboarding@resend.dev';
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
-  const verifyUrl = `${base}/api/auth/verify?token=${token}`
+  const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
+  const verifyUrl = `${base}/api/auth/verify?token=${token}`;
 
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'Verify your email — Pole Dance Catalog',
     html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email. The link expires in 24 hours.</p>`,
-  })
+  });
 
   if (error) {
-    throw new Error(`Failed to send verification email: ${error.message}`)
+    throw new Error(`Failed to send verification email: ${error.message}`);
   }
 }
 ```
@@ -450,15 +450,15 @@ The current `signupAction` throws errors. This task rewrites it to: validate wit
 Create `src/features/auth/actions.test.ts`:
 
 ```ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+vi.mock('next/navigation', () => ({ redirect: vi.fn() }));
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_pw'),
     compare: vi.fn(),
   },
-}))
+}));
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
     user: {
@@ -467,49 +467,49 @@ vi.mock('@/shared/lib/prisma', () => ({
       delete: vi.fn(),
     },
   },
-}))
+}));
 vi.mock('@/features/auth/lib/tokens', () => ({
   generateVerificationToken: vi.fn().mockResolvedValue('mock-token'),
   deleteUserTokens: vi.fn(),
-}))
+}));
 vi.mock('@/features/auth/lib/email', () => ({
   sendVerificationEmail: vi.fn(),
-}))
+}));
 
-import { redirect } from 'next/navigation'
-import { prisma } from '@/shared/lib/prisma'
-import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib/tokens'
-import { sendVerificationEmail } from '@/features/auth/lib/email'
-import { signupAction } from './actions'
+import { redirect } from 'next/navigation';
+import { prisma } from '@/shared/lib/prisma';
+import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib/tokens';
+import { sendVerificationEmail } from '@/features/auth/lib/email';
+import { signupAction } from './actions';
 
-const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>
-const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>
-const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>
-const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>
-const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>
-const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>
-const mockRedirect = redirect as ReturnType<typeof vi.fn>
+const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
+const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>;
+const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>;
+const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>;
+const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
+const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
+const mockRedirect = redirect as ReturnType<typeof vi.fn>;
 
-const validData = { name: 'Alice', email: 'alice@example.com', password: 'password123' }
+const validData = { name: 'Alice', email: 'alice@example.com', password: 'password123' };
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => vi.clearAllMocks());
 
 describe('signupAction', () => {
   it('returns error if email is already in use', async () => {
-    mockFindUnique.mockResolvedValue({ id: 'existing-user' })
+    mockFindUnique.mockResolvedValue({ id: 'existing-user' });
 
-    const result = await signupAction(validData)
+    const result = await signupAction(validData);
 
-    expect(result).toEqual({ error: 'Email already in use' })
-    expect(mockCreate).not.toHaveBeenCalled()
-  })
+    expect(result).toEqual({ error: 'Email already in use' });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
 
   it('creates user, generates token, sends email, and redirects on success', async () => {
-    mockFindUnique.mockResolvedValue(null)
-    mockCreate.mockResolvedValue({ id: 'new-user' })
-    mockSendEmail.mockResolvedValue(undefined)
+    mockFindUnique.mockResolvedValue(null);
+    mockCreate.mockResolvedValue({ id: 'new-user' });
+    mockSendEmail.mockResolvedValue(undefined);
 
-    await signupAction(validData)
+    await signupAction(validData);
 
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -518,30 +518,30 @@ describe('signupAction', () => {
           emailVerified: null,
         }),
       }),
-    )
-    expect(mockGenToken).toHaveBeenCalledWith('alice@example.com')
-    expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token')
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true')
-  })
+    );
+    expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
+    expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true');
+  });
 
   it('deletes user and tokens if Resend fails', async () => {
-    mockFindUnique.mockResolvedValue(null)
-    mockCreate.mockResolvedValue({ id: 'new-user' })
-    mockSendEmail.mockRejectedValue(new Error('Resend API error'))
+    mockFindUnique.mockResolvedValue(null);
+    mockCreate.mockResolvedValue({ id: 'new-user' });
+    mockSendEmail.mockRejectedValue(new Error('Resend API error'));
 
-    const result = await signupAction(validData)
+    const result = await signupAction(validData);
 
-    expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com')
-    expect(mockDelete).toHaveBeenCalledWith({ where: { email: 'alice@example.com' } })
-    expect(result).toEqual({ error: 'Failed to send email, please try again' })
-  })
+    expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
+    expect(mockDelete).toHaveBeenCalledWith({ where: { email: 'alice@example.com' } });
+    expect(result).toEqual({ error: 'Failed to send email, please try again' });
+  });
 
   it('returns error for invalid input (Zod)', async () => {
-    const result = await signupAction({ name: 'A', email: 'bad', password: 'short' })
-    expect(result).toEqual({ error: 'Invalid input' })
-    expect(mockFindUnique).not.toHaveBeenCalled()
-  })
-})
+    const result = await signupAction({ name: 'A', email: 'bad', password: 'short' });
+    expect(result).toEqual({ error: 'Invalid input' });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -555,23 +555,23 @@ Expected: FAIL — the current signupAction throws instead of returning `{ error
 - [ ] **Step 3: Rewrite `src/features/auth/actions.ts`**
 
 ```ts
-'use server'
-import bcrypt from 'bcryptjs'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/shared/lib/prisma'
-import { signupSchema } from './lib/validation'
-import { generateVerificationToken, deleteUserTokens } from './lib/tokens'
-import { sendVerificationEmail } from './lib/email'
-import type { SignupFormData } from './lib/validation'
+'use server';
+import bcrypt from 'bcryptjs';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/shared/lib/prisma';
+import { signupSchema } from './lib/validation';
+import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
+import { sendVerificationEmail } from './lib/email';
+import type { SignupFormData } from './lib/validation';
 
 export async function signupAction(data: SignupFormData) {
-  const parsed = signupSchema.safeParse(data)
-  if (!parsed.success) return { error: 'Invalid input' }
+  const parsed = signupSchema.safeParse(data);
+  if (!parsed.success) return { error: 'Invalid input' };
 
-  const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } })
-  if (existing) return { error: 'Email already in use' }
+  const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  if (existing) return { error: 'Email already in use' };
 
-  const hashed = await bcrypt.hash(parsed.data.password, 10)
+  const hashed = await bcrypt.hash(parsed.data.password, 10);
   await prisma.user.create({
     data: {
       email: parsed.data.email,
@@ -579,19 +579,19 @@ export async function signupAction(data: SignupFormData) {
       password: hashed,
       emailVerified: null,
     },
-  })
+  });
 
-  const token = await generateVerificationToken(parsed.data.email)
+  const token = await generateVerificationToken(parsed.data.email);
 
   try {
-    await sendVerificationEmail(parsed.data.email, token)
+    await sendVerificationEmail(parsed.data.email, token);
   } catch {
-    await deleteUserTokens(parsed.data.email)
-    await prisma.user.delete({ where: { email: parsed.data.email } })
-    return { error: 'Failed to send email, please try again' }
+    await deleteUserTokens(parsed.data.email);
+    await prisma.user.delete({ where: { email: parsed.data.email } });
+    return { error: 'Failed to send email, please try again' };
   }
 
-  redirect('/verify-email?sent=true')
+  redirect('/verify-email?sent=true');
 }
 ```
 
@@ -629,7 +629,7 @@ First add these mocks at the top of the file, inside the existing `vi.mock` bloc
 // Add this mock alongside the existing ones at the top of actions.test.ts:
 vi.mock('@/shared/lib/auth', () => ({
   signIn: vi.fn(),
-}))
+}));
 ```
 
 And add `AuthError` mock (AuthError is from 'next-auth'):
@@ -638,104 +638,104 @@ And add `AuthError` mock (AuthError is from 'next-auth'):
 // Add alongside existing mocks:
 vi.mock('next-auth', () => ({
   AuthError: class AuthError extends Error {
-    cause?: unknown
-    type = 'CredentialsSignin'
+    cause?: unknown;
+    type = 'CredentialsSignin';
     constructor(message?: string, options?: { cause?: unknown }) {
-      super(message)
-      this.cause = options?.cause
+      super(message);
+      this.cause = options?.cause;
     }
   },
-}))
+}));
 ```
 
 Add these imports alongside the existing ones:
 
 ```ts
-import { loginAction, resendVerificationAction } from './actions'
-import { signIn } from '@/shared/lib/auth'
-import { AuthError } from 'next-auth'
+import { loginAction, resendVerificationAction } from './actions';
+import { signIn } from '@/shared/lib/auth';
+import { AuthError } from 'next-auth';
 ```
 
 Add these test suites at the end of the file:
 
 ```ts
-const mockSignIn = signIn as ReturnType<typeof vi.fn>
+const mockSignIn = signIn as ReturnType<typeof vi.fn>;
 
 describe('loginAction', () => {
   it('returns undefined (redirect) on success', async () => {
-    mockSignIn.mockResolvedValue(undefined)
+    mockSignIn.mockResolvedValue(undefined);
 
-    const result = await loginAction({ email: 'a@b.com', password: 'pass' })
+    const result = await loginAction({ email: 'a@b.com', password: 'pass' });
 
-    expect(result).toBeUndefined()
+    expect(result).toBeUndefined();
     expect(mockSignIn).toHaveBeenCalledWith('credentials', {
       email: 'a@b.com',
       password: 'pass',
       redirectTo: '/catalog',
-    })
-  })
+    });
+  });
 
   it('returns generic error for invalid credentials', async () => {
-    const authError = new AuthError('CredentialsSignin', { cause: undefined })
-    mockSignIn.mockRejectedValue(authError)
+    const authError = new AuthError('CredentialsSignin', { cause: undefined });
+    mockSignIn.mockRejectedValue(authError);
 
-    const result = await loginAction({ email: 'a@b.com', password: 'wrong' })
+    const result = await loginAction({ email: 'a@b.com', password: 'wrong' });
 
-    expect(result).toEqual({ error: 'Invalid credentials' })
-  })
+    expect(result).toEqual({ error: 'Invalid credentials' });
+  });
 
   it('returns email-not-verified message when authorize throws that error', async () => {
     const authError = new AuthError('CredentialsSignin', {
       cause: { err: new Error('Please verify your email first') },
-    })
-    mockSignIn.mockRejectedValue(authError)
+    });
+    mockSignIn.mockRejectedValue(authError);
 
-    const result = await loginAction({ email: 'a@b.com', password: 'pass' })
+    const result = await loginAction({ email: 'a@b.com', password: 'pass' });
 
-    expect(result).toEqual({ error: 'Please verify your email first' })
-  })
+    expect(result).toEqual({ error: 'Please verify your email first' });
+  });
 
   it('re-throws non-AuthError (e.g. NEXT_REDIRECT)', async () => {
-    const redirectError = Object.assign(new Error('NEXT_REDIRECT'), { digest: 'NEXT_REDIRECT' })
-    mockSignIn.mockRejectedValue(redirectError)
+    const redirectError = Object.assign(new Error('NEXT_REDIRECT'), { digest: 'NEXT_REDIRECT' });
+    mockSignIn.mockRejectedValue(redirectError);
 
     await expect(loginAction({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
       'NEXT_REDIRECT',
-    )
-  })
-})
+    );
+  });
+});
 
 describe('resendVerificationAction', () => {
   it('deletes old tokens, generates new token, sends email, then redirects', async () => {
-    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null })
-    mockSendEmail.mockResolvedValue(undefined)
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockSendEmail.mockResolvedValue(undefined);
 
-    await resendVerificationAction('alice@example.com')
+    await resendVerificationAction('alice@example.com');
 
-    expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com')
-    expect(mockGenToken).toHaveBeenCalledWith('alice@example.com')
-    expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token')
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true')
-  })
+    expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
+    expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
+    expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true');
+  });
 
   it('redirects to invalid if user not found', async () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUnique.mockResolvedValue(null);
 
-    await resendVerificationAction('nobody@example.com')
+    await resendVerificationAction('nobody@example.com');
 
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid')
-    expect(mockGenToken).not.toHaveBeenCalled()
-  })
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid');
+    expect(mockGenToken).not.toHaveBeenCalled();
+  });
 
   it('redirects to invalid if user already verified', async () => {
-    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: new Date() })
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: new Date() });
 
-    await resendVerificationAction('verified@example.com')
+    await resendVerificationAction('verified@example.com');
 
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid')
-    expect(mockGenToken).not.toHaveBeenCalled()
-  })
-})
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=invalid');
+    expect(mockGenToken).not.toHaveBeenCalled();
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -751,9 +751,9 @@ Expected: new tests FAIL — loginAction and resendVerificationAction not export
 Append to the existing file:
 
 ```ts
-import { signIn } from '@/shared/lib/auth'
-import { AuthError } from 'next-auth'
-import type { LoginFormData } from './lib/validation'
+import { signIn } from '@/shared/lib/auth';
+import { AuthError } from 'next-auth';
+import type { LoginFormData } from './lib/validation';
 
 export async function loginAction(data: LoginFormData) {
   try {
@@ -761,29 +761,29 @@ export async function loginAction(data: LoginFormData) {
       email: data.email,
       password: data.password,
       redirectTo: '/catalog',
-    })
+    });
   } catch (error) {
     if (error instanceof AuthError) {
-      const cause = error.cause as { err?: Error } | undefined
-      return { error: cause?.err?.message ?? 'Invalid credentials' }
+      const cause = error.cause as { err?: Error } | undefined;
+      return { error: cause?.err?.message ?? 'Invalid credentials' };
     }
-    throw error
+    throw error;
   }
 }
 
 export async function resendVerificationAction(email: string) {
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || user.emailVerified !== null) {
-    redirect('/verify-email?error=invalid')
-    return
+    redirect('/verify-email?error=invalid');
+    return;
   }
 
-  await deleteUserTokens(email)
-  const token = await generateVerificationToken(email)
-  await sendVerificationEmail(email, token)
+  await deleteUserTokens(email);
+  const token = await generateVerificationToken(email);
+  await sendVerificationEmail(email, token);
 
-  redirect('/verify-email?sent=true')
+  redirect('/verify-email?sent=true');
 }
 ```
 
@@ -816,7 +816,7 @@ git commit -m "feat(auth): add loginAction and resendVerificationAction"
 Add this test to `src/shared/lib/auth.test.ts` (the `authorize` function is on the credentials provider):
 
 ```ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('next-auth', () => ({
   default: (config: unknown) => ({
@@ -825,89 +825,89 @@ vi.mock('next-auth', () => ({
     signIn: vi.fn(),
     signOut: vi.fn(),
   }),
-}))
+}));
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: vi.fn(),
     },
   },
-}))
+}));
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn(),
     compare: vi.fn(),
   },
-}))
+}));
 
-import { prisma } from '@/shared/lib/prisma'
-import bcrypt from 'bcryptjs'
-import { authConfig } from './auth'
+import { prisma } from '@/shared/lib/prisma';
+import bcrypt from 'bcryptjs';
+import { authConfig } from './auth';
 
-const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>
-const mockCompare = bcrypt.compare as ReturnType<typeof vi.fn>
+const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
+const mockCompare = bcrypt.compare as ReturnType<typeof vi.fn>;
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => vi.clearAllMocks());
 
 describe('authConfig', () => {
   it('includes google, facebook, and credentials providers', () => {
-    const ids = authConfig.providers.map((p: { id: string }) => p.id)
-    expect(ids).toContain('google')
-    expect(ids).toContain('facebook')
-    expect(ids).toContain('credentials')
-  })
+    const ids = authConfig.providers.map((p: { id: string }) => p.id);
+    expect(ids).toContain('google');
+    expect(ids).toContain('facebook');
+    expect(ids).toContain('credentials');
+  });
 
   it('uses jwt session strategy', () => {
-    expect(authConfig.session?.strategy).toBe('jwt')
-  })
-})
+    expect(authConfig.session?.strategy).toBe('jwt');
+  });
+});
 
 describe('authorize', () => {
   const getAuthorize = () => {
     const provider = authConfig.providers.find((p: { id: string }) => p.id === 'credentials') as {
-      authorize: (creds: Record<string, string>) => Promise<unknown>
-    }
-    return provider.authorize
-  }
+      authorize: (creds: Record<string, string>) => Promise<unknown>;
+    };
+    return provider.authorize;
+  };
 
   it('returns null if credentials are missing', async () => {
-    const authorize = getAuthorize()
-    const result = await authorize({})
-    expect(result).toBeNull()
-  })
+    const authorize = getAuthorize();
+    const result = await authorize({});
+    expect(result).toBeNull();
+  });
 
   it('returns null if user not found', async () => {
-    mockFindUnique.mockResolvedValue(null)
-    const authorize = getAuthorize()
-    const result = await authorize({ email: 'a@b.com', password: 'pass' })
-    expect(result).toBeNull()
-  })
+    mockFindUnique.mockResolvedValue(null);
+    const authorize = getAuthorize();
+    const result = await authorize({ email: 'a@b.com', password: 'pass' });
+    expect(result).toBeNull();
+  });
 
   it('throws if emailVerified is null', async () => {
-    mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: null })
-    const authorize = getAuthorize()
+    mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: null });
+    const authorize = getAuthorize();
     await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
       'Please verify your email first',
-    )
-  })
+    );
+  });
 
   it('returns null if password does not match', async () => {
-    mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: new Date() })
-    mockCompare.mockResolvedValue(false)
-    const authorize = getAuthorize()
-    const result = await authorize({ email: 'a@b.com', password: 'wrong' })
-    expect(result).toBeNull()
-  })
+    mockFindUnique.mockResolvedValue({ id: '1', password: 'hashed', emailVerified: new Date() });
+    mockCompare.mockResolvedValue(false);
+    const authorize = getAuthorize();
+    const result = await authorize({ email: 'a@b.com', password: 'wrong' });
+    expect(result).toBeNull();
+  });
 
   it('returns user if credentials are valid and email is verified', async () => {
-    const user = { id: '1', password: 'hashed', emailVerified: new Date() }
-    mockFindUnique.mockResolvedValue(user)
-    mockCompare.mockResolvedValue(true)
-    const authorize = getAuthorize()
-    const result = await authorize({ email: 'a@b.com', password: 'correct' })
-    expect(result).toEqual(user)
-  })
-})
+    const user = { id: '1', password: 'hashed', emailVerified: new Date() };
+    mockFindUnique.mockResolvedValue(user);
+    mockCompare.mockResolvedValue(true);
+    const authorize = getAuthorize();
+    const result = await authorize({ email: 'a@b.com', password: 'correct' });
+    expect(result).toEqual(user);
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify the new tests fail**
@@ -975,38 +975,38 @@ This is a Route Handler (GET). It receives `?token=`, validates the token, and r
 - [ ] **Step 1: Create `src/app/api/auth/verify/route.ts`**
 
 ```ts
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/shared/lib/prisma'
-import { deleteVerificationToken } from '@/features/auth/lib/tokens'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/shared/lib/prisma';
+import { deleteVerificationToken } from '@/features/auth/lib/tokens';
 
 export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get('token')
+  const token = req.nextUrl.searchParams.get('token');
 
   if (!token) {
-    return NextResponse.redirect(new URL('/verify-email?error=invalid', req.url))
+    return NextResponse.redirect(new URL('/verify-email?error=invalid', req.url));
   }
 
   const verificationToken = await prisma.verificationToken.findUnique({
     where: { token },
-  })
+  });
 
   if (!verificationToken) {
-    return NextResponse.redirect(new URL('/verify-email?error=invalid', req.url))
+    return NextResponse.redirect(new URL('/verify-email?error=invalid', req.url));
   }
 
   if (verificationToken.expires < new Date()) {
-    await deleteVerificationToken(token)
-    const email = encodeURIComponent(verificationToken.identifier)
-    return NextResponse.redirect(new URL(`/verify-email?error=expired&email=${email}`, req.url))
+    await deleteVerificationToken(token);
+    const email = encodeURIComponent(verificationToken.identifier);
+    return NextResponse.redirect(new URL(`/verify-email?error=expired&email=${email}`, req.url));
   }
 
   await prisma.user.update({
     where: { email: verificationToken.identifier },
     data: { emailVerified: new Date() },
-  })
-  await deleteVerificationToken(token)
+  });
+  await deleteVerificationToken(token);
 
-  return NextResponse.redirect(new URL('/login?verified=true', req.url))
+  return NextResponse.redirect(new URL('/login?verified=true', req.url));
 }
 ```
 
@@ -1040,14 +1040,14 @@ This is a Server Component. It reads `searchParams` to determine state: `?sent=t
 - [ ] **Step 1: Create `src/app/(auth)/verify-email/page.tsx`**
 
 ```tsx
-import { resendVerificationAction } from '@/features/auth'
+import { resendVerificationAction } from '@/features/auth';
 
 type Props = {
-  searchParams: Promise<{ sent?: string; error?: string; email?: string }>
-}
+  searchParams: Promise<{ sent?: string; error?: string; email?: string }>;
+};
 
 export default async function VerifyEmailPage({ searchParams }: Props) {
-  const { sent, error, email } = await searchParams
+  const { sent, error, email } = await searchParams;
 
   if (sent) {
     return (
@@ -1055,11 +1055,11 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         <h1>Check your email</h1>
         <p>We sent a verification link to your inbox. It expires in 24 hours.</p>
       </main>
-    )
+    );
   }
 
   if (error === 'expired' && email) {
-    const resendWithEmail = resendVerificationAction.bind(null, decodeURIComponent(email))
+    const resendWithEmail = resendVerificationAction.bind(null, decodeURIComponent(email));
     return (
       <main>
         <h1>Link expired</h1>
@@ -1068,7 +1068,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           <button type="submit">Resend verification email</button>
         </form>
       </main>
-    )
+    );
   }
 
   if (error === 'invalid') {
@@ -1077,7 +1077,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         <h1>Invalid link</h1>
         <p>This verification link is invalid. Please sign up again.</p>
       </main>
-    )
+    );
   }
 
   return (
@@ -1085,7 +1085,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
       <h1>Verify your email</h1>
       <p>Please check your inbox and click the verification link.</p>
     </main>
-  )
+  );
 }
 ```
 
@@ -1118,54 +1118,54 @@ git commit -m "feat(auth): add verify-email page with sent/expired/invalid state
 Create `src/features/auth/components/LoginForm.test.tsx`:
 
 ```tsx
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { LoginForm } from './LoginForm'
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { LoginForm } from './LoginForm';
 
 vi.mock('@/features/auth/actions', () => ({
   loginAction: vi.fn(),
-}))
+}));
 
-import { loginAction } from '@/features/auth/actions'
-const mockLoginAction = loginAction as ReturnType<typeof vi.fn>
+import { loginAction } from '@/features/auth/actions';
+const mockLoginAction = loginAction as ReturnType<typeof vi.fn>;
 
 describe('LoginForm', () => {
   it('renders email and password fields and a submit button', () => {
-    render(<LoginForm />)
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
-  })
+    render(<LoginForm />);
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
 
   it('shows validation error when email is empty on submit', async () => {
-    render(<LoginForm />)
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-    expect(await screen.findByText(/invalid email/i)).toBeInTheDocument()
-  })
+    render(<LoginForm />);
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    expect(await screen.findByText(/invalid email/i)).toBeInTheDocument();
+  });
 
   it('calls loginAction with form data on valid submit', async () => {
-    mockLoginAction.mockResolvedValue(undefined)
-    render(<LoginForm />)
+    mockLoginAction.mockResolvedValue(undefined);
+    render(<LoginForm />);
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    expect(mockLoginAction).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password123' })
-  })
+    expect(mockLoginAction).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password123' });
+  });
 
   it('displays server error returned from loginAction', async () => {
-    mockLoginAction.mockResolvedValue({ error: 'Invalid credentials' })
-    render(<LoginForm />)
+    mockLoginAction.mockResolvedValue({ error: 'Invalid credentials' });
+    render(<LoginForm />);
 
-    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    expect(await screen.findByText('Invalid credentials')).toBeInTheDocument()
-  })
-})
+    expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -1179,12 +1179,12 @@ Expected: FAIL — component not found.
 - [ ] **Step 3: Create `src/features/auth/components/LoginForm.tsx`**
 
 ```tsx
-'use client'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema } from '../lib/validation'
-import { loginAction } from '../actions'
-import type { LoginFormData } from '../lib/validation'
+'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../lib/validation';
+import { loginAction } from '../actions';
+import type { LoginFormData } from '../lib/validation';
 
 export function LoginForm() {
   const {
@@ -1192,14 +1192,14 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async (data: LoginFormData) => {
-    const result = await loginAction(data)
+    const result = await loginAction(data);
     if (result?.error) {
-      setError('root', { message: result.error })
+      setError('root', { message: result.error });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -1218,7 +1218,7 @@ export function LoginForm() {
         {isSubmitting ? 'Signing in...' : 'Sign in'}
       </button>
     </form>
-  )
+  );
 }
 ```
 
@@ -1251,64 +1251,64 @@ git commit -m "feat(auth): add LoginForm with RHF + Zod"
 Create `src/features/auth/components/SignupForm.test.tsx`:
 
 ```tsx
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { SignupForm } from './SignupForm'
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { SignupForm } from './SignupForm';
 
 vi.mock('@/features/auth/actions', () => ({
   signupAction: vi.fn(),
-}))
+}));
 
-import { signupAction } from '@/features/auth/actions'
-const mockSignupAction = signupAction as ReturnType<typeof vi.fn>
+import { signupAction } from '@/features/auth/actions';
+const mockSignupAction = signupAction as ReturnType<typeof vi.fn>;
 
 describe('SignupForm', () => {
   it('renders name, email, password fields and submit button', () => {
-    render(<SignupForm />)
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument()
-  })
+    render(<SignupForm />);
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+  });
 
   it('shows validation error for short password on submit', async () => {
-    render(<SignupForm />)
-    await userEvent.type(screen.getByLabelText(/name/i), 'Alice')
-    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'short')
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }))
-    expect(await screen.findByText(/at least 8/i)).toBeInTheDocument()
-  })
+    render(<SignupForm />);
+    await userEvent.type(screen.getByLabelText(/name/i), 'Alice');
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'short');
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
+    expect(await screen.findByText(/at least 8/i)).toBeInTheDocument();
+  });
 
   it('calls signupAction with form data on valid submit', async () => {
-    mockSignupAction.mockResolvedValue(undefined)
-    render(<SignupForm />)
+    mockSignupAction.mockResolvedValue(undefined);
+    render(<SignupForm />);
 
-    await userEvent.type(screen.getByLabelText(/name/i), 'Alice')
-    await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }))
+    await userEvent.type(screen.getByLabelText(/name/i), 'Alice');
+    await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(mockSignupAction).toHaveBeenCalledWith({
       name: 'Alice',
       email: 'alice@example.com',
       password: 'password123',
-    })
-  })
+    });
+  });
 
   it('displays server error returned from signupAction', async () => {
-    mockSignupAction.mockResolvedValue({ error: 'Email already in use' })
-    render(<SignupForm />)
+    mockSignupAction.mockResolvedValue({ error: 'Email already in use' });
+    render(<SignupForm />);
 
-    await userEvent.type(screen.getByLabelText(/name/i), 'Alice')
-    await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com')
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /create account/i }))
+    await userEvent.type(screen.getByLabelText(/name/i), 'Alice');
+    await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /create account/i }));
 
-    expect(await screen.findByText('Email already in use')).toBeInTheDocument()
-  })
-})
+    expect(await screen.findByText('Email already in use')).toBeInTheDocument();
+  });
+});
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -1322,12 +1322,12 @@ Expected: FAIL — component not found.
 - [ ] **Step 3: Create `src/features/auth/components/SignupForm.tsx`**
 
 ```tsx
-'use client'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { signupSchema } from '../lib/validation'
-import { signupAction } from '../actions'
-import type { SignupFormData } from '../lib/validation'
+'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signupSchema } from '../lib/validation';
+import { signupAction } from '../actions';
+import type { SignupFormData } from '../lib/validation';
 
 export function SignupForm() {
   const {
@@ -1335,14 +1335,14 @@ export function SignupForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) })
+  } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
   const onSubmit = async (data: SignupFormData) => {
-    const result = await signupAction(data)
+    const result = await signupAction(data);
     if (result?.error) {
-      setError('root', { message: result.error })
+      setError('root', { message: result.error });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -1366,7 +1366,7 @@ export function SignupForm() {
         {isSubmitting ? 'Creating account...' : 'Create account'}
       </button>
     </form>
-  )
+  );
 }
 ```
 
@@ -1397,7 +1397,7 @@ git commit -m "feat(auth): add SignupForm with RHF + Zod"
 - [ ] **Step 1: Replace `src/app/(auth)/login/page.tsx`**
 
 ```tsx
-import { LoginForm } from '@/features/auth'
+import { LoginForm } from '@/features/auth';
 
 export default function LoginPage() {
   return (
@@ -1405,14 +1405,14 @@ export default function LoginPage() {
       <h1>Sign in</h1>
       <LoginForm />
     </main>
-  )
+  );
 }
 ```
 
 - [ ] **Step 2: Replace `src/app/(auth)/signup/page.tsx`**
 
 ```tsx
-import { SignupForm } from '@/features/auth'
+import { SignupForm } from '@/features/auth';
 
 export default function SignupPage() {
   return (
@@ -1420,7 +1420,7 @@ export default function SignupPage() {
       <h1>Create account</h1>
       <SignupForm />
     </main>
-  )
+  );
 }
 ```
 
@@ -1454,23 +1454,23 @@ Protects `/profile` and `/admin`. All other routes are public.
 - [ ] **Step 1: Create `src/middleware.ts`**
 
 ```ts
-import { auth } from '@/shared/lib/auth'
-import { NextResponse } from 'next/server'
+import { auth } from '@/shared/lib/auth';
+import { NextResponse } from 'next/server';
 
-const protectedRoutes = ['/profile', '/admin']
+const protectedRoutes = ['/profile', '/admin'];
 
 export default auth((req) => {
-  const isProtected = protectedRoutes.some((route) => req.nextUrl.pathname.startsWith(route))
+  const isProtected = protectedRoutes.some((route) => req.nextUrl.pathname.startsWith(route));
 
   if (isProtected && !req.auth) {
-    const callbackUrl = encodeURIComponent(req.nextUrl.pathname)
-    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url))
+    const callbackUrl = encodeURIComponent(req.nextUrl.pathname);
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url));
   }
-})
+});
 
 export const config = {
   matcher: ['/((?!api/auth|_next/static|_next/image|favicon\\.ico).*)'],
-}
+};
 ```
 
 - [ ] **Step 2: Verify TypeScript compiles**
@@ -1504,10 +1504,10 @@ git commit -m "feat(auth): add middleware to protect /profile and /admin routes"
 - [ ] **Step 1: Update `src/features/auth/index.ts`**
 
 ```ts
-export { signupAction, loginAction, resendVerificationAction } from './actions'
-export { LoginForm } from './components/LoginForm'
-export { SignupForm } from './components/SignupForm'
-export type { LoginFormData, SignupFormData } from './types'
+export { signupAction, loginAction, resendVerificationAction } from './actions';
+export { LoginForm } from './components/LoginForm';
+export { SignupForm } from './components/SignupForm';
+export type { LoginFormData, SignupFormData } from './types';
 ```
 
 - [ ] **Step 2: Run full test suite**

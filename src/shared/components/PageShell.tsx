@@ -1,6 +1,6 @@
 interface PageShellProps {
-  aside: React.ReactNode
-  children: React.ReactNode
+  aside: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export default function PageShell({ aside, children }: PageShellProps) {
@@ -9,5 +9,5 @@ export default function PageShell({ aside, children }: PageShellProps) {
       <aside className="bg-surface-low">{aside}</aside>
       <main className="bg-surface">{children}</main>
     </div>
-  )
+  );
 }

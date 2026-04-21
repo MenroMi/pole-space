@@ -25,7 +25,7 @@ export default function CatalogPage() {
     <PageShell aside={<CatalogFilters />}>
       <MoveGrid />
     </PageShell>
-  )
+  );
 }
 ```
 
@@ -75,8 +75,8 @@ No grid structure at this level — grid lives inside `PageShell`.
 
 ```tsx
 interface PageShellProps {
-  aside: React.ReactNode
-  children: React.ReactNode
+  aside: React.ReactNode;
+  children: React.ReactNode;
 }
 ```
 

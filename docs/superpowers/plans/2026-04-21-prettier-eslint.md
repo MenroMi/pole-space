@@ -102,12 +102,12 @@ Expected: all five packages listed with exact versions (no `(deduped)` warning i
 - [ ] **Step 1: Create the file**
 
 ```js
-import { defineConfig, globalIgnores } from 'eslint/config'
-import nextVitals from 'eslint-config-next/core-web-vitals'
-import nextTs from 'eslint-config-next/typescript'
-import importPlugin from 'eslint-plugin-import'
-import unusedImports from 'eslint-plugin-unused-imports'
-import prettier from 'eslint-config-prettier/flat'
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import importPlugin from 'eslint-plugin-import';
+import unusedImports from 'eslint-plugin-unused-imports';
+import prettier from 'eslint-config-prettier/flat';
 
 export default defineConfig([
   ...nextVitals,
@@ -153,7 +153,7 @@ export default defineConfig([
     '.worktrees/**',
     'node_modules/**',
   ]),
-])
+]);
 ```
 
 Notes:
@@ -501,18 +501,18 @@ Common errors you may encounter and their fixes:
 
 ```ts
 // before
-import { foo } from '@/shared/lib/bar'
-import { baz } from '@/shared/lib/bar'
+import { foo } from '@/shared/lib/bar';
+import { baz } from '@/shared/lib/bar';
 
 // after
-import { foo, baz } from '@/shared/lib/bar'
+import { foo, baz } from '@/shared/lib/bar';
 ```
 
 **`unused-imports/no-unused-imports`** (if not auto-fixed) — an import is never referenced:
 
 ```ts
 // before
-import { something } from 'somewhere' // never used
+import { something } from 'somewhere'; // never used
 
 // after — delete the line entirely
 ```

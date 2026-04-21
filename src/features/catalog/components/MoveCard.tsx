@@ -1,30 +1,30 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from 'next/image';
+import Link from 'next/link';
 
-import type { MoveWithTags } from '../types'
+import type { MoveWithTags } from '../types';
 
 function extractVideoId(youtubeUrl: string): string | null {
-  const match = youtubeUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
-  return match ? match[1] : null
+  const match = youtubeUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
 }
 
 const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {
   BEGINNER: { className: 'bg-secondary-container text-on-secondary-container' },
   INTERMEDIATE: { className: 'bg-primary-container text-on-surface' },
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
-}
+};
 
 export default function MoveCard({ move }: { move: MoveWithTags }) {
-  const badge = DIFFICULTY_BADGE[move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER
+  const badge = DIFFICULTY_BADGE[move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
   const imageSrc: string | null =
     move.imageUrl ??
     (() => {
-      const videoId = extractVideoId(move.youtubeUrl)
-      return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null
-    })()
+      const videoId = extractVideoId(move.youtubeUrl);
+      return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+    })();
 
-  const visibleTags = move.tags.slice(0, 3)
+  const visibleTags = move.tags.slice(0, 3);
 
   return (
     <Link
@@ -63,5 +63,5 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
         )}
       </div>
     </Link>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
   {
@@ -59,10 +59,10 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
-]
+];
 
 export default function Footer() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <footer className="flex h-14 items-center justify-between bg-surface-lowest px-8">
@@ -86,5 +86,5 @@ export default function Footer() {
         kinetic gallery v.0.1
       </span>
     </footer>
-  )
+  );
 }

@@ -3,5 +3,5 @@ export default function HomePage() {
     <main>
       <h1>Kinetic Gallery</h1>
     </main>
-  )
+  );
 }

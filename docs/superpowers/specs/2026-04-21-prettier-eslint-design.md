@@ -46,12 +46,12 @@ Exact versions will be pinned at install time (all latest stable as of 2026-04-2
 Flat-config array composed roughly like this:
 
 ```js
-import { defineConfig, globalIgnores } from 'eslint/config'
-import nextVitals from 'eslint-config-next/core-web-vitals'
-import nextTs from 'eslint-config-next/typescript'
-import importPlugin from 'eslint-plugin-import'
-import unusedImports from 'eslint-plugin-unused-imports'
-import prettier from 'eslint-config-prettier/flat'
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import importPlugin from 'eslint-plugin-import';
+import unusedImports from 'eslint-plugin-unused-imports';
+import prettier from 'eslint-config-prettier/flat';
 
 export default defineConfig([
   ...nextVitals,
@@ -87,7 +87,7 @@ export default defineConfig([
     '.worktrees/**',
     'node_modules/**',
   ]),
-])
+]);
 ```
 
 Notes:

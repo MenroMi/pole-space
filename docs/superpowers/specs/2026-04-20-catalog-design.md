@@ -41,19 +41,19 @@ Extended signature:
 ```ts
 export async function getMovesAction(
   filters: MoveFilters = {},
-): Promise<PaginatedResult<MoveWithTags>>
+): Promise<PaginatedResult<MoveWithTags>>;
 ```
 
 `MoveFilters` in `src/shared/types/index.ts` gains two new optional fields:
 
 ```ts
 export interface MoveFilters {
-  category?: Category
-  difficulty?: Difficulty
-  search?: string
-  tags?: string[] // existing (unimplemented, unchanged)
-  page?: number // new — default 1
-  pageSize?: number // new — default 12
+  category?: Category;
+  difficulty?: Difficulty;
+  search?: string;
+  tags?: string[]; // existing (unimplemented, unchanged)
+  page?: number; // new — default 1
+  pageSize?: number; // new — default 12
 }
 ```
 
@@ -98,9 +98,9 @@ Client Component (`'use client'`).
 
 ```ts
 interface MoveGridProps {
-  initialMoves: MoveWithTags[]
-  initialHasMore: boolean
-  filters: MoveFilters
+  initialMoves: MoveWithTags[];
+  initialHasMore: boolean;
+  filters: MoveFilters;
 }
 ```
 
@@ -152,11 +152,11 @@ RSC. Reads `searchParams`, calls `getMovesAction`, renders layout.
 ```ts
 type Props = {
   searchParams: Promise<{
-    category?: string
-    difficulty?: string
-    search?: string
-  }>
-}
+    category?: string;
+    difficulty?: string;
+    search?: string;
+  }>;
+};
 ```
 
 Parses and validates enum values before passing to action (invalid values → undefined).

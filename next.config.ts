@@ -1,6 +1,6 @@
-import path from 'path'
+import path from 'path';
 
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -12,6 +12,6 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

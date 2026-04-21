@@ -202,9 +202,9 @@ enum LearnStatus { WANT_TO_LEARN IN_PROGRESS LEARNED }
 
 ```ts
 // features/catalog/index.ts
-export { CatalogPage } from './components/CatalogPage'
-export { useMovesFilter } from './hooks/use-moves-filter'
-export type { MoveFilters } from './types'
+export { CatalogPage } from './components/CatalogPage';
+export { useMovesFilter } from './hooks/use-moves-filter';
+export type { MoveFilters } from './types';
 ```
 
 Импорты снаружи — только через `index.ts`, не напрямую внутрь фичи.

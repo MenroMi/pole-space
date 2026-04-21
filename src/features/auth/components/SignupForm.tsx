@@ -1,10 +1,10 @@
-'use client'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { signupAction } from '../actions'
-import { signupSchema } from '../lib/validation'
-import type { SignupFormData } from '../lib/validation'
+import { signupAction } from '../actions';
+import { signupSchema } from '../lib/validation';
+import type { SignupFormData } from '../lib/validation';
 
 export function SignupForm() {
   const {
@@ -12,14 +12,14 @@ export function SignupForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) })
+  } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
   const onSubmit = async (data: SignupFormData) => {
-    const result = await signupAction(data)
+    const result = await signupAction(data);
     if (result?.error) {
-      setError('root', { message: result.error })
+      setError('root', { message: result.error });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,5 +73,5 @@ export function SignupForm() {
         {isSubmitting ? 'Creating account...' : 'Create account'}
       </button>
     </form>
-  )
+  );
 }

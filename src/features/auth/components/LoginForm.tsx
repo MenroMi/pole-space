@@ -1,10 +1,10 @@
-'use client'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { loginAction } from '../actions'
-import { loginSchema } from '../lib/validation'
-import type { LoginFormData } from '../lib/validation'
+import { loginAction } from '../actions';
+import { loginSchema } from '../lib/validation';
+import type { LoginFormData } from '../lib/validation';
 
 export function LoginForm() {
   const {
@@ -12,14 +12,14 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async (data: LoginFormData) => {
-    const result = await loginAction(data)
+    const result = await loginAction(data);
     if (result?.error) {
-      setError('root', { message: result.error })
+      setError('root', { message: result.error });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -58,5 +58,5 @@ export function LoginForm() {
         {isSubmitting ? 'Signing in...' : 'Sign in'}
       </button>
     </form>
-  )
+  );
 }

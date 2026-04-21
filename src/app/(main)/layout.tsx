@@ -1,5 +1,5 @@
-import Footer from '@/shared/components/Footer'
-import Header from '@/shared/components/Header'
+import Footer from '@/shared/components/Footer';
+import Header from '@/shared/components/Header';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,5 +8,5 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <div className="flex flex-1 flex-col">{children}</div>
       <Footer />
     </div>
-  )
+  );
 }
