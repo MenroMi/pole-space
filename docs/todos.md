@@ -99,3 +99,24 @@
 **Prettier + ESLint not configured**
 - Проект без форматтера и линтера — стиль зависит от желания конкретного реализатора/ревьюера
 - Fix: отдельной feature branch настроить Prettier (с Tailwind plugin для сортировки классов) + ESLint (Next.js config + typescript-eslint). Добавить npm scripts `lint`, `format`, и pre-commit hook (lint-staged + husky или simple-git-hooks)
+
+## UX
+
+**Catalog filters UX — требует ресёрча и возможного редизайна** (2026-04-21)
+- Текущая реализация (ветка `feature/filters-accordion`): Accordion type="single" collapsible, внутри каждой категории "All levels" + 3 difficulty-кнопки. Single-select для category и difficulty. Toggle-поведение: клик по активной группе снимает category+difficulty (search сохраняется); клик по активной difficulty снимает только её.
+- Сомнения пользователя: (1) accordion может быть непривычен для фильтров каталога; (2) "клик по активному = снять" — неочевидный жест, не все пользователи поймут; (3) single-select vs multi-select — не принято решение (варианты A/B/C ниже).
+- Что нужно сделать перед редизайном:
+  - Ресёрч UX-паттернов фильтров в каталогах (chips, sidebar checkboxes, bottom-sheet на mobile, combobox/select)
+  - Определиться с single vs multi-select (см. "Multi-select filters in catalog" ниже)
+  - Решить: мобильная версия vs десктоп — разные паттерны или единый
+  - Возможно, создать spec через `superpowers:brainstorming` + `superpowers:writing-plans`
+- Scope: отдельная feature branch после завершения Stage 2C–2E (Profile/Admin/Landing). Текущая реализация остаётся в main как baseline.
+
+**Multi-select filters in catalog**
+- Сейчас category и difficulty — single-select (one-hot). Пользователь может захотеть фильтровать несколько одновременно (например, SPIN + CLIMB, или INTERMEDIATE + ADVANCED).
+- Варианты реализации:
+  - **A. Checkbox-группы** — заменить buttons на checkboxes, category и difficulty становятся массивами в URL (`?category=SPIN,CLIMB&difficulty=BEGINNER,INTERMEDIATE`). Требует изменения типа `MoveFilters` и SQL-логики в `getMovesAction` (OR-условия внутри группы).
+  - **B. Multi-toggle buttons** — оставить buttons, но кликая по неактивной — добавлять к выборке, по активной — убирать. Визуально активные выделены `bg-primary`. URL как в A.
+  - **C. Chips (selected filters bar)** — отдельная строка под фильтрами с выбранными значениями в виде chips (`× SPIN`, `× BEGINNER`), клик по X снимает. Клик по кнопке в accordion добавляет.
+- Backend: `getMovesAction` пока ожидает `category?: Category` и `difficulty?: Difficulty` — нужно менять на массивы.
+- Решение отложено до ресёрча (см. выше).
