@@ -112,10 +112,9 @@
 
 ~~**Vitest picks up .worktrees/ test files**~~ ✅ Resolved (2026-04-20) — added `'.worktrees/**'` to `exclude` in `vitest.config.ts`
 
-**Prettier + ESLint not configured**
+~~**Prettier + ESLint not configured**~~ ✅ Resolved (2026-04-21)
 
-- Проект без форматтера и линтера — стиль зависит от желания конкретного реализатора/ревьюера
-- Fix: отдельной feature branch настроить Prettier (с Tailwind plugin для сортировки классов) + ESLint (Next.js config + typescript-eslint). Добавить npm scripts `lint`, `format`, и pre-commit hook (lint-staged + husky или simple-git-hooks)
+- Prettier 3 + `prettier-plugin-tailwindcss`, ESLint 9 flat config with `eslint-config-next/core-web-vitals` + TypeScript + import/unused-imports plugins, Husky 9 + lint-staged. Pre-commit auto-formats staged files and blocks on errors. `.git-blame-ignore-revs` masks the formatting baseline commit.
 
 ## UX
 

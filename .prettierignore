@@ -3,6 +3,7 @@ out/
 build/
 coverage/
 .agents/
+.claude/
 .worktrees/
 node_modules/
 public/
