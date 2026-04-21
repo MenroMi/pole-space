@@ -48,5 +48,7 @@ export default defineConfig([
     'next-env.d.ts',
     '.worktrees/**',
     'node_modules/**',
+    '**/*.test.ts',
+    '**/*.test.tsx',
   ]),
 ])
