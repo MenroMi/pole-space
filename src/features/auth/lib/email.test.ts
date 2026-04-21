@@ -1,5 +1,5 @@
 import * as resendModule from 'resend'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('resend', () => {
   const mockSend = vi.fn()
@@ -14,7 +14,7 @@ vi.mock('resend', () => {
 
 import { sendVerificationEmail } from './email'
 
-const mockSend = (resendModule as unknown as Record<string, unknown>).__mockSend
+const mockSend = (resendModule as unknown as { __mockSend: Mock }).__mockSend
 
 beforeEach(() => mockSend.mockClear())
 
