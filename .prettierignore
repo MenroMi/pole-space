@@ -1,0 +1,9 @@
+.next/
+out/
+build/
+coverage/
+.agents/
+.worktrees/
+node_modules/
+public/
+*.lock
