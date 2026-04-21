@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+
 import { prisma } from '@/shared/lib/prisma'
 
 export async function generateVerificationToken(email: string): Promise<string> {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { getMovesAction } from '@/features/catalog'
 
 export const dynamic = 'force-dynamic'

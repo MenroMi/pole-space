@@ -1,5 +1,6 @@
 'use server'
 import { prisma } from '@/shared/lib/prisma'
+
 import type { MoveDetail } from './types'
 
 export async function getMoveByIdAction(id: string): Promise<MoveDetail | null> {

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { usePathname } from 'next/navigation'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import Footer from './Footer'
 
 vi.mock('next/navigation', () => ({ usePathname: vi.fn() }))

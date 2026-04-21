@@ -1,6 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { auth } from '@/shared/lib/auth'
+
 import Header from './Header'
 
 vi.mock('@/shared/lib/auth', () => ({ auth: vi.fn() }))

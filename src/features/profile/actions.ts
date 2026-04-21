@@ -2,6 +2,7 @@
 import { auth } from '@/shared/lib/auth'
 import { prisma } from '@/shared/lib/prisma'
 import type { LearnStatus } from '@/shared/types'
+
 import type { ProgressWithMove } from './types'
 
 async function requireAuth() {

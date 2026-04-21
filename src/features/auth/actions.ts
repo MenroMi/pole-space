@@ -1,14 +1,15 @@
 'use server'
 import bcrypt from 'bcryptjs'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/shared/lib/prisma'
-import { signupSchema } from './lib/validation'
-import { generateVerificationToken, deleteUserTokens } from './lib/tokens'
-import { sendVerificationEmail } from './lib/email'
-import type { SignupFormData } from './lib/validation'
-import { signIn } from '@/shared/lib/auth'
 import { AuthError } from 'next-auth'
-import type { LoginFormData } from './lib/validation'
+
+import { signIn } from '@/shared/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+
+import { sendVerificationEmail } from './lib/email'
+import { generateVerificationToken, deleteUserTokens } from './lib/tokens'
+import { signupSchema } from './lib/validation'
+import type { SignupFormData, LoginFormData } from './lib/validation'
 
 export async function signupAction(data: SignupFormData) {
   const parsed = signupSchema.safeParse(data)
