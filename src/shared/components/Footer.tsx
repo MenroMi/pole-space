@@ -1,16 +1,26 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
   {
     label: 'Gallery',
     href: '/catalog',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-        <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
       </svg>
     ),
   },
@@ -18,7 +28,15 @@ const NAV_ITEMS = [
     label: 'Moves',
     href: '/moves',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
         <polygon points="5 3 19 12 5 21 5 3" />
       </svg>
     ),
@@ -27,18 +45,27 @@ const NAV_ITEMS = [
     label: 'Profile',
     href: '/profile',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
     ),
   },
-]
+];
 
 export default function Footer() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
-    <footer className="flex h-14 items-center justify-between px-8 bg-surface-lowest">
+    <footer className="flex h-14 items-center justify-between bg-surface-lowest px-8">
       <nav className="flex gap-6">
         {NAV_ITEMS.map(({ label, href, icon }) => (
           <Link
@@ -55,9 +82,9 @@ export default function Footer() {
           </Link>
         ))}
       </nav>
-      <span className="font-sans text-xs uppercase tracking-widest text-on-surface-variant">
+      <span className="font-sans text-xs tracking-widest text-on-surface-variant uppercase">
         kinetic gallery v.0.1
       </span>
     </footer>
-  )
+  );
 }

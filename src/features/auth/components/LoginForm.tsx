@@ -1,9 +1,10 @@
-'use client'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema } from '../lib/validation'
-import { loginAction } from '../actions'
-import type { LoginFormData } from '../lib/validation'
+'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { loginAction } from '../actions';
+import { loginSchema } from '../lib/validation';
+import type { LoginFormData } from '../lib/validation';
 
 export function LoginForm() {
   const {
@@ -11,14 +12,14 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async (data: LoginFormData) => {
-    const result = await loginAction(data)
+    const result = await loginAction(data);
     if (result?.error) {
-      setError('root', { message: result.error })
+      setError('root', { message: result.error });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -31,7 +32,11 @@ export function LoginForm() {
           aria-invalid={!!errors.email}
           {...register('email')}
         />
-        {errors.email && <p id="email-error" role="alert">{errors.email.message}</p>}
+        {errors.email && (
+          <p id="email-error" role="alert">
+            {errors.email.message}
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="password">Password</label>
@@ -42,12 +47,16 @@ export function LoginForm() {
           aria-invalid={!!errors.password}
           {...register('password')}
         />
-        {errors.password && <p id="password-error" role="alert">{errors.password.message}</p>}
+        {errors.password && (
+          <p id="password-error" role="alert">
+            {errors.password.message}
+          </p>
+        )}
       </div>
       {errors.root && <p role="alert">{errors.root.message}</p>}
       <button type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Signing in...' : 'Sign in'}
       </button>
     </form>
-  )
+  );
 }

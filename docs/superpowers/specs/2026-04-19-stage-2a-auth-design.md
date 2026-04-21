@@ -106,38 +106,38 @@ src/
 
 ```ts
 // loginSchema
-email: z.string().email()
-password: z.string().min(1, 'Required')
+email: z.string().email();
+password: z.string().min(1, 'Required');
 
 // signupSchema
-name: z.string().min(2).max(50)
-email: z.string().email()
-password: z.string().min(8).max(100)
+name: z.string().min(2).max(50);
+email: z.string().email();
+password: z.string().min(8).max(100);
 ```
 
 ---
 
 ## Error Handling
 
-| Scenario | Handling |
-|---|---|
-| Email already in use | `signupAction` returns `{ error: 'Email already in use' }` |
-| Resend API fails | Delete user, return `{ error: 'Failed to send email, please try again' }` |
-| Token invalid/not found | Redirect `/auth/verify-email?error=invalid` |
-| Token expired | Delete token, redirect `/auth/verify-email?error=expired` |
-| Email not verified on login | NextAuth throws, shown as form error |
-| Wrong password | NextAuth returns null → generic "Invalid credentials" |
+| Scenario                    | Handling                                                                  |
+| --------------------------- | ------------------------------------------------------------------------- |
+| Email already in use        | `signupAction` returns `{ error: 'Email already in use' }`                |
+| Resend API fails            | Delete user, return `{ error: 'Failed to send email, please try again' }` |
+| Token invalid/not found     | Redirect `/auth/verify-email?error=invalid`                               |
+| Token expired               | Delete token, redirect `/auth/verify-email?error=expired`                 |
+| Email not verified on login | NextAuth throws, shown as form error                                      |
+| Wrong password              | NextAuth returns null → generic "Invalid credentials"                     |
 
 ---
 
 ## Tech Stack Additions
 
-| Package | Purpose |
-|---|---|
-| `resend` | Email sending |
-| `react-hook-form` | Form state + client validation |
-| `zod` | Schema validation (client + server) |
-| `@hookform/resolvers` | RHF + Zod integration |
+| Package               | Purpose                             |
+| --------------------- | ----------------------------------- |
+| `resend`              | Email sending                       |
+| `react-hook-form`     | Form state + client validation      |
+| `zod`                 | Schema validation (client + server) |
+| `@hookform/resolvers` | RHF + Zod integration               |
 
 All versions to be pinned.
 
@@ -147,7 +147,7 @@ All versions to be pinned.
 
 ```ts
 // Protected routes
-const protectedRoutes = ['/profile', '/admin']
+const protectedRoutes = ['/profile', '/admin'];
 
 // If no session → redirect to /login?callbackUrl=<current>
 // All other routes → public
@@ -157,21 +157,21 @@ const protectedRoutes = ['/profile', '/admin']
 
 ## Testing
 
-| Unit | What |
-|---|---|
-| `tokens.ts` | Token generation uniqueness, deletion |
-| `validation.ts` | Valid/invalid inputs for both schemas |
-| `email.ts` | Resend called with correct params (vi.mock) |
+| Unit            | What                                        |
+| --------------- | ------------------------------------------- |
+| `tokens.ts`     | Token generation uniqueness, deletion       |
+| `validation.ts` | Valid/invalid inputs for both schemas       |
+| `email.ts`      | Resend called with correct params (vi.mock) |
 
-| Integration | What |
-|---|---|
-| `signupAction` | Duplicate email error, Resend fail → user deleted |
-| `resendVerificationAction` | Old tokens deleted, new token created |
+| Integration                | What                                              |
+| -------------------------- | ------------------------------------------------- |
+| `signupAction`             | Duplicate email error, Resend fail → user deleted |
+| `resendVerificationAction` | Old tokens deleted, new token created             |
 
-| Manual | What |
-|---|---|
-| Middleware | Protected routes redirect when unauthenticated |
-| Full signup → verify → login flow | Happy path |
+| Manual                            | What                                           |
+| --------------------------------- | ---------------------------------------------- |
+| Middleware                        | Protected routes redirect when unauthenticated |
+| Full signup → verify → login flow | Happy path                                     |
 
 ---
 

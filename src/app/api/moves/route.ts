@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
-import { getMovesAction } from '@/features/catalog'
+import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic'
+import { getMovesAction } from '@/features/catalog';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const result = await getMovesAction()
-  return NextResponse.json(result.items)
+  const result = await getMovesAction();
+  return NextResponse.json(result.items);
 }

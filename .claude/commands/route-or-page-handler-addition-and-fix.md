@@ -1,7 +1,7 @@
 ---
 name: route-or-page-handler-addition-and-fix
 description: Workflow command scaffold for route-or-page-handler-addition-and-fix in pole-dance-catalog.
-allowed_tools: ["Bash", "Read", "Write", "Grep", "Glob"]
+allowed_tools: ['Bash', 'Read', 'Write', 'Grep', 'Glob']
 ---
 
 # /route-or-page-handler-addition-and-fix
