@@ -16,8 +16,8 @@ export default function NotFound() {
       </header>
 
       <main className="relative z-10 flex flex-1 items-center px-8 py-16">
-        <div className="w-full max-w-7xl">
-          <div className="md:col-span-10 md:col-start-2 lg:col-span-8 lg:col-start-3">
+        <div className="mx-auto w-full max-w-4xl">
+          <div>
             <div className="relative mb-6 select-none">
               <h1 className="[background-image:linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-container)_50%,var(--color-surface-container-highest)_100%)] [background-clip:text] font-display text-[8rem] leading-none font-black tracking-tighter text-transparent opacity-75 [-webkit-background-clip:text] md:text-[14rem]">
                 404

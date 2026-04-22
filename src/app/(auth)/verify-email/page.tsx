@@ -93,6 +93,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   if (error === 'expired' && email) {
     const resendWithEmail = resendVerificationAction.bind(null, email);
+    const initialRemaining = await getResendCooldownRemaining(email);
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
         <div className="flex flex-col items-start gap-6">
@@ -110,7 +111,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <ResendForm action={resendWithEmail} />
+        <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />
 
         <Link
           href="/login"
