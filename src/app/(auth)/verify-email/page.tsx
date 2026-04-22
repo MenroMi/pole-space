@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import { resendVerificationAction } from '@/features/auth';
 
+import { ResendForm } from './ResendForm';
+
 type Props = {
   searchParams: Promise<{ sent?: string; error?: string; email?: string }>;
 };
@@ -67,16 +69,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </div>
 
         <div className="space-y-4">
-          {resendWithEmail && (
-            <form action={resendWithEmail}>
-              <button
-                type="submit"
-                className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97]"
-              >
-                resend verification email
-              </button>
-            </form>
-          )}
+          {resendWithEmail && <ResendForm action={resendWithEmail} />}
           <Link
             href="/login"
             className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
@@ -113,14 +106,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <form action={resendWithEmail}>
-          <button
-            type="submit"
-            className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97]"
-          >
-            resend verification email
-          </button>
-        </form>
+        <ResendForm action={resendWithEmail} />
 
         <Link
           href="/login"
