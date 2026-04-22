@@ -57,11 +57,22 @@ export async function loginAction(data: LoginFormData) {
   }
 }
 
+const RESEND_COOLDOWN_MS = 60 * 1000;
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+
 export async function resendVerificationAction(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || user.emailVerified !== null) {
     redirect('/verify-email?error=invalid');
+  }
+
+  const existing = await prisma.verificationToken.findFirst({ where: { identifier: email } });
+  if (existing) {
+    const createdAt = existing.expires.getTime() - TOKEN_TTL_MS;
+    if (Date.now() - createdAt < RESEND_COOLDOWN_MS) {
+      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
+    }
   }
 
   await deleteUserTokens(email);

@@ -21,6 +21,9 @@ vi.mock('@/shared/lib/prisma', () => ({
       create: vi.fn(),
       delete: vi.fn(),
     },
+    verificationToken: {
+      findFirst: vi.fn(),
+    },
   },
 }));
 vi.mock('@/features/auth/lib/tokens', () => ({
@@ -51,6 +54,7 @@ import { signupAction, loginAction, resendVerificationAction } from './actions';
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>;
 const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>;
+const mockFindFirstToken = prisma.verificationToken.findFirst as ReturnType<typeof vi.fn>;
 const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>;
 const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
@@ -164,6 +168,7 @@ describe('loginAction', () => {
 describe('resendVerificationAction', () => {
   it('deletes old tokens, generates new token, sends email, then redirects', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue(null);
     mockSendEmail.mockResolvedValue(undefined);
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
@@ -192,8 +197,36 @@ describe('resendVerificationAction', () => {
     expect(mockGenToken).not.toHaveBeenCalled();
   });
 
+  it('silently redirects without sending if token was created less than 60s ago', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    const recentExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000 - 10_000); // created 10s ago
+    mockFindFirstToken.mockResolvedValue({
+      identifier: 'alice@example.com',
+      expires: recentExpiry,
+    });
+
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true&email=alice%40example.com');
+    expect(mockGenToken).not.toHaveBeenCalled();
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  it('allows resend if token was created more than 60s ago', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    const oldExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000 - 120_000); // created 120s ago
+    mockFindFirstToken.mockResolvedValue({ identifier: 'alice@example.com', expires: oldExpiry });
+    mockSendEmail.mockResolvedValue(undefined);
+
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+
+    expect(mockGenToken).toHaveBeenCalled();
+    expect(mockSendEmail).toHaveBeenCalled();
+  });
+
   it('deletes token and redirects to send-failed if email sending fails', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue(null);
     mockSendEmail.mockRejectedValue(new Error('Resend error'));
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
