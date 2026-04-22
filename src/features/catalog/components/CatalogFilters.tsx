@@ -1,7 +1,8 @@
 'use client';
-import { Category, Difficulty } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { useState, useRef } from 'react';
+
+import { Category, Difficulty } from '@/shared/types/enums';
 
 import type { MoveFilters } from '../types';
 

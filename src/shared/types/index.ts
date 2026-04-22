@@ -1,7 +1,10 @@
 // src/shared/types/index.ts
-import type { Role, Difficulty, Category, LearnStatus } from '@prisma/client';
+import type { Role, LearnStatus } from '@prisma/client';
 
-export type { Role, Difficulty, Category, LearnStatus };
+import type { Category, Difficulty } from './enums';
+
+export type { Role, LearnStatus };
+export type { Category, Difficulty } from './enums';
 
 export interface UserSession {
   id: string;

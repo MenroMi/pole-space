@@ -1,8 +1,7 @@
-import { Category, Difficulty } from '@prisma/client';
-
 import { getMovesAction, CatalogFilters, MoveGrid } from '@/features/catalog';
 import PageShell from '@/shared/components/PageShell';
 import type { MoveFilters } from '@/shared/types';
+import { Category, Difficulty } from '@/shared/types/enums';
 
 type SearchParams = Promise<{
   category?: string;
