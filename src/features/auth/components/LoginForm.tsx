@@ -133,7 +133,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_24px_48px_-8px_rgba(132,88,179,0.2)] hover:scale-[1.01] hover:shadow-[0_24px_64px_-4px_rgba(220,184,255,0.35)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
           {isSubmitting ? 'signing in...' : 'sign in'}
         </button>
