@@ -65,9 +65,8 @@ export async function loginAction(data: LoginFormData) {
 export async function resendVerificationAction(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user || user.emailVerified !== null) {
-    redirect('/verify-email?error=invalid');
-  }
+  if (!user) redirect('/verify-email?error=invalid');
+  if (user.emailVerified !== null) redirect('/login');
 
   const existing = await prisma.verificationToken.findFirst({ where: { identifier: email } });
   if (existing) {
