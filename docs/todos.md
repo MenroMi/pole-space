@@ -138,3 +138,11 @@
   - **C. Chips (selected filters bar)** — отдельная строка под фильтрами с выбранными значениями в виде chips (`× SPIN`, `× BEGINNER`), клик по X снимает. Клик по кнопке в accordion добавляет.
 - Backend: `getMovesAction` пока ожидает `category?: Category` и `difficulty?: Difficulty` — нужно менять на массивы.
 - Решение отложено до ресёрча (см. выше).
+
+## CI/CD
+
+**Dependabot `open-pull-requests-limit` не задан** (2026-04-22)
+
+- Дефолт GitHub: 5 открытых PR на ecosystem. Если накопится больше 5 ожидающих обновлений npm — Dependabot молча перестанет открывать новые PR без каких-либо уведомлений.
+- Fix: добавить `open-pull-requests-limit: 10` в каждый ecosystem-блок `.github/dependabot.yml`.
+- Приоритет: низкий — актуально только при большом количестве одновременных обновлений зависимостей.
