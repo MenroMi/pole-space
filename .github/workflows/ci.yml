@@ -26,6 +26,7 @@ jobs:
       - run: npm ci
         env:
           HUSKY: '0'
+      - run: npx prisma generate
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test:run
@@ -42,6 +43,7 @@ jobs:
       - run: npm ci
         env:
           HUSKY: '0'
+      - run: npx prisma generate
       - run: npm run build
         env:
           DATABASE_URL: postgresql://x:x@localhost/x
