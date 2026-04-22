@@ -70,12 +70,13 @@
 
 ## Auth Sync
 
-**Cross-tab auth sync** — `feature/cross-tab-auth-sync` (worktree `.worktrees/cross-tab-auth-sync/`, spec + plan 2026-04-22)
+~~**Cross-tab auth sync**~~ ✅ Resolved (2026-04-22) — `feature/cross-tab-auth-sync`
 
-- **Part A** (в `feature/auth-redesign`): `resendVerificationAction` редиректит на `/verify-email?error=invalid` если пользователь уже верифицирован — нужно редиректить на `/login`
-- **Part B** (новая ветка): `SessionProvider refetchOnWindowFocus` в root layout; `visibilitychange` в `ResendForm` → `checkEmailVerifiedAction` → auto-redirect на `/login`; `SessionGuard` в `/profile` layout для logout sync
-- Зависимость: Part B создаётся от main после мержа `feature/auth-redesign`
-- SessionGuard для `/admin` — добавить при создании admin фичи
+- ~~resendVerificationAction redirected already-verified users to `?error=invalid`~~ → now redirects to `/login`
+- `SessionProvider refetchOnWindowFocus` in root layout (`src/shared/components/Providers.tsx`)
+- `visibilitychange` in `ResendForm` → `checkEmailVerifiedAction` → auto-redirect to `/login` when verified in another tab
+- `SessionGuard` in `/profile` layout for cross-tab logout sync (`src/shared/components/SessionGuard.tsx`)
+- Note: add `SessionGuard` to `/admin` layout when admin feature is built
 
 ## UX / Validation
 
