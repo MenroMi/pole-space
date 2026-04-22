@@ -90,13 +90,19 @@
   font-family: var(--font-display);
 }
 
-@keyframes kinetic-flow {
+@keyframes editorial-glow-shift {
   0%,
   100% {
-    background-position: 0% 50%;
+    background-position: 0% 0%;
+    opacity: 0.12;
   }
-  50% {
-    background-position: 100% 50%;
+  33% {
+    background-position: 60% 30%;
+    opacity: 0.2;
+  }
+  66% {
+    background-position: 100% 80%;
+    opacity: 0.14;
   }
 }
 
@@ -124,10 +130,16 @@
   }
 }
 
-@utility kinetic-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
+@utility animate-editorial-glow {
+  background: radial-gradient(
+    circle at center,
+    var(--primary) 0%,
+    var(--primary-container) 45%,
+    transparent 70%
+  );
   background-size: 200% 200%;
-  animation: kinetic-flow 5s ease-in-out infinite;
+  animation: editorial-glow-shift 14s ease-in-out infinite;
+  opacity: 0.12;
 }
 
 @utility animate-fade-in-up {
@@ -136,6 +148,18 @@
 
 @utility animate-blob {
   animation: blob-drift 12s ease-in-out infinite;
+}
+
+@layer utilities {
+  .kinetic-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
+    background-size: 200% 200%;
+    background-position: left center;
+    transition: background-position 600ms ease;
+  }
+  .kinetic-gradient:hover {
+    background-position: right center;
+  }
 }
 
 body {

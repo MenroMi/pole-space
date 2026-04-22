@@ -8,6 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Gradient glow decorations */}
         <div className="absolute -top-40 -left-40 h-[600px] w-[600px] animate-blob rounded-full bg-primary-container/20 blur-3xl" />
         <div className="absolute top-1/3 left-1/4 h-[400px] w-[400px] animate-blob rounded-full bg-primary/10 blur-3xl [animation-delay:4s]" />
+        <div className="pointer-events-none absolute inset-0 animate-editorial-glow" />
         <div className="absolute inset-0 bg-gradient-to-t from-surface-lowest via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-surface-lowest/60 via-transparent to-transparent" />
 
