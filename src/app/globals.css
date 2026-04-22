@@ -1,6 +1,8 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 :root {
+  /* Stitch design system tokens */
   --surface: #131313;
   --surface-container-lowest: #0e0e0e;
   --surface-container-low: #1b1b1b;
@@ -15,9 +17,31 @@
   --on-secondary-container: #c5afe2;
   --outline: #978e9b;
   --outline-variant: #4b4450;
+
+  /* shadcn compatibility layer — maps to Stitch tokens */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container);
+  --popover-foreground: var(--on-surface);
+  --primary-foreground: var(--surface);
+  --secondary: var(--secondary-container);
+  --secondary-foreground: var(--on-secondary-container);
+  --muted: var(--surface-container);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-container-high);
+  --accent-foreground: var(--on-surface);
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: var(--outline-variant);
+  --input: var(--outline-variant);
+  --ring: var(--primary);
+  --radius: 0.5rem;
 }
 
 @theme inline {
+  /* Stitch tokens */
   --color-surface: var(--surface);
   --color-surface-lowest: var(--surface-container-lowest);
   --color-surface-low: var(--surface-container-low);
@@ -34,6 +58,30 @@
   --color-outline-variant: var(--outline-variant);
   --font-sans: var(--font-manrope);
   --font-display: var(--font-space-grotesk);
+
+  /* shadcn tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @utility font-display {

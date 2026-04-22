@@ -49,7 +49,10 @@ export const authConfig = {
       return token;
     },
     session({ session, token }) {
-      if (session.user) session.user.role = token.role;
+      if (session.user) {
+        session.user.id = token.sub!;
+        session.user.role = token.role;
+      }
       return session;
     },
   },
