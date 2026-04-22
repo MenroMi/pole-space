@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 import { resendVerificationAction } from '@/features/auth';
 import { getResendCooldownRemaining } from '@/features/auth/lib/cooldown';
+import { prisma } from '@/shared/lib/prisma';
 
 import { ResendForm } from './ResendForm';
 
@@ -47,12 +49,30 @@ function WarningIcon() {
   );
 }
 
+async function requireUnverifiedUser(email: string | undefined): Promise<void> {
+  if (!email) redirect('/signup');
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) redirect('/signup');
+  if (user.emailVerified !== null) redirect('/catalog');
+}
+
 export default async function VerifyEmailPage({ searchParams }: Props) {
   const { sent, error, email } = await searchParams;
 
   if (sent) {
-    const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
-    const initialRemaining = email ? await getResendCooldownRemaining(email) : 0;
+    await requireUnverifiedUser(email);
+
+    // Token must exist and not be expired — otherwise redirect to expired state
+    const token = await prisma.verificationToken.findFirst({
+      where: { identifier: email! },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!token || token.expires < new Date()) {
+      redirect(`/verify-email?error=expired&email=${encodeURIComponent(email!)}`);
+    }
+
+    const resendWithEmail = resendVerificationAction.bind(null, email!);
+    const initialRemaining = await getResendCooldownRemaining(email!);
 
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
@@ -71,9 +91,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </div>
 
         <div className="space-y-4">
-          {resendWithEmail && (
-            <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />
-          )}
+          <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />
           <Link
             href="/login"
             className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
@@ -91,9 +109,11 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
-  if (error === 'expired' && email) {
-    const resendWithEmail = resendVerificationAction.bind(null, email);
-    const initialRemaining = await getResendCooldownRemaining(email);
+  if (error === 'expired') {
+    await requireUnverifiedUser(email);
+
+    const resendWithEmail = resendVerificationAction.bind(null, email!);
+    const initialRemaining = await getResendCooldownRemaining(email!);
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
         <div className="flex flex-col items-start gap-6">
@@ -124,6 +144,11 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   }
 
   if (error === 'send-failed') {
+    if (email) {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (user?.emailVerified !== null) redirect('/catalog');
+    }
+
     const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
@@ -162,7 +187,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
-  if (error === 'invalid' || error === 'expired' || error === 'server') {
+  if (error === 'invalid' || error === 'server') {
     const heading = error === 'server' ? 'something went wrong.' : 'invalid link.';
     const message =
       error === 'server'
