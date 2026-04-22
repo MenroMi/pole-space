@@ -1,7 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@/shared/lib/auth', () => ({
-  auth: vi.fn((handler: unknown) => handler),
+vi.mock('next-auth', () => ({
+  default: vi.fn(() => ({
+    auth: vi.fn((handler: unknown) => handler),
+  })),
+}));
+
+vi.mock('@/shared/lib/auth.config', () => ({
+  authBaseConfig: {},
 }));
 
 vi.mock('next/server', () => ({
@@ -17,6 +23,24 @@ describe('getProtectedRedirect', () => {
     expect(getProtectedRedirect('/', false, 'http://localhost')).toBeNull();
     expect(getProtectedRedirect('/catalog', false, 'http://localhost')).toBeNull();
     expect(getProtectedRedirect('/login', false, 'http://localhost')).toBeNull();
+  });
+
+  it('redirects authenticated user away from /login to /', () => {
+    const url = getProtectedRedirect('/login', true, 'http://localhost');
+    expect(url).not.toBeNull();
+    expect(url!.pathname).toBe('/');
+  });
+
+  it('redirects authenticated user away from /signup to /', () => {
+    const url = getProtectedRedirect('/signup', true, 'http://localhost');
+    expect(url).not.toBeNull();
+    expect(url!.pathname).toBe('/');
+  });
+
+  it('redirects authenticated user away from /verify-email to /', () => {
+    const url = getProtectedRedirect('/verify-email', true, 'http://localhost');
+    expect(url).not.toBeNull();
+    expect(url!.pathname).toBe('/');
   });
 
   it('returns null for a protected route when the user is authenticated', () => {

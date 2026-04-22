@@ -21,10 +21,10 @@ describe('profileNameSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects name shorter than 2 characters', () => {
-    const result = profileNameSchema.safeParse({ name: 'A' });
+  it('rejects name shorter than 5 characters', () => {
+    const result = profileNameSchema.safeParse({ name: 'Ali' });
     expect(result.success).toBe(false);
-    expect(result.error?.issues[0].message).toBe('Name must be at least 2 characters');
+    expect(result.error?.issues[0].message).toBe('Name must be at least 5 characters');
   });
 
   it('rejects name longer than 50 characters', () => {

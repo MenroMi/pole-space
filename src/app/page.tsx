@@ -1,7 +1,7 @@
 export default function HomePage() {
   return (
     <main>
-      <h1>Kinetic Gallery</h1>
+      <h1>Pole Space</h1>
     </main>
   );
 }

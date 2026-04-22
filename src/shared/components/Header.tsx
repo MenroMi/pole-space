@@ -20,7 +20,7 @@ export default async function Header() {
         href="/"
         className="font-display text-lg font-semibold tracking-tight text-on-surface lowercase"
       >
-        kinetic gallery
+        pole space
       </Link>
 
       <HeaderNav />

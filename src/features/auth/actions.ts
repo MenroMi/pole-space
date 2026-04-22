@@ -6,6 +6,7 @@ import { AuthError } from 'next-auth';
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
+import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
 import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
 import { signupSchema } from './lib/validation';
@@ -38,7 +39,7 @@ export async function signupAction(data: SignupFormData) {
     return { error: 'Failed to send email, please try again' };
   }
 
-  redirect('/verify-email?sent=true');
+  redirect(`/verify-email?sent=true&email=${encodeURIComponent(parsed.data.email)}`);
 }
 
 export async function loginAction(data: LoginFormData) {
@@ -51,7 +52,11 @@ export async function loginAction(data: LoginFormData) {
   } catch (error) {
     if (error instanceof AuthError) {
       const cause = error.cause as { err?: Error } | undefined;
-      return { error: cause?.err?.message ?? 'Invalid credentials' };
+      const message = cause?.err?.message ?? 'Invalid credentials';
+      if (message === 'Please verify your email first') {
+        return { error: message, email: data.email };
+      }
+      return { error: message };
     }
     throw error;
   }
@@ -64,6 +69,13 @@ export async function resendVerificationAction(email: string) {
     redirect('/verify-email?error=invalid');
   }
 
+  const existing = await prisma.verificationToken.findFirst({ where: { identifier: email } });
+  if (existing) {
+    if (Date.now() - existing.createdAt.getTime() < RESEND_COOLDOWN_MS) {
+      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
+    }
+  }
+
   await deleteUserTokens(email);
   const token = await generateVerificationToken(email);
 
@@ -71,8 +83,8 @@ export async function resendVerificationAction(email: string) {
     await sendVerificationEmail(email, token);
   } catch {
     await deleteUserTokens(email);
-    redirect('/verify-email?error=send-failed');
+    redirect(`/verify-email?error=send-failed&email=${encodeURIComponent(email)}`);
   }
 
-  redirect('/verify-email?sent=true');
+  redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
 }

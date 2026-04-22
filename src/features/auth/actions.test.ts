@@ -21,6 +21,9 @@ vi.mock('@/shared/lib/prisma', () => ({
       create: vi.fn(),
       delete: vi.fn(),
     },
+    verificationToken: {
+      findFirst: vi.fn(),
+    },
   },
 }));
 vi.mock('@/features/auth/lib/tokens', () => ({
@@ -51,12 +54,13 @@ import { signupAction, loginAction, resendVerificationAction } from './actions';
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>;
 const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>;
+const mockFindFirstToken = prisma.verificationToken.findFirst as ReturnType<typeof vi.fn>;
 const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>;
 const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
 
-const validData = { name: 'Alice', email: 'alice@example.com', password: 'password123' };
+const validData = { name: 'Alice Smith', email: 'alice@example.com', password: 'Password1!' };
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -87,7 +91,9 @@ describe('signupAction', () => {
     );
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
   });
 
   it('deletes user and tokens if Resend fails', async () => {
@@ -138,7 +144,7 @@ describe('loginAction', () => {
     expect(result).toEqual({ error: 'Invalid credentials' });
   });
 
-  it('returns cause error message when authorize throws a specific error', async () => {
+  it('returns cause error message and email when authorize throws verify-email error', async () => {
     const authError = Object.assign(new Error('CredentialsSignin'), {
       type: 'CredentialsSignin',
       cause: { err: new Error('Please verify your email first') },
@@ -148,7 +154,7 @@ describe('loginAction', () => {
 
     const result = await loginAction({ email: 'a@b.com', password: 'pass' });
 
-    expect(result).toEqual({ error: 'Please verify your email first' });
+    expect(result).toEqual({ error: 'Please verify your email first', email: 'a@b.com' });
   });
 
   it('re-throws non-AuthError errors (e.g. NEXT_REDIRECT)', async () => {
@@ -164,6 +170,7 @@ describe('loginAction', () => {
 describe('resendVerificationAction', () => {
   it('deletes old tokens, generates new token, sends email, then redirects', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue(null);
     mockSendEmail.mockResolvedValue(undefined);
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
@@ -171,7 +178,9 @@ describe('resendVerificationAction', () => {
     expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
   });
 
   it('redirects to invalid if user not found', async () => {
@@ -192,13 +201,46 @@ describe('resendVerificationAction', () => {
     expect(mockGenToken).not.toHaveBeenCalled();
   });
 
+  it('silently redirects without sending if token was created less than 60s ago', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue({
+      identifier: 'alice@example.com',
+      createdAt: new Date(Date.now() - 10_000), // created 10s ago
+    });
+
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
+    expect(mockGenToken).not.toHaveBeenCalled();
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  it('allows resend if token was created more than 60s ago', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue({
+      identifier: 'alice@example.com',
+      createdAt: new Date(Date.now() - 120_000), // created 120s ago
+    });
+    mockSendEmail.mockResolvedValue(undefined);
+
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+
+    expect(mockGenToken).toHaveBeenCalled();
+    expect(mockSendEmail).toHaveBeenCalled();
+  });
+
   it('deletes token and redirects to send-failed if email sending fails', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
+    mockFindFirstToken.mockResolvedValue(null);
     mockSendEmail.mockRejectedValue(new Error('Resend error'));
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
 
     expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=send-failed');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?error=send-failed&email=alice%40example.com'),
+    );
   });
 });

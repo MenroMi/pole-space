@@ -13,7 +13,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'Kinetic Gallery — Pole Artistry Platform',
+  title: 'Pole Space — Pole Artistry Platform',
   description: 'Catalog of pole dance moves',
 };
 
