@@ -197,12 +197,12 @@ describe('resendVerificationAction', () => {
     expect(mockGenToken).not.toHaveBeenCalled();
   });
 
-  it('redirects to /login if user already verified', async () => {
+  it('redirects to /catalog if user already verified', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: new Date() });
 
     await expect(resendVerificationAction('verified@example.com')).rejects.toThrow('NEXT_REDIRECT');
 
-    expect(mockRedirect).toHaveBeenCalledWith('/login');
+    expect(mockRedirect).toHaveBeenCalledWith('/catalog');
     expect(mockGenToken).not.toHaveBeenCalled();
   });
 

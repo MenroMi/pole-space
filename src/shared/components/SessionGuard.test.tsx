@@ -16,11 +16,13 @@ const mockReplace = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as ReturnType<typeof useRouter>);
+  vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as unknown as ReturnType<
+    typeof useRouter
+  >);
 });
 
 describe('SessionGuard', () => {
-  it('redirects to /login when session status is unauthenticated', () => {
+  it('does not redirect when session is unauthenticated on initial load', () => {
     vi.mocked(useSession).mockReturnValue({
       status: 'unauthenticated',
       data: null,
@@ -28,6 +30,34 @@ describe('SessionGuard', () => {
     });
 
     render(
+      <SessionGuard>
+        <div>protected</div>
+      </SessionGuard>,
+    );
+
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('redirects to /login when session transitions from authenticated to unauthenticated', () => {
+    vi.mocked(useSession).mockReturnValue({
+      status: 'authenticated',
+      data: { user: { name: 'Alice' }, expires: '2099-01-01' },
+      update: vi.fn(),
+    });
+
+    const { rerender } = render(
+      <SessionGuard>
+        <div>protected</div>
+      </SessionGuard>,
+    );
+
+    vi.mocked(useSession).mockReturnValue({
+      status: 'unauthenticated',
+      data: null,
+      update: vi.fn(),
+    });
+
+    rerender(
       <SessionGuard>
         <div>protected</div>
       </SessionGuard>,

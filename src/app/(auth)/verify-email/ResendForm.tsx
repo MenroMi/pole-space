@@ -41,7 +41,7 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
     async function handleVisibilityChange() {
       if (document.visibilityState === 'visible') {
         const verified = await checkEmailVerifiedAction(email);
-        if (verified) router.replace('/login');
+        if (verified) router.replace('/catalog');
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -64,6 +64,11 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
 
   async function handleAction() {
     startCountdown(RESEND_COOLDOWN_S);
+    const alreadyVerified = await checkEmailVerifiedAction(email);
+    if (alreadyVerified) {
+      router.replace('/catalog');
+      return;
+    }
     await action();
   }
 

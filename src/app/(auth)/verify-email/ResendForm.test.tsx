@@ -21,11 +21,13 @@ const mockCheckVerified = checkEmailVerifiedAction as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as ReturnType<typeof useRouter>);
+  vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as unknown as ReturnType<
+    typeof useRouter
+  >);
 });
 
 describe('ResendForm — visibilitychange', () => {
-  it('calls router.replace(/login) when tab gains focus and email is verified', async () => {
+  it('calls router.replace(/catalog) when tab gains focus and email is verified', async () => {
     mockCheckVerified.mockResolvedValue(true);
 
     render(<ResendForm action={vi.fn()} email="alice@example.com" />);
@@ -38,7 +40,7 @@ describe('ResendForm — visibilitychange', () => {
 
     await waitFor(() => {
       expect(mockCheckVerified).toHaveBeenCalledWith('alice@example.com');
-      expect(mockReplace).toHaveBeenCalledWith('/login');
+      expect(mockReplace).toHaveBeenCalledWith('/catalog');
     });
   });
 
