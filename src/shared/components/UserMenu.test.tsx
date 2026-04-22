@@ -65,9 +65,13 @@ vi.mock('@/shared/components/ui/alert-dialog', () => ({
     const onOpenChange = React.useContext(AlertDialogOnOpenChange);
     return <button onClick={() => onOpenChange?.(false)}>{children}</button>;
   },
-  AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
-    <button onClick={onClick}>{children}</button>
-  ),
+  AlertDialogAction: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  }) => <button onClick={onClick}>{children}</button>,
 }));
 
 import { signOutAction } from '@/shared/lib/auth-actions';
@@ -161,5 +165,14 @@ describe('UserMenu — Log out confirmation', () => {
     await u.click(screen.getByRole('menuitem', { name: 'Log out' }));
     await u.click(screen.getByRole('button', { name: 'Log out' }));
     expect(mockSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows error message when signOutAction rejects', async () => {
+    mockSignOut.mockRejectedValue(new Error('network'));
+    const u = userEvent.setup();
+    render(<UserMenu user={user} />);
+    await u.click(screen.getByRole('menuitem', { name: 'Log out' }));
+    await u.click(screen.getByRole('button', { name: 'Log out' }));
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
   });
 });

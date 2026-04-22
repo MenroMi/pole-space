@@ -36,6 +36,11 @@ export default function UserMenu({ user }: UserMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signOutError, setSignOutError] = useState<boolean>(false);
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setConfirmOpen(open);
+    if (!open) setSignOutError(false);
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -112,10 +117,7 @@ export default function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={confirmOpen} onOpenChange={(open) => {
-          setConfirmOpen(open);
-          if (!open) setSignOutError(false);
-        }}>
+      <AlertDialog open={confirmOpen} onOpenChange={handleDialogOpenChange}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Log out?</AlertDialogTitle>
@@ -125,11 +127,18 @@ export default function UserMenu({ user }: UserMenuProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() =>
-                signOutAction().catch(() => {
+            <AlertDialogAction
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  await signOutAction();
+                } catch {
                   setSignOutError(true);
-                })
-              }>Log out</AlertDialogAction>
+                }
+              }}
+            >
+              Log out
+            </AlertDialogAction>
           </AlertDialogFooter>
           {signOutError && (
             <p className="mt-2 text-sm text-destructive text-center">
