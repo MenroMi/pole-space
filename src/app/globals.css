@@ -150,19 +150,19 @@
   animation: blob-drift 12s ease-in-out infinite;
 }
 
-@property --kinetic-angle {
-  syntax: '<angle>';
-  initial-value: 135deg;
-  inherits: false;
-}
-
 @layer utilities {
   .kinetic-gradient {
-    background: linear-gradient(var(--kinetic-angle), var(--primary), var(--primary-container));
-    transition: --kinetic-angle 700ms ease;
+    background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
+    background-size: 200% 200%;
+    background-position: left center;
+    transition:
+      background-position 600ms ease,
+      transform 300ms ease,
+      box-shadow 300ms ease,
+      opacity 300ms ease;
   }
   .kinetic-gradient:hover {
-    --kinetic-angle: 315deg;
+    background-position: right center;
   }
 }
 
