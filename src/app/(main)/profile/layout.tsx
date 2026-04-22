@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 
-import { auth } from '@/shared/lib/auth';
 import ProfileAside from '@/features/profile/components/ProfileAside';
 import PageShell from '@/shared/components/PageShell';
+import { auth } from '@/shared/lib/auth';
 
 export default async function ProfileLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -11,10 +11,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   return (
     <PageShell
       aside={
-        <ProfileAside
-          name={session?.user?.name ?? null}
-          image={session?.user?.image ?? null}
-        />
+        <ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />
       }
     >
       {children}

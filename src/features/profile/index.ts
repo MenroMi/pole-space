@@ -8,4 +8,9 @@ export {
   removeFavouriteAction,
   getUserFavouritesAction,
 } from './actions';
-export type { ProgressWithMove, FavouriteWithMove, ProfileFormValues, ChangePasswordValues } from './types';
+export type {
+  ProgressWithMove,
+  FavouriteWithMove,
+  ProfileFormValues,
+  ChangePasswordValues,
+} from './types';

@@ -8,6 +8,7 @@
 ## Overview
 
 The profile section is a multi-route dashboard with a persistent aside navigation. Stage 2C delivers:
+
 - `/profile` — Overview dashboard with progress and favourites widgets
 - `/profile/progress` — Full progress list with status management
 - `/profile/favourite-moves` — Favourites list (empty state in 2C; populated in Stage 2D)
@@ -69,16 +70,16 @@ Add `favourites UserFavourite[]` relation to `User` and `Move` models.
 
 ### Server Actions (`'use server'`, all require `requireAuth()`)
 
-| Action | Input | Returns |
-|--------|-------|---------|
-| `getUserProgressAction()` | — | `ProgressWithMove[]` (existing) |
-| `updateProgressAction(moveId, status)` | `string, LearnStatus` | `{ success, error }` (existing) |
-| `updateProfileAction({ name })` | `{ name: string }` | `{ success, error }` |
-| `uploadAvatarAction(formData)` | `FormData` | `{ success, imageUrl, error }` |
-| `changePasswordAction({ currentPassword, newPassword })` | `{ currentPassword, newPassword }` | `{ success, error }` |
-| `addFavouriteAction(moveId)` | `string` | `{ success, error }` |
-| `removeFavouriteAction(moveId)` | `string` | `{ success, error }` |
-| `getUserFavouritesAction()` | — | `FavouriteWithMove[]` |
+| Action                                                   | Input                              | Returns                         |
+| -------------------------------------------------------- | ---------------------------------- | ------------------------------- |
+| `getUserProgressAction()`                                | —                                  | `ProgressWithMove[]` (existing) |
+| `updateProgressAction(moveId, status)`                   | `string, LearnStatus`              | `{ success, error }` (existing) |
+| `updateProfileAction({ name })`                          | `{ name: string }`                 | `{ success, error }`            |
+| `uploadAvatarAction(formData)`                           | `FormData`                         | `{ success, imageUrl, error }`  |
+| `changePasswordAction({ currentPassword, newPassword })` | `{ currentPassword, newPassword }` | `{ success, error }`            |
+| `addFavouriteAction(moveId)`                             | `string`                           | `{ success, error }`            |
+| `removeFavouriteAction(moveId)`                          | `string`                           | `{ success, error }`            |
+| `getUserFavouritesAction()`                              | —                                  | `FavouriteWithMove[]`           |
 
 `uploadAvatarAction` validates: file type must be `image/*`, max size 5MB — server-side. Returns `{ error: 'Only image files are allowed' }` or `{ error: 'File size must be under 5MB' }` on failure.
 
@@ -87,36 +88,48 @@ Add `favourites UserFavourite[]` relation to `User` and `Move` models.
 ## Components
 
 ### `layout.tsx`
+
 Server Component. Fetches session for user name + image. Renders `<ProfileAside name image />` + `{children}` using `PageShell` with aside prop (same pattern as catalog).
 
 ### `ProfileAside`
+
 Client Component. Nav links: Overview / Progress / Favourite Moves / Settings. `usePathname()` highlights active link. Displays avatar + user name at the top (received as props from layout).
 
 ### `page.tsx` (Overview)
+
 Server Component. Renders `<ProfileOverview />`.
 
 ### `ProfileOverview`
+
 Server Component. Two widgets in a grid:
+
 - `ProgressWidget` — fetches `getUserProgressAction()`, shows up to 5 moves with `IN_PROGRESS` status, "View all →" link to `/profile/progress`
 - `FavouritesWidget` — empty state: "Add favourites from move pages" (activates in Stage 2D)
 
 ### `progress/page.tsx`
+
 Server Component. Fetches full progress. Renders list of `ProgressCard`. Empty state: "No moves tracked yet. Browse the catalog to get started."
 
 ### `ProgressCard`
+
 Client Component. Move image (or `ImageOff` fallback, same as catalog) + title + difficulty badge + `ProgressStatusPicker`. Status change calls `updateProgressAction` via `useTransition` (pending state on active button, no optimistic update needed).
 
 ### `ProgressStatusPicker`
+
 Client Component. Three shadcn `Button` components: WANT TO LEARN / IN PROGRESS / LEARNED. Active status: `variant="default"` (`bg-primary`). Inactive: `variant="ghost"`.
 
 ### `favourite-moves/page.tsx`
+
 Server Component. Fetches `getUserFavouritesAction()`. Renders move cards with remove button. In Stage 2C always shows empty state (no way to add favourites yet).
 
 ### `settings/page.tsx`
+
 Server Component. Fetches user (`name`, `image`, `password !== null`). Passes `hasPassword: boolean` to `SettingsForm`.
 
 ### `SettingsForm`
+
 Client Component. RHF + Zod. Three independent sections, each with its own submit:
+
 1. **Name** — text input, min 2 / max 50 chars
 2. **Avatar** — `AvatarUpload` component
 3. **Change password** — rendered only if `hasPassword === true` (hidden for OAuth users, no explanation shown)
@@ -124,6 +137,7 @@ Client Component. RHF + Zod. Three independent sections, each with its own submi
 Success: toast notification. Error: inline field error.
 
 ### `AvatarUpload`
+
 Client Component. File input → client-side preview → `uploadAvatarAction(formData)`. Accepts `image/*` only, enforces 5MB limit client-side (mirrored server-side).
 
 ---
@@ -143,6 +157,7 @@ Client Component. File input → client-side preview → `uploadAvatarAction(for
 Unit tests (Vitest):
 
 **Actions (`actions.test.ts`):**
+
 - `updateProfileAction` — updates name; rejects unauthenticated
 - `changePasswordAction` — correct password succeeds; wrong password returns error; rejects unauthenticated
 - `addFavouriteAction` — creates record (idempotent: upsert, duplicate returns `{ success: true }`); rejects unauthenticated
@@ -150,6 +165,7 @@ Unit tests (Vitest):
 - `getUserFavouritesAction` — returns favourites with move; rejects unauthenticated
 
 **Components:**
+
 - `ProgressStatusPicker` — renders three buttons; active button has correct variant; click triggers callback
 - `SettingsForm` — Zod validation: empty name, name too short, password mismatch, password too short
 

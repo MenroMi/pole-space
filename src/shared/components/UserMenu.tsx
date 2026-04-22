@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { signOutAction } from '@/shared/lib/auth-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
+import { signOutAction } from '@/shared/lib/auth-actions';
 
 interface UserMenuProps {
   user: { name: string | null; image: string | null } | null;
@@ -141,7 +141,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             </AlertDialogAction>
           </AlertDialogFooter>
           {signOutError && (
-            <p className="mt-2 text-sm text-destructive text-center">
+            <p className="mt-2 text-center text-sm text-destructive">
               Something went wrong. Please try again.
             </p>
           )}

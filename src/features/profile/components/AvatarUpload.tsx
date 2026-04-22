@@ -2,8 +2,9 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-import { uploadAvatarAction } from '../actions';
 import { Button } from '@/shared/components/ui/button';
+
+import { uploadAvatarAction } from '../actions';
 
 interface AvatarUploadProps {
   currentImage: string | null;
@@ -67,7 +68,13 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
           </div>
         )}
       </div>
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="flex gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
           Choose photo

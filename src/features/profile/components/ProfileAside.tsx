@@ -34,7 +34,9 @@ export default function ProfileAside({ name, image }: ProfileAsideProps) {
             {name?.[0]?.toUpperCase() ?? '?'}
           </div>
         )}
-        <span className="truncate font-display font-semibold text-on-surface">{name ?? 'User'}</span>
+        <span className="truncate font-display font-semibold text-on-surface">
+          {name ?? 'User'}
+        </span>
       </div>
       {NAV_LINKS.map(({ href, label }) => (
         <Link

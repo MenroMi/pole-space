@@ -92,8 +92,14 @@ describe('UserMenu — unauthenticated (user=null)', () => {
 
   it('renders Profile and Settings as disabled', () => {
     render(<UserMenu user={null} />);
-    expect(screen.getByRole('menuitem', { name: 'Profile' })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Profile' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('renders Log in as active (not disabled)', () => {
@@ -118,8 +124,14 @@ describe('UserMenu — authenticated (user provided)', () => {
 
   it('renders Profile and Settings as active (not disabled)', () => {
     render(<UserMenu user={user} />);
-    expect(screen.getByRole('menuitem', { name: 'Profile' })).not.toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: 'Settings' })).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Profile' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByRole('menuitem', { name: 'Settings' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('renders Log out and not Log in', () => {

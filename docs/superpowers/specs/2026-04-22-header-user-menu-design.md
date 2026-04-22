@@ -14,19 +14,23 @@ Give users a contextual account menu in the header that shows available profile 
 ## Architecture
 
 **New packages** (both `--save-exact`):
+
 - `@radix-ui/react-dropdown-menu`
 - `@radix-ui/react-alert-dialog`
 
 **New files:**
+
 - `src/shared/components/ui/dropdown-menu.tsx` — Radix DropdownMenu primitives (same pattern as `accordion.tsx`)
 - `src/shared/components/ui/alert-dialog.tsx` — Radix AlertDialog primitives
 - `src/shared/components/UserMenu.tsx` — Client Component, all dropdown logic
 - `src/shared/lib/auth-actions.ts` — Server Action `signOutAction()` wrapping NextAuth `signOut`
 
 **Modified files:**
+
 - `src/shared/components/Header.tsx` — pass `user: { name: string | null; image: string | null } | null` to `UserMenu`
 
 **Data flow:**
+
 - `Header` (Server Component) calls `auth()`, extracts `name` and `image` from session, passes as props to `UserMenu`
 - `UserMenu` (Client Component) renders the trigger icon and dropdown
 - Log out confirmation calls `signOutAction()` Server Action → redirects to `/`
@@ -88,21 +92,22 @@ Triggered by clicking "Log out" in the dropdown. Dropdown closes when dialog ope
 
 Follows existing design system tokens:
 
-| Element | Token |
-|---|---|
-| Dropdown panel | `bg-surface-container`, `rounded-xl`, `border border-outline-variant`, shadow |
-| Active item hover | `bg-accent` (`surface-container-high`) |
-| Disabled items | `opacity-50`, `cursor-not-allowed`, `pointer-events-none` |
-| Separator | `bg-outline-variant` |
-| Avatar fallback | `bg-primary-container text-on-surface` |
-| Log out item | `text-destructive` |
-| AlertDialog confirm button | `variant="destructive"` |
+| Element                    | Token                                                                         |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| Dropdown panel             | `bg-surface-container`, `rounded-xl`, `border border-outline-variant`, shadow |
+| Active item hover          | `bg-accent` (`surface-container-high`)                                        |
+| Disabled items             | `opacity-50`, `cursor-not-allowed`, `pointer-events-none`                     |
+| Separator                  | `bg-outline-variant`                                                          |
+| Avatar fallback            | `bg-primary-container text-on-surface`                                        |
+| Log out item               | `text-destructive`                                                            |
+| AlertDialog confirm button | `variant="destructive"`                                                       |
 
 ---
 
 ## Testing
 
 **TDD for `UserMenu`:**
+
 - Renders account icon trigger
 - Unauthenticated: Profile and Settings items are disabled, Log in is active
 - Authenticated: shows user name in header, Profile/Settings active, Log out present
@@ -111,6 +116,7 @@ Follows existing design system tokens:
 - Confirm calls `signOutAction`
 
 **`signOutAction`:**
+
 - Calls NextAuth `signOut` with `redirectTo: '/'`
 - No unit test needed (thin wrapper over NextAuth)
 

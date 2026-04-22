@@ -13,6 +13,7 @@
 ## File Map
 
 **Created:**
+
 - `src/shared/components/ui/dropdown-menu.tsx` — Radix DropdownMenu primitives with Stitch tokens
 - `src/shared/components/ui/alert-dialog.tsx` — Radix AlertDialog primitives with Stitch tokens
 - `src/shared/lib/auth-actions.ts` — `signOutAction` Server Action
@@ -20,6 +21,7 @@
 - `src/shared/components/UserMenu.test.tsx` — TDD tests for UserMenu
 
 **Modified:**
+
 - `src/shared/components/Header.tsx` — remove bare link, pass `user` prop to `UserMenu`
 - `src/shared/components/Header.test.tsx` — update tests to match new structure
 
@@ -28,6 +30,7 @@
 ## Task 1: Install packages + UI primitives
 
 **Files:**
+
 - Modify: `package.json` (via npm install)
 - Create: `src/shared/components/ui/dropdown-menu.tsx`
 - Create: `src/shared/components/ui/alert-dialog.tsx`
@@ -62,7 +65,7 @@ const DropdownMenuContent = React.forwardRef<
       sideOffset={sideOffset}
       className={cn(
         'z-50 min-w-[10rem] overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-1 shadow-lg',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:animate-out data-[state=open]:animate-in',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
         className,
@@ -80,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-sm text-on-surface outline-none transition-colors',
+      'relative flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-on-surface transition-colors outline-none select-none',
       'focus:bg-accent focus:text-on-surface',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className,
@@ -146,7 +149,7 @@ const AlertDialogOverlay = React.forwardRef<
     ref={ref}
     className={cn(
       'fixed inset-0 z-50 bg-black/60',
-      'data-[state=open]:animate-in data-[state=closed]:animate-out',
+      'data-[state=closed]:animate-out data-[state=open]:animate-in',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className,
     )}
@@ -164,9 +167,9 @@ const AlertDialogContent = React.forwardRef<
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2',
+        'fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2',
         'rounded-xl border border-outline-variant bg-surface-container p-6 shadow-lg',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:animate-out data-[state=open]:animate-in',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
         className,
@@ -270,6 +273,7 @@ git commit -m "chore(ui): add DropdownMenu and AlertDialog Radix primitives"
 ## Task 2: signOutAction
 
 **Files:**
+
 - Create: `src/shared/lib/auth-actions.ts`
 
 - [ ] **Step 1: Create `src/shared/lib/auth-actions.ts`**
@@ -303,6 +307,7 @@ git commit -m "feat(auth): add signOutAction server action"
 ## Task 3: UserMenu (TDD)
 
 **Files:**
+
 - Create: `src/shared/components/UserMenu.test.tsx`
 - Create: `src/shared/components/UserMenu.tsx`
 
@@ -355,12 +360,20 @@ vi.mock('@/shared/components/ui/alert-dialog', () => ({
   AlertDialogTitle: ({ children }: { children: React.ReactNode }) => <h2>{children}</h2>,
   AlertDialogDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
   AlertDialogFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  AlertDialogCancel: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
-    <button onClick={onClick}>{children}</button>
-  ),
-  AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
-    <button onClick={onClick}>{children}</button>
-  ),
+  AlertDialogCancel: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+  }) => <button onClick={onClick}>{children}</button>,
+  AlertDialogAction: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+  }) => <button onClick={onClick}>{children}</button>,
 }));
 
 import { signOutAction } from '@/shared/lib/auth-actions';
@@ -378,8 +391,14 @@ describe('UserMenu — unauthenticated (user=null)', () => {
 
   it('renders Profile and Settings as disabled', () => {
     render(<UserMenu user={null} />);
-    expect(screen.getByRole('menuitem', { name: 'Profile' })).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Profile' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByRole('menuitem', { name: 'Settings' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('renders Log in as active (not disabled)', () => {
@@ -404,8 +423,14 @@ describe('UserMenu — authenticated (user provided)', () => {
 
   it('renders Profile and Settings as active (not disabled)', () => {
     render(<UserMenu user={user} />);
-    expect(screen.getByRole('menuitem', { name: 'Profile' })).not.toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByRole('menuitem', { name: 'Settings' })).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('menuitem', { name: 'Profile' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+    expect(screen.getByRole('menuitem', { name: 'Settings' })).not.toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 
   it('renders Log out and not Log in', () => {
@@ -634,6 +659,7 @@ git commit -m "feat(header): add UserMenu with dropdown and sign-out confirmatio
 ## Task 4: Update Header
 
 **Files:**
+
 - Modify: `src/shared/components/Header.tsx`
 - Modify: `src/shared/components/Header.test.tsx`
 
@@ -694,7 +720,6 @@ export default async function Header() {
   );
 }
 ```
-
 
 - [ ] **Step 2: Update `src/shared/components/Header.test.tsx`**
 

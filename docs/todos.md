@@ -154,6 +154,7 @@
 - New migrations (e.g. add_user_favourite) omit the qualifier — they rely on PostgreSQL's default `search_path = public`
 - Safe on Neon and standard PostgreSQL setups; could break if `search_path` is non-default
 - No action needed unless the project moves to a non-default schema
+
 ## CI/CD
 
 **Dependabot `open-pull-requests-limit` не задан** (2026-04-22)

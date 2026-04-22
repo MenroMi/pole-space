@@ -77,10 +77,7 @@ export async function uploadAvatarAction(formData: FormData) {
   return { success: true as const, imageUrl: result.secure_url };
 }
 
-export async function changePasswordAction(data: {
-  currentPassword: string;
-  newPassword: string;
-}) {
+export async function changePasswordAction(data: { currentPassword: string; newPassword: string }) {
   const userId = await requireAuth();
   const parsed = changePasswordSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
@@ -89,7 +86,8 @@ export async function changePasswordAction(data: {
     where: { id: userId },
     select: { password: true },
   });
-  if (!user?.password) return { success: false as const, error: 'Password change is not available' };
+  if (!user?.password)
+    return { success: false as const, error: 'Password change is not available' };
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);
   if (!valid) return { success: false as const, error: 'Current password is incorrect' };

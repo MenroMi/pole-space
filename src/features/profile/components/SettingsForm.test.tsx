@@ -3,7 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('next-auth', () => ({ default: vi.fn(), getServerSession: vi.fn() }));
 vi.mock('@/shared/lib/auth', () => ({ auth: vi.fn() }));
 vi.mock('@/shared/lib/prisma', () => ({ prisma: {} }));
-vi.mock('@/shared/lib/cloudinary', () => ({ cloudinary: { uploader: { upload_stream: vi.fn() } } }));
+vi.mock('@/shared/lib/cloudinary', () => ({
+  cloudinary: { uploader: { upload_stream: vi.fn() } },
+}));
 vi.mock('../actions', () => ({
   updateProfileAction: vi.fn(),
   changePasswordAction: vi.fn(),

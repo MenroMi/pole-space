@@ -1,6 +1,6 @@
+import SettingsForm from '@/features/profile/components/SettingsForm';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
-import SettingsForm from '@/features/profile/components/SettingsForm';
 
 export default async function SettingsPage() {
   const session = await auth();

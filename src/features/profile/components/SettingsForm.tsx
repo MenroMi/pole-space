@@ -1,13 +1,15 @@
 'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-import { updateProfileAction, changePasswordAction } from '../actions';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+
+import { updateProfileAction, changePasswordAction } from '../actions';
+
 import AvatarUpload from './AvatarUpload';
 
 export const profileNameSchema = z.object({
@@ -90,7 +92,11 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
           className="flex max-w-sm flex-col gap-3"
         >
           <div className="flex flex-col gap-1">
-            <Input {...nameForm.register('name')} placeholder="Your name" aria-label="Display name" />
+            <Input
+              {...nameForm.register('name')}
+              placeholder="Your name"
+              aria-label="Display name"
+            />
             {nameForm.formState.errors.name && (
               <p className="text-sm text-destructive">{nameForm.formState.errors.name.message}</p>
             )}

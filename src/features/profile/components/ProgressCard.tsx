@@ -1,11 +1,13 @@
 'use client';
+import { ImageOff } from 'lucide-react';
 import Image from 'next/image';
 import { useTransition } from 'react';
-import { ImageOff } from 'lucide-react';
+
+import type { LearnStatus } from '@/shared/types';
 
 import { updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
-import type { LearnStatus } from '@/shared/types';
+
 import ProgressStatusPicker from './ProgressStatusPicker';
 
 const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {

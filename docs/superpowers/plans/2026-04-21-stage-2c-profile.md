@@ -17,6 +17,7 @@
 ## File Map
 
 **Created:**
+
 - `src/shared/lib/utils.ts` — `cn()` helper
 - `src/shared/components/ui/button.tsx` — shadcn Button
 - `src/shared/components/ui/input.tsx` — shadcn Input
@@ -34,6 +35,7 @@
 - `src/app/(main)/profile/settings/page.tsx` — settings page
 
 **Modified:**
+
 - `prisma/schema.prisma` — add `UserFavourite` model + relations
 - `src/app/globals.css` — add shadcn token layer + `tw-animate-css` import
 - `src/features/profile/actions.ts` — add 6 new actions
@@ -48,6 +50,7 @@
 > Skip this task if `feature/filters-accordion` is already merged into this branch.
 
 **Files:**
+
 - Create: `src/shared/lib/utils.ts`
 - Create: `src/shared/components/ui/button.tsx`
 - Create: `src/shared/components/ui/input.tsx`
@@ -57,6 +60,7 @@
 - [ ] **Step 1: Install peer dependencies**
 
 Run from `.worktrees/stage-2c-profile/`:
+
 ```bash
 npm install --save-exact @radix-ui/react-slot@1.2.3 class-variance-authority@0.7.1 clsx@2.1.1 tailwind-merge@3.3.1 lucide-react@0.544.0 tw-animate-css@1.4.0
 ```
@@ -87,7 +91,8 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-        outline: 'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
+        outline:
+          'border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
@@ -104,15 +109,16 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return (
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+    );
   },
 );
 Button.displayName = 'Button';
@@ -128,19 +134,21 @@ import { cn } from '@/shared/lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
-  return (
-    <input
-      type={type}
-      className={cn(
-        'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
-        className,
-      )}
-      ref={ref}
-      {...props}
-    />
-  );
-});
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
 Input.displayName = 'Input';
 
 export { Input };
@@ -149,6 +157,7 @@ export { Input };
 - [ ] **Step 5: Add shadcn token layer to `src/app/globals.css`**
 
 Replace the entire file content with:
+
 ```css
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -252,6 +261,7 @@ body {
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors
 
 - [ ] **Step 7: Commit**
@@ -266,11 +276,13 @@ git commit -m "chore(ui): add shadcn primitives (Button, Input, cn) and token la
 ## Task 2: Prisma — UserFavourite model
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 
 - [ ] **Step 1: Add UserFavourite model to `prisma/schema.prisma`**
 
 Add to the end of the file (after `UserProgress` model):
+
 ```prisma
 model UserFavourite {
   id        String   @id @default(cuid())
@@ -286,6 +298,7 @@ model UserFavourite {
 ```
 
 Also add `favourites UserFavourite[]` to the `User` model (after the `progress` field) and to the `Move` model (after the `progress` field):
+
 ```prisma
 // in User model, after: progress UserProgress[]
 favourites UserFavourite[]
@@ -299,6 +312,7 @@ favourites UserFavourite[]
 ```bash
 npx prisma migrate dev --name add-user-favourite
 ```
+
 Expected: migration file created, DB updated successfully
 
 - [ ] **Step 3: Verify Prisma client regenerated**
@@ -306,6 +320,7 @@ Expected: migration file created, DB updated successfully
 ```bash
 npx prisma generate
 ```
+
 Expected: `✔ Generated Prisma Client`
 
 - [ ] **Step 4: Commit**
@@ -320,6 +335,7 @@ git commit -m "feat(db): add UserFavourite model with cascade deletes"
 ## Task 3: Profile types + new actions (TDD)
 
 **Files:**
+
 - Modify: `src/features/profile/types.ts`
 - Modify: `src/features/profile/actions.ts`
 - Modify: `src/features/profile/actions.test.ts`
@@ -347,6 +363,7 @@ export interface ChangePasswordValues {
 - [ ] **Step 2: Write failing tests for new actions in `src/features/profile/actions.test.ts`**
 
 Replace the file with:
+
 ```ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -599,11 +616,13 @@ describe('getUserFavouritesAction', () => {
 ```bash
 npx vitest run src/features/profile/actions.test.ts
 ```
+
 Expected: FAIL — new actions not yet exported
 
 - [ ] **Step 4: Implement new actions in `src/features/profile/actions.ts`**
 
 Replace the file content with:
+
 ```ts
 'use server';
 import bcrypt from 'bcryptjs';
@@ -684,16 +703,14 @@ export async function uploadAvatarAction(formData: FormData) {
   return { success: true as const, imageUrl: result.secure_url };
 }
 
-export async function changePasswordAction(data: {
-  currentPassword: string;
-  newPassword: string;
-}) {
+export async function changePasswordAction(data: { currentPassword: string; newPassword: string }) {
   const userId = await requireAuth();
   const parsed = changePasswordSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user?.password) return { success: false as const, error: 'Password change is not available' };
+  if (!user?.password)
+    return { success: false as const, error: 'Password change is not available' };
 
   const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);
   if (!valid) return { success: false as const, error: 'Current password is incorrect' };
@@ -736,6 +753,7 @@ export async function getUserFavouritesAction(): Promise<FavouriteWithMove[]> {
 ```bash
 npx vitest run src/features/profile/actions.test.ts
 ```
+
 Expected: all tests PASS
 
 - [ ] **Step 6: Update `src/features/profile/index.ts`**
@@ -751,7 +769,12 @@ export {
   removeFavouriteAction,
   getUserFavouritesAction,
 } from './actions';
-export type { ProgressWithMove, FavouriteWithMove, ProfileFormValues, ChangePasswordValues } from './types';
+export type {
+  ProgressWithMove,
+  FavouriteWithMove,
+  ProfileFormValues,
+  ChangePasswordValues,
+} from './types';
 ```
 
 - [ ] **Step 7: Verify TypeScript**
@@ -759,6 +782,7 @@ export type { ProgressWithMove, FavouriteWithMove, ProfileFormValues, ChangePass
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors
 
 - [ ] **Step 8: Commit**
@@ -773,6 +797,7 @@ git commit -m "feat(profile): add actions for profile update, password change, f
 ## Task 4: Profile layout + ProfileAside
 
 **Files:**
+
 - Create: `src/features/profile/components/ProfileAside.tsx`
 - Create: `src/app/(main)/profile/layout.tsx`
 
@@ -815,7 +840,9 @@ export default function ProfileAside({ name, image }: ProfileAsideProps) {
             {name?.[0]?.toUpperCase() ?? '?'}
           </div>
         )}
-        <span className="truncate font-display font-semibold text-on-surface">{name ?? 'User'}</span>
+        <span className="truncate font-display font-semibold text-on-surface">
+          {name ?? 'User'}
+        </span>
       </div>
       {NAV_LINKS.map(({ href, label }) => (
         <Link
@@ -846,7 +873,11 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   const session = await auth();
 
   return (
-    <PageShell aside={<ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />}>
+    <PageShell
+      aside={
+        <ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />
+      }
+    >
       {children}
     </PageShell>
   );
@@ -858,6 +889,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors
 
 - [ ] **Step 4: Commit**
@@ -872,6 +904,7 @@ git commit -m "feat(profile): add profile layout with aside navigation"
 ## Task 5: Overview page (widgets)
 
 **Files:**
+
 - Create: `src/features/profile/components/FavouritesWidget.tsx`
 - Create: `src/features/profile/components/ProgressWidget.tsx`
 - Create: `src/features/profile/components/ProfileOverview.tsx`
@@ -891,9 +924,7 @@ export default function FavouritesWidget() {
           View all →
         </Link>
       </div>
-      <p className="text-sm text-on-surface-variant">
-        Add favourites from individual move pages.
-      </p>
+      <p className="text-sm text-on-surface-variant">Add favourites from individual move pages.</p>
     </div>
   );
 }
@@ -964,6 +995,7 @@ export default function ProfilePage() {
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors
 
 - [ ] **Step 6: Commit**
@@ -978,6 +1010,7 @@ git commit -m "feat(profile): add overview page with progress and favourites wid
 ## Task 6: Progress page (TDD for ProgressStatusPicker)
 
 **Files:**
+
 - Create: `src/features/profile/components/ProgressStatusPicker.tsx`
 - Create: `src/features/profile/components/ProgressStatusPicker.test.tsx`
 - Create: `src/features/profile/components/ProgressCard.tsx`
@@ -986,6 +1019,7 @@ git commit -m "feat(profile): add overview page with progress and favourites wid
 - [ ] **Step 1: Write failing tests for `ProgressStatusPicker`**
 
 Create `src/features/profile/components/ProgressStatusPicker.test.tsx`:
+
 ```tsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -1052,6 +1086,7 @@ describe('ProgressStatusPicker', () => {
 ```bash
 npx vitest run src/features/profile/components/ProgressStatusPicker.test.tsx
 ```
+
 Expected: FAIL — module not found
 
 - [ ] **Step 3: Create `src/features/profile/components/ProgressStatusPicker.tsx`**
@@ -1101,6 +1136,7 @@ export default function ProgressStatusPicker({
 ```bash
 npx vitest run src/features/profile/components/ProgressStatusPicker.test.tsx
 ```
+
 Expected: all 4 tests PASS
 
 - [ ] **Step 5: Create `src/features/profile/components/ProgressCard.tsx`**
@@ -1177,9 +1213,7 @@ export default async function ProgressPage() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
         <p className="text-on-surface-variant">No moves tracked yet.</p>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          Browse the catalog to get started.
-        </p>
+        <p className="mt-1 text-sm text-on-surface-variant">Browse the catalog to get started.</p>
       </div>
     );
   }
@@ -1202,6 +1236,7 @@ export default async function ProgressPage() {
 ```bash
 npx vitest run
 ```
+
 Expected: all tests PASS
 
 - [ ] **Step 8: Commit**
@@ -1216,6 +1251,7 @@ git commit -m "feat(profile): add progress page with status picker and move card
 ## Task 7: Favourite moves page
 
 **Files:**
+
 - Create: `src/app/(main)/profile/favourite-moves/page.tsx`
 
 - [ ] **Step 1: Create `src/app/(main)/profile/favourite-moves/page.tsx`**
@@ -1260,6 +1296,7 @@ export default async function FavouriteMovesPage() {
 ```bash
 npx vitest run
 ```
+
 Expected: all tests PASS
 
 - [ ] **Step 3: Commit**
@@ -1274,6 +1311,7 @@ git commit -m "feat(profile): add favourite-moves page (empty state for Stage 2C
 ## Task 8: Settings page (TDD for SettingsForm validation)
 
 **Files:**
+
 - Create: `src/features/profile/components/AvatarUpload.tsx`
 - Create: `src/features/profile/components/SettingsForm.tsx`
 - Create: `src/features/profile/components/SettingsForm.test.tsx`
@@ -1282,6 +1320,7 @@ git commit -m "feat(profile): add favourite-moves page (empty state for Stage 2C
 - [ ] **Step 1: Write failing tests for `SettingsForm` Zod validation**
 
 Create `src/features/profile/components/SettingsForm.test.tsx`:
+
 ```tsx
 import { describe, it, expect } from 'vitest';
 import { profileNameSchema, changePasswordSchema } from './SettingsForm';
@@ -1347,6 +1386,7 @@ describe('changePasswordSchema', () => {
 ```bash
 npx vitest run src/features/profile/components/SettingsForm.test.tsx
 ```
+
 Expected: FAIL — module not found
 
 - [ ] **Step 3: Create `src/features/profile/components/AvatarUpload.tsx`**
@@ -1410,7 +1450,7 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
         {displayImage ? (
           <Image src={displayImage} alt="Avatar" fill className="object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-on-surface-variant text-xs">
+          <div className="flex h-full w-full items-center justify-center text-xs text-on-surface-variant">
             No photo
           </div>
         )}
@@ -1524,16 +1564,16 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
       {/* Avatar section */}
       <section className="flex flex-col gap-3">
         <h2 className="font-semibold text-on-surface">Profile photo</h2>
-        <AvatarUpload
-          currentImage={image}
-          onUploadSuccess={() => router.refresh()}
-        />
+        <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
       </section>
 
       {/* Name section */}
       <section className="flex flex-col gap-3">
         <h2 className="font-semibold text-on-surface">Display name</h2>
-        <form onSubmit={nameForm.handleSubmit(handleNameSubmit)} className="flex flex-col gap-3 max-w-sm">
+        <form
+          onSubmit={nameForm.handleSubmit(handleNameSubmit)}
+          className="flex max-w-sm flex-col gap-3"
+        >
           <div className="flex flex-col gap-1">
             <Input
               {...nameForm.register('name')}
@@ -1559,7 +1599,7 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
           <h2 className="font-semibold text-on-surface">Change password</h2>
           <form
             onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
-            className="flex flex-col gap-3 max-w-sm"
+            className="flex max-w-sm flex-col gap-3"
           >
             <div className="flex flex-col gap-1">
               <Input
@@ -1619,6 +1659,7 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
 ```bash
 npx vitest run src/features/profile/components/SettingsForm.test.tsx
 ```
+
 Expected: all 7 tests PASS
 
 - [ ] **Step 6: Create `src/app/(main)/profile/settings/page.tsx`**
@@ -1633,7 +1674,10 @@ export default async function SettingsPage() {
   const userId = session?.user?.id;
 
   const user = userId
-    ? await prisma.user.findUnique({ where: { id: userId }, select: { name: true, image: true, password: true } })
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, image: true, password: true },
+      })
     : null;
 
   return (
@@ -1651,6 +1695,7 @@ export default async function SettingsPage() {
 ```bash
 npx vitest run
 ```
+
 Expected: all tests PASS
 
 - [ ] **Step 8: Verify TypeScript**
@@ -1658,6 +1703,7 @@ Expected: all tests PASS
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors
 
 - [ ] **Step 9: Commit**
@@ -1676,6 +1722,7 @@ git commit -m "feat(profile): add settings page with name, avatar, and password 
 ```bash
 npx vitest run
 ```
+
 Expected: all tests PASS (existing 140 + new tests)
 
 - [ ] **TypeScript clean**
@@ -1683,4 +1730,5 @@ Expected: all tests PASS (existing 140 + new tests)
 ```bash
 npx tsc --noEmit
 ```
+
 Expected: no errors

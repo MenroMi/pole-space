@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import { getUserProgressAction } from '../actions';
 
 export default async function ProgressWidget() {
