@@ -85,6 +85,15 @@ describe('getUserProgressAction', () => {
     );
     expect(result).toEqual([{ id: 'progress-1' }]);
   });
+
+  it('filters by status when status param is provided', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockFindMany.mockResolvedValue([{ id: 'progress-2' }]);
+    await getUserProgressAction('IN_PROGRESS');
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 'user-123', status: 'IN_PROGRESS' } }),
+    );
+  });
 });
 
 describe('updateProgressAction', () => {

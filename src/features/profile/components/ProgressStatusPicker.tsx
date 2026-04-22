@@ -28,6 +28,7 @@ export default function ProgressStatusPicker({
           variant={currentStatus === value ? 'default' : 'ghost'}
           onClick={() => onStatusChange(value)}
           disabled={isPending || currentStatus === value}
+          aria-pressed={currentStatus === value}
         >
           {label}
         </Button>

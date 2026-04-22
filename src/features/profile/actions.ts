@@ -26,10 +26,10 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(8).max(100),
 });
 
-export async function getUserProgressAction(): Promise<ProgressWithMove[]> {
+export async function getUserProgressAction(status?: LearnStatus): Promise<ProgressWithMove[]> {
   const userId = await requireAuth();
   return prisma.userProgress.findMany({
-    where: { userId },
+    where: { userId, ...(status ? { status } : {}) },
     include: { move: true },
   });
 }

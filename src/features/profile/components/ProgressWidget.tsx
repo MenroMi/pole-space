@@ -2,8 +2,7 @@ import Link from 'next/link';
 import { getUserProgressAction } from '../actions';
 
 export default async function ProgressWidget() {
-  const progress = await getUserProgressAction();
-  const inProgress = progress.filter((p) => p.status === 'IN_PROGRESS').slice(0, 5);
+  const inProgress = (await getUserProgressAction('IN_PROGRESS')).slice(0, 5);
 
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-surface-container p-5">
@@ -14,7 +13,12 @@ export default async function ProgressWidget() {
         </Link>
       </div>
       {inProgress.length === 0 ? (
-        <p className="text-sm text-on-surface-variant">No moves in progress yet.</p>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-on-surface-variant">No moves in progress yet.</p>
+          <Link href="/catalog" className="text-sm text-primary hover:underline">
+            Browse the catalog →
+          </Link>
+        </div>
       ) : (
         <ul className="flex flex-col gap-2">
           {inProgress.map((p) => (

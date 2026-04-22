@@ -44,6 +44,28 @@ describe('ProgressStatusPicker', () => {
     expect(onStatusChange).toHaveBeenCalledWith('LEARNED');
   });
 
+  it('sets aria-pressed=true only on the active status button', () => {
+    render(
+      <ProgressStatusPicker
+        currentStatus="IN_PROGRESS"
+        onStatusChange={vi.fn()}
+        isPending={false}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'In Progress' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Want to Learn' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(screen.getByRole('button', { name: 'Learned' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
   it('disables all buttons when isPending is true', () => {
     render(
       <ProgressStatusPicker
