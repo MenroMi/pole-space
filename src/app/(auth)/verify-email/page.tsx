@@ -92,7 +92,11 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </div>
 
         <div className="space-y-4">
-          <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />
+          <ResendForm
+            action={resendWithEmail}
+            initialRemaining={initialRemaining}
+            email={validEmail}
+          />
           <Link
             href="/login"
             className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
@@ -132,7 +136,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />
+        <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={email!} />
 
         <Link
           href="/login"
@@ -169,7 +173,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </div>
 
         {resendWithEmail ? (
-          <ResendForm action={resendWithEmail} />
+          <ResendForm action={resendWithEmail} email={email!} />
         ) : (
           <Link
             href="/signup"
