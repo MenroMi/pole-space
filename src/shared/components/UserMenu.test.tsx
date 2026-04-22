@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -34,9 +35,25 @@ vi.mock('@/shared/components/ui/dropdown-menu', () => ({
   DropdownMenuSeparator: () => <hr />,
 }));
 
+const AlertDialogOnOpenChange = React.createContext<((open: boolean) => void) | undefined>(
+  undefined,
+);
+
 vi.mock('@/shared/components/ui/alert-dialog', () => ({
-  AlertDialog: ({ children, open }: { children: React.ReactNode; open?: boolean }) =>
-    open ? <div>{children}</div> : null,
+  AlertDialog: ({
+    children,
+    open,
+    onOpenChange,
+  }: {
+    children: React.ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+  }) =>
+    open ? (
+      <AlertDialogOnOpenChange.Provider value={onOpenChange}>
+        <div>{children}</div>
+      </AlertDialogOnOpenChange.Provider>
+    ) : null,
   AlertDialogContent: ({ children }: { children: React.ReactNode }) => (
     <div role="dialog">{children}</div>
   ),
@@ -44,9 +61,10 @@ vi.mock('@/shared/components/ui/alert-dialog', () => ({
   AlertDialogTitle: ({ children }: { children: React.ReactNode }) => <h2>{children}</h2>,
   AlertDialogDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
   AlertDialogFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  AlertDialogCancel: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
-    <button onClick={onClick}>{children}</button>
-  ),
+  AlertDialogCancel: ({ children }: { children: React.ReactNode }) => {
+    const onOpenChange = React.useContext(AlertDialogOnOpenChange);
+    return <button onClick={() => onOpenChange?.(false)}>{children}</button>;
+  },
   AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => (
     <button onClick={onClick}>{children}</button>
   ),
@@ -57,7 +75,10 @@ import UserMenu from './UserMenu';
 
 const mockSignOut = signOutAction as ReturnType<typeof vi.fn>;
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockSignOut.mockResolvedValue(undefined);
+});
 
 describe('UserMenu — unauthenticated (user=null)', () => {
   it('renders the account icon trigger', () => {
