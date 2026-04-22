@@ -154,3 +154,10 @@
 - New migrations (e.g. add_user_favourite) omit the qualifier — they rely on PostgreSQL's default `search_path = public`
 - Safe on Neon and standard PostgreSQL setups; could break if `search_path` is non-default
 - No action needed unless the project moves to a non-default schema
+## CI/CD
+
+**Dependabot `open-pull-requests-limit` не задан** (2026-04-22)
+
+- Дефолт GitHub: 5 открытых PR на ecosystem. Если накопится больше 5 ожидающих обновлений npm — Dependabot молча перестанет открывать новые PR без каких-либо уведомлений.
+- Fix: добавить `open-pull-requests-limit: 10` в каждый ecosystem-блок `.github/dependabot.yml`.
+- Приоритет: низкий — актуально только при большом количестве одновременных обновлений зависимостей.

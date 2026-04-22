@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          HUSKY: '0'
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://x:x@localhost/x
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:run
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          HUSKY: '0'
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://x:x@localhost/x
+      - run: npm run build
+        env:
+          DATABASE_URL: postgresql://x:x@localhost/x
+          NEXTAUTH_SECRET: ci-secret-placeholder
+          NEXTAUTH_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: placeholder
+          GOOGLE_CLIENT_SECRET: placeholder
+          FACEBOOK_CLIENT_ID: placeholder
+          FACEBOOK_CLIENT_SECRET: placeholder
+          RESEND_API_KEY: placeholder
+          CLOUDINARY_CLOUD_NAME: placeholder
+          CLOUDINARY_API_KEY: placeholder
+          CLOUDINARY_API_SECRET: placeholder
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          HUSKY: '0'
+      - run: npm audit --audit-level=high
