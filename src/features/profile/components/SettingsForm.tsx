@@ -13,7 +13,7 @@ import { updateProfileAction, changePasswordAction } from '../actions';
 import AvatarUpload from './AvatarUpload';
 
 export const profileNameSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name is too long'),
+  name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
 });
 
 export const changePasswordSchema = z
