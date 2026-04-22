@@ -48,6 +48,8 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   const { sent, error, email } = await searchParams;
 
   if (sent) {
+    const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
+
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
         <div className="flex flex-col items-start gap-6">
@@ -64,20 +66,30 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-outline-variant/20 bg-surface-container px-4 py-3 text-xs text-on-surface-variant">
-          didn&apos;t receive it? check your spam folder or{' '}
-          <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
-            try signing up again
+        <div className="space-y-4">
+          {resendWithEmail && (
+            <form action={resendWithEmail}>
+              <button
+                type="submit"
+                className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97]"
+              >
+                resend verification email
+              </button>
+            </form>
+          )}
+          <Link
+            href="/login"
+            className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
+          >
+            back to sign in
           </Link>
-          .
         </div>
 
-        <Link
-          href="/login"
-          className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
-        >
-          back to sign in
-        </Link>
+        <div className="border-t border-outline-variant/15 pt-2">
+          <p className="text-[10px] tracking-widest text-outline uppercase">
+            didn&apos;t get an email? check your spam folder
+          </p>
+        </div>
       </div>
     );
   }
