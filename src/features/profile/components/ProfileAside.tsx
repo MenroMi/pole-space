@@ -10,10 +10,10 @@ const NAV_LINKS = [
   { href: '/profile/settings', label: 'Settings' },
 ];
 
-interface ProfileAsideProps {
+type ProfileAsideProps = {
   name: string | null;
   image: string | null;
-}
+};
 
 export default function ProfileAside({ name, image }: ProfileAsideProps) {
   const pathname = usePathname();

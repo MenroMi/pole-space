@@ -1,7 +1,7 @@
-interface PageShellProps {
+type PageShellProps = {
   aside: React.ReactNode;
   children: React.ReactNode;
-}
+};
 
 export default function PageShell({ aside, children }: PageShellProps) {
   return (

@@ -6,10 +6,10 @@ import { Button } from '@/shared/components/ui/button';
 
 import { uploadAvatarAction } from '../actions';
 
-interface AvatarUploadProps {
+type AvatarUploadProps = {
   currentImage: string | null;
   onUploadSuccess: (imageUrl: string) => void;
-}
+};
 
 export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);

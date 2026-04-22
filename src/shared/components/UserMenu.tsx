@@ -23,9 +23,9 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { signOutAction } from '@/shared/lib/auth-actions';
 
-interface UserMenuProps {
+type UserMenuProps = {
   user: { name: string | null; image: string | null } | null;
-}
+};
 
 const NAV_ITEMS = [
   { label: 'Profile', href: '/profile' },

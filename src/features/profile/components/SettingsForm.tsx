@@ -30,11 +30,11 @@ export const changePasswordSchema = z
 type ProfileNameValues = z.infer<typeof profileNameSchema>;
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
-interface SettingsFormProps {
+type SettingsFormProps = {
   name: string | null;
   image: string | null;
   hasPassword: boolean;
-}
+};
 
 export default function SettingsForm({ name, image, hasPassword }: SettingsFormProps) {
   const router = useRouter();

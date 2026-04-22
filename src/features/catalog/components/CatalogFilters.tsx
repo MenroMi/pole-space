@@ -9,9 +9,9 @@ import type { MoveFilters } from '../types';
 const CATEGORIES = Object.values(Category);
 const DIFFICULTIES = Object.values(Difficulty);
 
-interface CatalogFiltersProps {
+type CatalogFiltersProps = {
   filters: MoveFilters;
-}
+};
 
 export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   const router = useRouter();

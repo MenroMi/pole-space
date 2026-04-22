@@ -8,11 +8,11 @@ import MoveCard from './MoveCard';
 
 const PAGE_SIZE = 12;
 
-interface MoveGridProps {
+type MoveGridProps = {
   initialMoves: MoveWithTags[];
   initialHasMore: boolean;
   filters: MoveFilters;
-}
+};
 
 export default function MoveGrid({ initialMoves, initialHasMore, filters }: MoveGridProps) {
   const [moves, setMoves] = useState(initialMoves);

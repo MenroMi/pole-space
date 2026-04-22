@@ -8,11 +8,11 @@ const STATUSES: { value: LearnStatus; label: string }[] = [
   { value: 'LEARNED', label: 'Learned' },
 ];
 
-interface ProgressStatusPickerProps {
+type ProgressStatusPickerProps = {
   currentStatus: LearnStatus;
   onStatusChange: (status: LearnStatus) => void;
   isPending: boolean;
-}
+};
 
 export default function ProgressStatusPicker({
   currentStatus,
