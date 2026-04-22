@@ -1,19 +1,16 @@
 import Link from 'next/link';
 
+import Header from '@/shared/components/Header';
+
 export default function NotFound() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-surface">
       <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary-container/20 blur-3xl" />
       <div className="pointer-events-none absolute right-0 bottom-0 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl" />
 
-      <header className="relative z-10 flex items-center px-8 py-6">
-        <Link
-          href="/"
-          className="font-display text-xl font-bold tracking-tight text-on-surface lowercase"
-        >
-          pole space
-        </Link>
-      </header>
+      <div className="relative z-10">
+        <Header />
+      </div>
 
       <main className="relative z-10 flex flex-1 items-center px-8 py-16">
         <div className="mx-auto w-full max-w-4xl">

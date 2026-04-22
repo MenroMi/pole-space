@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { loginAction } from '../actions';
@@ -16,11 +17,14 @@ export function LoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   const onSubmit = async (data: LoginFormData) => {
+    setUnverifiedEmail(null);
     const result = await loginAction(data);
     if (result?.error) {
       setError('root', { message: result.error });
+      if (result.email) setUnverifiedEmail(result.email);
     }
   };
 
@@ -123,7 +127,20 @@ export function LoginForm() {
                 clipRule="evenodd"
               />
             </svg>
-            {errors.root.message}
+            <span>
+              {errors.root.message}
+              {unverifiedEmail && (
+                <>
+                  {' — '}
+                  <Link
+                    href={`/verify-email?sent=true&email=${encodeURIComponent(unverifiedEmail)}`}
+                    className="underline underline-offset-4 hover:text-red-300"
+                  >
+                    resend verification email
+                  </Link>
+                </>
+              )}
+            </span>
           </div>
         )}
 

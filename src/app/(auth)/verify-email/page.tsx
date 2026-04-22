@@ -49,30 +49,31 @@ function WarningIcon() {
   );
 }
 
-async function requireUnverifiedUser(email: string | undefined): Promise<void> {
+async function requireUnverifiedUser(email: string | undefined): Promise<string> {
   if (!email) redirect('/signup');
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) redirect('/signup');
   if (user.emailVerified !== null) redirect('/catalog');
+  return email;
 }
 
 export default async function VerifyEmailPage({ searchParams }: Props) {
   const { sent, error, email } = await searchParams;
 
   if (sent) {
-    await requireUnverifiedUser(email);
+    const validEmail = await requireUnverifiedUser(email);
 
     // Token must exist and not be expired — otherwise redirect to expired state
     const token = await prisma.verificationToken.findFirst({
-      where: { identifier: email! },
+      where: { identifier: validEmail },
       orderBy: { createdAt: 'desc' },
     });
     if (!token || token.expires < new Date()) {
-      redirect(`/verify-email?error=expired&email=${encodeURIComponent(email!)}`);
+      redirect(`/verify-email?error=expired&email=${encodeURIComponent(validEmail)}`);
     }
 
-    const resendWithEmail = resendVerificationAction.bind(null, email!);
-    const initialRemaining = await getResendCooldownRemaining(email!);
+    const initialRemaining = await getResendCooldownRemaining(validEmail);
+    const resendWithEmail = resendVerificationAction.bind(null, validEmail);
 
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
@@ -146,7 +147,8 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   if (error === 'send-failed') {
     if (email) {
       const user = await prisma.user.findUnique({ where: { email } });
-      if (user?.emailVerified != null) redirect('/catalog');
+      if (!user) redirect('/signup');
+      if (user.emailVerified != null) redirect('/catalog');
     }
 
     const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;

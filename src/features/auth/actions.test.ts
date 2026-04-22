@@ -144,7 +144,7 @@ describe('loginAction', () => {
     expect(result).toEqual({ error: 'Invalid credentials' });
   });
 
-  it('returns cause error message when authorize throws a specific error', async () => {
+  it('returns cause error message and email when authorize throws verify-email error', async () => {
     const authError = Object.assign(new Error('CredentialsSignin'), {
       type: 'CredentialsSignin',
       cause: { err: new Error('Please verify your email first') },
@@ -154,7 +154,7 @@ describe('loginAction', () => {
 
     const result = await loginAction({ email: 'a@b.com', password: 'pass' });
 
-    expect(result).toEqual({ error: 'Please verify your email first' });
+    expect(result).toEqual({ error: 'Please verify your email first', email: 'a@b.com' });
   });
 
   it('re-throws non-AuthError errors (e.g. NEXT_REDIRECT)', async () => {

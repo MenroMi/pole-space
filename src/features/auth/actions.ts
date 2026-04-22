@@ -52,7 +52,11 @@ export async function loginAction(data: LoginFormData) {
   } catch (error) {
     if (error instanceof AuthError) {
       const cause = error.cause as { err?: Error } | undefined;
-      return { error: cause?.err?.message ?? 'Invalid credentials' };
+      const message = cause?.err?.message ?? 'Invalid credentials';
+      if (message === 'Please verify your email first') {
+        return { error: message, email: data.email };
+      }
+      return { error: message };
     }
     throw error;
   }
