@@ -18,17 +18,26 @@
 
 > Implement after core feature set is complete, before public launch.
 
-### Rate limiting on auth endpoints
+### Rate limiting on auth endpoints ⚠️ pre-launch blocker
 
 - No rate limiting on `/api/auth/signin` — brute force possible
 - No rate limiting on signup — email bombing possible
-- Fix: add Upstash Ratelimit middleware to `/api/auth/signin` and `signupAction`
+- `resendVerificationAction` has a 60s server-side cooldown (token-based) + client-side countdown, but can be bypassed by a script calling the server action directly
+- Fix: add Upstash Ratelimit to `/api/auth/signin`, `signupAction`, and `resendVerificationAction` — covers all three atomically via Redis TTL
 
 ### Auth edge cases
 
 - OAuth user tries to login via credentials (no password set) — returns generic error, no helpful message
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
+
+### session.user.id type mismatch (minor)
+
+- `src/shared/types/next-auth.d.ts` augments `Session.user.id` as `string` (inherited from `DefaultSession`)
+- `src/shared/lib/auth.config.ts` only sets `session.user.id = token.sub` when `token.sub` is truthy — so technically it could remain `undefined` at runtime even though the type says `string`
+- Root cause: TypeScript intersection types cannot override a required field with optional; full module augmentation would require redeclaring the entire `User` interface
+- Risk: very low — `token.sub` is always set by NextAuth JWT strategy. But the type lies slightly.
+- Fix (post-MVP): augment `id` as `string | undefined` in a full `User` interface redeclaration and update all call sites to handle undefined
 
 ### Timing oracle in email verification
 
@@ -59,13 +68,25 @@
 - Code: `FROM` now reads from `RESEND_FROM` env var (fallback: `onboarding@resend.dev`)
 - **Action required:** configure a verified sender domain in Resend dashboard, then set `RESEND_FROM=noreply@yourdomain.com` in `.env.local` and Vercel env vars
 
+## Auth Sync
+
+**Cross-tab auth sync** — `feature/cross-tab-auth-sync` (worktree `.worktrees/cross-tab-auth-sync/`, spec + plan 2026-04-22)
+
+- **Part A** (в `feature/auth-redesign`): `resendVerificationAction` редиректит на `/verify-email?error=invalid` если пользователь уже верифицирован — нужно редиректить на `/login`
+- **Part B** (новая ветка): `SessionProvider refetchOnWindowFocus` в root layout; `visibilitychange` в `ResendForm` → `checkEmailVerifiedAction` → auto-redirect на `/login`; `SessionGuard` в `/profile` layout для logout sync
+- Зависимость: Part B создаётся от main после мержа `feature/auth-redesign`
+- SessionGuard для `/admin` — добавить при создании admin фичи
+
 ## UX / Validation
 
-~~**`src/features/auth/components/SignupForm.tsx`**~~ ✅ Resolved (2026-04-19)
+~~**`src/features/auth/components/SignupForm.tsx`**~~ ✅ Resolved (2026-04-22)
 
 - ~~`name` field uses Zod defaults (`"String must contain at least 2 character(s)"`) — inconsistent with password field which has a custom message~~
-- ~~Fix: add `.min(2, 'Name must be at least 2 characters')` and `.max(50, 'Name is too long')` to `signupSchema.name`~~
-- `signupSchema.name` now uses custom messages; consistent with `password` field
+- ~~`name` minimum was 2 chars — too low for real names~~
+- ~~Password had no complexity requirements — `qwerty123` was accepted~~
+- `signupSchema.name`: min 5 chars, custom messages; consistent with `password` field
+- `signupSchema.password`: `.superRefine()` enforces uppercase + lowercase + digit + special char, reports all failures simultaneously
+- `profileNameSchema` in `src/features/profile/actions.ts` also updated to min 5
 
 ~~**`src/features/auth/components/SignupForm.test.tsx`**~~ ✅ Resolved (2026-04-19)
 
