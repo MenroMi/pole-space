@@ -225,36 +225,5 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
-  return (
-    <div className="w-full max-w-sm animate-fade-in-up space-y-10">
-      <div className="flex flex-col items-start gap-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-container/20">
-          <EnvelopeIcon />
-        </div>
-        <div className="space-y-1.5">
-          <h2 className="font-display text-4xl font-light tracking-tight text-on-surface lowercase">
-            verify your email.
-          </h2>
-          <p className="text-sm leading-relaxed text-on-surface-variant">
-            please check your inbox and click the verification link to activate your account.
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-outline-variant/20 bg-surface-container px-4 py-3 text-xs text-on-surface-variant">
-        didn&apos;t receive it? check your spam folder or{' '}
-        <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
-          try signing up again
-        </Link>
-        .
-      </div>
-
-      <Link
-        href="/login"
-        className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
-      >
-        back to sign in
-      </Link>
-    </div>
-  );
+  redirect('/signup');
 }
