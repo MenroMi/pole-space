@@ -13,6 +13,7 @@
   --on-surface-variant: #cdc3d2;
   --primary: #dcb8ff;
   --primary-container: #8458b3;
+  --on-primary: #441671;
   --secondary-container: #52416c;
   --on-secondary-container: #c5afe2;
   --outline: #978e9b;
@@ -52,6 +53,7 @@
   --color-on-surface-variant: var(--on-surface-variant);
   --color-primary: var(--primary);
   --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
   --color-secondary-container: var(--secondary-container);
   --color-on-secondary-container: var(--on-secondary-container);
   --color-outline: var(--outline);
@@ -86,6 +88,10 @@
 
 @utility font-display {
   font-family: var(--font-display);
+}
+
+@utility kinetic-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
 }
 
 body {
