@@ -37,6 +37,12 @@ describe('getProtectedRedirect', () => {
     expect(url!.pathname).toBe('/');
   });
 
+  it('redirects authenticated user away from /verify-email to /', () => {
+    const url = getProtectedRedirect('/verify-email', true, 'http://localhost');
+    expect(url).not.toBeNull();
+    expect(url!.pathname).toBe('/');
+  });
+
   it('returns null for a protected route when the user is authenticated', () => {
     expect(getProtectedRedirect('/profile', true, 'http://localhost')).toBeNull();
     expect(getProtectedRedirect('/admin/dashboard', true, 'http://localhost')).toBeNull();

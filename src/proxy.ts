@@ -6,7 +6,7 @@ import { authBaseConfig } from '@/shared/lib/auth.config';
 const { auth } = NextAuth(authBaseConfig);
 
 const protectedRoutes = ['/profile', '/admin'];
-const authRoutes = ['/login', '/signup'];
+const authRoutes = ['/login', '/signup', '/verify-email'];
 
 export function getProtectedRedirect(
   pathname: string,
@@ -38,5 +38,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/profile/:path*', '/admin/:path*', '/login', '/signup'],
+  matcher: ['/profile/:path*', '/admin/:path*', '/login', '/signup', '/verify-email'],
 };

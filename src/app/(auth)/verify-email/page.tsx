@@ -146,7 +146,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   if (error === 'send-failed') {
     if (email) {
       const user = await prisma.user.findUnique({ where: { email } });
-      if (user?.emailVerified !== null) redirect('/catalog');
+      if (user?.emailVerified != null) redirect('/catalog');
     }
 
     const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
