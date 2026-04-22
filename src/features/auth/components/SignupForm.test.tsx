@@ -27,19 +27,19 @@ describe('SignupForm', () => {
   it('shows validation error for short name on submit', async () => {
     const user = userEvent.setup();
     render(<SignupForm />);
-    await user.type(screen.getByLabelText(/name/i), 'A');
+    await user.type(screen.getByLabelText(/name/i), 'Ali');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByLabelText(/password/i), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
-    expect(await screen.findByText('Name must be at least 2 characters')).toBeInTheDocument();
+    expect(await screen.findByText('Name must be at least 5 characters')).toBeInTheDocument();
   });
 
   it('shows validation error for short password on submit', async () => {
     const user = userEvent.setup();
     render(<SignupForm />);
-    await user.type(screen.getByLabelText(/name/i), 'Alice');
+    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'short');
+    await user.type(screen.getByLabelText(/password/i), 'Ab1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
     expect(await screen.findByText(/at least 8/i)).toBeInTheDocument();
   });
@@ -49,15 +49,15 @@ describe('SignupForm', () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText(/name/i), 'Alice');
+    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByLabelText(/password/i), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(mockSignupAction).toHaveBeenCalledWith({
-      name: 'Alice',
+      name: 'Alice Smith',
       email: 'alice@example.com',
-      password: 'password123',
+      password: 'Password1!',
     });
   });
 
@@ -66,9 +66,9 @@ describe('SignupForm', () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText(/name/i), 'Alice');
+    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByLabelText(/password/i), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(await screen.findByText('Email already in use')).toBeInTheDocument();

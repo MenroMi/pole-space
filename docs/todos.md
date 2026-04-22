@@ -96,6 +96,19 @@
 
 ## Feature Gaps
 
+**Password reset (`/forgot-password`)** (2026-04-22)
+
+- `LoginForm` links to `/forgot-password` but the route doesn't exist (shows 404 page)
+- Implement in a separate worktree after `auth-redesign` is merged
+- Needs: `PasswordResetToken` Prisma model, `forgotPasswordAction`, `resetPasswordAction`, `sendPasswordResetEmail`, `/forgot-password` page + form, `/reset-password?token=` page + form
+- Flow: email form → create token (1h TTL) → send email → token verification → new password form → redirect to `/login?reset=true`
+
+**OAuth login buttons (Google / Facebook)** (2026-04-22)
+
+- `LoginForm` and `SignupForm` render Google/Facebook buttons but they have no `onClick` handler — clicking does nothing
+- Providers are already configured in `auth.ts` (`GOOGLE_CLIENT_ID` etc.)
+- Fix: wire up `signIn('google')` / `signIn('facebook')` calls, or hide buttons until credentials are set in env
+
 **`src/features/catalog/actions.ts`**
 
 - `getMovesAction` ignores `filters.tags` — tag-based filtering not implemented

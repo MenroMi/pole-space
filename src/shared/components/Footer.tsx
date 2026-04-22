@@ -83,7 +83,7 @@ export default function Footer() {
         ))}
       </nav>
       <span className="font-sans text-xs tracking-widest text-on-surface-variant uppercase">
-        kinetic gallery v.0.1
+        pole space v.0.1
       </span>
     </footer>
   );

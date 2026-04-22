@@ -32,6 +32,6 @@ describe('Footer', () => {
   it('renders the version label', () => {
     vi.mocked(usePathname).mockReturnValue('/');
     render(<Footer />);
-    expect(screen.getByText(/kinetic gallery v\.0\.1/i)).toBeInTheDocument();
+    expect(screen.getByText(/pole space v\.0\.1/i)).toBeInTheDocument();
   });
 });

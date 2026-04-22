@@ -13,6 +13,7 @@
   --on-surface-variant: #cdc3d2;
   --primary: #dcb8ff;
   --primary-container: #8458b3;
+  --on-primary: #441671;
   --secondary-container: #52416c;
   --on-secondary-container: #c5afe2;
   --outline: #978e9b;
@@ -52,6 +53,7 @@
   --color-on-surface-variant: var(--on-surface-variant);
   --color-primary: var(--primary);
   --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
   --color-secondary-container: var(--secondary-container);
   --color-on-secondary-container: var(--on-secondary-container);
   --color-outline: var(--outline);
@@ -86,6 +88,91 @@
 
 @utility font-display {
   font-family: var(--font-display);
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob-drift-a {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translate(40px, -28px) scale(1.16);
+    opacity: 0.75;
+  }
+  65% {
+    transform: translate(-20px, 34px) scale(0.92);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+}
+
+@keyframes blob-drift-b {
+  0% {
+    transform: translate(0, 0) scale(1.06);
+    opacity: 0.35;
+  }
+  38% {
+    transform: translate(-32px, 18px) scale(0.86);
+    opacity: 0.65;
+  }
+  72% {
+    transform: translate(24px, -22px) scale(1.2);
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate(0, 0) scale(1.06);
+    opacity: 0.35;
+  }
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.45s ease-out both;
+}
+
+@utility animate-blob-a {
+  animation: blob-drift-a 22s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@utility animate-blob-b {
+  animation: blob-drift-b 31s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@layer utilities {
+  .kinetic-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
+    background-size: 200% 200%;
+    background-position: left center;
+    transition:
+      background-position 600ms ease,
+      transform 300ms ease,
+      box-shadow 300ms ease,
+      opacity 300ms ease;
+  }
+  .kinetic-gradient:hover {
+    background-position: right center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-blob-a,
+    .animate-blob-b,
+    .animate-fade-in-up {
+      animation: none;
+    }
+  }
 }
 
 body {

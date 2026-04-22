@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
 
-import { auth } from '@/shared/lib/auth';
+import { authBaseConfig } from '@/shared/lib/auth.config';
+
+const { auth } = NextAuth(authBaseConfig);
 
 const protectedRoutes = ['/profile', '/admin'];
+const authRoutes = ['/login', '/signup', '/verify-email'];
 
 export function getProtectedRedirect(
   pathname: string,
@@ -10,6 +14,9 @@ export function getProtectedRedirect(
   requestUrl: string,
   search: string = '',
 ): URL | null {
+  if (isAuthenticated && authRoutes.includes(pathname)) {
+    return new URL('/', requestUrl);
+  }
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
   if (isProtected && !isAuthenticated) {
     const callbackUrl = encodeURIComponent(pathname + search);
@@ -31,5 +38,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/profile/:path*', '/admin/:path*'],
+  matcher: ['/profile/:path*', '/admin/:path*', '/login', '/signup', '/verify-email'],
 };

@@ -1,10 +1,14 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { loginAction } from '../actions';
 import { loginSchema } from '../lib/validation';
 import type { LoginFormData } from '../lib/validation';
+
+import { FacebookIcon, GoogleIcon } from './SocialIcons';
 
 export function LoginForm() {
   const {
@@ -13,50 +17,178 @@ export function LoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
 
   const onSubmit = async (data: LoginFormData) => {
+    setUnverifiedEmail(null);
     const result = await loginAction(data);
     if (result?.error) {
       setError('root', { message: result.error });
+      if (result.email) setUnverifiedEmail(result.email);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          aria-describedby={errors.email ? 'email-error' : undefined}
-          aria-invalid={!!errors.email}
-          {...register('email')}
-        />
-        {errors.email && (
-          <p id="email-error" role="alert">
-            {errors.email.message}
-          </p>
-        )}
+    <div className="w-full max-w-sm animate-fade-in-up space-y-10">
+      <div className="space-y-1.5">
+        <h2 className="font-display text-4xl font-light tracking-tight text-on-surface lowercase">
+          welcome back.
+        </h2>
+        <p className="text-sm text-on-surface-variant">sign in to continue your practice.</p>
       </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          aria-describedby={errors.password ? 'password-error' : undefined}
-          aria-invalid={!!errors.password}
-          {...register('password')}
-        />
-        {errors.password && (
-          <p id="password-error" role="alert">
-            {errors.password.message}
-          </p>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="space-y-6">
+          {/* Email */}
+          <div className="group">
+            <label
+              htmlFor="email"
+              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
+            >
+              email address
+            </label>
+            <div className="relative">
+              <input
+                id="email"
+                type="email"
+                placeholder="performer@polespace.com"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                aria-invalid={!!errors.email}
+                {...register('email')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
+            {errors.email && (
+              <p
+                id="email-error"
+                role="alert"
+                className="mt-1.5 text-xs tracking-wide text-red-400/80"
+              >
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="group">
+            <div className="mb-1 flex items-end justify-between">
+              <label
+                htmlFor="password"
+                className="block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
+              >
+                password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-[10px] tracking-widest text-primary/60 uppercase transition-colors duration-200 hover:text-primary"
+              >
+                forgot?
+              </Link>
+            </div>
+            <div className="relative">
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                aria-invalid={!!errors.password}
+                {...register('password')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
+            {errors.password && (
+              <p
+                id="password-error"
+                role="alert"
+                className="mt-1.5 text-xs tracking-wide text-red-400/80"
+              >
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {errors.root && (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-lg border border-red-500/20 bg-red-500/8 px-3.5 py-3 text-sm text-red-400"
+          >
+            <svg
+              className="mt-0.5 h-4 w-4 shrink-0"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>
+              {errors.root.message}
+              {unverifiedEmail && (
+                <>
+                  {' — '}
+                  <Link
+                    href={`/verify-email?sent=true&email=${encodeURIComponent(unverifiedEmail)}`}
+                    className="underline underline-offset-4 hover:text-red-300"
+                  >
+                    resend verification email
+                  </Link>
+                </>
+              )}
+            </span>
+          </div>
         )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="kinetic-gradient w-full cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+        >
+          {isSubmitting ? 'signing in...' : 'sign in'}
+        </button>
+      </form>
+
+      <div className="space-y-6">
+        <div className="relative flex items-center">
+          <div className="h-px flex-grow bg-outline-variant/20" />
+          <span className="mx-4 flex-shrink text-[10px] tracking-widest text-outline-variant uppercase">
+            or continue with
+          </span>
+          <div className="h-px flex-grow bg-outline-variant/20" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-high hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4)] active:translate-y-0"
+          >
+            <GoogleIcon />
+            google
+          </button>
+          <button
+            type="button"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-high hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4)] active:translate-y-0"
+          >
+            <FacebookIcon />
+            facebook
+          </button>
+        </div>
       </div>
-      {errors.root && <p role="alert">{errors.root.message}</p>}
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Signing in...' : 'Sign in'}
-      </button>
-    </form>
+
+      <p className="text-center text-xs text-on-surface-variant">
+        new to pole space?{' '}
+        <Link
+          href="/signup"
+          className="ml-1 font-bold text-primary decoration-2 underline-offset-4 hover:underline"
+        >
+          create account
+        </Link>
+      </p>
+    </div>
   );
 }
