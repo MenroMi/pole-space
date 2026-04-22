@@ -7,6 +7,11 @@ import Header from './Header';
 
 vi.mock('@/shared/lib/auth', () => ({ auth: vi.fn() }));
 vi.mock('./HeaderNav', () => ({ default: () => <nav data-testid="header-nav" /> }));
+vi.mock('./UserMenu', () => ({
+  default: (props: { user: { name: string | null; image: string | null } | null }) => (
+    <div data-testid="user-menu" data-user={JSON.stringify(props.user)} />
+  ),
+}));
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 
@@ -25,15 +30,22 @@ describe('Header', () => {
     expect(screen.getByTestId('header-nav')).toBeInTheDocument();
   });
 
-  it('links account icon to /profile when session exists', async () => {
-    mockAuth.mockResolvedValue({ user: { id: '1', role: 'USER' } });
-    render(await Header());
-    expect(screen.getByTestId('account-link')).toHaveAttribute('href', '/profile');
-  });
-
-  it('links account icon to /login when no session', async () => {
+  it('passes user=null to UserMenu when no session', async () => {
     mockAuth.mockResolvedValue(null);
     render(await Header());
-    expect(screen.getByTestId('account-link')).toHaveAttribute('href', '/login');
+    const menu = screen.getByTestId('user-menu');
+    expect(JSON.parse(menu.getAttribute('data-user')!)).toBeNull();
+  });
+
+  it('passes user object to UserMenu when session exists', async () => {
+    mockAuth.mockResolvedValue({
+      user: { id: '1', role: 'USER', name: 'Alice', image: 'https://example.com/avatar.jpg' },
+    });
+    render(await Header());
+    const menu = screen.getByTestId('user-menu');
+    expect(JSON.parse(menu.getAttribute('data-user')!)).toEqual({
+      name: 'Alice',
+      image: 'https://example.com/avatar.jpg',
+    });
   });
 });
