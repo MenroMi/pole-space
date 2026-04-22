@@ -49,7 +49,12 @@ import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
-import { signupAction, loginAction, resendVerificationAction } from './actions';
+import {
+  signupAction,
+  loginAction,
+  resendVerificationAction,
+  checkEmailVerifiedAction,
+} from './actions';
 
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>;
@@ -242,5 +247,35 @@ describe('resendVerificationAction', () => {
     expect(mockRedirect).toHaveBeenCalledWith(
       expect.stringContaining('/verify-email?error=send-failed&email=alice%40example.com'),
     );
+  });
+});
+
+describe('checkEmailVerifiedAction', () => {
+  it('returns true when user has emailVerified set', async () => {
+    mockFindUnique.mockResolvedValue({ emailVerified: new Date('2026-01-01') });
+
+    const result = await checkEmailVerifiedAction('verified@example.com');
+
+    expect(result).toBe(true);
+    expect(mockFindUnique).toHaveBeenCalledWith({
+      where: { email: 'verified@example.com' },
+      select: { emailVerified: true },
+    });
+  });
+
+  it('returns false when user emailVerified is null', async () => {
+    mockFindUnique.mockResolvedValue({ emailVerified: null });
+
+    const result = await checkEmailVerifiedAction('unverified@example.com');
+
+    expect(result).toBe(false);
+  });
+
+  it('returns false when user does not exist', async () => {
+    mockFindUnique.mockResolvedValue(null);
+
+    const result = await checkEmailVerifiedAction('nobody@example.com');
+
+    expect(result).toBe(false);
   });
 });

@@ -87,3 +87,11 @@ export async function resendVerificationAction(email: string) {
 
   redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
 }
+
+export async function checkEmailVerifiedAction(email: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { emailVerified: true },
+  });
+  return user !== null && user.emailVerified !== null;
+}
