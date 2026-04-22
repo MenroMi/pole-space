@@ -4,19 +4,17 @@
 
 **Goal:** Fix stale client state when auth changes in another tab — resend action gracefully handles already-verified users, verify-email page auto-redirects on focus, and authenticated pages redirect when session is gone.
 
-**Architecture:** Part A (fix) lives in `.worktrees/auth-redesign/`; Part B (sync feature) lives in `.worktrees/cross-tab-auth-sync/` created from `main` after `feature/auth-redesign` is merged. Part B adds `SessionProvider` to root layout for session re-fetch on focus, a `visibilitychange` hook in `ResendForm` that checks DB for email verification, and a `SessionGuard` client component that watches `useSession` and redirects on logout.
+**Architecture:** All work in `.worktrees/cross-tab-auth-sync/` on `feature/cross-tab-auth-sync`. Adds `SessionProvider` to root layout for session re-fetch on focus, fixes `resendVerificationAction` to redirect to `/login` when user is already verified, adds a `visibilitychange` hook in `ResendForm` that checks DB for email verification, and adds a `SessionGuard` client component that watches `useSession` and redirects on logout.
 
 **Tech Stack:** Next.js 16 App Router, NextAuth v5 beta.31, `next-auth/react` (SessionProvider, useSession), Vitest + RTL, Prisma 7.
 
 ---
 
-## Part A — Worktree: `.worktrees/auth-redesign/`
-
-All steps below run inside `.worktrees/auth-redesign/`.
+All steps below run inside `.worktrees/cross-tab-auth-sync/`.
 
 ---
 
-### Task A1: Fix resendVerificationAction redirect for already-verified users
+### Task 1: Fix resendVerificationAction redirect for already-verified users
 
 **Files:**
 - Modify: `src/features/auth/actions.test.ts`
@@ -40,7 +38,6 @@ it('redirects to /login if user already verified', async () => {
 - [ ] **Step 2: Run updated test to verify it fails**
 
 ```bash
-cd .worktrees/auth-redesign
 npx vitest run src/features/auth/actions.test.ts
 ```
 
@@ -77,7 +74,7 @@ Expected: all tests PASS.
 npx vitest run
 ```
 
-Expected: all tests PASS. Note the count — should be 179 tests.
+Expected: all tests PASS.
 
 - [ ] **Step 6: Commit**
 
@@ -88,26 +85,7 @@ git commit -m "fix(auth): redirect to /login when resending to already-verified 
 
 ---
 
-## Part B — Worktree: `.worktrees/cross-tab-auth-sync/`
-
-**Pre-condition:** `feature/auth-redesign` must be merged to `main` before creating this worktree.
-
-### Task B0: Create worktree
-
-- [ ] **Step 1: Create the worktree from main**
-
-```bash
-# Run from the repo root (not from inside a worktree)
-git worktree add .worktrees/cross-tab-auth-sync -b feature/cross-tab-auth-sync main
-```
-
-Expected: `.worktrees/cross-tab-auth-sync/` created with branch `feature/cross-tab-auth-sync`.
-
-All subsequent steps in Part B run inside `.worktrees/cross-tab-auth-sync/`.
-
----
-
-### Task B1: Add SessionProvider to root layout
+### Task 2: Add SessionProvider to root layout
 
 **Files:**
 - Create: `src/shared/components/Providers.tsx`
@@ -183,7 +161,7 @@ git commit -m "feat(auth): add SessionProvider with refetchOnWindowFocus to root
 
 ---
 
-### Task B2: Add checkEmailVerifiedAction server action
+### Task 3: Add checkEmailVerifiedAction server action
 
 **Files:**
 - Modify: `src/features/auth/actions.ts`
@@ -191,7 +169,7 @@ git commit -m "feat(auth): add SessionProvider with refetchOnWindowFocus to root
 
 - [ ] **Step 1: Write the failing tests**
 
-In `src/features/auth/actions.test.ts`, add a new describe block at the bottom. The existing mock for `prisma.user.findUnique` is already set up — add `select` handling by making `mockFindUnique` return the right shape.
+In `src/features/auth/actions.test.ts`, add a new describe block at the bottom. The existing mock for `prisma.user.findUnique` is already set up — `mockFindUnique` returns whatever shape you give it.
 
 ```ts
 import { checkEmailVerifiedAction } from './actions';
@@ -266,14 +244,14 @@ git commit -m "feat(auth): add checkEmailVerifiedAction server action"
 
 ---
 
-### Task B3: Add visibilitychange sync to ResendForm
+### Task 4: Add visibilitychange sync to ResendForm
 
 **Files:**
 - Create: `src/app/(auth)/verify-email/ResendForm.test.tsx`
 - Modify: `src/app/(auth)/verify-email/ResendForm.tsx`
 - Modify: `src/app/(auth)/verify-email/page.tsx`
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write the failing tests**
 
 Create `src/app/(auth)/verify-email/ResendForm.test.tsx`:
 
@@ -350,9 +328,8 @@ describe('ResendForm — visibilitychange', () => {
     });
     document.dispatchEvent(new Event('visibilitychange'));
 
-    await waitFor(() => {
-      expect(mockCheckVerified).not.toHaveBeenCalled();
-    });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(mockCheckVerified).not.toHaveBeenCalled();
   });
 });
 ```
@@ -458,19 +435,19 @@ Expected: all 3 tests PASS.
 
 - [ ] **Step 5: Update page.tsx to pass email prop**
 
-In `src/app/(auth)/verify-email/page.tsx`, add `email={validEmail}` (or `email={email!}`) to every `<ResendForm>` instance. There are three render paths that use `ResendForm`:
+In `src/app/(auth)/verify-email/page.tsx`, add `email` to every `<ResendForm>` instance. There are three render paths:
 
-**`sent` state** (line ~95): `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={validEmail}`:
+**`sent` state**: `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={validEmail}`:
 ```tsx
 <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={validEmail} />
 ```
 
-**`expired` state** (line ~135): `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={email!}`:
+**`expired` state**: `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={email!}`:
 ```tsx
 <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={email!} />
 ```
 
-**`send-failed` state** (line ~172): `<ResendForm action={resendWithEmail} />` → add `email={email!}`:
+**`send-failed` state**: `<ResendForm action={resendWithEmail} />` → add `email={email!}`:
 ```tsx
 <ResendForm action={resendWithEmail} email={email!} />
 ```
@@ -494,7 +471,7 @@ git commit -m "feat(auth): redirect from verify-email when email verified in ano
 
 ---
 
-### Task B4: Add SessionGuard for profile layout
+### Task 5: Add SessionGuard for profile layout
 
 **Files:**
 - Create: `src/shared/components/SessionGuard.tsx`
@@ -668,7 +645,7 @@ git commit -m "feat(auth): add SessionGuard to profile layout for cross-tab logo
 
 ---
 
-### Task B5: Typecheck and final verification
+### Task 6: Typecheck and final verification
 
 - [ ] **Step 1: Run typecheck**
 
@@ -688,5 +665,4 @@ Expected: all tests PASS. Note the count.
 
 - [ ] **Step 3: Update docs/todos.md**
 
-Remove from todos (if listed): cross-tab auth sync.
-Add if not already present: `SessionGuard` should be added to `/admin` layout when admin feature is built.
+Mark the cross-tab auth sync entry under `## Auth Sync` as resolved with today's date. Add note: `SessionGuard` for `/admin` layout — add when admin feature is built.
