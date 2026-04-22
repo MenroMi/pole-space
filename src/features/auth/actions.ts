@@ -38,7 +38,9 @@ export async function signupAction(data: SignupFormData) {
     return { error: 'Failed to send email, please try again' };
   }
 
-  redirect(`/verify-email?sent=true&email=${encodeURIComponent(parsed.data.email)}`);
+  redirect(
+    `/verify-email?sent=true&email=${encodeURIComponent(parsed.data.email)}&t=${Date.now()}`,
+  );
 }
 
 export async function loginAction(data: LoginFormData) {
@@ -71,7 +73,7 @@ export async function resendVerificationAction(email: string) {
   if (existing) {
     const createdAt = existing.expires.getTime() - TOKEN_TTL_MS;
     if (Date.now() - createdAt < RESEND_COOLDOWN_MS) {
-      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
+      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}&t=${createdAt}`);
     }
   }
 
@@ -85,5 +87,5 @@ export async function resendVerificationAction(email: string) {
     redirect('/verify-email?error=send-failed');
   }
 
-  redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
+  redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}&t=${Date.now()}`);
 }

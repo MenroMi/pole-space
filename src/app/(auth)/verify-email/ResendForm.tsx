@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const COOLDOWN_S = 60;
-const LS_KEY = 'ps_verify_resent_at';
 
 function SubmitButton({ remaining }: { remaining: number }) {
   const { pending } = useFormStatus();
@@ -24,22 +23,19 @@ function SubmitButton({ remaining }: { remaining: number }) {
   );
 }
 
-type Props = { action: () => Promise<void> };
+type Props = { action: () => Promise<void>; initialRemaining?: number };
 
-export function ResendForm({ action }: Props) {
-  const [remaining, setRemaining] = useState(0);
+export function ResendForm({ action, initialRemaining = 0 }: Props) {
+  const [remaining, setRemaining] = useState(initialRemaining);
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
-    const stored = localStorage.getItem(LS_KEY);
-    if (stored) {
-      const left = Math.ceil((COOLDOWN_S * 1000 - (Date.now() - parseInt(stored, 10))) / 1000);
-      if (left > 0) startCountdown(left);
-    }
+    if (initialRemaining > 0) startCountdown(initialRemaining);
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [initialRemaining]);
 
   function startCountdown(seconds: number) {
+    clearInterval(intervalRef.current);
     setRemaining(seconds);
     intervalRef.current = setInterval(() => {
       setRemaining((prev) => {
@@ -53,7 +49,6 @@ export function ResendForm({ action }: Props) {
   }
 
   async function handleAction() {
-    localStorage.setItem(LS_KEY, Date.now().toString());
     startCountdown(COOLDOWN_S);
     await action();
   }

@@ -91,7 +91,9 @@ describe('signupAction', () => {
     );
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true&email=alice%40example.com');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
   });
 
   it('deletes user and tokens if Resend fails', async () => {
@@ -176,7 +178,9 @@ describe('resendVerificationAction', () => {
     expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
     expect(mockGenToken).toHaveBeenCalledWith('alice@example.com');
     expect(mockSendEmail).toHaveBeenCalledWith('alice@example.com', 'mock-token');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true&email=alice%40example.com');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
   });
 
   it('redirects to invalid if user not found', async () => {
@@ -207,7 +211,9 @@ describe('resendVerificationAction', () => {
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
 
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?sent=true&email=alice%40example.com');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?sent=true&email=alice%40example.com'),
+    );
     expect(mockGenToken).not.toHaveBeenCalled();
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
