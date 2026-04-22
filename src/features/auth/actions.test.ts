@@ -203,10 +203,9 @@ describe('resendVerificationAction', () => {
 
   it('silently redirects without sending if token was created less than 60s ago', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
-    const recentExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000 - 10_000); // created 10s ago
     mockFindFirstToken.mockResolvedValue({
       identifier: 'alice@example.com',
-      expires: recentExpiry,
+      createdAt: new Date(Date.now() - 10_000), // created 10s ago
     });
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
@@ -220,8 +219,10 @@ describe('resendVerificationAction', () => {
 
   it('allows resend if token was created more than 60s ago', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
-    const oldExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000 - 120_000); // created 120s ago
-    mockFindFirstToken.mockResolvedValue({ identifier: 'alice@example.com', expires: oldExpiry });
+    mockFindFirstToken.mockResolvedValue({
+      identifier: 'alice@example.com',
+      createdAt: new Date(Date.now() - 120_000), // created 120s ago
+    });
     mockSendEmail.mockResolvedValue(undefined);
 
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');

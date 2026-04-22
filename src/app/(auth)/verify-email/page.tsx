@@ -1,13 +1,11 @@
 import Link from 'next/link';
 
-import { resendVerificationAction } from '@/features/auth';
+import { resendVerificationAction, getResendCooldownRemaining } from '@/features/auth';
 
 import { ResendForm } from './ResendForm';
 
-const RESEND_COOLDOWN_S = 60;
-
 type Props = {
-  searchParams: Promise<{ sent?: string; error?: string; email?: string; t?: string }>;
+  searchParams: Promise<{ sent?: string; error?: string; email?: string }>;
 };
 
 function EnvelopeIcon() {
@@ -49,15 +47,11 @@ function WarningIcon() {
 }
 
 export default async function VerifyEmailPage({ searchParams }: Props) {
-  const { sent, error, email, t } = await searchParams;
+  const { sent, error, email } = await searchParams;
 
   if (sent) {
     const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
-    // eslint-disable-next-line react-hooks/purity
-    const now = Date.now();
-    const initialRemaining = t
-      ? Math.max(0, RESEND_COOLDOWN_S - Math.floor((now - parseInt(t, 10)) / 1000))
-      : 0;
+    const initialRemaining = email ? await getResendCooldownRemaining(email) : 0;
 
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">

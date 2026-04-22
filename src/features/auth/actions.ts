@@ -6,6 +6,7 @@ import { AuthError } from 'next-auth';
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
+import { RESEND_COOLDOWN_MS } from './lib/cooldown';
 import { sendVerificationEmail } from './lib/email';
 import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
 import { signupSchema } from './lib/validation';
@@ -38,9 +39,7 @@ export async function signupAction(data: SignupFormData) {
     return { error: 'Failed to send email, please try again' };
   }
 
-  redirect(
-    `/verify-email?sent=true&email=${encodeURIComponent(parsed.data.email)}&t=${Date.now()}`,
-  );
+  redirect(`/verify-email?sent=true&email=${encodeURIComponent(parsed.data.email)}`);
 }
 
 export async function loginAction(data: LoginFormData) {
@@ -59,9 +58,6 @@ export async function loginAction(data: LoginFormData) {
   }
 }
 
-const RESEND_COOLDOWN_MS = 60 * 1000;
-const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
-
 export async function resendVerificationAction(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -71,9 +67,8 @@ export async function resendVerificationAction(email: string) {
 
   const existing = await prisma.verificationToken.findFirst({ where: { identifier: email } });
   if (existing) {
-    const createdAt = existing.expires.getTime() - TOKEN_TTL_MS;
-    if (Date.now() - createdAt < RESEND_COOLDOWN_MS) {
-      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}&t=${createdAt}`);
+    if (Date.now() - existing.createdAt.getTime() < RESEND_COOLDOWN_MS) {
+      redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
     }
   }
 
@@ -87,5 +82,5 @@ export async function resendVerificationAction(email: string) {
     redirect('/verify-email?error=send-failed');
   }
 
-  redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}&t=${Date.now()}`);
+  redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);
 }
