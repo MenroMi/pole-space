@@ -90,22 +90,6 @@
   font-family: var(--font-display);
 }
 
-@keyframes editorial-glow-shift {
-  0%,
-  100% {
-    background-position: 0% 0%;
-    opacity: 0.12;
-  }
-  33% {
-    background-position: 60% 30%;
-    opacity: 0.2;
-  }
-  66% {
-    background-position: 100% 80%;
-    opacity: 0.14;
-  }
-}
-
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -118,28 +102,25 @@
 }
 
 @keyframes blob-drift {
-  0%,
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.5;
+  }
+  40% {
+    transform: translate(48px, -32px) scale(1.18);
+    opacity: 0.15;
+  }
+  70% {
+    transform: translate(-24px, 20px) scale(0.88);
+    opacity: 0.45;
+  }
   100% {
     transform: translate(0, 0) scale(1);
+    opacity: 0.2;
   }
-  33% {
-    transform: translate(24px, -16px) scale(1.04);
-  }
-  66% {
-    transform: translate(-16px, 12px) scale(0.97);
-  }
-}
-
-@utility animate-editorial-glow {
-  background: radial-gradient(
-    circle at center,
-    var(--primary) 0%,
-    var(--primary-container) 45%,
-    transparent 70%
-  );
-  background-size: 200% 200%;
-  animation: editorial-glow-shift 14s ease-in-out infinite;
-  opacity: 0.12;
 }
 
 @utility animate-fade-in-up {
