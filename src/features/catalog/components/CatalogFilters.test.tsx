@@ -11,7 +11,14 @@ describe('CatalogFilters', () => {
 
   beforeEach(() => {
     mockReplace = vi.fn();
-    vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as ReturnType<typeof useRouter>);
+    vi.mocked(useRouter).mockReturnValue({
+      replace: mockReplace,
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      push: vi.fn(),
+      prefetch: vi.fn(),
+    } as ReturnType<typeof useRouter>);
     vi.useFakeTimers();
   });
 
