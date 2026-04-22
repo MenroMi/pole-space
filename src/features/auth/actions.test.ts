@@ -56,7 +56,7 @@ const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
 
-const validData = { name: 'Alice', email: 'alice@example.com', password: 'password123' };
+const validData = { name: 'Alice Smith', email: 'alice@example.com', password: 'Password1!' };
 
 beforeEach(() => vi.clearAllMocks());
 

@@ -101,25 +101,41 @@
   }
 }
 
-@keyframes blob-drift {
+@keyframes blob-drift-a {
   0% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.2;
+    opacity: 0.4;
   }
-  25% {
-    opacity: 0.5;
+  30% {
+    transform: translate(40px, -28px) scale(1.16);
+    opacity: 0.75;
   }
-  40% {
-    transform: translate(48px, -32px) scale(1.18);
-    opacity: 0.15;
-  }
-  70% {
-    transform: translate(-24px, 20px) scale(0.88);
+  65% {
+    transform: translate(-20px, 34px) scale(0.92);
     opacity: 0.45;
   }
   100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.2;
+    opacity: 0.4;
+  }
+}
+
+@keyframes blob-drift-b {
+  0% {
+    transform: translate(0, 0) scale(1.06);
+    opacity: 0.35;
+  }
+  38% {
+    transform: translate(-32px, 18px) scale(0.86);
+    opacity: 0.65;
+  }
+  72% {
+    transform: translate(24px, -22px) scale(1.2);
+    opacity: 0.38;
+  }
+  100% {
+    transform: translate(0, 0) scale(1.06);
+    opacity: 0.35;
   }
 }
 
@@ -127,8 +143,12 @@
   animation: fade-in-up 0.45s ease-out both;
 }
 
-@utility animate-blob {
-  animation: blob-drift 12s ease-in-out infinite;
+@utility animate-blob-a {
+  animation: blob-drift-a 22s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@utility animate-blob-b {
+  animation: blob-drift-b 31s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 @layer utilities {
@@ -144,6 +164,14 @@
   }
   .kinetic-gradient:hover {
     background-position: right center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-blob-a,
+    .animate-blob-b,
+    .animate-fade-in-up {
+      animation: none;
+    }
   }
 }
 

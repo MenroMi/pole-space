@@ -21,7 +21,7 @@ describe('Header', () => {
   it('renders wordmark linking to /', async () => {
     mockAuth.mockResolvedValue(null);
     render(await Header());
-    expect(screen.getByRole('link', { name: /kinetic gallery/i })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: /pole space/i })).toHaveAttribute('href', '/');
   });
 
   it('renders HeaderNav', async () => {

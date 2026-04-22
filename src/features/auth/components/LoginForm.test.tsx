@@ -23,6 +23,12 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
+  it('renders forgot password link pointing to /forgot-password', () => {
+    render(<LoginForm />);
+    const link = screen.getByRole('link', { name: /forgot/i });
+    expect(link).toHaveAttribute('href', '/forgot-password');
+  });
+
   it('shows validation error when email is empty on submit', async () => {
     const user = userEvent.setup();
     render(<LoginForm />);

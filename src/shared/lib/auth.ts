@@ -5,9 +5,11 @@ import Credentials from 'next-auth/providers/credentials';
 import Facebook from 'next-auth/providers/facebook';
 import Google from 'next-auth/providers/google';
 
+import { authBaseConfig } from './auth.config';
 import { prisma } from './prisma';
 
 export const authConfig = {
+  ...authBaseConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
     Google({
@@ -42,20 +44,6 @@ export const authConfig = {
       },
     }),
   ],
-  session: { strategy: 'jwt' as const },
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) token.role = (user as { role?: string }).role;
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!;
-        session.user.role = token.role;
-      }
-      return session;
-    },
-  },
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
