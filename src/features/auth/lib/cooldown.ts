@@ -1,7 +1,8 @@
+import 'server-only';
+
 import { prisma } from '@/shared/lib/prisma';
 
-export const RESEND_COOLDOWN_S = 60;
-export const RESEND_COOLDOWN_MS = RESEND_COOLDOWN_S * 1000;
+import { RESEND_COOLDOWN_MS } from './cooldown-config';
 
 export async function getResendCooldownRemaining(email: string): Promise<number> {
   const existing = await prisma.verificationToken.findFirst({ where: { identifier: email } });

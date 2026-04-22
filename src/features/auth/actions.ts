@@ -6,7 +6,7 @@ import { AuthError } from 'next-auth';
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
-import { RESEND_COOLDOWN_MS } from './lib/cooldown';
+import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
 import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
 import { signupSchema } from './lib/validation';
@@ -79,7 +79,7 @@ export async function resendVerificationAction(email: string) {
     await sendVerificationEmail(email, token);
   } catch {
     await deleteUserTokens(email);
-    redirect('/verify-email?error=send-failed');
+    redirect(`/verify-email?error=send-failed&email=${encodeURIComponent(email)}`);
   }
 
   redirect(`/verify-email?sent=true&email=${encodeURIComponent(email)}`);

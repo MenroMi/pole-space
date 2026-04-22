@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-const COOLDOWN_S = 60;
+import { RESEND_COOLDOWN_S } from '@/features/auth';
 
 function SubmitButton({ remaining }: { remaining: number }) {
   const { pending } = useFormStatus();
@@ -49,7 +49,7 @@ export function ResendForm({ action, initialRemaining = 0 }: Props) {
   }
 
   async function handleAction() {
-    startCountdown(COOLDOWN_S);
+    startCountdown(RESEND_COOLDOWN_S);
     await action();
   }
 

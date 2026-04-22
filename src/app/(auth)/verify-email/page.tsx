@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
-import { resendVerificationAction, getResendCooldownRemaining } from '@/features/auth';
+import { resendVerificationAction } from '@/features/auth';
+import { getResendCooldownRemaining } from '@/features/auth/lib/cooldown';
 
 import { ResendForm } from './ResendForm';
 
@@ -110,6 +111,45 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </div>
 
         <ResendForm action={resendWithEmail} />
+
+        <Link
+          href="/login"
+          className="block text-center text-xs text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
+        >
+          back to sign in
+        </Link>
+      </div>
+    );
+  }
+
+  if (error === 'send-failed') {
+    const resendWithEmail = email ? resendVerificationAction.bind(null, email) : null;
+    return (
+      <div className="w-full max-w-sm animate-fade-in-up space-y-10">
+        <div className="flex flex-col items-start gap-6">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
+            <WarningIcon />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="font-display text-4xl font-light tracking-tight text-on-surface lowercase">
+              couldn&apos;t send email.
+            </h2>
+            <p className="text-sm leading-relaxed text-on-surface-variant">
+              we failed to deliver your verification email. please try again.
+            </p>
+          </div>
+        </div>
+
+        {resendWithEmail ? (
+          <ResendForm action={resendWithEmail} />
+        ) : (
+          <Link
+            href="/signup"
+            className="kinetic-gradient block w-full cursor-pointer rounded-md py-4 text-center text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_4px_16px_-2px_rgba(132,88,179,0.4)] hover:scale-[1.01] hover:shadow-[0_6px_20px_-2px_rgba(220,184,255,0.5)] active:scale-[0.97]"
+          >
+            back to sign up
+          </Link>
+        )}
 
         <Link
           href="/login"

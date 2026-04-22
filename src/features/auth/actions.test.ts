@@ -239,6 +239,8 @@ describe('resendVerificationAction', () => {
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
 
     expect(mockDeleteTokens).toHaveBeenCalledWith('alice@example.com');
-    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=send-failed');
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.stringContaining('/verify-email?error=send-failed&email=alice%40example.com'),
+    );
   });
 });

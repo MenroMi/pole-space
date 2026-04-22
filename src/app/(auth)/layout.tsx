@@ -39,7 +39,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Form side */}
-      <div className="relative flex w-full flex-col items-center justify-center overflow-y-auto bg-surface px-8 py-16 sm:px-16 lg:w-2/5 xl:w-1/3">
+      <main className="relative flex w-full flex-col items-center justify-center overflow-y-auto bg-surface px-8 py-16 sm:px-16 lg:w-2/5 xl:w-1/3">
         {/* Mobile brand */}
         <div className="absolute top-10 left-8 lg:hidden">
           <Link
@@ -50,7 +50,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
         </div>
         {children}
-      </div>
+      </main>
     </div>
   );
 }
