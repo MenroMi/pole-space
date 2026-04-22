@@ -34,6 +34,7 @@ const NAV_ITEMS = [
 
 export default function UserMenu({ user }: UserMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [signOutError, setSignOutError] = useState<boolean>(false);
 
   return (
     <>
@@ -111,18 +112,30 @@ export default function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialog open={confirmOpen} onOpenChange={(open) => {
+          setConfirmOpen(open);
+          if (!open) setSignOutError(false);
+        }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Log out?</AlertDialogTitle>
             <AlertDialogDescription>
-              You'll need to sign back in to access your profile.
+              You&rsquo;ll need to sign back in to access your profile.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => signOutAction().catch(console.error)}>Log out</AlertDialogAction>
+            <AlertDialogAction onClick={() =>
+                signOutAction().catch(() => {
+                  setSignOutError(true);
+                })
+              }>Log out</AlertDialogAction>
           </AlertDialogFooter>
+          {signOutError && (
+            <p className="mt-2 text-sm text-destructive text-center">
+              Something went wrong. Please try again.
+            </p>
+          )}
         </AlertDialogContent>
       </AlertDialog>
     </>
