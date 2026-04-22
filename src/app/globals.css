@@ -90,8 +90,52 @@
   font-family: var(--font-display);
 }
 
+@keyframes kinetic-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blob-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(24px, -16px) scale(1.04);
+  }
+  66% {
+    transform: translate(-16px, 12px) scale(0.97);
+  }
+}
+
 @utility kinetic-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+  background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
+  background-size: 200% 200%;
+  animation: kinetic-flow 5s ease-in-out infinite;
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.45s ease-out both;
+}
+
+@utility animate-blob {
+  animation: blob-drift 12s ease-in-out infinite;
 }
 
 body {

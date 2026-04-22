@@ -54,7 +54,7 @@ export function SignupForm() {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-10">
+    <div className="w-full max-w-sm animate-fade-in-up space-y-10">
       <div className="space-y-1.5">
         <h2 className="font-display text-4xl font-light tracking-tight text-on-surface lowercase">
           join the gallery.
@@ -64,22 +64,26 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-6">
+          {/* Name */}
           <div className="group">
             <label
               htmlFor="name"
-              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors group-focus-within:text-primary"
+              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
             >
               full name
             </label>
-            <input
-              id="name"
-              type="text"
-              placeholder="your name"
-              className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface transition-colors placeholder:text-outline-variant/40 focus:border-primary focus:outline-none"
-              aria-describedby={errors.name ? 'name-error' : undefined}
-              aria-invalid={!!errors.name}
-              {...register('name')}
-            />
+            <div className="relative">
+              <input
+                id="name"
+                type="text"
+                placeholder="your name"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.name ? 'name-error' : undefined}
+                aria-invalid={!!errors.name}
+                {...register('name')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
             {errors.name && (
               <p id="name-error" role="alert" className="mt-1.5 text-xs text-red-400">
                 {errors.name.message}
@@ -87,22 +91,26 @@ export function SignupForm() {
             )}
           </div>
 
+          {/* Email */}
           <div className="group">
             <label
               htmlFor="email"
-              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors group-focus-within:text-primary"
+              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
             >
               email address
             </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="performer@kinetic.com"
-              className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface transition-colors placeholder:text-outline-variant/40 focus:border-primary focus:outline-none"
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              aria-invalid={!!errors.email}
-              {...register('email')}
-            />
+            <div className="relative">
+              <input
+                id="email"
+                type="email"
+                placeholder="performer@kinetic.com"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                aria-invalid={!!errors.email}
+                {...register('email')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
             {errors.email && (
               <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-400">
                 {errors.email.message}
@@ -110,22 +118,26 @@ export function SignupForm() {
             )}
           </div>
 
+          {/* Password */}
           <div className="group">
             <label
               htmlFor="password"
-              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors group-focus-within:text-primary"
+              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
             >
               password
             </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface transition-colors placeholder:text-outline-variant/40 focus:border-primary focus:outline-none"
-              aria-describedby={errors.password ? 'password-error' : undefined}
-              aria-invalid={!!errors.password}
-              {...register('password')}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                aria-invalid={!!errors.password}
+                {...register('password')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
             {errors.password && (
               <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-400">
                 {errors.password.message}
@@ -143,7 +155,7 @@ export function SignupForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_32px_64px_-12px_rgba(132,88,179,0.25)] transition-all duration-300 kinetic-gradient active:scale-[0.98] disabled:opacity-60"
+          className="w-full kinetic-gradient cursor-pointer rounded-md py-4 text-xs font-bold tracking-widest text-on-primary uppercase shadow-[0_24px_48px_-8px_rgba(132,88,179,0.2)] transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_24px_64px_-4px_rgba(220,184,255,0.35)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
           {isSubmitting ? 'creating account...' : 'create account'}
         </button>
@@ -161,14 +173,14 @@ export function SignupForm() {
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-colors hover:bg-surface-high"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-high hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4)] active:translate-y-0"
           >
             <GoogleIcon />
             google
           </button>
           <button
             type="button"
-            className="flex items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-colors hover:bg-surface-high"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-outline-variant/15 bg-surface-container px-4 py-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-high hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.4)] active:translate-y-0"
           >
             <FacebookIcon />
             facebook
