@@ -1,8 +1,10 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import { RESEND_COOLDOWN_S } from '@/features/auth';
+import { checkEmailVerifiedAction } from '@/features/auth/actions';
 
 function SubmitButton({ remaining }: { remaining: number }) {
   const { pending } = useFormStatus();
@@ -23,16 +25,45 @@ function SubmitButton({ remaining }: { remaining: number }) {
   );
 }
 
-type Props = { action: () => Promise<void>; initialRemaining?: number };
+type Props = { action: () => Promise<void>; initialRemaining?: number; email: string };
 
-export function ResendForm({ action, initialRemaining = 0 }: Props) {
+export function ResendForm({ action, initialRemaining = 0, email }: Props) {
   const [remaining, setRemaining] = useState(initialRemaining);
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const router = useRouter();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
     if (initialRemaining > 0) startCountdown(initialRemaining);
     return () => clearInterval(intervalRef.current);
   }, [initialRemaining]);
+
+  useEffect(() => {
+    async function checkAndRedirect() {
+      if (redirectingRef.current) return;
+      try {
+        const verified = await checkEmailVerifiedAction(email);
+        if (verified && !redirectingRef.current) {
+          redirectingRef.current = true;
+          router.replace('/catalog');
+        }
+      } catch {
+        // network error — polling will retry in 5 s
+      }
+    }
+
+    async function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') await checkAndRedirect();
+    }
+
+    const pollInterval = setInterval(checkAndRedirect, 5000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [email, router]);
 
   function startCountdown(seconds: number) {
     clearInterval(intervalRef.current);
@@ -49,6 +80,11 @@ export function ResendForm({ action, initialRemaining = 0 }: Props) {
   }
 
   async function handleAction() {
+    const alreadyVerified = await checkEmailVerifiedAction(email);
+    if (alreadyVerified) {
+      router.replace('/catalog');
+      return;
+    }
     startCountdown(RESEND_COOLDOWN_S);
     await action();
   }
