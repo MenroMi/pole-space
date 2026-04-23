@@ -1,10 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 
+import { cn } from '@/shared/lib/utils';
+
 export const PasswordInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
->(({ onKeyDown, onKeyUp, onBlur, className, ...props }, ref) => {
+>(({ onKeyDown, onKeyUp, onBlur, className, type: _type, ...props }, ref) => {
   const [show, setShow] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
 
@@ -14,7 +16,10 @@ export const PasswordInput = React.forwardRef<
         <input
           ref={ref}
           type={show ? 'text' : 'password'}
-          className={`w-full border-b border-outline-variant bg-transparent px-0 py-3 pr-8 text-on-surface placeholder:text-outline-variant/40 focus:outline-none${className ? ` ${className}` : ''}`}
+          className={cn(
+            'w-full border-b border-outline-variant bg-transparent px-0 py-3 pr-8 text-on-surface placeholder:text-outline-variant/40 focus:outline-none',
+            className,
+          )}
           onKeyDown={(e) => {
             setCapsLock(e.getModifierState('CapsLock'));
             onKeyDown?.(e);
