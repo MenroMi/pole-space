@@ -1,6 +1,6 @@
-import { render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
@@ -21,6 +21,7 @@ const mockCheckVerified = checkEmailVerifiedAction as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
+  Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
   vi.mocked(useRouter).mockReturnValue({ replace: mockReplace } as unknown as ReturnType<
     typeof useRouter
   >);
@@ -74,5 +75,93 @@ describe('ResendForm — visibilitychange', () => {
 
     await new Promise((r) => setTimeout(r, 50));
     expect(mockCheckVerified).not.toHaveBeenCalled();
+  });
+});
+
+describe('ResendForm — handleAction', () => {
+  it('does not start countdown and redirects to /catalog when email is already verified', async () => {
+    mockCheckVerified.mockResolvedValue(true);
+    const mockAction = vi.fn().mockResolvedValue(undefined);
+
+    const { container, getByRole } = render(
+      <ResendForm action={mockAction} email="alice@example.com" />,
+    );
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector('form')!);
+    });
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/catalog');
+    });
+    expect(mockAction).not.toHaveBeenCalled();
+    expect(getByRole('button')).toHaveTextContent('resend verification email');
+  });
+
+  it('calls action() and starts countdown when email is not yet verified', async () => {
+    mockCheckVerified.mockResolvedValue(false);
+    const mockAction = vi.fn().mockResolvedValue(undefined);
+
+    const { getByRole, container } = render(
+      <ResendForm action={mockAction} email="alice@example.com" />,
+    );
+
+    await act(async () => {
+      fireEvent.submit(container.querySelector('form')!);
+    });
+
+    await waitFor(() => {
+      expect(mockAction).toHaveBeenCalled();
+    });
+    expect(mockReplace).not.toHaveBeenCalled();
+    expect(getByRole('button')).toHaveTextContent(/resend in \d+s/);
+  });
+});
+
+describe('ResendForm — polling', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('redirects to /catalog when 5s polling detects verified email', async () => {
+    mockCheckVerified.mockResolvedValue(true);
+
+    render(<ResendForm action={vi.fn()} email="alice@example.com" />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+    });
+
+    expect(mockCheckVerified).toHaveBeenCalledWith('alice@example.com');
+    expect(mockReplace).toHaveBeenCalledWith('/catalog');
+  });
+
+  it('does not redirect when polling returns not yet verified', async () => {
+    mockCheckVerified.mockResolvedValue(false);
+
+    render(<ResendForm action={vi.fn()} email="alice@example.com" />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+    });
+
+    expect(mockCheckVerified).toHaveBeenCalledWith('alice@example.com');
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('redirects only once when polling and visibilitychange both detect verification', async () => {
+    mockCheckVerified.mockResolvedValue(true);
+
+    render(<ResendForm action={vi.fn()} email="alice@example.com" />);
+
+    await act(async () => {
+      document.dispatchEvent(new Event('visibilitychange'));
+      await vi.advanceTimersByTimeAsync(5000);
+    });
+
+    expect(mockReplace).toHaveBeenCalledTimes(1);
   });
 });

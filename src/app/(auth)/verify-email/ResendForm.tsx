@@ -31,6 +31,7 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
   const [remaining, setRemaining] = useState(initialRemaining);
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const router = useRouter();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
     if (initialRemaining > 0) startCountdown(initialRemaining);
@@ -38,14 +39,26 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
   }, [initialRemaining]);
 
   useEffect(() => {
-    async function handleVisibilityChange() {
-      if (document.visibilityState === 'visible') {
-        const verified = await checkEmailVerifiedAction(email);
-        if (verified) router.replace('/catalog');
+    async function checkAndRedirect() {
+      if (redirectingRef.current) return;
+      const verified = await checkEmailVerifiedAction(email);
+      if (verified && !redirectingRef.current) {
+        redirectingRef.current = true;
+        router.replace('/catalog');
       }
     }
+
+    async function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') await checkAndRedirect();
+    }
+
+    const pollInterval = setInterval(checkAndRedirect, 5000);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [email, router]);
 
   function startCountdown(seconds: number) {
@@ -63,12 +76,12 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
   }
 
   async function handleAction() {
-    startCountdown(RESEND_COOLDOWN_S);
     const alreadyVerified = await checkEmailVerifiedAction(email);
     if (alreadyVerified) {
       router.replace('/catalog');
       return;
     }
+    startCountdown(RESEND_COOLDOWN_S);
     await action();
   }
 
