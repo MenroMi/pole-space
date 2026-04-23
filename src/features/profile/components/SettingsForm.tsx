@@ -92,7 +92,7 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
           </button>
         </div>
         {capsLock && (
-          <p role="status" className="text-xs text-primary/70">
+          <p role="status" className="mt-1.5 text-xs tracking-wide text-primary/70">
             Caps Lock is on
           </p>
         )}
