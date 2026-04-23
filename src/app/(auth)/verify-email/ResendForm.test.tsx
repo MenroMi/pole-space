@@ -61,21 +61,6 @@ describe('ResendForm — visibilitychange', () => {
     });
     expect(mockReplace).not.toHaveBeenCalled();
   });
-
-  it('does not call checkEmailVerifiedAction when visibility is hidden', async () => {
-    mockCheckVerified.mockResolvedValue(false);
-
-    render(<ResendForm action={vi.fn()} email="alice@example.com" />);
-
-    Object.defineProperty(document, 'visibilityState', {
-      value: 'hidden',
-      configurable: true,
-    });
-    document.dispatchEvent(new Event('visibilitychange'));
-
-    await new Promise((r) => setTimeout(r, 50));
-    expect(mockCheckVerified).not.toHaveBeenCalled();
-  });
 });
 
 describe('ResendForm — handleAction', () => {
@@ -163,5 +148,38 @@ describe('ResendForm — polling', () => {
     });
 
     expect(mockReplace).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call check when visibilitychange fires while tab is hidden', async () => {
+    mockCheckVerified.mockResolvedValue(false);
+
+    render(<ResendForm action={vi.fn()} email="alice@example.com" />);
+
+    Object.defineProperty(document, 'visibilityState', {
+      value: 'hidden',
+      configurable: true,
+    });
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    expect(mockCheckVerified).not.toHaveBeenCalled();
+  });
+
+  it('clears poll interval and removes visibilitychange listener on unmount', () => {
+    mockCheckVerified.mockResolvedValue(false);
+    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
+    const removeListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+    const { unmount } = render(<ResendForm action={vi.fn()} email="alice@example.com" />);
+    unmount();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(removeListenerSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function));
+
+    clearIntervalSpy.mockRestore();
+    removeListenerSpy.mockRestore();
   });
 });

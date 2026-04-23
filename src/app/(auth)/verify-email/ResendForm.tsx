@@ -41,10 +41,14 @@ export function ResendForm({ action, initialRemaining = 0, email }: Props) {
   useEffect(() => {
     async function checkAndRedirect() {
       if (redirectingRef.current) return;
-      const verified = await checkEmailVerifiedAction(email);
-      if (verified && !redirectingRef.current) {
-        redirectingRef.current = true;
-        router.replace('/catalog');
+      try {
+        const verified = await checkEmailVerifiedAction(email);
+        if (verified && !redirectingRef.current) {
+          redirectingRef.current = true;
+          router.replace('/catalog');
+        }
+      } catch {
+        // network error — polling will retry in 5 s
       }
     }
 
