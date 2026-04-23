@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 
 import ProfileAside from '@/features/profile/components/ProfileAside';
 import PageShell from '@/shared/components/PageShell';
+import { SessionGuard } from '@/shared/components/SessionGuard';
 import { auth } from '@/shared/lib/auth';
 
 export default async function ProfileLayout({ children }: { children: React.ReactNode }) {
@@ -9,12 +10,14 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   if (!session?.user) redirect('/login');
 
   return (
-    <PageShell
-      aside={
-        <ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />
-      }
-    >
-      {children}
-    </PageShell>
+    <SessionGuard>
+      <PageShell
+        aside={
+          <ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />
+        }
+      >
+        {children}
+      </PageShell>
+    </SessionGuard>
   );
 }

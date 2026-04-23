@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
 import {
@@ -21,7 +22,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
-import { signOutAction } from '@/shared/lib/auth-actions';
 
 type UserMenuProps = {
   user: { name: string | null; image: string | null } | null;
@@ -131,7 +131,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               onClick={async (e) => {
                 e.preventDefault();
                 try {
-                  await signOutAction();
+                  await signOut({ callbackUrl: '/' });
                 } catch {
                   setSignOutError(true);
                 }

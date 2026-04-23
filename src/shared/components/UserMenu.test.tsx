@@ -7,7 +7,7 @@ vi.mock('next/image', () => ({
   default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
 }));
 
-vi.mock('@/shared/lib/auth-actions', () => ({ signOutAction: vi.fn() }));
+vi.mock('next-auth/react', () => ({ signOut: vi.fn() }));
 
 // Mock Radix primitives so tests don't depend on JSDOM portal/pointer quirks
 vi.mock('@/shared/components/ui/dropdown-menu', () => ({
@@ -74,10 +74,10 @@ vi.mock('@/shared/components/ui/alert-dialog', () => ({
   }) => <button onClick={onClick}>{children}</button>,
 }));
 
-import { signOutAction } from '@/shared/lib/auth-actions';
+import { signOut } from 'next-auth/react';
 import UserMenu from './UserMenu';
 
-const mockSignOut = signOutAction as ReturnType<typeof vi.fn>;
+const mockSignOut = signOut as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -162,7 +162,7 @@ describe('UserMenu — Log out confirmation', () => {
     expect(screen.getByText('Log out?')).toBeInTheDocument();
   });
 
-  it('clicking Cancel closes the dialog without calling signOutAction', async () => {
+  it('clicking Cancel closes the dialog without calling signOut', async () => {
     const u = userEvent.setup();
     render(<UserMenu user={user} />);
     await u.click(screen.getByRole('menuitem', { name: 'Log out' }));
@@ -171,7 +171,7 @@ describe('UserMenu — Log out confirmation', () => {
     expect(mockSignOut).not.toHaveBeenCalled();
   });
 
-  it('clicking Log out in dialog calls signOutAction', async () => {
+  it('clicking Log out in dialog calls signOut', async () => {
     const u = userEvent.setup();
     render(<UserMenu user={user} />);
     await u.click(screen.getByRole('menuitem', { name: 'Log out' }));
@@ -179,7 +179,7 @@ describe('UserMenu — Log out confirmation', () => {
     expect(mockSignOut).toHaveBeenCalledTimes(1);
   });
 
-  it('shows error message when signOutAction rejects', async () => {
+  it('shows error message when signOut rejects', async () => {
     mockSignOut.mockRejectedValue(new Error('network'));
     const u = userEvent.setup();
     render(<UserMenu user={user} />);

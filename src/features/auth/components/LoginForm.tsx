@@ -155,11 +155,11 @@ export function LoginForm() {
 
       <div className="space-y-6">
         <div className="relative flex items-center">
-          <div className="h-px flex-grow bg-outline-variant/20" />
-          <span className="mx-4 flex-shrink text-[10px] tracking-widest text-outline-variant uppercase">
+          <div className="h-px grow bg-outline-variant/20" />
+          <span className="mx-4 shrink text-[10px] tracking-widest text-outline-variant uppercase">
             or continue with
           </span>
-          <div className="h-px flex-grow bg-outline-variant/20" />
+          <div className="h-px grow bg-outline-variant/20" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

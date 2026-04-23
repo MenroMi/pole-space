@@ -59,11 +59,12 @@ describe('authorize', () => {
     expect(result).toBeNull();
   });
 
-  it('returns null if user not found', async () => {
+  it('throws if user not found', async () => {
     mockFindUnique.mockResolvedValue(null);
     const authorize = getAuthorize();
-    const result = await authorize({ email: 'a@b.com', password: 'pass' });
-    expect(result).toBeNull();
+    await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
+      'find your account',
+    );
   });
 
   it('throws if emailVerified is null', async () => {
