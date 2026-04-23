@@ -32,11 +32,9 @@ export const authConfig = {
           where: { email: credentials.email as string },
         });
 
-        if (!user?.password) return null;
-
-        if (user.emailVerified === null) {
-          throw new Error('Please verify your email first');
-        }
+        if (!user) throw new Error('We couldn’t find your account. Try signing up.');
+        if (user.emailVerified === null) throw new Error('Please verify your email first.');
+        if (!user.password) return null;
 
         const valid = await bcrypt.compare(credentials.password as string, user.password);
 
