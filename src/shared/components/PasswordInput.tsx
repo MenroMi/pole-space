@@ -45,7 +45,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HT
           </button>
         </div>
         {capsLock && (
-          <p role="status" className="mt-1.5 text-xs tracking-wide text-amber-400/80">
+          <p role="status" className="mt-1.5 text-xs tracking-wide text-primary/70">
             caps lock is on
           </p>
         )}
