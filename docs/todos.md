@@ -70,11 +70,12 @@
 
 ## Auth Sync
 
-~~**Cross-tab auth sync**~~ ✅ Resolved (2026-04-22) — `feature/cross-tab-auth-sync`
+~~**Cross-tab auth sync**~~ ✅ Resolved (2026-04-23) — `feature/cross-tab-auth-sync`
 
 - ~~resendVerificationAction redirected already-verified users to `?error=invalid`~~ → now redirects to `/login`
 - `SessionProvider refetchOnWindowFocus` in root layout (`src/shared/components/Providers.tsx`)
-- `visibilitychange` in `ResendForm` → `checkEmailVerifiedAction` → auto-redirect to `/login` when verified in another tab
+- `ResendForm`: 5s polling + `visibilitychange` → `checkEmailVerifiedAction` → auto-redirect to `/catalog`; `redirectingRef` prevents double-redirect
+- `ResendForm` `handleAction`: pre-check before `startCountdown` — fixes React 19 hydration error when resending after email already verified in another tab
 - `SessionGuard` in `/profile` layout for cross-tab logout sync (`src/shared/components/SessionGuard.tsx`)
 - Note: add `SessionGuard` to `/admin` layout when admin feature is built
 
