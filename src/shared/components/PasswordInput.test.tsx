@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { PasswordInput } from './PasswordInput';
 
-function renderInput(props?: React.ComponentProps<typeof PasswordInput>) {
+function renderInput(props?: ComponentProps<typeof PasswordInput>) {
   render(
     <label>
       Password
@@ -79,5 +79,19 @@ describe('PasswordInput', () => {
     const input = renderInput({ onBlur });
     fireEvent.blur(input);
     expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls props.onKeyDown on keydown', () => {
+    const onKeyDown = vi.fn();
+    const input = renderInput({ onKeyDown });
+    fireEvent.keyDown(input);
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls props.onKeyUp on keyup', () => {
+    const onKeyUp = vi.fn();
+    const input = renderInput({ onKeyUp });
+    fireEvent.keyUp(input);
+    expect(onKeyUp).toHaveBeenCalledTimes(1);
   });
 });
