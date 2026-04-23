@@ -81,6 +81,17 @@
 
 ## UX / Validation
 
+**`src/features/profile/components/SettingsForm.tsx` — PasswordField unit tests missing** (2026-04-23)
+
+- `PasswordField` (private component in SettingsForm) duplicates the logic of `PasswordInput` but has no dedicated unit tests
+- Logic is covered indirectly by `PasswordInput.test.tsx`, but any drift between the two won't be caught automatically
+- Fix: extract `PasswordField` tests (toggle show/hide, caps lock, error display, `onKeyDown`/`onKeyUp`/`onBlur` forwarding) or extract `PasswordField` to a shared file and reuse `PasswordInput.test.tsx`
+
+**`src/features/profile/components/SettingsForm.tsx` — duplicate SVG icons** (2026-04-23)
+
+- `EyeIcon` and `EyeOffIcon` are defined both in `SettingsForm.tsx` and `PasswordInput.tsx`
+- Fix: re-export from `PasswordInput.tsx` or move to a shared `icons.tsx`; low priority until a third usage site appears
+
 ~~**`src/features/auth/components/SignupForm.tsx`**~~ ✅ Resolved (2026-04-22)
 
 - ~~`name` field uses Zod defaults (`"String must contain at least 2 character(s)"`) — inconsistent with password field which has a custom message~~

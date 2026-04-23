@@ -1,7 +1,8 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
+import type { InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -11,6 +12,96 @@ import { Input } from '@/shared/components/ui/input';
 import { updateProfileAction, changePasswordAction } from '../actions';
 
 import AvatarUpload from './AvatarUpload';
+
+function EyeIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 8s2.667-5 7-5 7 5 7 5-2.667 5-7 5-7-5-7-5z" />
+      <circle cx="8" cy="8" r="2" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 2l12 12" />
+      <path d="M6.5 6.5a2 2 0 002.83 2.83" />
+      <path d="M4 4.3A8 8 0 001 8s2.667 5 7 5c1.1 0 2.1-.25 3-.7" />
+      <path d="M12 11.7A8 8 0 0015 8s-2.667-5-7-5c-1.1 0-2.1.25-3 .7" />
+    </svg>
+  );
+}
+
+type PasswordFieldProps = InputHTMLAttributes<HTMLInputElement> & { error?: string };
+
+const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
+  ({ onKeyDown, onKeyUp, onBlur, error, type: _type, ...props }, ref) => {
+    const [show, setShow] = useState(false);
+    const [capsLock, setCapsLock] = useState(false);
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="relative">
+          <Input
+            ref={ref}
+            type={show ? 'text' : 'password'}
+            className="pr-10"
+            onKeyDown={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyDown?.(e);
+            }}
+            onKeyUp={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyUp?.(e);
+            }}
+            onBlur={(e) => {
+              setCapsLock(false);
+              onBlur?.(e);
+            }}
+            {...props}
+          />
+          <button
+            type="button"
+            aria-label={show ? 'Hide password' : 'Show password'}
+            aria-pressed={show}
+            onClick={() => setShow((s) => !s)}
+            className="absolute top-1/2 right-2 -translate-y-1/2 text-outline-variant transition-colors hover:text-on-surface focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            {show ? <EyeOffIcon /> : <EyeIcon />}
+          </button>
+        </div>
+        {capsLock && (
+          <p role="status" className="mt-1.5 text-xs tracking-wide text-primary/70">
+            Caps Lock is on
+          </p>
+        )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
+    );
+  },
+);
+PasswordField.displayName = 'PasswordField';
 
 export const profileNameSchema = z.object({
   name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
@@ -117,45 +208,24 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
             onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
             className="flex max-w-sm flex-col gap-3"
           >
-            <div className="flex flex-col gap-1">
-              <Input
-                {...passwordForm.register('currentPassword')}
-                type="password"
-                placeholder="Current password"
-                aria-label="Current password"
-              />
-              {passwordForm.formState.errors.currentPassword && (
-                <p className="text-sm text-destructive">
-                  {passwordForm.formState.errors.currentPassword.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <Input
-                {...passwordForm.register('newPassword')}
-                type="password"
-                placeholder="New password"
-                aria-label="New password"
-              />
-              {passwordForm.formState.errors.newPassword && (
-                <p className="text-sm text-destructive">
-                  {passwordForm.formState.errors.newPassword.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <Input
-                {...passwordForm.register('confirmPassword')}
-                type="password"
-                placeholder="Confirm new password"
-                aria-label="Confirm new password"
-              />
-              {passwordForm.formState.errors.confirmPassword && (
-                <p className="text-sm text-destructive">
-                  {passwordForm.formState.errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
+            <PasswordField
+              {...passwordForm.register('currentPassword')}
+              placeholder="Current password"
+              aria-label="Current password"
+              error={passwordForm.formState.errors.currentPassword?.message}
+            />
+            <PasswordField
+              {...passwordForm.register('newPassword')}
+              placeholder="New password"
+              aria-label="New password"
+              error={passwordForm.formState.errors.newPassword?.message}
+            />
+            <PasswordField
+              {...passwordForm.register('confirmPassword')}
+              placeholder="Confirm new password"
+              aria-label="Confirm new password"
+              error={passwordForm.formState.errors.confirmPassword?.message}
+            />
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
                 {passwordForm.formState.isSubmitting ? 'Saving…' : 'Change password'}

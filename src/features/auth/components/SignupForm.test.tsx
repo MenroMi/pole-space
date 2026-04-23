@@ -20,7 +20,7 @@ describe('SignupForm', () => {
     render(<SignupForm />);
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
@@ -29,7 +29,7 @@ describe('SignupForm', () => {
     render(<SignupForm />);
     await user.type(screen.getByLabelText(/name/i), 'Ali');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'Password1!');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
     expect(await screen.findByText('Name must be at least 5 characters')).toBeInTheDocument();
   });
@@ -39,7 +39,7 @@ describe('SignupForm', () => {
     render(<SignupForm />);
     await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'Ab1!');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Ab1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
     expect(await screen.findByText(/at least 8/i)).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe('SignupForm', () => {
 
     await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'Password1!');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(mockSignupAction).toHaveBeenCalledWith({
@@ -68,7 +68,7 @@ describe('SignupForm', () => {
 
     await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
-    await user.type(screen.getByLabelText(/password/i), 'Password1!');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(await screen.findByText('Email already in use')).toBeInTheDocument();

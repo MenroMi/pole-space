@@ -19,7 +19,7 @@ describe('LoginForm', () => {
   it('renders email and password fields and a submit button', () => {
     render(<LoginForm />);
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -42,7 +42,7 @@ describe('LoginForm', () => {
     render(<LoginForm />);
 
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'password123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(mockLoginAction).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password123' });
@@ -54,7 +54,7 @@ describe('LoginForm', () => {
     render(<LoginForm />);
 
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
-    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'password123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();

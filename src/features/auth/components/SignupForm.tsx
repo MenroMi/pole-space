@@ -3,6 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 
+import { PasswordInput } from '@/shared/components/PasswordInput';
+
 import { signupAction } from '../actions';
 import { signupSchema } from '../lib/validation';
 import type { SignupFormData } from '../lib/validation';
@@ -105,18 +107,13 @@ export function SignupForm() {
             >
               password
             </label>
-            <div className="relative">
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
-                aria-describedby={errors.password ? 'password-error' : undefined}
-                aria-invalid={!!errors.password}
-                {...register('password')}
-              />
-              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
-            </div>
+            <PasswordInput
+              id="password"
+              placeholder="••••••••"
+              aria-describedby={errors.password ? 'password-error' : undefined}
+              aria-invalid={!!errors.password}
+              {...register('password')}
+            />
             {errors.password && (
               <p
                 id="password-error"
