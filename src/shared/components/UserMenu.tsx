@@ -73,9 +73,9 @@ export default function UserMenu({ user }: UserMenuProps) {
                   <Image
                     src={user.image}
                     alt={user.name ?? 'Avatar'}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover"
+                    width={42}
+                    height={42}
+                    className="h-[42px] w-[42px] rounded-full object-cover"
                   />
                 ) : (
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-container text-sm font-semibold text-on-surface">
