@@ -76,11 +76,7 @@ export async function updateProfileAction(data: {
     await prisma.user.update({ where: { id: userId }, data: updateData });
     return { success: true as const };
   } catch (error) {
-    if (
-      error instanceof Error &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
+    if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
       return { success: false as const, field: 'username', error: 'Username already taken' };
     }
     throw error;
@@ -173,6 +169,17 @@ export async function getProfileUserAction() {
       createdAt: true,
     },
   });
+}
+
+export async function getProfileSettingsAction() {
+  const userId = await requireAuth();
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { firstName: true, lastName: true, image: true, location: true, password: true },
+  });
+  if (!user) return null;
+  const { password, ...profile } = user;
+  return { ...profile, hasPassword: password != null };
 }
 
 export async function getProfileStatsAction() {

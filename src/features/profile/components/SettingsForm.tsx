@@ -104,13 +104,16 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
 PasswordField.displayName = 'PasswordField';
 
 export const profileSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
-  username: z
+  firstName: z
     .string()
-    .min(2, 'Username must be at least 2 characters')
-    .max(30, 'Username is too long')
-    .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores')
+    .min(1, 'First name is required')
+    .max(50, 'First name is too long')
+    .optional()
+    .or(z.literal('')),
+  lastName: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name is too long')
     .optional()
     .or(z.literal('')),
   location: z.string().max(100, 'Location is too long').optional(),
@@ -133,7 +136,6 @@ type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 type SettingsFormProps = {
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
   image: string | null;
   location: string | null;
   email: string | null;
@@ -143,7 +145,6 @@ type SettingsFormProps = {
 export default function SettingsForm({
   firstName,
   lastName,
-  username,
   image,
   location,
   email,
@@ -159,7 +160,6 @@ export default function SettingsForm({
     defaultValues: {
       firstName: firstName ?? '',
       lastName: lastName ?? '',
-      username: username ?? '',
       location: location ?? '',
     },
   });
@@ -190,16 +190,11 @@ export default function SettingsForm({
     const profileResult = await updateProfileAction({
       firstName: profileValues.firstName || undefined,
       lastName: profileValues.lastName || undefined,
-      username: profileValues.username || undefined,
       location: profileValues.location || undefined,
     });
 
     if (!profileResult.success) {
-      if (profileResult.field === 'username') {
-        profileForm.setError('username', { message: profileResult.error });
-      } else {
-        setProfileError(profileResult.error);
-      }
+      setProfileError(profileResult.error);
       setIsPending(false);
       return;
     }
@@ -223,7 +218,9 @@ export default function SettingsForm({
     router.push('/profile');
   }
 
-  const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'anonymous';
+  const watchedFirstName = profileForm.watch('firstName');
+  const watchedLastName = profileForm.watch('lastName');
+  const displayName = [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || 'anonymous';
 
   return (
     <div className="space-y-8 p-6 md:p-12">
@@ -258,10 +255,14 @@ export default function SettingsForm({
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+              <label
+                htmlFor="firstName"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
                 First Name
               </label>
               <Input
+                id="firstName"
                 {...profileForm.register('firstName')}
                 placeholder="Your first name"
                 className="placeholder:text-on-surface-variant/40"
@@ -273,10 +274,14 @@ export default function SettingsForm({
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+              <label
+                htmlFor="lastName"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
                 Last Name
               </label>
               <Input
+                id="lastName"
                 {...profileForm.register('lastName')}
                 placeholder="Your last name"
                 className="placeholder:text-on-surface-variant/40"
@@ -288,25 +293,14 @@ export default function SettingsForm({
               )}
             </div>
             <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
-                Username
-              </label>
-              <Input
-                {...profileForm.register('username')}
-                placeholder="your_username"
-                className="placeholder:text-on-surface-variant/40"
-              />
-              {profileForm.formState.errors.username && (
-                <p className="text-sm text-destructive">
-                  {profileForm.formState.errors.username.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+              <label
+                htmlFor="location"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
                 Location
               </label>
               <Input
+                id="location"
                 {...profileForm.register('location')}
                 placeholder="City, Country (optional)"
                 className="placeholder:text-on-surface-variant/40"
@@ -330,30 +324,42 @@ export default function SettingsForm({
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+                <label
+                  htmlFor="currentPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
                   Current Password
                 </label>
                 <PasswordField
+                  id="currentPassword"
                   {...passwordForm.register('currentPassword')}
                   placeholder="Current password"
                   error={passwordForm.formState.errors.currentPassword?.message}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+                <label
+                  htmlFor="newPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
                   New Password
                 </label>
                 <PasswordField
+                  id="newPassword"
                   {...passwordForm.register('newPassword')}
                   placeholder="New password"
                   error={passwordForm.formState.errors.newPassword?.message}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
                   Confirm Password
                 </label>
                 <PasswordField
+                  id="confirmPassword"
                   {...passwordForm.register('confirmPassword')}
                   placeholder="Confirm new password"
                   error={passwordForm.formState.errors.confirmPassword?.message}

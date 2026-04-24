@@ -16,28 +16,30 @@ beforeEach(() => {
 });
 
 describe('SignupForm', () => {
-  it('renders name, email, password fields and submit button', () => {
+  it('renders firstName, lastName, email, password fields and submit button', () => {
     render(<SignupForm />);
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
-  it('shows validation error for short name on submit', async () => {
+  it('shows validation error for missing firstName on submit', async () => {
     const user = userEvent.setup();
     render(<SignupForm />);
-    await user.type(screen.getByLabelText(/name/i), 'Ali');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
     await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
-    expect(await screen.findByText('Name must be at least 5 characters')).toBeInTheDocument();
+    expect(await screen.findByText('First name is required')).toBeInTheDocument();
   });
 
   it('shows validation error for short password on submit', async () => {
     const user = userEvent.setup();
     render(<SignupForm />);
-    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
+    await user.type(screen.getByLabelText(/first name/i), 'Alice');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
     await user.type(screen.getByLabelText(/email/i), 'a@b.com');
     await user.type(screen.getByPlaceholderText('••••••••'), 'Ab1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
@@ -49,13 +51,15 @@ describe('SignupForm', () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
+    await user.type(screen.getByLabelText(/first name/i), 'Alice');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(mockSignupAction).toHaveBeenCalledWith({
-      name: 'Alice Smith',
+      firstName: 'Alice',
+      lastName: 'Smith',
       email: 'alice@example.com',
       password: 'Password1!',
     });
@@ -66,7 +70,8 @@ describe('SignupForm', () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText(/name/i), 'Alice Smith');
+    await user.type(screen.getByLabelText(/first name/i), 'Alice');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
     await user.click(screen.getByRole('button', { name: /create account/i }));

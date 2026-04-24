@@ -8,7 +8,7 @@ const NAV_LINKS = [
     href: '/profile',
     label: 'Overview',
     icon: LayoutDashboard,
-    matches: ['/profile', '/profile/settings'],
+    matches: ['/profile'],
   },
   {
     href: '/profile/progress',

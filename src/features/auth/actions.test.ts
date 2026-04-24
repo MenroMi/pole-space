@@ -65,7 +65,12 @@ const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
 
-const validData = { name: 'Alice Smith', email: 'alice@example.com', password: 'Password1!' };
+const validData = {
+  firstName: 'Alice',
+  lastName: 'Smith',
+  email: 'alice@example.com',
+  password: 'Password1!',
+};
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -114,7 +119,12 @@ describe('signupAction', () => {
   });
 
   it('returns error for invalid input (Zod)', async () => {
-    const result = await signupAction({ name: 'A', email: 'bad', password: 'short' });
+    const result = await signupAction({
+      firstName: '',
+      lastName: '',
+      email: 'bad',
+      password: 'short',
+    });
     expect(result).toEqual({ error: 'Invalid input' });
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
