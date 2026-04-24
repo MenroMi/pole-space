@@ -20,6 +20,11 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({ refresh: vi.fn(), push: mockPush })),
 }));
 
+const mockSessionUpdate = vi.fn();
+vi.mock('next-auth/react', () => ({
+  useSession: vi.fn(() => ({ update: mockSessionUpdate })),
+}));
+
 import SettingsForm, { profileSchema, changePasswordSchema } from './SettingsForm';
 import { updateProfileAction, changePasswordAction } from '../actions';
 
@@ -28,6 +33,7 @@ const mockChangePassword = changePasswordAction as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockSessionUpdate.mockResolvedValue(null);
 });
 
 describe('profileSchema', () => {

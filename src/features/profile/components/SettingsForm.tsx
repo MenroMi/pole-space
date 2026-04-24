@@ -2,6 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BadgeCheck, Lock, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
@@ -156,6 +157,7 @@ export default function SettingsForm({
   hasPassword,
 }: SettingsFormProps) {
   const router = useRouter();
+  const { update } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
@@ -215,6 +217,9 @@ export default function SettingsForm({
       }
     }
 
+    const newName =
+      [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+    await update({ name: newName });
     setIsPending(false);
     router.push('/profile');
   }
@@ -305,8 +310,12 @@ export default function SettingsForm({
                 readOnly
                 value={location ?? ''}
                 placeholder="Not set"
+                aria-describedby="location-hint"
                 className="cursor-default opacity-50 placeholder:text-on-surface-variant/40"
               />
+              <p id="location-hint" className="text-xs text-on-surface-variant/60">
+                Auto-detected at sign-up. Cannot be changed.
+              </p>
             </div>
           </div>
           {profileError && <p className="text-sm text-destructive">{profileError}</p>}

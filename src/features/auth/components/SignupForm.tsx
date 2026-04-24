@@ -1,7 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { PasswordInput } from '@/shared/components/PasswordInput';
@@ -44,18 +44,15 @@ export function SignupForm() {
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = useCallback(
-    async (data: SignupFormData) => {
-      const result = await signupAction({
-        ...data,
-        ...(detectedLocation ? { location: detectedLocation } : {}),
-      });
-      if (result?.error) {
-        setError('root', { message: result.error });
-      }
-    },
-    [detectedLocation, setError],
-  );
+  const onSubmit = async (data: SignupFormData) => {
+    const result = await signupAction({
+      ...data,
+      ...(detectedLocation ? { location: detectedLocation } : {}),
+    });
+    if (result?.error) {
+      setError('root', { message: result.error });
+    }
+  };
 
   return (
     <div className="w-full max-w-sm animate-fade-in-up space-y-10">
