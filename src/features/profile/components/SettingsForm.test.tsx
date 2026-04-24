@@ -20,9 +20,21 @@ vi.mock('next/navigation', () => ({
 import { profileSchema, changePasswordSchema } from './SettingsForm';
 
 describe('profileSchema', () => {
-  it('accepts all optional fields empty', () => {
+  it('rejects empty firstName', () => {
+    const result = profileSchema.safeParse({ firstName: '', lastName: 'Pole' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toBe('First name is required');
+  });
+
+  it('rejects empty lastName', () => {
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: '' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toBe('Last name is required');
+  });
+
+  it('rejects missing firstName and lastName', () => {
     const result = profileSchema.safeParse({});
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('accepts valid firstName and lastName', () => {
@@ -31,44 +43,44 @@ describe('profileSchema', () => {
   });
 
   it('rejects firstName longer than 50 characters', () => {
-    const result = profileSchema.safeParse({ firstName: 'A'.repeat(51) });
+    const result = profileSchema.safeParse({ firstName: 'A'.repeat(51), lastName: 'Pole' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].message).toBe('First name is too long');
   });
 
   it('accepts valid username with lowercase, numbers, underscores', () => {
-    const result = profileSchema.safeParse({ username: 'alice_pole_42' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', username: 'alice_pole_42' });
     expect(result.success).toBe(true);
   });
 
   it('rejects username shorter than 2 characters', () => {
-    const result = profileSchema.safeParse({ username: 'a' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', username: 'a' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].message).toBe('Username must be at least 2 characters');
   });
 
   it('rejects username with uppercase letters', () => {
-    const result = profileSchema.safeParse({ username: 'Alice' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', username: 'Alice' });
     expect(result.success).toBe(false);
   });
 
   it('rejects username with spaces', () => {
-    const result = profileSchema.safeParse({ username: 'alice pole' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', username: 'alice pole' });
     expect(result.success).toBe(false);
   });
 
   it('accepts empty string username (treated as absent by submit handler)', () => {
-    const result = profileSchema.safeParse({ username: '' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', username: '' });
     expect(result.success).toBe(true);
   });
 
   it('accepts valid location', () => {
-    const result = profileSchema.safeParse({ location: 'Warsaw, PL' });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', location: 'Warsaw, PL' });
     expect(result.success).toBe(true);
   });
 
   it('rejects location longer than 100 characters', () => {
-    const result = profileSchema.safeParse({ location: 'A'.repeat(101) });
+    const result = profileSchema.safeParse({ firstName: 'Alice', lastName: 'Pole', location: 'A'.repeat(101) });
     expect(result.success).toBe(false);
   });
 });

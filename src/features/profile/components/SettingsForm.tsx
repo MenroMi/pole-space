@@ -46,7 +46,7 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
           <Input
             ref={ref}
             type={show ? 'text' : 'password'}
-            className="pr-10"
+            className="pr-10 placeholder:text-on-surface-variant/40"
             onKeyDown={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyDown?.(e); }}
             onKeyUp={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyUp?.(e); }}
             onBlur={(e) => { setCapsLock(false); onBlur?.(e); }}
@@ -75,8 +75,8 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
 PasswordField.displayName = 'PasswordField';
 
 export const profileSchema = z.object({
-  firstName: z.string().max(50, 'First name is too long').optional(),
-  lastName: z.string().max(50, 'Last name is too long').optional(),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
   username: z
     .string()
     .min(2, 'Username must be at least 2 characters')
@@ -232,7 +232,7 @@ export default function SettingsForm({
               <label className="text-xs uppercase tracking-widest text-on-surface-variant">
                 First Name
               </label>
-              <Input {...profileForm.register('firstName')} placeholder="Your first name" />
+              <Input {...profileForm.register('firstName')} placeholder="Your first name" className="placeholder:text-on-surface-variant/40" />
               {profileForm.formState.errors.firstName && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.firstName.message}
@@ -243,7 +243,7 @@ export default function SettingsForm({
               <label className="text-xs uppercase tracking-widest text-on-surface-variant">
                 Last Name
               </label>
-              <Input {...profileForm.register('lastName')} placeholder="Your last name" />
+              <Input {...profileForm.register('lastName')} placeholder="Your last name" className="placeholder:text-on-surface-variant/40" />
               {profileForm.formState.errors.lastName && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.lastName.message}
@@ -254,7 +254,7 @@ export default function SettingsForm({
               <label className="text-xs uppercase tracking-widest text-on-surface-variant">
                 Username
               </label>
-              <Input {...profileForm.register('username')} placeholder="your_username" />
+              <Input {...profileForm.register('username')} placeholder="your_username" className="placeholder:text-on-surface-variant/40" />
               {profileForm.formState.errors.username && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.username.message}
@@ -268,6 +268,7 @@ export default function SettingsForm({
               <Input
                 {...profileForm.register('location')}
                 placeholder="City, Country (optional)"
+                className="placeholder:text-on-surface-variant/40"
               />
               {profileForm.formState.errors.location && (
                 <p className="text-sm text-destructive">
@@ -293,6 +294,7 @@ export default function SettingsForm({
                 </label>
                 <PasswordField
                   {...passwordForm.register('currentPassword')}
+                  placeholder="Current password"
                   error={passwordForm.formState.errors.currentPassword?.message}
                 />
               </div>
@@ -302,6 +304,7 @@ export default function SettingsForm({
                 </label>
                 <PasswordField
                   {...passwordForm.register('newPassword')}
+                  placeholder="New password"
                   error={passwordForm.formState.errors.newPassword?.message}
                 />
               </div>
@@ -311,6 +314,7 @@ export default function SettingsForm({
                 </label>
                 <PasswordField
                   {...passwordForm.register('confirmPassword')}
+                  placeholder="Confirm new password"
                   error={passwordForm.formState.errors.confirmPassword?.message}
                 />
               </div>
