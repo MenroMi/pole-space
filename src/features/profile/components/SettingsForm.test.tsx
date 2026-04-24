@@ -13,29 +13,45 @@ vi.mock('../actions', () => ({
 }));
 vi.mock('next/navigation', () => ({ useRouter: vi.fn(() => ({ refresh: vi.fn() })) }));
 
-import { profileNameSchema, changePasswordSchema } from './SettingsForm';
+import { profileSchema, changePasswordSchema } from './SettingsForm';
 
-describe('profileNameSchema', () => {
+describe('profileSchema', () => {
   it('rejects empty name', () => {
-    const result = profileNameSchema.safeParse({ name: '' });
+    const result = profileSchema.safeParse({ name: '' });
     expect(result.success).toBe(false);
   });
 
   it('rejects name shorter than 5 characters', () => {
-    const result = profileNameSchema.safeParse({ name: 'Ali' });
+    const result = profileSchema.safeParse({ name: 'Ali' });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].message).toBe('Name must be at least 5 characters');
   });
 
   it('rejects name longer than 50 characters', () => {
-    const result = profileNameSchema.safeParse({ name: 'A'.repeat(51) });
+    const result = profileSchema.safeParse({ name: 'A'.repeat(51) });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].message).toBe('Name is too long');
   });
 
   it('accepts a valid name', () => {
-    const result = profileNameSchema.safeParse({ name: 'Alice' });
+    const result = profileSchema.safeParse({ name: 'Alice' });
     expect(result.success).toBe(true);
+  });
+
+  it('accepts valid name with no location', () => {
+    const result = profileSchema.safeParse({ name: 'Alice' });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts valid name with location', () => {
+    const result = profileSchema.safeParse({ name: 'Alice', location: 'Warsaw, PL' });
+    expect(result.success).toBe(true);
+    expect(result.data?.location).toBe('Warsaw, PL');
+  });
+
+  it('rejects location longer than 100 characters', () => {
+    const result = profileSchema.safeParse({ name: 'Alice', location: 'A'.repeat(101) });
+    expect(result.success).toBe(false);
   });
 });
 

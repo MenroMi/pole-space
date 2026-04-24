@@ -103,8 +103,9 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
 );
 PasswordField.displayName = 'PasswordField';
 
-export const profileNameSchema = z.object({
+export const profileSchema = z.object({
   name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
+  location: z.string().min(1).max(100, 'Location is too long').optional(),
 });
 
 export const changePasswordSchema = z
@@ -118,23 +119,24 @@ export const changePasswordSchema = z
     path: ['confirmPassword'],
   });
 
-type ProfileNameValues = z.infer<typeof profileNameSchema>;
+type ProfileValues = z.infer<typeof profileSchema>;
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
 type SettingsFormProps = {
   name: string | null;
   image: string | null;
+  location: string | null;
   hasPassword: boolean;
 };
 
-export default function SettingsForm({ name, image, hasPassword }: SettingsFormProps) {
+export default function SettingsForm({ name, image, location, hasPassword }: SettingsFormProps) {
   const router = useRouter();
   const [nameSuccess, setNameSuccess] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
-  const nameForm = useForm<ProfileNameValues>({
-    resolver: zodResolver(profileNameSchema),
-    defaultValues: { name: name ?? '' },
+  const profileForm = useForm<ProfileValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { name: name ?? '', location: location ?? '' },
   });
 
   const passwordForm = useForm<ChangePasswordFormValues>({
@@ -142,11 +144,14 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 
-  async function handleNameSubmit(values: ProfileNameValues) {
+  async function handleProfileSubmit(values: ProfileValues) {
     setNameSuccess(false);
-    const result = await updateProfileAction(values);
+    const result = await updateProfileAction({
+      name: values.name,
+      location: values.location || undefined,
+    });
     if (!result.success) {
-      nameForm.setError('name', { message: result.error });
+      profileForm.setError('name', { message: result.error });
     } else {
       setNameSuccess(true);
       router.refresh();
@@ -177,26 +182,38 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-semibold text-on-surface">Display name</h2>
+        <h2 className="font-semibold text-on-surface">Profile</h2>
         <form
-          onSubmit={nameForm.handleSubmit(handleNameSubmit)}
+          onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
           className="flex max-w-sm flex-col gap-3"
         >
           <div className="flex flex-col gap-1">
             <Input
-              {...nameForm.register('name')}
+              {...profileForm.register('name')}
               placeholder="Your name"
               aria-label="Display name"
             />
-            {nameForm.formState.errors.name && (
-              <p className="text-sm text-destructive">{nameForm.formState.errors.name.message}</p>
+            {profileForm.formState.errors.name && (
+              <p className="text-sm text-destructive">{profileForm.formState.errors.name.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <Input
+              {...profileForm.register('location')}
+              placeholder="City, Country (optional)"
+              aria-label="Location"
+            />
+            {profileForm.formState.errors.location && (
+              <p className="text-sm text-destructive">
+                {profileForm.formState.errors.location.message}
+              </p>
             )}
           </div>
           <div className="flex items-center gap-3">
-            <Button type="submit" disabled={nameForm.formState.isSubmitting}>
-              {nameForm.formState.isSubmitting ? 'Saving…' : 'Save name'}
+            <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+              {profileForm.formState.isSubmitting ? 'Saving…' : 'Save profile'}
             </Button>
-            {nameSuccess && <p className="text-sm text-primary">Name updated!</p>}
+            {nameSuccess && <p className="text-sm text-primary">Profile updated!</p>}
           </div>
         </form>
       </section>
