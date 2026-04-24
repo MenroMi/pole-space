@@ -105,7 +105,7 @@ PasswordField.displayName = 'PasswordField';
 
 export const profileSchema = z.object({
   name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
-  location: z.string().min(1).max(100, 'Location is too long').optional(),
+  location: z.string().max(100, 'Location is too long').optional(),
 });
 
 export const changePasswordSchema = z
@@ -131,7 +131,7 @@ type SettingsFormProps = {
 
 export default function SettingsForm({ name, image, location, hasPassword }: SettingsFormProps) {
   const router = useRouter();
-  const [nameSuccess, setNameSuccess] = useState(false);
+  const [profileSuccess, setProfileSuccess] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   const profileForm = useForm<ProfileValues>({
@@ -145,7 +145,7 @@ export default function SettingsForm({ name, image, location, hasPassword }: Set
   });
 
   async function handleProfileSubmit(values: ProfileValues) {
-    setNameSuccess(false);
+    setProfileSuccess(false);
     const result = await updateProfileAction({
       name: values.name,
       location: values.location || undefined,
@@ -153,7 +153,7 @@ export default function SettingsForm({ name, image, location, hasPassword }: Set
     if (!result.success) {
       profileForm.setError('name', { message: result.error });
     } else {
-      setNameSuccess(true);
+      setProfileSuccess(true);
       router.refresh();
     }
   }
@@ -213,7 +213,7 @@ export default function SettingsForm({ name, image, location, hasPassword }: Set
             <Button type="submit" disabled={profileForm.formState.isSubmitting}>
               {profileForm.formState.isSubmitting ? 'Saving…' : 'Save profile'}
             </Button>
-            {nameSuccess && <p className="text-sm text-primary">Profile updated!</p>}
+            {profileSuccess && <p className="text-sm text-primary">Profile updated!</p>}
           </div>
         </form>
       </section>

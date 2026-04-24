@@ -33,11 +33,6 @@ describe('profileSchema', () => {
     expect(result.error?.issues[0].message).toBe('Name is too long');
   });
 
-  it('accepts a valid name', () => {
-    const result = profileSchema.safeParse({ name: 'Alice' });
-    expect(result.success).toBe(true);
-  });
-
   it('accepts valid name with no location', () => {
     const result = profileSchema.safeParse({ name: 'Alice' });
     expect(result.success).toBe(true);
@@ -52,6 +47,11 @@ describe('profileSchema', () => {
   it('rejects location longer than 100 characters', () => {
     const result = profileSchema.safeParse({ name: 'Alice', location: 'A'.repeat(101) });
     expect(result.success).toBe(false);
+  });
+
+  it('accepts empty string as location (treated as absent by the form handler)', () => {
+    const result = profileSchema.safeParse({ name: 'Alice', location: '' });
+    expect(result.success).toBe(true);
   });
 });
 
