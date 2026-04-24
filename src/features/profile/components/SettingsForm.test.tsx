@@ -31,19 +31,16 @@ beforeEach(() => {
 });
 
 describe('profileSchema', () => {
-  it('accepts empty firstName (treated as absent)', () => {
+  it('rejects empty firstName', () => {
     const result = profileSchema.safeParse({ firstName: '', lastName: 'Pole' });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toBe('First name is required');
   });
 
-  it('accepts empty lastName (treated as absent)', () => {
+  it('rejects empty lastName', () => {
     const result = profileSchema.safeParse({ firstName: 'Alice', lastName: '' });
-    expect(result.success).toBe(true);
-  });
-
-  it('accepts missing firstName and lastName', () => {
-    const result = profileSchema.safeParse({});
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toBe('Last name is required');
   });
 
   it('accepts valid firstName and lastName', () => {
@@ -67,7 +64,7 @@ describe('profileSchema', () => {
     const result = profileSchema.safeParse({
       firstName: 'Alice',
       lastName: 'Pole',
-      location: 'Warsaw, PL',
+      location: 'Warsaw, Poland',
     });
     expect(result.success).toBe(true);
   });
@@ -83,31 +80,69 @@ describe('profileSchema', () => {
 });
 
 describe('changePasswordSchema', () => {
+  const VALID_PW = 'Newpassword123!';
+
   it('rejects password shorter than 8 characters', () => {
     const result = changePasswordSchema.safeParse({
       currentPassword: 'current',
-      newPassword: 'short',
-      confirmPassword: 'short',
+      newPassword: 'Ab1!',
+      confirmPassword: 'Ab1!',
     });
     expect(result.success).toBe(false);
   });
 
+  it('rejects password without uppercase letter', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'current',
+      newPassword: 'newpassword123!',
+      confirmPassword: 'newpassword123!',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((i) => i.message)).toContain(
+      'Must contain at least one uppercase letter',
+    );
+  });
+
+  it('rejects password without number', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'current',
+      newPassword: 'Newpassword!',
+      confirmPassword: 'Newpassword!',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((i) => i.message)).toContain(
+      'Must contain at least one number',
+    );
+  });
+
+  it('rejects password without special character', () => {
+    const result = changePasswordSchema.safeParse({
+      currentPassword: 'current',
+      newPassword: 'Newpassword123',
+      confirmPassword: 'Newpassword123',
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((i) => i.message)).toContain(
+      'Must contain at least one special character',
+    );
+  });
+
   it('rejects when newPassword and confirmPassword do not match', () => {
     const result = changePasswordSchema.safeParse({
-      currentPassword: 'current123',
-      newPassword: 'newpassword123',
-      confirmPassword: 'different123',
+      currentPassword: 'current',
+      newPassword: VALID_PW,
+      confirmPassword: 'Different123!',
     });
     expect(result.success).toBe(false);
     const confirmError = result.error?.issues.find((i) => i.path.includes('confirmPassword'));
     expect(confirmError?.message).toBe('Passwords do not match');
   });
 
-  it('accepts valid matching passwords', () => {
+  it('accepts valid matching passwords meeting all rules', () => {
     const result = changePasswordSchema.safeParse({
-      currentPassword: 'current123',
-      newPassword: 'newpassword123',
-      confirmPassword: 'newpassword123',
+      currentPassword: 'current',
+      newPassword: VALID_PW,
+      confirmPassword: VALID_PW,
     });
     expect(result.success).toBe(true);
   });

@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BadgeCheck, Lock, User } from 'lucide-react';
+import { BadgeCheck, Lock, MapPin, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
@@ -104,25 +104,31 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
 PasswordField.displayName = 'PasswordField';
 
 export const profileSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, 'First name is required')
-    .max(50, 'First name is too long')
-    .optional()
-    .or(z.literal('')),
-  lastName: z
-    .string()
-    .min(1, 'Last name is required')
-    .max(50, 'Last name is too long')
-    .optional()
-    .or(z.literal('')),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
   location: z.string().max(100, 'Location is too long').optional(),
 });
 
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Required'),
-    newPassword: z.string().min(8, 'Password must be at least 8 characters').max(100),
+    newPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(100)
+      .superRefine((v, ctx) => {
+        if (!/[A-Z]/.test(v))
+          ctx.addIssue({ code: 'custom', message: 'Must contain at least one uppercase letter' });
+        if (!/[a-z]/.test(v))
+          ctx.addIssue({ code: 'custom', message: 'Must contain at least one lowercase letter' });
+        if (!/[0-9]/.test(v))
+          ctx.addIssue({ code: 'custom', message: 'Must contain at least one number' });
+        if (!/[^A-Za-z0-9]/.test(v))
+          ctx.addIssue({
+            code: 'custom',
+            message: 'Must contain at least one special character',
+          });
+      }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -153,6 +159,9 @@ export default function SettingsForm({
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [locationStatus, setLocationStatus] = useState<
+    'idle' | 'detecting' | 'detected' | 'denied' | 'error'
+  >('idle');
 
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -167,6 +176,35 @@ export default function SettingsForm({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
+
+  function detectLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus('error');
+      return;
+    }
+    setLocationStatus('detecting');
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`,
+          );
+          const data = (await res.json()) as {
+            address?: { city?: string; town?: string; village?: string; country?: string };
+          };
+          const city = data.address?.city ?? data.address?.town ?? data.address?.village ?? '';
+          const country = data.address?.country ?? '';
+          const detected = [city, country].filter(Boolean).join(', ');
+          profileForm.setValue('location', detected, { shouldValidate: true });
+          setLocationStatus('detected');
+        } catch {
+          setLocationStatus('error');
+        }
+      },
+      () => setLocationStatus('denied'),
+    );
+  }
 
   function handleDiscard() {
     profileForm.reset();
@@ -186,8 +224,8 @@ export default function SettingsForm({
     }
 
     const profileResult = await updateProfileAction({
-      firstName: profileValues.firstName || undefined,
-      lastName: profileValues.lastName || undefined,
+      firstName: profileValues.firstName,
+      lastName: profileValues.lastName,
       location: profileValues.location || null,
     });
 
@@ -297,16 +335,31 @@ export default function SettingsForm({
               >
                 Location
               </label>
-              <Input
-                id="location"
-                {...profileForm.register('location')}
-                placeholder="City, Country (optional)"
-                className="placeholder:text-on-surface-variant/40"
-              />
-              {profileForm.formState.errors.location && (
-                <p className="text-sm text-destructive">
-                  {profileForm.formState.errors.location.message}
+              <div className="flex gap-2">
+                <Input
+                  id="location"
+                  {...profileForm.register('location')}
+                  readOnly
+                  placeholder="Auto-detected from browser"
+                  className="cursor-default placeholder:text-on-surface-variant/40"
+                />
+                <button
+                  type="button"
+                  onClick={detectLocation}
+                  disabled={locationStatus === 'detecting'}
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg border border-outline-variant/20 px-4 py-2 font-display text-xs tracking-wide text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
+                >
+                  <MapPin size={14} aria-hidden="true" />
+                  {locationStatus === 'detecting' ? 'Detecting…' : 'Detect'}
+                </button>
+              </div>
+              {locationStatus === 'denied' && (
+                <p className="text-xs text-destructive">
+                  Location access was denied by the browser.
                 </p>
+              )}
+              {locationStatus === 'error' && (
+                <p className="text-xs text-destructive">Could not detect location. Try again.</p>
               )}
             </div>
           </div>
