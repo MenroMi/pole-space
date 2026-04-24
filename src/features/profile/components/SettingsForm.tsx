@@ -8,6 +8,7 @@ import type { InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { Input } from '@/shared/components/ui/input';
 
 import { changePasswordAction, updateProfileAction } from '../actions';
@@ -123,19 +124,7 @@ export const changePasswordSchema = z
       .string()
       .min(8, 'Password must be at least 8 characters')
       .max(100)
-      .superRefine((v, ctx) => {
-        if (!/[A-Z]/.test(v))
-          ctx.addIssue({ code: 'custom', message: 'Must contain at least one uppercase letter' });
-        if (!/[a-z]/.test(v))
-          ctx.addIssue({ code: 'custom', message: 'Must contain at least one lowercase letter' });
-        if (!/[0-9]/.test(v))
-          ctx.addIssue({ code: 'custom', message: 'Must contain at least one number' });
-        if (!/[^A-Za-z0-9]/.test(v))
-          ctx.addIssue({
-            code: 'custom',
-            message: 'Must contain at least one special character',
-          });
-      }),
+      .superRefine(applyPasswordComplexity),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -320,7 +309,11 @@ export default function SettingsForm({
               </p>
             </div>
           </div>
-          {profileError && <p className="text-sm text-destructive">{profileError}</p>}
+          {profileError && (
+            <p role="alert" className="text-sm text-destructive">
+              {profileError}
+            </p>
+          )}
         </section>
 
         {/* Security */}

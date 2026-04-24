@@ -9,13 +9,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing lat or lon' }, { status: 400 });
   }
 
+  const latNum = parseFloat(lat);
+  const lonNum = parseFloat(lon);
+  if (
+    !isFinite(latNum) ||
+    !isFinite(lonNum) ||
+    latNum < -90 ||
+    latNum > 90 ||
+    lonNum < -180 ||
+    lonNum > 180
+  ) {
+    return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
+  }
+
   const ua = process.env.NOMINATIM_USER_AGENT;
   if (!ua) {
     return NextResponse.json({ error: 'Geocoding not configured' }, { status: 503 });
   }
 
   const res = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+    `https://nominatim.openstreetmap.org/reverse?lat=${latNum}&lon=${lonNum}&format=json&accept-language=en`,
     { headers: { 'User-Agent': ua } },
   );
 
