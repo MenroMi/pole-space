@@ -17,6 +17,7 @@ All steps below run inside `.worktrees/cross-tab-auth-sync/`.
 ### Task 1: Fix resendVerificationAction redirect for already-verified users
 
 **Files:**
+
 - Modify: `src/features/auth/actions.test.ts`
 - Modify: `src/features/auth/actions.ts`
 
@@ -48,16 +49,16 @@ Expected: one test FAIL — `redirects to /login if user already verified` (got 
 In `src/features/auth/actions.ts`, replace:
 
 ```ts
-  if (!user || user.emailVerified !== null) {
-    redirect('/verify-email?error=invalid');
-  }
+if (!user || user.emailVerified !== null) {
+  redirect('/verify-email?error=invalid');
+}
 ```
 
 With:
 
 ```ts
-  if (!user) redirect('/verify-email?error=invalid');
-  if (user.emailVerified !== null) redirect('/login');
+if (!user) redirect('/verify-email?error=invalid');
+if (user.emailVerified !== null) redirect('/login');
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
@@ -88,6 +89,7 @@ git commit -m "fix(auth): redirect to /login when resending to already-verified 
 ### Task 2: Add SessionProvider to root layout
 
 **Files:**
+
 - Create: `src/shared/components/Providers.tsx`
 - Modify: `src/app/layout.tsx`
 
@@ -164,6 +166,7 @@ git commit -m "feat(auth): add SessionProvider with refetchOnWindowFocus to root
 ### Task 3: Add checkEmailVerifiedAction server action
 
 **Files:**
+
 - Modify: `src/features/auth/actions.ts`
 - Modify: `src/features/auth/actions.test.ts`
 
@@ -247,6 +250,7 @@ git commit -m "feat(auth): add checkEmailVerifiedAction server action"
 ### Task 4: Add visibilitychange sync to ResendForm
 
 **Files:**
+
 - Create: `src/app/(auth)/verify-email/ResendForm.test.tsx`
 - Modify: `src/app/(auth)/verify-email/ResendForm.tsx`
 - Modify: `src/app/(auth)/verify-email/page.tsx`
@@ -438,16 +442,19 @@ Expected: all 3 tests PASS.
 In `src/app/(auth)/verify-email/page.tsx`, add `email` to every `<ResendForm>` instance. There are three render paths:
 
 **`sent` state**: `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={validEmail}`:
+
 ```tsx
 <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={validEmail} />
 ```
 
 **`expired` state**: `<ResendForm action={resendWithEmail} initialRemaining={initialRemaining} />` → add `email={email!}`:
+
 ```tsx
 <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={email!} />
 ```
 
 **`send-failed` state**: `<ResendForm action={resendWithEmail} />` → add `email={email!}`:
+
 ```tsx
 <ResendForm action={resendWithEmail} email={email!} />
 ```
@@ -474,6 +481,7 @@ git commit -m "feat(auth): redirect from verify-email when email verified in ano
 ### Task 5: Add SessionGuard for profile layout
 
 **Files:**
+
 - Create: `src/shared/components/SessionGuard.tsx`
 - Create: `src/shared/components/SessionGuard.test.tsx`
 - Modify: `src/app/(main)/profile/layout.tsx`
@@ -512,7 +520,11 @@ describe('SessionGuard', () => {
       update: vi.fn(),
     });
 
-    render(<SessionGuard><div>protected</div></SessionGuard>);
+    render(
+      <SessionGuard>
+        <div>protected</div>
+      </SessionGuard>,
+    );
 
     expect(mockReplace).toHaveBeenCalledWith('/login');
   });
@@ -524,7 +536,11 @@ describe('SessionGuard', () => {
       update: vi.fn(),
     });
 
-    render(<SessionGuard><div>protected</div></SessionGuard>);
+    render(
+      <SessionGuard>
+        <div>protected</div>
+      </SessionGuard>,
+    );
 
     expect(mockReplace).not.toHaveBeenCalled();
   });
@@ -536,7 +552,11 @@ describe('SessionGuard', () => {
       update: vi.fn(),
     });
 
-    render(<SessionGuard><div>protected</div></SessionGuard>);
+    render(
+      <SessionGuard>
+        <div>protected</div>
+      </SessionGuard>,
+    );
 
     expect(mockReplace).not.toHaveBeenCalled();
   });
@@ -549,7 +569,9 @@ describe('SessionGuard', () => {
     });
 
     const { getByText } = render(
-      <SessionGuard><div>protected content</div></SessionGuard>,
+      <SessionGuard>
+        <div>protected content</div>
+      </SessionGuard>,
     );
 
     expect(getByText('protected content')).toBeInTheDocument();
