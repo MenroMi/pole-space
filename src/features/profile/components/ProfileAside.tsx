@@ -13,18 +13,18 @@ export default function ProfileAside() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex h-full flex-col gap-1 p-4">
+    <nav className="flex h-full flex-col gap-2 py-10 font-display text-xs uppercase tracking-widest">
       {NAV_LINKS.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
-          className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+          className={`mx-4 my-1 flex items-center gap-4 rounded-md px-4 py-3 transition-all duration-200 active:scale-95 hover:translate-x-1 ${
             pathname === href
-              ? 'bg-primary-container font-medium text-on-surface'
-              : 'text-on-surface-variant hover:bg-surface-high hover:text-on-surface'
+              ? 'bg-gradient-to-br from-primary to-primary-container font-bold text-surface'
+              : 'text-outline hover:bg-surface-container hover:text-on-surface'
           }`}
         >
-          <Icon size={16} aria-hidden="true" />
+          <Icon size={20} aria-hidden="true" />
           {label}
         </Link>
       ))}
