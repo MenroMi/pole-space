@@ -12,8 +12,8 @@ import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { Input } from '@/shared/components/ui/input';
 
 import { changePasswordAction, updateProfileAction } from '../actions';
-import { profileSchema } from '../lib/validation';
-import type { ProfileFormValues } from '../lib/validation';
+import { profileNameSchema } from '../lib/validation';
+import type { ProfileNameFormValues } from '../lib/validation';
 
 import AvatarUpload from './AvatarUpload';
 
@@ -115,7 +115,7 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
 );
 PasswordField.displayName = 'PasswordField';
 
-export { profileSchema };
+export { profileNameSchema };
 
 export const changePasswordSchema = z
   .object({
@@ -156,8 +156,8 @@ export default function SettingsForm({
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
-  const profileForm = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
+  const profileForm = useForm<ProfileNameFormValues>({
+    resolver: zodResolver(profileNameSchema),
     defaultValues: {
       firstName: firstName ?? '',
       lastName: lastName ?? '',
@@ -173,15 +173,11 @@ export default function SettingsForm({
     router.push('/profile');
   }
 
-  async function handleSave() {
+  const handleSave = profileForm.handleSubmit(async (profileValues) => {
     setIsPending(true);
     setProfileError(null);
 
     try {
-      const profileValues = profileForm.getValues();
-      const isProfileValid = await profileForm.trigger();
-      if (!isProfileValid) return;
-
       const profileResult = await updateProfileAction({
         firstName: profileValues.firstName,
         lastName: profileValues.lastName,
@@ -192,11 +188,12 @@ export default function SettingsForm({
         return;
       }
 
-      const { currentPassword, newPassword, confirmPassword } = passwordForm.getValues();
-      if (currentPassword || newPassword || confirmPassword) {
+      const preCheck = passwordForm.getValues();
+      if (preCheck.currentPassword || preCheck.newPassword || preCheck.confirmPassword) {
         const isPasswordValid = await passwordForm.trigger();
         if (!isPasswordValid) return;
 
+        const { currentPassword, newPassword } = passwordForm.getValues();
         const passwordResult = await changePasswordAction({ currentPassword, newPassword });
         if (!passwordResult.success) {
           passwordForm.setError('currentPassword', { message: passwordResult.error });
@@ -213,14 +210,14 @@ export default function SettingsForm({
     } finally {
       setIsPending(false);
     }
-  }
+  });
 
   const watchedFirstName = profileForm.watch('firstName');
   const watchedLastName = profileForm.watch('lastName');
   const displayName = [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || 'anonymous';
 
   return (
-    <div className="space-y-8 p-6 md:p-12">
+    <form onSubmit={handleSave} className="space-y-8 p-6 md:p-12">
       <div className="space-y-2">
         <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
           settings
@@ -262,10 +259,14 @@ export default function SettingsForm({
                 id="firstName"
                 {...profileForm.register('firstName')}
                 placeholder="Your first name"
+                aria-invalid={!!profileForm.formState.errors.firstName}
+                aria-describedby={
+                  profileForm.formState.errors.firstName ? 'firstName-error' : undefined
+                }
                 className="placeholder:text-on-surface-variant/40"
               />
               {profileForm.formState.errors.firstName && (
-                <p className="text-sm text-destructive">
+                <p id="firstName-error" role="alert" className="text-sm text-destructive">
                   {profileForm.formState.errors.firstName.message}
                 </p>
               )}
@@ -281,10 +282,14 @@ export default function SettingsForm({
                 id="lastName"
                 {...profileForm.register('lastName')}
                 placeholder="Your last name"
+                aria-invalid={!!profileForm.formState.errors.lastName}
+                aria-describedby={
+                  profileForm.formState.errors.lastName ? 'lastName-error' : undefined
+                }
                 className="placeholder:text-on-surface-variant/40"
               />
               {profileForm.formState.errors.lastName && (
-                <p className="text-sm text-destructive">
+                <p id="lastName-error" role="alert" className="text-sm text-destructive">
                   {profileForm.formState.errors.lastName.message}
                 </p>
               )}
@@ -380,8 +385,7 @@ export default function SettingsForm({
             discard
           </button>
           <button
-            type="button"
-            onClick={handleSave}
+            type="submit"
             disabled={isPending}
             className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
           >
@@ -389,6 +393,6 @@ export default function SettingsForm({
           </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

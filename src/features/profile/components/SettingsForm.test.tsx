@@ -25,7 +25,9 @@ vi.mock('next-auth/react', () => ({
   useSession: vi.fn(() => ({ update: mockSessionUpdate })),
 }));
 
-import SettingsForm, { profileSchema, changePasswordSchema } from './SettingsForm';
+import { profileNameSchema as profileSchema } from '../lib/validation';
+
+import SettingsForm, { changePasswordSchema } from './SettingsForm';
 import { updateProfileAction, changePasswordAction } from '../actions';
 
 const mockUpdateProfile = updateProfileAction as ReturnType<typeof vi.fn>;

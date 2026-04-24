@@ -18,6 +18,13 @@
 
 > Implement after core feature set is complete, before public launch.
 
+### `/api/geocode` unauthenticated — Nominatim rate-limit abuse ⚠️ pre-launch blocker
+
+- `src/app/api/geocode/route.ts` has no auth check — any unauthenticated client can call it freely
+- Nominatim ToS: max 1 req/sec per IP; abuse can get the server IP banned
+- Cannot simply require a session because `SignupForm` calls it before the user has an account
+- Fix options: (a) lightweight CSRF-style token (signed with `NEXTAUTH_SECRET`, short TTL, issued from a pre-signup endpoint), (b) IP-level rate-limit at Next.js middleware layer via Upstash Ratelimit, (c) move geocoding fully client-side via a third-party geocoding SaaS that issues per-origin keys
+
 ### Rate limiting on auth endpoints ⚠️ pre-launch blocker
 
 - No rate limiting on `/api/auth/signin` — brute force possible

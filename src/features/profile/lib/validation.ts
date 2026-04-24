@@ -7,3 +7,7 @@ export const profileSchema = z.object({
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
+
+// Narrower schema for the settings form — location is read-only there and never submitted
+export const profileNameSchema = profileSchema.pick({ firstName: true, lastName: true });
+export type ProfileNameFormValues = z.infer<typeof profileNameSchema>;
