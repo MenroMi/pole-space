@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { PasswordInput } from '@/shared/components/PasswordInput';
@@ -12,6 +13,29 @@ import type { SignupFormData } from '../lib/validation';
 import { FacebookIcon, GoogleIcon } from './SocialIcons';
 
 export function SignupForm() {
+  const [detectedLocation, setDetectedLocation] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`,
+        );
+        const data = (await res.json()) as {
+          address?: { city?: string; town?: string; village?: string; country?: string };
+        };
+        const city = data.address?.city ?? data.address?.town ?? data.address?.village ?? '';
+        const country = data.address?.country ?? '';
+        const location = [city, country].filter(Boolean).join(', ');
+        if (location) setDetectedLocation(location);
+      } catch {
+        // silent — location is optional
+      }
+    });
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -19,12 +43,18 @@ export function SignupForm() {
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = async (data: SignupFormData) => {
-    const result = await signupAction(data);
-    if (result?.error) {
-      setError('root', { message: result.error });
-    }
-  };
+  const onSubmit = useCallback(
+    async (data: SignupFormData) => {
+      const result = await signupAction({
+        ...data,
+        ...(detectedLocation ? { location: detectedLocation } : {}),
+      });
+      if (result?.error) {
+        setError('root', { message: result.error });
+      }
+    },
+    [detectedLocation, setError],
+  );
 
   return (
     <div className="w-full max-w-sm animate-fade-in-up space-y-10">

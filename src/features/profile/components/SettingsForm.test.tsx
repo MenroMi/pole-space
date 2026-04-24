@@ -59,24 +59,6 @@ describe('profileSchema', () => {
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].message).toBe('Last name is too long');
   });
-
-  it('accepts valid location', () => {
-    const result = profileSchema.safeParse({
-      firstName: 'Alice',
-      lastName: 'Pole',
-      location: 'Warsaw, Poland',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects location longer than 100 characters', () => {
-    const result = profileSchema.safeParse({
-      firstName: 'Alice',
-      lastName: 'Pole',
-      location: 'A'.repeat(101),
-    });
-    expect(result.success).toBe(false);
-  });
 });
 
 describe('changePasswordSchema', () => {
@@ -174,7 +156,6 @@ describe('SettingsForm behavior', () => {
     expect(mockUpdateProfile).toHaveBeenCalledWith({
       firstName: 'Alice',
       lastName: 'Pole',
-      location: null,
     });
   });
 

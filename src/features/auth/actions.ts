@@ -12,7 +12,7 @@ import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
 import { signupSchema } from './lib/validation';
 import type { SignupFormData, LoginFormData } from './lib/validation';
 
-export async function signupAction(data: SignupFormData) {
+export async function signupAction(data: SignupFormData & { location?: string }) {
   const parsed = signupSchema.safeParse(data);
   if (!parsed.success) return { error: 'Invalid input' };
 
@@ -26,6 +26,7 @@ export async function signupAction(data: SignupFormData) {
       lastName: parsed.data.lastName,
       email: parsed.data.email,
       password: hashed,
+      location: data.location ?? null,
       emailVerified: null,
     },
   });
