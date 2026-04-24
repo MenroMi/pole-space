@@ -109,6 +109,24 @@
 
 ## Feature Gaps
 
+**Profile — Current Streak stub** (2026-04-24)
+
+- `ProfileStats` renders `"—"` for Current Streak — no streak tracking logic exists
+- Needs: `UserStreak` model (or derived from `UserProgress` timestamps), server action, cron/trigger to reset on missed day
+- Design: show consecutive days with at least one progress update; reset to 0 if a day is skipped
+
+**Profile — Skill Tier stub** (2026-04-24)
+
+- `ProfileStats` renders `"—"` for Skill Tier — no tier classification logic exists
+- Needs: tier thresholds based on mastered moves count and/or difficulty spread (e.g. Beginner → Intermediate → Advanced → Elite)
+- Design decision pending: formula, display name, icon per tier
+
+**Profile — Elite Member badge stub** (2026-04-24)
+
+- `ProfileHero` always renders the "Elite Member" badge — no membership or achievement check
+- Needs: criteria definition (e.g. moves mastered ≥ N, account age, admin-granted flag), conditional rendering
+- Until criteria are defined, badge is hardcoded and misleading for new users
+
 **Password reset (`/forgot-password`)** (2026-04-22)
 
 - `LoginForm` links to `/forgot-password` but the route doesn't exist (shows 404 page)
