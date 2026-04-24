@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { Award, CheckCircle2, Flame, Heart } from 'lucide-react';
 
 type ProfileStatsProps = {
@@ -6,7 +8,7 @@ type ProfileStatsProps = {
 };
 
 type StatCardProps = {
-  icon: React.ReactNode;
+  icon: ReactNode;
   value: string | number;
   label: string;
   colSpan?: boolean;
