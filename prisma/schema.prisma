@@ -13,6 +13,7 @@ model User {
   emailVerified DateTime?
   name          String?
   image         String?
+  location      String?
   password      String?
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
