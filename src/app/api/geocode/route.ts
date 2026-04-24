@@ -27,22 +27,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Geocoding not configured' }, { status: 503 });
   }
 
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?lat=${latNum}&lon=${lonNum}&format=json&accept-language=en`,
-    { headers: { 'User-Agent': ua } },
-  );
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${latNum}&lon=${lonNum}&format=json&accept-language=en`,
+      { headers: { 'User-Agent': ua } },
+    );
 
-  if (!res.ok) {
+    if (!res.ok) {
+      return NextResponse.json({ error: 'Geocoding failed' }, { status: 502 });
+    }
+
+    const data = (await res.json()) as {
+      address?: { city?: string; town?: string; village?: string; country?: string };
+    };
+
+    const city = data.address?.city ?? data.address?.town ?? data.address?.village ?? '';
+    const country = data.address?.country ?? '';
+    const location = [city, country].filter(Boolean).join(', ');
+
+    return NextResponse.json({ location: location || null });
+  } catch {
     return NextResponse.json({ error: 'Geocoding failed' }, { status: 502 });
   }
-
-  const data = (await res.json()) as {
-    address?: { city?: string; town?: string; village?: string; country?: string };
-  };
-
-  const city = data.address?.city ?? data.address?.town ?? data.address?.village ?? '';
-  const country = data.address?.country ?? '';
-  const location = [city, country].filter(Boolean).join(', ');
-
-  return NextResponse.json({ location: location || null });
 }

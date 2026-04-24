@@ -8,7 +8,7 @@ import { uploadAvatarAction } from '../actions';
 
 type AvatarUploadProps = {
   currentImage: string | null;
-  onUploadSuccess: (imageUrl: string) => void;
+  onUploadSuccess: () => void;
 };
 
 export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUploadProps) {
@@ -50,7 +50,7 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
     if (!result.success) {
       setError(result.error ?? 'Upload failed');
     } else {
-      onUploadSuccess(result.imageUrl);
+      onUploadSuccess();
       setPreview(null);
     }
   }
@@ -85,7 +85,11 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
           </Button>
         )}
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
