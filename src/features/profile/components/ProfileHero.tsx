@@ -3,13 +3,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 type ProfileHeroProps = {
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   image: string | null;
   location: string | null;
   createdAt: Date;
 };
 
-export default function ProfileHero({ name, image, location, createdAt }: ProfileHeroProps) {
+export default function ProfileHero({ firstName, lastName, image, location, createdAt }: ProfileHeroProps) {
+  const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'anonymous';
   const joinYear = createdAt.getFullYear();
   const meta = location ? `${location} • Joined ${joinYear}` : `Joined ${joinYear}`;
 
@@ -21,9 +23,9 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
           {image ? (
             <Image
               src={image}
-              alt={name ?? 'Avatar'}
+              alt={displayName}
               fill
-              className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0"
+              className="object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
@@ -31,7 +33,6 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
             </div>
           )}
         </div>
-        {/* Ambient glow */}
         <div className="absolute inset-0 -z-10 scale-110 rounded-2xl bg-primary/20 opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-80" />
       </div>
 
@@ -42,7 +43,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
           Elite Member
         </div>
         <h1 className="font-display text-4xl font-bold lowercase tracking-tighter text-on-surface md:text-6xl">
-          {name ?? 'anonymous'}
+          {displayName}
         </h1>
         <p className="text-lg text-on-surface-variant">{meta}</p>
       </div>

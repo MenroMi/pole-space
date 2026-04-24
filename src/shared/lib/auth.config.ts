@@ -6,7 +6,11 @@ export const authBaseConfig = {
   pages: { signIn: '/login' },
   callbacks: {
     jwt({ token, user }) {
-      if (user) token.role = (user as { role?: string }).role;
+      if (user) {
+        token.role = (user as { role?: string }).role;
+        const u = user as { firstName?: string | null; lastName?: string | null };
+        token.name = [u.firstName, u.lastName].filter(Boolean).join(' ') || null;
+      }
       return token;
     },
     session({ session, token }) {

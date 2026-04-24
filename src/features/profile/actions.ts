@@ -131,7 +131,14 @@ export async function getProfileUserAction() {
   const userId = await requireAuth();
   return prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true, image: true, location: true, createdAt: true },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      image: true,
+      location: true,
+      createdAt: true,
+    },
   });
 }
 

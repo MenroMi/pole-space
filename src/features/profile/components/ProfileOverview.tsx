@@ -8,7 +8,8 @@ export default async function ProfileOverview() {
   return (
     <div className="p-6 md:p-12 space-y-12">
       <ProfileHero
-        name={user?.name ?? null}
+        firstName={user?.firstName ?? null}
+        lastName={user?.lastName ?? null}
         image={user?.image ?? null}
         location={user?.location ?? null}
         createdAt={user?.createdAt ?? new Date()}

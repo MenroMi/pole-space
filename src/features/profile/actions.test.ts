@@ -364,7 +364,9 @@ describe('getProfileUserAction', () => {
   it('returns user profile fields', async () => {
     mockAuth.mockResolvedValue(session);
     const mockUser = {
-      name: 'Alice Pole',
+      firstName: 'Alice',
+      lastName: 'Pole',
+      username: 'alicepole',
       image: 'https://cdn.example.com/avatar.jpg',
       location: 'Warsaw, PL',
       createdAt: new Date('2023-01-15'),
@@ -373,7 +375,7 @@ describe('getProfileUserAction', () => {
     const result = await getProfileUserAction();
     expect(mockUserFindUnique).toHaveBeenCalledWith({
       where: { id: 'user-123' },
-      select: { name: true, image: true, location: true, createdAt: true },
+      select: { firstName: true, lastName: true, username: true, image: true, location: true, createdAt: true },
     });
     expect(result).toEqual(mockUser);
   });
