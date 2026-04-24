@@ -139,7 +139,7 @@ describe('SettingsForm behavior', () => {
     expect(mockUpdateProfile).toHaveBeenCalledWith({
       firstName: 'Alice',
       lastName: 'Pole',
-      location: undefined,
+      location: null,
     });
   });
 

@@ -26,7 +26,7 @@ const profileSchema = z.object({
     .max(30)
     .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores')
     .optional(),
-  location: z.string().min(1).max(100).optional(),
+  location: z.string().max(100).nullable().optional(),
 });
 
 const changePasswordSchema = z.object({
@@ -55,7 +55,7 @@ export async function updateProfileAction(data: {
   firstName?: string;
   lastName?: string;
   username?: string;
-  location?: string;
+  location?: string | null;
 }) {
   const userId = await requireAuth();
   const parsed = profileSchema.safeParse(data);
@@ -65,7 +65,7 @@ export async function updateProfileAction(data: {
     firstName?: string;
     lastName?: string;
     username?: string;
-    location?: string;
+    location?: string | null;
   } = {};
   if (parsed.data.firstName !== undefined) updateData.firstName = parsed.data.firstName;
   if (parsed.data.lastName !== undefined) updateData.lastName = parsed.data.lastName;

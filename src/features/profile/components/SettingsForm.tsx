@@ -153,7 +153,6 @@ export default function SettingsForm({
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -178,7 +177,6 @@ export default function SettingsForm({
   async function handleSave() {
     setIsPending(true);
     setProfileError(null);
-    setPasswordError(null);
 
     const profileValues = profileForm.getValues();
     const isProfileValid = await profileForm.trigger();
@@ -190,7 +188,7 @@ export default function SettingsForm({
     const profileResult = await updateProfileAction({
       firstName: profileValues.firstName || undefined,
       lastName: profileValues.lastName || undefined,
-      location: profileValues.location || undefined,
+      location: profileValues.location || null,
     });
 
     if (!profileResult.success) {
@@ -366,7 +364,6 @@ export default function SettingsForm({
                 />
               </div>
             </div>
-            {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
           </section>
         )}
 
