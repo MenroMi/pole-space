@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
   { label: 'Catalog', href: '/catalog' },
   { label: 'Moves', href: '/moves' },
-]
+];
 
 export default function HeaderNav() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <nav className="flex gap-8">
@@ -27,5 +27,5 @@ export default function HeaderNav() {
         </Link>
       ))}
     </nav>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 ---
 name: feature-implementation-with-tests
 description: Workflow command scaffold for feature-implementation-with-tests in pole-dance-catalog.
-allowed_tools: ["Bash", "Read", "Write", "Grep", "Glob"]
+allowed_tools: ['Bash', 'Read', 'Write', 'Grep', 'Glob']
 ---
 
 # /feature-implementation-with-tests

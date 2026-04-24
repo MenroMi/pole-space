@@ -1,0 +1,2 @@
+export const RESEND_COOLDOWN_S = 60;
+export const RESEND_COOLDOWN_MS = RESEND_COOLDOWN_S * 1000;

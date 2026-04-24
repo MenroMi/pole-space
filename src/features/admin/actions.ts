@@ -1,17 +1,18 @@
-'use server'
-import { auth } from '@/shared/lib/auth'
-import { prisma } from '@/shared/lib/prisma'
-import type { CreateMoveInput } from './types'
+'use server';
+import { auth } from '@/shared/lib/auth';
+import { prisma } from '@/shared/lib/prisma';
+
+import type { CreateMoveInput } from './types';
 
 async function requireAdmin() {
-  const session = await auth()
+  const session = await auth();
   if (!session || session.user?.role !== 'ADMIN') {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 }
 
 export async function createMoveAction(input: CreateMoveInput) {
-  await requireAdmin()
+  await requireAdmin();
   return prisma.move.create({
     data: {
       title: input.title,
@@ -27,10 +28,10 @@ export async function createMoveAction(input: CreateMoveInput) {
         })),
       },
     },
-  })
+  });
 }
 
 export async function deleteMoveAction(id: string) {
-  await requireAdmin()
-  return prisma.move.delete({ where: { id } })
+  await requireAdmin();
+  return prisma.move.delete({ where: { id } });
 }

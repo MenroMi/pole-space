@@ -13,6 +13,7 @@
 ### Task 1: Initialize Next.js project and install dependencies
 
 **Files:**
+
 - Create: `package.json`, `next.config.ts`, `tailwind.config.ts`, `tsconfig.json`, `.gitignore`
 
 - [ ] **Step 1: Run create-next-app**
@@ -63,6 +64,7 @@ git commit -m "chore: initialize Next.js project"
 ### Task 2: Configure Vitest
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/test-setup.ts`
 - Modify: `package.json` (add test scripts)
@@ -71,9 +73,9 @@ git commit -m "chore: initialize Next.js project"
 
 ```ts
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -87,19 +89,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});
 ```
 
 - [ ] **Step 2: Create test setup file**
 
 ```ts
 // src/test-setup.ts
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 ```
 
 - [ ] **Step 3: Add test scripts to package.json**
 
 In `package.json`, add to `"scripts"`:
+
 ```json
 "test": "vitest",
 "test:run": "vitest run"
@@ -125,6 +128,7 @@ git commit -m "chore: configure Vitest + RTL"
 ### Task 3: Create environment files
 
 **Files:**
+
 - Create: `.env.example`
 - Create: `.env.local`
 
@@ -151,6 +155,7 @@ cp .env.example .env.local
 ```
 
 Fill in:
+
 - `DATABASE_URL` — Neon connection string (from neon.tech dashboard)
 - `NEXTAUTH_SECRET` — generate with: `openssl rand -base64 32`
 
@@ -170,6 +175,7 @@ git commit -m "chore: add environment variable template"
 ### Task 4: Initialize Prisma and write schema
 
 **Files:**
+
 - Create: `prisma/schema.prisma`
 
 - [ ] **Step 1: Initialize Prisma**
@@ -311,6 +317,7 @@ git commit -m "feat: add Prisma schema — User, Move, UserProgress, Tag"
 ### Task 5: Create Prisma client singleton
 
 **Files:**
+
 - Create: `src/shared/lib/prisma.ts`
 - Create: `src/shared/lib/prisma.test.ts`
 
@@ -318,20 +325,20 @@ git commit -m "feat: add Prisma schema — User, Move, UserProgress, Tag"
 
 ```ts
 // src/shared/lib/prisma.test.ts
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest';
 
 describe('prisma singleton', () => {
   it('exports a prisma instance', async () => {
-    const { prisma } = await import('./prisma')
-    expect(prisma).toBeDefined()
-  })
+    const { prisma } = await import('./prisma');
+    expect(prisma).toBeDefined();
+  });
 
   it('returns the same instance on repeated imports', async () => {
-    const { prisma: a } = await import('./prisma')
-    const { prisma: b } = await import('./prisma')
-    expect(a).toBe(b)
-  })
-})
+    const { prisma: a } = await import('./prisma');
+    const { prisma: b } = await import('./prisma');
+    expect(a).toBe(b);
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to confirm it fails**
@@ -346,14 +353,14 @@ Expected: FAIL — "Cannot find module './prisma'"
 
 ```ts
 // src/shared/lib/prisma.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = prisma;
 }
 ```
 
@@ -377,6 +384,7 @@ git commit -m "feat: add Prisma client singleton"
 ### Task 6: Set up NextAuth v5
 
 **Files:**
+
 - Create: `src/shared/lib/auth.ts`
 - Create: `src/shared/lib/auth.test.ts`
 - Create: `src/app/api/auth/[...nextauth]/route.ts`
@@ -385,21 +393,21 @@ git commit -m "feat: add Prisma client singleton"
 
 ```ts
 // src/shared/lib/auth.test.ts
-import { describe, it, expect } from 'vitest'
-import { authConfig } from './auth'
+import { describe, it, expect } from 'vitest';
+import { authConfig } from './auth';
 
 describe('authConfig', () => {
   it('includes google, facebook, and credentials providers', () => {
-    const ids = authConfig.providers.map((p: { id: string }) => p.id)
-    expect(ids).toContain('google')
-    expect(ids).toContain('facebook')
-    expect(ids).toContain('credentials')
-  })
+    const ids = authConfig.providers.map((p: { id: string }) => p.id);
+    expect(ids).toContain('google');
+    expect(ids).toContain('facebook');
+    expect(ids).toContain('credentials');
+  });
 
   it('uses jwt session strategy', () => {
-    expect(authConfig.session?.strategy).toBe('jwt')
-  })
-})
+    expect(authConfig.session?.strategy).toBe('jwt');
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to confirm it fails**
@@ -414,13 +422,13 @@ Expected: FAIL — "Cannot find module './auth'"
 
 ```ts
 // src/shared/lib/auth.ts
-import NextAuth from 'next-auth'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import Google from 'next-auth/providers/google'
-import Facebook from 'next-auth/providers/facebook'
-import Credentials from 'next-auth/providers/credentials'
-import bcrypt from 'bcryptjs'
-import { prisma } from './prisma'
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import Google from 'next-auth/providers/google';
+import Facebook from 'next-auth/providers/facebook';
+import Credentials from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
+import { prisma } from './prisma';
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -439,52 +447,49 @@ export const authConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
-        })
+        });
 
-        if (!user?.password) return null
+        if (!user?.password) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        )
+        const valid = await bcrypt.compare(credentials.password as string, user.password);
 
-        return valid ? user : null
+        return valid ? user : null;
       },
     }),
   ],
   session: { strategy: 'jwt' as const },
   callbacks: {
     jwt({ token, user }: { token: Record<string, unknown>; user?: { role?: string } }) {
-      if (user) token.role = user.role
-      return token
+      if (user) token.role = user.role;
+      return token;
     },
     session({
       session,
       token,
     }: {
-      session: Record<string, unknown> & { user?: Record<string, unknown> }
-      token: Record<string, unknown>
+      session: Record<string, unknown> & { user?: Record<string, unknown> };
+      token: Record<string, unknown>;
     }) {
-      if (session.user) session.user.role = token.role
-      return session
+      if (session.user) session.user.role = token.role;
+      return session;
     },
   },
-}
+};
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
 ```
 
 - [ ] **Step 4: Create the route handler**
 
 ```ts
 // src/app/api/auth/[...nextauth]/route.ts
-import { handlers } from '@/shared/lib/auth'
+import { handlers } from '@/shared/lib/auth';
 
-export const { GET, POST } = handlers
+export const { GET, POST } = handlers;
 ```
 
 - [ ] **Step 5: Run test to confirm it passes**
@@ -507,6 +512,7 @@ git commit -m "feat: configure NextAuth v5 — Google, Facebook, Credentials"
 ### Task 7: Set up Cloudinary utility
 
 **Files:**
+
 - Create: `src/shared/lib/cloudinary.ts`
 - Create: `src/shared/lib/cloudinary.test.ts`
 
@@ -514,26 +520,26 @@ git commit -m "feat: configure NextAuth v5 — Google, Facebook, Credentials"
 
 ```ts
 // src/shared/lib/cloudinary.test.ts
-import { describe, it, expect } from 'vitest'
-import { getCloudinaryUrl } from './cloudinary'
+import { describe, it, expect } from 'vitest';
+import { getCloudinaryUrl } from './cloudinary';
 
 describe('getCloudinaryUrl', () => {
   it('includes the public ID in the URL', () => {
-    const url = getCloudinaryUrl('moves/spin_basic')
-    expect(url).toContain('moves/spin_basic')
-    expect(url).toContain('cloudinary.com')
-  })
+    const url = getCloudinaryUrl('moves/spin_basic');
+    expect(url).toContain('moves/spin_basic');
+    expect(url).toContain('cloudinary.com');
+  });
 
   it('applies width transformation when provided', () => {
-    const url = getCloudinaryUrl('moves/spin_basic', { width: 400 })
-    expect(url).toContain('w_400')
-  })
+    const url = getCloudinaryUrl('moves/spin_basic', { width: 400 });
+    expect(url).toContain('w_400');
+  });
 
   it('omits width when not provided', () => {
-    const url = getCloudinaryUrl('moves/spin_basic')
-    expect(url).not.toContain('w_')
-  })
-})
+    const url = getCloudinaryUrl('moves/spin_basic');
+    expect(url).not.toContain('w_');
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to confirm it fails**
@@ -548,27 +554,27 @@ Expected: FAIL — "Cannot find module './cloudinary'"
 
 ```ts
 // src/shared/lib/cloudinary.ts
-import { v2 as cloudinary } from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+});
 
-export { cloudinary }
+export { cloudinary };
 
 export function getCloudinaryUrl(
   publicId: string,
-  options: { width?: number; height?: number; quality?: number } = {}
+  options: { width?: number; height?: number; quality?: number } = {},
 ): string {
-  const { width, height, quality = 80 } = options
-  const transforms = [`q_${quality}`, 'f_auto']
-  if (width) transforms.push(`w_${width}`)
-  if (height) transforms.push(`h_${height}`)
+  const { width, height, quality = 80 } = options;
+  const transforms = [`q_${quality}`, 'f_auto'];
+  if (width) transforms.push(`w_${width}`);
+  if (height) transforms.push(`h_${height}`);
 
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME ?? 'demo'
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transforms.join(',')}/${publicId}`
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME ?? 'demo';
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transforms.join(',')}/${publicId}`;
 }
 ```
 
@@ -592,36 +598,37 @@ git commit -m "feat: add Cloudinary utility with URL builder"
 ### Task 8: Create shared types
 
 **Files:**
+
 - Create: `src/shared/types/index.ts`
 
 - [ ] **Step 1: Write shared types**
 
 ```ts
 // src/shared/types/index.ts
-import type { Role, Difficulty, Category, LearnStatus } from '@prisma/client'
+import type { Role, Difficulty, Category, LearnStatus } from '@prisma/client';
 
-export type { Role, Difficulty, Category, LearnStatus }
+export type { Role, Difficulty, Category, LearnStatus };
 
 export interface UserSession {
-  id: string
-  email: string
-  name: string | null
-  image: string | null
-  role: Role
+  id: string;
+  email: string;
+  name: string | null;
+  image: string | null;
+  role: Role;
 }
 
 export interface MoveFilters {
-  category?: Category
-  difficulty?: Difficulty
-  search?: string
-  tags?: string[]
+  category?: Category;
+  difficulty?: Difficulty;
+  search?: string;
+  tags?: string[];
 }
 
 export interface PaginatedResult<T> {
-  items: T[]
-  total: number
-  page: number
-  pageSize: number
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 ```
 
@@ -637,6 +644,7 @@ git commit -m "feat: add shared TypeScript types"
 ### Task 9: Scaffold feature modules
 
 **Files:**
+
 - Create: `src/features/auth/{index,actions,types}.ts`
 - Create: `src/features/catalog/{index,actions,types}.ts`
 - Create: `src/features/moves/{index,actions,types}.ts`
@@ -648,58 +656,58 @@ git commit -m "feat: add shared TypeScript types"
 ```ts
 // src/features/auth/types.ts
 export interface LoginFormData {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface SignupFormData {
-  name: string
-  email: string
-  password: string
+  name: string;
+  email: string;
+  password: string;
 }
 ```
 
 ```ts
 // src/features/auth/actions.ts
-'use server'
-import bcrypt from 'bcryptjs'
-import { prisma } from '@/shared/lib/prisma'
-import type { SignupFormData } from './types'
+'use server';
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/shared/lib/prisma';
+import type { SignupFormData } from './types';
 
 export async function signupAction(data: SignupFormData) {
-  const existing = await prisma.user.findUnique({ where: { email: data.email } })
-  if (existing) throw new Error('Email already in use')
+  const existing = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existing) throw new Error('Email already in use');
 
-  const hashed = await bcrypt.hash(data.password, 10)
+  const hashed = await bcrypt.hash(data.password, 10);
   await prisma.user.create({
     data: { email: data.email, name: data.name, password: hashed },
-  })
+  });
 }
 ```
 
 ```ts
 // src/features/auth/index.ts
-export { signupAction } from './actions'
-export type { LoginFormData, SignupFormData } from './types'
+export { signupAction } from './actions';
+export type { LoginFormData, SignupFormData } from './types';
 ```
 
 - [ ] **Step 2: Create catalog feature**
 
 ```ts
 // src/features/catalog/types.ts
-import type { Move, Tag } from '@prisma/client'
-import type { MoveFilters } from '@/shared/types'
+import type { Move, Tag } from '@prisma/client';
+import type { MoveFilters } from '@/shared/types';
 
-export type { MoveFilters }
-export type MoveWithTags = Move & { tags: Tag[] }
+export type { MoveFilters };
+export type MoveWithTags = Move & { tags: Tag[] };
 ```
 
 ```ts
 // src/features/catalog/actions.ts
-'use server'
-import { prisma } from '@/shared/lib/prisma'
-import type { MoveFilters } from '@/shared/types'
-import type { MoveWithTags } from './types'
+'use server';
+import { prisma } from '@/shared/lib/prisma';
+import type { MoveFilters } from '@/shared/types';
+import type { MoveWithTags } from './types';
 
 export async function getMovesAction(filters: MoveFilters = {}): Promise<MoveWithTags[]> {
   return prisma.move.findMany({
@@ -712,67 +720,67 @@ export async function getMovesAction(filters: MoveFilters = {}): Promise<MoveWit
     },
     include: { tags: true },
     orderBy: { createdAt: 'desc' },
-  })
+  });
 }
 ```
 
 ```ts
 // src/features/catalog/index.ts
-export { getMovesAction } from './actions'
-export type { MoveWithTags, MoveFilters } from './types'
+export { getMovesAction } from './actions';
+export type { MoveWithTags, MoveFilters } from './types';
 ```
 
 - [ ] **Step 3: Create moves feature**
 
 ```ts
 // src/features/moves/types.ts
-import type { Move, Tag, UserProgress } from '@prisma/client'
+import type { Move, Tag, UserProgress } from '@prisma/client';
 
-export type MoveDetail = Move & { tags: Tag[]; progress: UserProgress[] }
+export type MoveDetail = Move & { tags: Tag[]; progress: UserProgress[] };
 ```
 
 ```ts
 // src/features/moves/actions.ts
-'use server'
-import { prisma } from '@/shared/lib/prisma'
-import type { MoveDetail } from './types'
+'use server';
+import { prisma } from '@/shared/lib/prisma';
+import type { MoveDetail } from './types';
 
 export async function getMoveByIdAction(id: string): Promise<MoveDetail | null> {
   return prisma.move.findUnique({
     where: { id },
     include: { tags: true, progress: true },
-  })
+  });
 }
 ```
 
 ```ts
 // src/features/moves/index.ts
-export { getMoveByIdAction } from './actions'
-export type { MoveDetail } from './types'
+export { getMoveByIdAction } from './actions';
+export type { MoveDetail } from './types';
 ```
 
 - [ ] **Step 4: Create admin feature**
 
 ```ts
 // src/features/admin/types.ts
-import type { Move } from '@prisma/client'
+import type { Move } from '@prisma/client';
 
 export interface CreateMoveInput {
-  title: string
-  description?: string
-  difficulty: Move['difficulty']
-  category: Move['category']
-  youtubeUrl: string
-  imageUrl?: string
-  tags?: string[]
+  title: string;
+  description?: string;
+  difficulty: Move['difficulty'];
+  category: Move['category'];
+  youtubeUrl: string;
+  imageUrl?: string;
+  tags?: string[];
 }
 ```
 
 ```ts
 // src/features/admin/actions.ts
-'use server'
-import { prisma } from '@/shared/lib/prisma'
-import type { CreateMoveInput } from './types'
+'use server';
+import { prisma } from '@/shared/lib/prisma';
+import type { CreateMoveInput } from './types';
 
 export async function createMoveAction(input: CreateMoveInput) {
   return prisma.move.create({
@@ -790,60 +798,56 @@ export async function createMoveAction(input: CreateMoveInput) {
         })),
       },
     },
-  })
+  });
 }
 
 export async function deleteMoveAction(id: string) {
-  return prisma.move.delete({ where: { id } })
+  return prisma.move.delete({ where: { id } });
 }
 ```
 
 ```ts
 // src/features/admin/index.ts
-export { createMoveAction, deleteMoveAction } from './actions'
-export type { CreateMoveInput } from './types'
+export { createMoveAction, deleteMoveAction } from './actions';
+export type { CreateMoveInput } from './types';
 ```
 
 - [ ] **Step 5: Create profile feature**
 
 ```ts
 // src/features/profile/types.ts
-import type { UserProgress, Move } from '@prisma/client'
+import type { UserProgress, Move } from '@prisma/client';
 
-export type ProgressWithMove = UserProgress & { move: Move }
+export type ProgressWithMove = UserProgress & { move: Move };
 ```
 
 ```ts
 // src/features/profile/actions.ts
-'use server'
-import { prisma } from '@/shared/lib/prisma'
-import type { LearnStatus } from '@/shared/types'
-import type { ProgressWithMove } from './types'
+'use server';
+import { prisma } from '@/shared/lib/prisma';
+import type { LearnStatus } from '@/shared/types';
+import type { ProgressWithMove } from './types';
 
 export async function getUserProgressAction(userId: string): Promise<ProgressWithMove[]> {
   return prisma.userProgress.findMany({
     where: { userId },
     include: { move: true },
-  })
+  });
 }
 
-export async function updateProgressAction(
-  userId: string,
-  moveId: string,
-  status: LearnStatus
-) {
+export async function updateProgressAction(userId: string, moveId: string, status: LearnStatus) {
   return prisma.userProgress.upsert({
     where: { userId_moveId: { userId, moveId } },
     create: { userId, moveId, status },
     update: { status },
-  })
+  });
 }
 ```
 
 ```ts
 // src/features/profile/index.ts
-export { getUserProgressAction, updateProgressAction } from './actions'
-export type { ProgressWithMove } from './types'
+export { getUserProgressAction, updateProgressAction } from './actions';
+export type { ProgressWithMove } from './types';
 ```
 
 - [ ] **Step 6: Commit**
@@ -858,6 +862,7 @@ git commit -m "feat: scaffold all feature modules with Server Actions"
 ### Task 10: Set up App Router page shells
 
 **Files:**
+
 - Modify: `src/app/layout.tsx`
 - Modify: `src/app/page.tsx`
 - Create: `src/app/(auth)/login/page.tsx`
@@ -872,26 +877,24 @@ git commit -m "feat: scaffold all feature modules with Server Actions"
 
 ```tsx
 // src/app/layout.tsx
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Kinetic Gallery — Pole Artistry Platform',
   description: 'Catalog of pole dance moves',
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
-  )
+  );
 }
 ```
 
@@ -904,7 +907,7 @@ export default function HomePage() {
     <main>
       <h1>Kinetic Gallery</h1>
     </main>
-  )
+  );
 }
 ```
 
@@ -913,14 +916,14 @@ export default function HomePage() {
 ```tsx
 // src/app/(auth)/login/page.tsx
 export default function LoginPage() {
-  return <div>Login</div>
+  return <div>Login</div>;
 }
 ```
 
 ```tsx
 // src/app/(auth)/signup/page.tsx
 export default function SignupPage() {
-  return <div>Signup</div>
+  return <div>Signup</div>;
 }
 ```
 
@@ -929,28 +932,28 @@ export default function SignupPage() {
 ```tsx
 // src/app/(main)/catalog/page.tsx
 export default function CatalogPage() {
-  return <div>Catalog</div>
+  return <div>Catalog</div>;
 }
 ```
 
 ```tsx
 // src/app/(main)/moves/[id]/page.tsx
 export default function MoveDetailPage({ params }: { params: { id: string } }) {
-  return <div>Move: {params.id}</div>
+  return <div>Move: {params.id}</div>;
 }
 ```
 
 ```tsx
 // src/app/(main)/profile/page.tsx
 export default function ProfilePage() {
-  return <div>Profile</div>
+  return <div>Profile</div>;
 }
 ```
 
 ```tsx
 // src/app/admin/page.tsx
 export default function AdminPage() {
-  return <div>Admin Dashboard</div>
+  return <div>Admin Dashboard</div>;
 }
 ```
 
@@ -958,12 +961,12 @@ export default function AdminPage() {
 
 ```ts
 // src/app/api/moves/route.ts
-import { NextResponse } from 'next/server'
-import { getMovesAction } from '@/features/catalog'
+import { NextResponse } from 'next/server';
+import { getMovesAction } from '@/features/catalog';
 
 export async function GET() {
-  const moves = await getMovesAction()
-  return NextResponse.json(moves)
+  const moves = await getMovesAction();
+  return NextResponse.json(moves);
 }
 ```
 

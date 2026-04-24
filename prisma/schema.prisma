@@ -17,9 +17,10 @@ model User {
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
 
-  progress UserProgress[]
-  accounts Account[]
-  sessions Session[]
+  progress   UserProgress[]
+  favourites UserFavourite[]
+  accounts   Account[]
+  sessions   Session[]
 }
 
 model Account {
@@ -50,9 +51,11 @@ model Session {
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
+  createdAt  DateTime @default(now())
 
   @@unique([identifier, token])
 }
@@ -68,8 +71,9 @@ model Move {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  progress UserProgress[]
-  tags     Tag[]
+  progress   UserProgress[]
+  favourites UserFavourite[]
+  tags       Tag[]
 }
 
 model UserProgress {
@@ -80,6 +84,18 @@ model UserProgress {
 
   user User @relation(fields: [userId], references: [id])
   move Move @relation(fields: [moveId], references: [id])
+
+  @@unique([userId, moveId])
+}
+
+model UserFavourite {
+  id        String   @id @default(cuid())
+  userId    String
+  moveId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  move Move @relation(fields: [moveId], references: [id], onDelete: Cascade)
 
   @@unique([userId, moveId])
 }

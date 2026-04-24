@@ -1,1 +1,1 @@
-export type { LoginFormData, SignupFormData } from './lib/validation'
+export type { LoginFormData, SignupFormData } from './lib/validation';

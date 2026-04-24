@@ -18,6 +18,7 @@ CatalogPage (RSC)
 ```
 
 **Data flow:**
+
 1. URL: `/catalog?category=SPINS&difficulty=BEGINNER&search=jade`
 2. `CatalogPage` parses `searchParams`, calls `getMovesAction` → first 12 moves + total count
 3. Renders `PageShell` with `CatalogFilters` in aside and `MoveGrid` as main content
@@ -39,19 +40,20 @@ Extended signature:
 
 ```ts
 export async function getMovesAction(
-  filters: MoveFilters = {}
-): Promise<PaginatedResult<MoveWithTags>>
+  filters: MoveFilters = {},
+): Promise<PaginatedResult<MoveWithTags>>;
 ```
 
 `MoveFilters` in `src/shared/types/index.ts` gains two new optional fields:
+
 ```ts
 export interface MoveFilters {
-  category?: Category
-  difficulty?: Difficulty
-  search?: string
-  tags?: string[]    // existing (unimplemented, unchanged)
-  page?: number      // new — default 1
-  pageSize?: number  // new — default 12
+  category?: Category;
+  difficulty?: Difficulty;
+  search?: string;
+  tags?: string[]; // existing (unimplemented, unchanged)
+  page?: number; // new — default 1
+  pageSize?: number; // new — default 12
 }
 ```
 
@@ -72,6 +74,7 @@ Server Component — pure display, no interactivity.
 **Props:** `move: MoveWithTags`
 
 **Layout (top to bottom):**
+
 - Image: `move.imageUrl` via `next/image`; fallback to YouTube thumbnail `https://img.youtube.com/vi/{videoId}/hqdefault.jpg` (videoId extracted from `move.youtubeUrl`)
 - Difficulty badge: pill chip, color by level:
   - BEGINNER → `secondary-container` / `on-secondary-container`
@@ -92,17 +95,19 @@ Card background: `surface-container` (#1f1f1f). On hover: `surface-container-hig
 Client Component (`'use client'`).
 
 **Props:**
+
 ```ts
 interface MoveGridProps {
-  initialMoves: MoveWithTags[]
-  initialHasMore: boolean
-  filters: MoveFilters
+  initialMoves: MoveWithTags[];
+  initialHasMore: boolean;
+  filters: MoveFilters;
 }
 ```
 
 **State:** `moves`, `page`, `loading`, `hasMore`
 
 **Behavior:**
+
 - `useEffect` on `filters` change: reset `moves` to `initialMoves`, reset `page` to 1, reset `hasMore` to `initialHasMore`
 - `IntersectionObserver` on sentinel div: when visible + `hasMore` + `!loading` → `loadMore()`
 - `loadMore()`: calls `getMovesAction({ ...filters, page: page + 1, pageSize: 12 })`, appends items, updates `hasMore`
@@ -119,6 +124,7 @@ Client Component (`'use client'`).
 **Props:** `filters: MoveFilters` (current active filters, read from URL by page)
 
 **Structure:**
+
 - Search input at top: debounced 300ms, updates `?search=` param via `router.replace()`
 - Category list — always expanded (no accordion):
   ```
@@ -146,11 +152,11 @@ RSC. Reads `searchParams`, calls `getMovesAction`, renders layout.
 ```ts
 type Props = {
   searchParams: Promise<{
-    category?: string
-    difficulty?: string
-    search?: string
-  }>
-}
+    category?: string;
+    difficulty?: string;
+    search?: string;
+  }>;
+};
 ```
 
 Parses and validates enum values before passing to action (invalid values → undefined).
@@ -161,38 +167,41 @@ Parses and validates enum values before passing to action (invalid values → un
 
 ## 4. Files Created / Modified
 
-| File | Action |
-|------|--------|
-| `src/shared/types/index.ts` | Modify — add `page?` and `pageSize?` to `MoveFilters` |
-| `src/features/catalog/actions.ts` | Modify — pagination support, returns `PaginatedResult<MoveWithTags>` |
-| `src/features/catalog/types.ts` | Modify — re-export `PaginatedResult` |
-| `src/features/catalog/index.ts` | Modify — update exports |
-| `src/features/catalog/components/MoveCard.tsx` | Create |
-| `src/features/catalog/components/MoveGrid.tsx` | Create |
-| `src/features/catalog/components/CatalogFilters.tsx` | Create |
-| `src/app/(main)/catalog/page.tsx` | Modify — replace stub with real implementation |
-| `src/features/catalog/components/MoveCard.test.tsx` | Create |
-| `src/features/catalog/components/MoveGrid.test.tsx` | Create |
-| `src/features/catalog/components/CatalogFilters.test.tsx` | Create |
-| `src/features/catalog/actions.test.ts` | Create |
+| File                                                      | Action                                                               |
+| --------------------------------------------------------- | -------------------------------------------------------------------- |
+| `src/shared/types/index.ts`                               | Modify — add `page?` and `pageSize?` to `MoveFilters`                |
+| `src/features/catalog/actions.ts`                         | Modify — pagination support, returns `PaginatedResult<MoveWithTags>` |
+| `src/features/catalog/types.ts`                           | Modify — re-export `PaginatedResult`                                 |
+| `src/features/catalog/index.ts`                           | Modify — update exports                                              |
+| `src/features/catalog/components/MoveCard.tsx`            | Create                                                               |
+| `src/features/catalog/components/MoveGrid.tsx`            | Create                                                               |
+| `src/features/catalog/components/CatalogFilters.tsx`      | Create                                                               |
+| `src/app/(main)/catalog/page.tsx`                         | Modify — replace stub with real implementation                       |
+| `src/features/catalog/components/MoveCard.test.tsx`       | Create                                                               |
+| `src/features/catalog/components/MoveGrid.test.tsx`       | Create                                                               |
+| `src/features/catalog/components/CatalogFilters.test.tsx` | Create                                                               |
+| `src/features/catalog/actions.test.ts`                    | Create                                                               |
 
 ---
 
 ## 5. Testing Strategy
 
 ### `getMovesAction` tests
+
 - Returns `{ items, total, page, pageSize }`
 - Applies `skip`/`take` correctly for page 2
 - Filters by category, difficulty, search independently and combined
 - `total` reflects filtered count, not all moves
 
 ### `MoveCard` tests
+
 - Renders title, description (truncated via class), difficulty badge
 - Renders tags (up to 3)
 - Falls back to YouTube thumbnail when `imageUrl` is null
 - Card links to `/moves/{id}`
 
 ### `MoveGrid` tests
+
 - Renders `initialMoves`
 - Resets state when `filters` prop changes
 - Calls `getMovesAction` when IntersectionObserver sentinel triggers (mock `IntersectionObserver` globally)
@@ -200,6 +209,7 @@ Parses and validates enum values before passing to action (invalid values → un
 - Hides sentinel when `hasMore` is false
 
 ### `CatalogFilters` tests
+
 - Clicking a category calls `router.replace` with `?category=SPINS`
 - Clicking a sub-item calls `router.replace` with `?category=SPINS&difficulty=BEGINNER`
 - Clicking category clears existing difficulty param
