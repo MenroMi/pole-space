@@ -102,12 +102,14 @@ describe('getMovesAction', () => {
     );
   });
 
-  it('filters by tags with { some: { id: { in: [...] } } }', async () => {
+  it('filters by tags with { some: { name: { in: [...] } } }', async () => {
     mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
-    await getMovesAction({ tags: ['tag-1', 'tag-2'] });
+    await getMovesAction({ tags: ['aerial', 'flexibility'] });
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tags: { some: { id: { in: ['tag-1', 'tag-2'] } } } }),
+        where: expect.objectContaining({
+          tags: { some: { name: { in: ['aerial', 'flexibility'] } } },
+        }),
       }),
     );
   });

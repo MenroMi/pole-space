@@ -13,7 +13,7 @@ export async function getMovesAction(
   const where = {
     ...(filters.poleType?.length && { poleType: { in: filters.poleType } }),
     ...(filters.difficulty?.length && { difficulty: { in: filters.difficulty } }),
-    ...(filters.tags?.length && { tags: { some: { id: { in: filters.tags } } } }),
+    ...(filters.tags?.length && { tags: { some: { name: { in: filters.tags } } } }),
     ...(filters.search && {
       title: { contains: filters.search, mode: 'insensitive' as const },
     }),

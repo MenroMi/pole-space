@@ -1,5 +1,5 @@
 'use client';
-import { Gauge, RotateCw, Search, Tag, X } from 'lucide-react';
+import { Check, Gauge, RotateCw, Search, Tag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
@@ -76,10 +76,10 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     navigate({ difficulty: next });
   };
 
-  const toggleTag = (id: string) => {
-    const next = selectedTags.includes(id)
-      ? selectedTags.filter((v) => v !== id)
-      : [...selectedTags, id];
+  const toggleTag = (name: string) => {
+    const next = selectedTags.includes(name)
+      ? selectedTags.filter((v) => v !== name)
+      : [...selectedTags, name];
     navigate({ tags: next });
   };
 
@@ -120,7 +120,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
             type="button"
             aria-label="Clear search"
             onClick={() => navigate({ resetSearch: true })}
-            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -134,14 +134,19 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
         className="w-full"
       >
         <AccordionItem value="pole-state">
-          <AccordionTrigger className="font-sans text-sm font-semibold">
+          <AccordionTrigger
+            className={cn(
+              'group cursor-pointer font-sans text-sm font-bold',
+              selectedPoleTypes.length > 0 && 'text-primary',
+            )}
+          >
             <span className="flex items-center gap-2">
-              <RotateCw className="h-4 w-4 text-muted-foreground" />
+              <RotateCw className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
               Pole state
             </span>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 pt-3">
               {POLE_TYPES.map((type) => {
                 const active = selectedPoleTypes.includes(type);
                 return (
@@ -152,10 +157,16 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
                     aria-pressed={active}
                     onClick={() => togglePoleType(type)}
                     className={cn(
-                      'rounded-md py-2 pr-3 pl-6 text-left text-sm transition-colors hover:bg-accent',
-                      active ? 'text-primary' : 'text-on-surface-variant',
+                      'flex w-full cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-3 text-left text-sm transition-colors hover:bg-accent',
+                      active ? 'bg-primary/10 text-primary' : 'text-on-surface-variant',
                     )}
                   >
+                    <Check
+                      className={cn(
+                        'h-3.5 w-3.5 shrink-0 transition-opacity',
+                        active ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
                     {capitalize(type)}
                   </button>
                 );
@@ -165,14 +176,19 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
         </AccordionItem>
 
         <AccordionItem value="difficulty">
-          <AccordionTrigger className="font-sans text-sm font-semibold">
+          <AccordionTrigger
+            className={cn(
+              'group cursor-pointer font-sans text-sm font-bold',
+              selectedDifficulties.length > 0 && 'text-primary',
+            )}
+          >
             <span className="flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-muted-foreground" />
+              <Gauge className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
               Difficulty
             </span>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex flex-col gap-0.5">
+            <div className="flex flex-col gap-0.5 pt-3">
               {DIFFICULTIES.map((diff) => {
                 const active = selectedDifficulties.includes(diff);
                 return (
@@ -183,10 +199,16 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
                     aria-pressed={active}
                     onClick={() => toggleDifficulty(diff)}
                     className={cn(
-                      'rounded-md py-2 pr-3 pl-6 text-left text-sm transition-colors hover:bg-accent',
-                      active ? 'text-primary' : 'text-on-surface-variant',
+                      'flex w-full cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-3 text-left text-sm transition-colors hover:bg-accent',
+                      active ? 'bg-primary/10 text-primary' : 'text-on-surface-variant',
                     )}
                   >
+                    <Check
+                      className={cn(
+                        'h-3.5 w-3.5 shrink-0 transition-opacity',
+                        active ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
                     {capitalize(diff)}
                   </button>
                 );
@@ -197,25 +219,30 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
 
         {availableTags.length > 0 && (
           <AccordionItem value="tags">
-            <AccordionTrigger className="font-sans text-sm font-semibold">
+            <AccordionTrigger
+              className={cn(
+                'group cursor-pointer font-sans text-sm font-bold',
+                selectedTags.length > 0 && 'text-primary',
+              )}
+            >
               <span className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-muted-foreground" />
+                <Tag className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" />
                 Tags
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="flex flex-wrap gap-1.5 px-1 pb-1">
+              <div className="flex flex-wrap gap-1.5 px-1 pb-1 pt-3">
                 {availableTags.map((tag) => {
-                  const active = selectedTags.includes(tag.id);
+                  const active = selectedTags.includes(tag.name);
                   return (
                     <button
                       key={tag.id}
                       type="button"
                       aria-label={tag.name}
                       aria-pressed={active}
-                      onClick={() => toggleTag(tag.id)}
+                      onClick={() => toggleTag(tag.name)}
                       className={cn(
-                        'rounded-full px-2.5 py-1 text-xs font-medium transition-all',
+                        'cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-all',
                         !active && 'bg-accent/70 text-muted-foreground hover:bg-accent',
                       )}
                       style={

@@ -113,26 +113,26 @@ describe('CatalogFilters', () => {
     expect(screen.queryByRole('button', { name: 'aerial' })).not.toBeInTheDocument();
   });
 
-  it('clicking a tag adds its id to URL', () => {
+  it('clicking a tag adds its name to URL', () => {
     render(<CatalogFilters filters={{}} availableTags={mockTags} />);
     fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=tag-1');
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=aerial');
   });
 
-  it('clicking two tags adds both ids (multi-select)', () => {
-    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+  it('clicking two tags adds both names (multi-select)', () => {
+    render(<CatalogFilters filters={{ tags: ['aerial'] }} availableTags={mockTags} />);
     fireEvent.click(screen.getByRole('button', { name: 'flexibility' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=tag-1,tag-2');
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=aerial,flexibility');
   });
 
   it('clicking active tag removes it from URL', () => {
-    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+    render(<CatalogFilters filters={{ tags: ['aerial'] }} availableTags={mockTags} />);
     fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
   it('active tag button has aria-pressed true and color style', () => {
-    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+    render(<CatalogFilters filters={{ tags: ['aerial'] }} availableTags={mockTags} />);
     const btn = screen.getByRole('button', { name: 'aerial' });
     expect(btn).toHaveAttribute('aria-pressed', 'true');
     expect(btn).toHaveStyle({ backgroundColor: '#3b82f628', color: '#3b82f6' });
@@ -149,7 +149,7 @@ describe('CatalogFilters', () => {
   it('clicking tag preserves active difficulty in URL', () => {
     render(<CatalogFilters filters={{ difficulty: ['BEGINNER'] }} availableTags={mockTags} />);
     fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?difficulty=BEGINNER&tags=tag-1');
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?difficulty=BEGINNER&tags=aerial');
   });
 
   // --- Clear filters ---
@@ -167,7 +167,7 @@ describe('CatalogFilters', () => {
   it('Clear filters resets all filters and navigates to /catalog', () => {
     render(
       <CatalogFilters
-        filters={{ poleType: ['STATIC'], difficulty: ['BEGINNER'], tags: ['tag-1'] }}
+        filters={{ poleType: ['STATIC'], difficulty: ['BEGINNER'], tags: ['aerial'] }}
         availableTags={mockTags}
       />,
     );
