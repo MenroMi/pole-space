@@ -9,15 +9,26 @@ export default async function SettingsPage() {
   const user = userId
     ? await prisma.user.findUnique({
         where: { id: userId },
-        select: { name: true, image: true, location: true, password: true },
+        select: {
+          firstName: true,
+          lastName: true,
+          username: true,
+          image: true,
+          location: true,
+          email: true,
+          password: true,
+        },
       })
     : null;
 
   return (
     <SettingsForm
-      name={user?.name ?? null}
+      firstName={user?.firstName ?? null}
+      lastName={user?.lastName ?? null}
+      username={user?.username ?? null}
       image={user?.image ?? null}
       location={user?.location ?? null}
+      email={user?.email ?? null}
       hasPassword={user?.password != null}
     />
   );
