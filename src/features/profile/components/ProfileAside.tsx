@@ -9,25 +9,38 @@ const NAV_LINKS = [
   { href: '/profile/favourite-moves', label: 'Favourite Moves', icon: Star },
 ];
 
+const BASE = 'mx-4 my-1 flex items-center gap-4 rounded-md px-4 py-3 font-display text-xs uppercase tracking-widest';
+
 export default function ProfileAside() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex h-full flex-col gap-2 py-10 font-display text-xs uppercase tracking-widest">
-      {NAV_LINKS.map(({ href, label, icon: Icon }) => (
-        <Link
-          key={href}
-          href={href}
-          className={`mx-4 my-1 flex items-center gap-4 rounded-md px-4 py-3 transition-all duration-200 active:scale-95 hover:translate-x-1 ${
-            pathname === href
-              ? 'bg-gradient-to-br from-primary to-primary-container font-bold text-surface'
-              : 'text-outline hover:bg-surface-container hover:text-on-surface'
-          }`}
-        >
-          <Icon size={20} aria-hidden="true" />
-          {label}
-        </Link>
-      ))}
+    <nav className="flex h-full flex-col gap-2 py-10">
+      {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+        const isActive = pathname === href;
+        if (isActive) {
+          return (
+            <span
+              key={href}
+              aria-current="page"
+              className={`${BASE} kinetic-gradient cursor-default font-bold text-surface`}
+            >
+              <Icon size={20} aria-hidden="true" />
+              {label}
+            </span>
+          );
+        }
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={`${BASE} text-outline transition-all duration-200 hover:translate-x-1 hover:bg-surface-container hover:text-on-surface active:scale-95`}
+          >
+            <Icon size={20} aria-hidden="true" />
+            {label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
