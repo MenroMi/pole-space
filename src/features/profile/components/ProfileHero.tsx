@@ -23,7 +23,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
               src={image}
               alt={name ?? 'Avatar'}
               fill
-              className="object-cover grayscale transition-all duration-700 hover:grayscale-0"
+              className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
@@ -52,7 +52,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
         <button
           type="button"
           aria-label="Share profile"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-container-high text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-high text-on-surface transition-colors hover:bg-surface-highest hover:text-primary"
         >
           <Share2 size={20} aria-hidden="true" />
         </button>
