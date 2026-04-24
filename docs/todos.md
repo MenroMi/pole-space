@@ -109,6 +109,17 @@
 
 ## Feature Gaps
 
+**Profile Settings — Preferences section not implemented** (2026-04-24)
+
+- Секция Preferences (тема, язык, уведомления и пр.) пропущена при Settings redesign — в дизайне Stitch присутствует, но требования не определены
+- Fix: добавить секцию после финализации требований: какие настройки нужны, где хранятся (поля User или отдельная таблица UserPreferences), UX (toggles, select-ы)
+
+**Profile — полная мобильная версия** (2026-04-24)
+
+- Профиль не адаптирован для мобильных устройств: aside скрыт, Hero и Stats карточки не оптимизированы под маленькие экраны
+- Нужно: мобильная навигация (bottom bar или drawer), адаптация ProfileHero (вертикальная компоновка, меньший шрифт), адаптация кнопок Share/Edit Profile
+- Бенто карточки: ниже 1280px идут в одну колонку — приемлемо, но стоит рассмотреть 2-колоночный лейаут для планшетов (768–1279px)
+
 **Profile — Current Streak stub** (2026-04-24)
 
 - `ProfileStats` renders `"—"` for Current Streak — no streak tracking logic exists
