@@ -20,17 +20,10 @@ export function SignupForm() {
     navigator.geolocation.getCurrentPosition(async (position) => {
       try {
         const { latitude, longitude } = position.coords;
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`,
-          { headers: { 'User-Agent': 'pole-space/1.0 (k.shchasny@gmail.com)' } },
-        );
-        const data = (await res.json()) as {
-          address?: { city?: string; town?: string; village?: string; country?: string };
-        };
-        const city = data.address?.city ?? data.address?.town ?? data.address?.village ?? '';
-        const country = data.address?.country ?? '';
-        const location = [city, country].filter(Boolean).join(', ');
-        if (location) setDetectedLocation(location);
+        const res = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { location?: string | null };
+        if (data.location) setDetectedLocation(data.location);
       } catch {
         // silent — location is optional
       }
