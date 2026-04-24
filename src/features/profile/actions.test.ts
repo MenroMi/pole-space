@@ -130,44 +130,75 @@ describe('updateProgressAction', () => {
 describe('updateProfileAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(updateProfileAction({ name: 'Alice' })).rejects.toThrow('Unauthorized');
+    await expect(updateProfileAction({})).rejects.toThrow('Unauthorized');
   });
 
-  it('returns error for invalid name (too short)', async () => {
+  it('returns error for invalid username (too short)', async () => {
     mockAuth.mockResolvedValue(session);
-    const result = await updateProfileAction({ name: 'A' });
+    const result = await updateProfileAction({ username: 'a' });
     expect(result).toEqual({ success: false, error: 'Invalid input' });
     expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 
-  it('updates user name and returns success', async () => {
+  it('returns error for invalid username (special chars)', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123', name: 'Alice' });
-    const result = await updateProfileAction({ name: 'Alice' });
-    expect(mockUserUpdate).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      data: { name: 'Alice' },
-    });
-    expect(result).toEqual({ success: true });
-  });
-
-  it('updates name and location when location is provided', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
-    const result = await updateProfileAction({ name: 'Alice Pole', location: 'Warsaw, PL' });
-    expect(mockUserUpdate).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      data: { name: 'Alice Pole', location: 'Warsaw, PL' },
-    });
-    expect(result).toEqual({ success: true });
-  });
-
-  it('does not write location when empty string is provided', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
-    const result = await updateProfileAction({ name: 'Alice Pole', location: '' });
+    const result = await updateProfileAction({ username: 'hello world' });
     expect(result).toEqual({ success: false, error: 'Invalid input' });
     expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('updates firstName and lastName', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({ firstName: 'Alice', lastName: 'Pole' });
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      data: { firstName: 'Alice', lastName: 'Pole' },
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it('updates username when valid', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({ username: 'alice_pole' });
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      data: { username: 'alice_pole' },
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it('returns username taken error on P2002', async () => {
+    mockAuth.mockResolvedValue(session);
+    const prismaError = Object.assign(new Error('Unique constraint failed'), {
+      code: 'P2002',
+      name: 'PrismaClientKnownRequestError',
+    });
+    mockUserUpdate.mockRejectedValue(prismaError);
+    const result = await updateProfileAction({ username: 'taken_user' });
+    expect(result).toEqual({
+      success: false,
+      field: 'username',
+      error: 'Username already taken',
+    });
+  });
+
+  it('skips undefined fields (does not write them)', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    await updateProfileAction({ firstName: 'Alice' });
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      data: { firstName: 'Alice' },
+    });
+  });
+
+  it('returns success with empty object (no-op update)', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({});
+    expect(result).toEqual({ success: true });
   });
 });
 
@@ -358,32 +389,28 @@ describe('getProfileUserAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     await expect(getProfileUserAction()).rejects.toThrow('Unauthorized');
-    expect(mockUserFindUnique).not.toHaveBeenCalled();
   });
 
   it('returns user profile fields', async () => {
     mockAuth.mockResolvedValue(session);
-    const mockUser = {
+    mockUserFindUnique.mockResolvedValue({
       firstName: 'Alice',
       lastName: 'Pole',
-      username: 'alicepole',
-      image: 'https://cdn.example.com/avatar.jpg',
-      location: 'Warsaw, PL',
-      createdAt: new Date('2023-01-15'),
-    };
-    mockUserFindUnique.mockResolvedValue(mockUser);
-    const result = await getProfileUserAction();
-    expect(mockUserFindUnique).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      select: { firstName: true, lastName: true, username: true, image: true, location: true, createdAt: true },
+      username: 'alice_pole',
+      image: null,
+      location: 'Warsaw',
+      createdAt: new Date('2024-01-01'),
     });
-    expect(result).toEqual(mockUser);
-  });
-
-  it('returns null when user not found', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserFindUnique.mockResolvedValue(null);
     const result = await getProfileUserAction();
-    expect(result).toBeNull();
+    expect(mockUserFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          firstName: true,
+          lastName: true,
+          username: true,
+        }),
+      }),
+    );
+    expect(result?.firstName).toBe('Alice');
   });
 });

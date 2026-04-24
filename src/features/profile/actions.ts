@@ -18,7 +18,14 @@ async function requireAuth() {
 }
 
 const profileSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
+  username: z
+    .string()
+    .min(2, 'Username must be at least 2 characters')
+    .max(30)
+    .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores')
+    .optional(),
   location: z.string().min(1).max(100).optional(),
 });
 
@@ -44,14 +51,40 @@ export async function updateProgressAction(moveId: string, status: LearnStatus) 
   });
 }
 
-export async function updateProfileAction(data: { name: string; location?: string }) {
+export async function updateProfileAction(data: {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  location?: string;
+}) {
   const userId = await requireAuth();
   const parsed = profileSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
-  const updateData: { name: string; location?: string } = { name: parsed.data.name };
+
+  const updateData: {
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    location?: string;
+  } = {};
+  if (parsed.data.firstName !== undefined) updateData.firstName = parsed.data.firstName;
+  if (parsed.data.lastName !== undefined) updateData.lastName = parsed.data.lastName;
+  if (parsed.data.username !== undefined) updateData.username = parsed.data.username;
   if (parsed.data.location !== undefined) updateData.location = parsed.data.location;
-  await prisma.user.update({ where: { id: userId }, data: updateData });
-  return { success: true as const };
+
+  try {
+    await prisma.user.update({ where: { id: userId }, data: updateData });
+    return { success: true as const };
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
+      return { success: false as const, field: 'username', error: 'Username already taken' };
+    }
+    throw error;
+  }
 }
 
 export async function uploadAvatarAction(formData: FormData) {
