@@ -5,11 +5,13 @@ vi.mock('@/shared/lib/prisma', () => ({
     userProgress: {
       findMany: vi.fn(),
       upsert: vi.fn(),
+      count: vi.fn(),
     },
     userFavourite: {
       upsert: vi.fn(),
       deleteMany: vi.fn(),
       findMany: vi.fn(),
+      count: vi.fn(),
     },
     user: {
       findUnique: vi.fn(),
@@ -51,6 +53,8 @@ import {
   addFavouriteAction,
   removeFavouriteAction,
   getUserFavouritesAction,
+  getProfileUserAction,
+  getProfileStatsAction,
 } from './actions';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
@@ -61,6 +65,8 @@ const mockUserUpdate = prisma.user.update as ReturnType<typeof vi.fn>;
 const mockFavouriteUpsert = prisma.userFavourite.upsert as ReturnType<typeof vi.fn>;
 const mockFavouriteDeleteMany = prisma.userFavourite.deleteMany as ReturnType<typeof vi.fn>;
 const mockFavouriteFindMany = prisma.userFavourite.findMany as ReturnType<typeof vi.fn>;
+const mockProgressCount = prisma.userProgress.count as ReturnType<typeof vi.fn>;
+const mockFavouriteCount = prisma.userFavourite.count as ReturnType<typeof vi.fn>;
 const mockBcryptCompare = bcrypt.compare as ReturnType<typeof vi.fn>;
 const mockBcryptHash = bcrypt.hash as ReturnType<typeof vi.fn>;
 const mockUploadStream = cloudinary.uploader.upload_stream as ReturnType<typeof vi.fn>;
@@ -143,6 +149,25 @@ describe('updateProfileAction', () => {
       data: { name: 'Alice' },
     });
     expect(result).toEqual({ success: true });
+  });
+
+  it('updates name and location when location is provided', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({ name: 'Alice Pole', location: 'Warsaw, PL' });
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      data: { name: 'Alice Pole', location: 'Warsaw, PL' },
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it('does not write location when empty string is provided', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({ name: 'Alice Pole', location: '' });
+    expect(result).toEqual({ success: false, error: 'Invalid input' });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 });
 
@@ -303,5 +328,60 @@ describe('getUserFavouritesAction', () => {
       }),
     );
     expect(result).toEqual([{ id: 'fav-1', move: { title: 'Spin' } }]);
+  });
+});
+
+describe('getProfileStatsAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileStatsAction()).rejects.toThrow('Unauthorized');
+    expect(mockProgressCount).not.toHaveBeenCalled();
+    expect(mockFavouriteCount).not.toHaveBeenCalled();
+  });
+
+  it('returns mastered count and favourites count', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockProgressCount.mockResolvedValue(7);
+    mockFavouriteCount.mockResolvedValue(3);
+    const result = await getProfileStatsAction();
+    expect(mockProgressCount).toHaveBeenCalledWith({
+      where: { userId: 'user-123', status: 'LEARNED' },
+    });
+    expect(mockFavouriteCount).toHaveBeenCalledWith({
+      where: { userId: 'user-123' },
+    });
+    expect(result).toEqual({ masteredCount: 7, favouritesCount: 3 });
+  });
+});
+
+describe('getProfileUserAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileUserAction()).rejects.toThrow('Unauthorized');
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
+  });
+
+  it('returns user profile fields', async () => {
+    mockAuth.mockResolvedValue(session);
+    const mockUser = {
+      name: 'Alice Pole',
+      image: 'https://cdn.example.com/avatar.jpg',
+      location: 'Warsaw, PL',
+      createdAt: new Date('2023-01-15'),
+    };
+    mockUserFindUnique.mockResolvedValue(mockUser);
+    const result = await getProfileUserAction();
+    expect(mockUserFindUnique).toHaveBeenCalledWith({
+      where: { id: 'user-123' },
+      select: { name: true, image: true, location: true, createdAt: true },
+    });
+    expect(result).toEqual(mockUser);
+  });
+
+  it('returns null when user not found', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue(null);
+    const result = await getProfileUserAction();
+    expect(result).toBeNull();
   });
 });

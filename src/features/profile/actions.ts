@@ -17,8 +17,9 @@ async function requireAuth() {
   return session.user.id;
 }
 
-const profileNameSchema = z.object({
+const profileSchema = z.object({
   name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
+  location: z.string().min(1).max(100).optional(),
 });
 
 const changePasswordSchema = z.object({
@@ -43,11 +44,13 @@ export async function updateProgressAction(moveId: string, status: LearnStatus) 
   });
 }
 
-export async function updateProfileAction(data: { name: string }) {
+export async function updateProfileAction(data: { name: string; location?: string }) {
   const userId = await requireAuth();
-  const parsed = profileNameSchema.safeParse(data);
+  const parsed = profileSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
-  await prisma.user.update({ where: { id: userId }, data: { name: parsed.data.name } });
+  const updateData: { name: string; location?: string } = { name: parsed.data.name };
+  if (parsed.data.location !== undefined) updateData.location = parsed.data.location;
+  await prisma.user.update({ where: { id: userId }, data: updateData });
   return { success: true as const };
 }
 
@@ -122,4 +125,21 @@ export async function getUserFavouritesAction(): Promise<FavouriteWithMove[]> {
     include: { move: true },
     orderBy: { createdAt: 'desc' },
   });
+}
+
+export async function getProfileUserAction() {
+  const userId = await requireAuth();
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, image: true, location: true, createdAt: true },
+  });
+}
+
+export async function getProfileStatsAction() {
+  const userId = await requireAuth();
+  const [masteredCount, favouritesCount] = await Promise.all([
+    prisma.userProgress.count({ where: { userId, status: 'LEARNED' } }),
+    prisma.userFavourite.count({ where: { userId } }),
+  ]);
+  return { masteredCount, favouritesCount };
 }
