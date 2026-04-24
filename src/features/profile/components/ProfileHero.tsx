@@ -58,7 +58,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
         </button>
         <Link
           href="/profile/settings"
-          className="rounded-lg bg-gradient-to-br from-primary to-primary-container px-8 py-4 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container transition-shadow hover:shadow-[0_0_32px_rgba(220,184,255,0.2)]"
+          className="kinetic-gradient cursor-pointer rounded-lg px-8 py-4 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container active:scale-95"
         >
           edit profile
         </Link>
