@@ -6,14 +6,12 @@ import { useSession } from 'next-auth/react';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { Input } from '@/shared/components/ui/input';
 
 import { changePasswordAction, updateProfileAction } from '../actions';
-import { profileNameSchema } from '../lib/validation';
-import type { ProfileNameFormValues } from '../lib/validation';
+import { changePasswordSchema, profileNameSchema } from '../lib/validation';
+import type { ChangePasswordFormValues, ProfileNameFormValues } from '../lib/validation';
 
 import AvatarUpload from './AvatarUpload';
 
@@ -114,25 +112,6 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
   },
 );
 PasswordField.displayName = 'PasswordField';
-
-export { profileNameSchema };
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Required'),
-    newPassword: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(100)
-      .superRefine(applyPasswordComplexity),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
 type SettingsFormProps = {
   firstName: string | null;

@@ -40,6 +40,12 @@ describe('GET /api/geocode', () => {
     expect(await res.json()).toEqual({ error: 'Invalid coordinates' });
   });
 
+  it('returns 400 for lat with trailing garbage (e.g. "52.23abc")', async () => {
+    const res = await GET(makeRequest({ lat: '52.23abc', lon: '21.01' }));
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Invalid coordinates' });
+  });
+
   it('returns 400 for lat out of range (> 90)', async () => {
     const res = await GET(makeRequest({ lat: '91', lon: '21.01' }));
     expect(res.status).toBe(400);
@@ -108,6 +114,18 @@ describe('GET /api/geocode', () => {
     const res = await GET(makeRequest({ lat: '50.06', lon: '19.94' }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ location: 'Kraków, Poland' });
+  });
+
+  it('falls back to village when city and town are absent', async () => {
+    vi.mocked(global.fetch).mockResolvedValue(
+      new Response(JSON.stringify({ address: { village: 'Małe Zalesie', country: 'Poland' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    const res = await GET(makeRequest({ lat: '52.1', lon: '20.9' }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ location: 'Małe Zalesie, Poland' });
   });
 
   it('returns null location when address is empty', async () => {

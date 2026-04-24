@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing lat or lon' }, { status: 400 });
   }
 
-  const latNum = parseFloat(lat);
-  const lonNum = parseFloat(lon);
+  const latNum = Number(lat);
+  const lonNum = Number(lon);
   if (
     !isFinite(latNum) ||
     !isFinite(lonNum) ||

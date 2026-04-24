@@ -106,7 +106,6 @@
 - ~~Password had no complexity requirements — `qwerty123` was accepted~~
 - `signupSchema.name`: min 5 chars, custom messages; consistent with `password` field
 - `signupSchema.password`: `.superRefine()` enforces uppercase + lowercase + digit + special char, reports all failures simultaneously
-- `profileNameSchema` in `src/features/profile/actions.ts` also updated to min 5
 
 ~~**`src/features/auth/components/SignupForm.test.tsx`**~~ ✅ Resolved (2026-04-19)
 

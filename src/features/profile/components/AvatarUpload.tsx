@@ -43,15 +43,20 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
     if (!file) return;
     setIsPending(true);
     setError(null);
-    const formData = new FormData();
-    formData.append('avatar', file);
-    const result = await uploadAvatarAction(formData);
-    setIsPending(false);
-    if (!result.success) {
-      setError(result.error ?? 'Upload failed');
-    } else {
-      onUploadSuccess();
-      setPreview(null);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const result = await uploadAvatarAction(formData);
+      if (!result.success) {
+        setError(result.error ?? 'Upload failed');
+      } else {
+        onUploadSuccess();
+        setPreview(null);
+      }
+    } catch {
+      setError('Upload failed');
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -72,6 +77,7 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
         ref={inputRef}
         type="file"
         accept="image/*"
+        aria-hidden="true"
         className="hidden"
         onChange={handleFileChange}
       />
