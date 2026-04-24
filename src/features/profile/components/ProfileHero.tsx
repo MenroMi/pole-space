@@ -17,7 +17,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
     <section className="flex flex-col items-start gap-8 pt-8 md:flex-row md:items-end">
       {/* Avatar */}
       <div className="relative shrink-0 group">
-        <div className="relative z-10 h-32 w-32 overflow-hidden rounded-full bg-surface-container ring-1 ring-outline-variant/20 md:h-40 md:w-40">
+        <div className="relative z-10 h-32 w-32 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-outline-variant/20 md:h-40 md:w-40">
           {image ? (
             <Image
               src={image}
@@ -32,7 +32,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
           )}
         </div>
         {/* Ambient glow */}
-        <div className="absolute inset-0 -z-10 scale-110 rounded-full bg-primary/20 opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-80" />
+        <div className="absolute inset-0 -z-10 scale-110 rounded-2xl bg-primary/20 opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-80" />
       </div>
 
       {/* Name + badge + meta */}
@@ -58,7 +58,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
         </button>
         <Link
           href="/profile/settings"
-          className="kinetic-gradient cursor-pointer rounded-lg px-8 py-4 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container active:scale-95"
+          className="kinetic-gradient cursor-pointer rounded-lg px-8 py-4 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container transition-transform duration-150 active:scale-95"
         >
           edit profile
         </Link>
