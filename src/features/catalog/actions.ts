@@ -33,6 +33,8 @@ export async function getMovesAction(
   return { items: items as MoveWithTags[], total, page, pageSize };
 }
 
-export async function getTagsAction(): Promise<{ id: string; name: string; color: string | null }[]> {
+export async function getTagsAction(): Promise<
+  { id: string; name: string; color: string | null }[]
+> {
   return prisma.tag.findMany({ orderBy: { name: 'asc' } });
 }

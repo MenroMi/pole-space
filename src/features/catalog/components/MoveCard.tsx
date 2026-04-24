@@ -60,9 +60,7 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
                 key={tag.id}
                 className="rounded-full px-2 py-0.5 text-xs font-medium"
                 style={
-                  tag.color
-                    ? { backgroundColor: `${tag.color}28`, color: tag.color }
-                    : undefined
+                  tag.color ? { backgroundColor: `${tag.color}28`, color: tag.color } : undefined
                 }
               >
                 {tag.name}

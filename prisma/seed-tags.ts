@@ -12,33 +12,33 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const TAGS: { name: string; color: string }[] = [
-  { name: 'aerial',            color: '#3b82f6' },
+  { name: 'aerial', color: '#3b82f6' },
   { name: 'beginner-friendly', color: '#22c55e' },
-  { name: 'core',              color: '#f97316' },
-  { name: 'flexibility',       color: '#a855f7' },
-  { name: 'inversion',         color: '#ec4899' },
-  { name: 'strength',          color: '#ef4444' },
+  { name: 'core', color: '#f97316' },
+  { name: 'flexibility', color: '#a855f7' },
+  { name: 'inversion', color: '#ec4899' },
+  { name: 'strength', color: '#ef4444' },
 ];
 
 const TAG_MAP: Record<string, string[]> = {
-  'Fireman Spin':      ['beginner-friendly', 'core'],
-  'Chair Spin':        ['beginner-friendly'],
-  'Back Hook Spin':    ['beginner-friendly'],
-  'Attitude Spin':     ['flexibility', 'core'],
-  'Carousel Spin':     ['aerial', 'core', 'strength'],
-  'Basic Climb':       ['beginner-friendly', 'strength'],
-  'Pole Sit':          ['aerial', 'strength'],
-  'Inside Leg Hang':   ['aerial', 'inversion', 'strength'],
-  'Cross Knee Release':['aerial', 'inversion', 'strength'],
-  'Superman':          ['aerial', 'flexibility', 'strength'],
-  'Iguana Mount':      ['aerial', 'flexibility', 'inversion'],
-  'Flag':              ['aerial', 'strength'],
-  'Handspring':        ['aerial', 'flexibility', 'inversion', 'strength'],
+  'Fireman Spin': ['beginner-friendly', 'core'],
+  'Chair Spin': ['beginner-friendly'],
+  'Back Hook Spin': ['beginner-friendly'],
+  'Attitude Spin': ['flexibility', 'core'],
+  'Carousel Spin': ['aerial', 'core', 'strength'],
+  'Basic Climb': ['beginner-friendly', 'strength'],
+  'Pole Sit': ['aerial', 'strength'],
+  'Inside Leg Hang': ['aerial', 'inversion', 'strength'],
+  'Cross Knee Release': ['aerial', 'inversion', 'strength'],
+  Superman: ['aerial', 'flexibility', 'strength'],
+  'Iguana Mount': ['aerial', 'flexibility', 'inversion'],
+  Flag: ['aerial', 'strength'],
+  Handspring: ['aerial', 'flexibility', 'inversion', 'strength'],
   'Butterfly to Jade': ['aerial', 'flexibility', 'inversion'],
-  'Ayesha to Superman':['aerial', 'inversion', 'strength'],
-  'Body Roll':         ['beginner-friendly', 'flexibility'],
-  'Pole Crawl':        ['beginner-friendly'],
-  'Floor Spin':        ['beginner-friendly'],
+  'Ayesha to Superman': ['aerial', 'inversion', 'strength'],
+  'Body Roll': ['beginner-friendly', 'flexibility'],
+  'Pole Crawl': ['beginner-friendly'],
+  'Floor Spin': ['beginner-friendly'],
 };
 
 async function main() {
@@ -54,7 +54,10 @@ async function main() {
   let updated = 0;
   for (const [title, tagNames] of Object.entries(TAG_MAP)) {
     const move = await prisma.move.findFirst({ where: { title } });
-    if (!move) { console.warn(`Move not found: ${title}`); continue; }
+    if (!move) {
+      console.warn(`Move not found: ${title}`);
+      continue;
+    }
 
     const tagIds = tagNames.map((n) => ({ id: tagByName[n] }));
     await prisma.move.update({
@@ -68,5 +71,8 @@ async function main() {
 }
 
 main()
-  .catch((err) => { console.error(err); process.exit(1); })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());

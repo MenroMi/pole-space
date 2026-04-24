@@ -180,7 +180,6 @@
 - Old single-select category accordion removed; replaced with Pole state + Tags
 - Remaining open question: mobile UX (bottom-sheet vs sidebar collapse) — deferred until mobile layout pass
 
-
 ## Database
 
 **`PoleType` migration pending on Neon DB** (2026-04-24)

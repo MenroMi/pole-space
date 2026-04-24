@@ -230,12 +230,12 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
               )}
             >
               <span className="flex items-center gap-2">
-                <Tag className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" />
+                <Tag className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" />
                 Tags
               </span>
             </AccordionTrigger>
             <AccordionContent>
-              <div className="flex flex-wrap gap-1.5 px-1 pb-1 pt-3">
+              <div className="flex flex-wrap gap-1.5 px-1 pt-3 pb-1">
                 {availableTags.map((tag) => {
                   const active = selectedTags.includes(tag.name);
                   return (
