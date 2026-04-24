@@ -140,7 +140,9 @@
 - Accordion `type="multiple"` with all sections open by default; OR within group, AND between groups
 - Category filter removed; replaced by Pole state (STATIC/SPIN) from new nullable `PoleType?` schema field
 - `getTagsAction` fetches all tags ordered by name for the Tags accordion
-- 232 unit tests passing
+- Tag `color` field admin-settable; chips use `${color}28` tinted bg + colored text
+- `buildQuery()` centralises URL construction; tag names URL-encoded per token
+- 236 unit tests passing
 
 ## Architecture Notes
 
@@ -182,11 +184,9 @@
 
 ## Database
 
-**`PoleType` migration pending on Neon DB** (2026-04-24)
+**`PoleType` on existing moves** (2026-04-24)
 
-- `prisma/migrations/20260424000000_add_pole_type_to_move/migration.sql` adds `PoleType` enum and nullable `poleType` column
-- Migration has NOT been applied to Neon yet — run `npx prisma migrate deploy` before merging to main
-- Existing moves will have `poleType = NULL` (unclassified) until manually set via admin
+- All existing moves have `poleType = NULL` (unclassified) — need to be set via admin UI once admin feature is built
 
 **`prisma/schema.prisma` — `UserProgress` relations missing `onDelete: Cascade`**
 
