@@ -54,6 +54,7 @@ import {
   removeFavouriteAction,
   getUserFavouritesAction,
   getProfileUserAction,
+  getProfileSettingsAction,
   getProfileStatsAction,
 } from './actions';
 
@@ -133,20 +134,6 @@ describe('updateProfileAction', () => {
     await expect(updateProfileAction({})).rejects.toThrow('Unauthorized');
   });
 
-  it('returns error for invalid username (too short)', async () => {
-    mockAuth.mockResolvedValue(session);
-    const result = await updateProfileAction({ username: 'a' });
-    expect(result).toEqual({ success: false, error: 'Invalid input' });
-    expect(mockUserUpdate).not.toHaveBeenCalled();
-  });
-
-  it('returns error for invalid username (special chars)', async () => {
-    mockAuth.mockResolvedValue(session);
-    const result = await updateProfileAction({ username: 'hello world' });
-    expect(result).toEqual({ success: false, error: 'Invalid input' });
-    expect(mockUserUpdate).not.toHaveBeenCalled();
-  });
-
   it('updates firstName and lastName', async () => {
     mockAuth.mockResolvedValue(session);
     mockUserUpdate.mockResolvedValue({ id: 'user-123' });
@@ -156,32 +143,6 @@ describe('updateProfileAction', () => {
       data: { firstName: 'Alice', lastName: 'Pole' },
     });
     expect(result).toEqual({ success: true });
-  });
-
-  it('updates username when valid', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
-    const result = await updateProfileAction({ username: 'alice_pole' });
-    expect(mockUserUpdate).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      data: { username: 'alice_pole' },
-    });
-    expect(result).toEqual({ success: true });
-  });
-
-  it('returns username taken error on P2002', async () => {
-    mockAuth.mockResolvedValue(session);
-    const prismaError = Object.assign(new Error('Unique constraint failed'), {
-      code: 'P2002',
-      name: 'PrismaClientKnownRequestError',
-    });
-    mockUserUpdate.mockRejectedValue(prismaError);
-    const result = await updateProfileAction({ username: 'taken_user' });
-    expect(result).toEqual({
-      success: false,
-      field: 'username',
-      error: 'Username already taken',
-    });
   });
 
   it('skips undefined fields (does not write them)', async () => {
@@ -194,11 +155,11 @@ describe('updateProfileAction', () => {
     });
   });
 
-  it('returns success with empty object (no-op update)', async () => {
+  it('returns success without DB call when called with empty object', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
     const result = await updateProfileAction({});
     expect(result).toEqual({ success: true });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 });
 
@@ -269,10 +230,20 @@ describe('changePasswordAction', () => {
     mockUserFindUnique.mockResolvedValue({ password: null });
     const result = await changePasswordAction({
       currentPassword: 'old',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
     expect(result).toEqual({ success: false, error: 'Password change is not available' });
     expect(mockBcryptCompare).not.toHaveBeenCalled();
+  });
+
+  it('returns Invalid input when new password does not meet complexity rules', async () => {
+    mockAuth.mockResolvedValue(session);
+    const result = await changePasswordAction({
+      currentPassword: 'anything',
+      newPassword: 'alllowercase1!',
+    });
+    expect(result).toEqual({ success: false, error: 'Invalid input' });
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
   });
 
   it('returns error when current password is incorrect', async () => {
@@ -281,7 +252,7 @@ describe('changePasswordAction', () => {
     mockBcryptCompare.mockResolvedValue(false);
     const result = await changePasswordAction({
       currentPassword: 'wrong',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
     expect(result).toEqual({ success: false, error: 'Current password is incorrect' });
     expect(mockUserUpdate).not.toHaveBeenCalled();
@@ -295,9 +266,9 @@ describe('changePasswordAction', () => {
     mockUserUpdate.mockResolvedValue({ id: 'user-123' });
     const result = await changePasswordAction({
       currentPassword: 'correct',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
-    expect(mockBcryptHash).toHaveBeenCalledWith('newpassword123', 10);
+    expect(mockBcryptHash).toHaveBeenCalledWith('Newpassword123!', 10);
     expect(mockUserUpdate).toHaveBeenCalledWith({
       where: { id: 'user-123' },
       data: { password: 'newhashed' },
@@ -391,6 +362,13 @@ describe('getProfileUserAction', () => {
     await expect(getProfileUserAction()).rejects.toThrow('Unauthorized');
   });
 
+  it('returns null when user is not found', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue(null);
+    const result = await getProfileUserAction();
+    expect(result).toBeNull();
+  });
+
   it('returns user profile fields', async () => {
     mockAuth.mockResolvedValue(session);
     mockUserFindUnique.mockResolvedValue({
@@ -402,15 +380,60 @@ describe('getProfileUserAction', () => {
       createdAt: new Date('2024-01-01'),
     });
     const result = await getProfileUserAction();
-    expect(mockUserFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          firstName: true,
-          lastName: true,
-          username: true,
-        }),
-      }),
-    );
     expect(result?.firstName).toBe('Alice');
+  });
+});
+
+describe('getProfileSettingsAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileSettingsAction()).rejects.toThrow('Unauthorized');
+  });
+
+  it('returns null when user is not found', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue(null);
+    const result = await getProfileSettingsAction();
+    expect(result).toBeNull();
+  });
+
+  it('returns hasPassword: true and strips password hash when user has a password', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      image: null,
+      location: 'Warsaw, Poland',
+      password: 'hashed_pw',
+    });
+    const result = await getProfileSettingsAction();
+    expect(result).toEqual({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      image: null,
+      location: 'Warsaw, Poland',
+      hasPassword: true,
+    });
+    expect(result).not.toHaveProperty('password');
+  });
+
+  it('returns hasPassword: false for OAuth accounts (no password)', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Bob',
+      lastName: 'OAuth',
+      image: 'https://example.com/photo.jpg',
+      location: null,
+      password: null,
+    });
+    const result = await getProfileSettingsAction();
+    expect(result).toEqual({
+      firstName: 'Bob',
+      lastName: 'OAuth',
+      image: 'https://example.com/photo.jpg',
+      location: null,
+      hasPassword: false,
+    });
+    expect(result).not.toHaveProperty('password');
   });
 });

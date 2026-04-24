@@ -22,6 +22,7 @@ export function SignupForm() {
         const { latitude, longitude } = position.coords;
         const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=en`,
+          { headers: { 'User-Agent': 'pole-space/1.0 (k.shchasny@gmail.com)' } },
         );
         const data = (await res.json()) as {
           address?: { city?: string; town?: string; village?: string; country?: string };

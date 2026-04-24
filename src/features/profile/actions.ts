@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
+import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { auth } from '@/shared/lib/auth';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { prisma } from '@/shared/lib/prisma';
@@ -20,18 +21,12 @@ async function requireAuth() {
 const profileSchema = z.object({
   firstName: z.string().min(1).max(50).optional(),
   lastName: z.string().min(1).max(50).optional(),
-  username: z
-    .string()
-    .min(2, 'Username must be at least 2 characters')
-    .max(30)
-    .regex(/^[a-z0-9_]+$/, 'Username can only contain lowercase letters, numbers, and underscores')
-    .optional(),
   location: z.string().max(100).nullable().optional(),
 });
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8).max(100),
+  newPassword: z.string().min(8).max(100).superRefine(applyPasswordComplexity),
 });
 
 export async function getUserProgressAction(status?: LearnStatus): Promise<ProgressWithMove[]> {
@@ -54,33 +49,21 @@ export async function updateProgressAction(moveId: string, status: LearnStatus) 
 export async function updateProfileAction(data: {
   firstName?: string;
   lastName?: string;
-  username?: string;
   location?: string | null;
 }) {
   const userId = await requireAuth();
   const parsed = profileSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
 
-  const updateData: {
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-    location?: string | null;
-  } = {};
+  const updateData: { firstName?: string; lastName?: string; location?: string | null } = {};
   if (parsed.data.firstName !== undefined) updateData.firstName = parsed.data.firstName;
   if (parsed.data.lastName !== undefined) updateData.lastName = parsed.data.lastName;
-  if (parsed.data.username !== undefined) updateData.username = parsed.data.username;
   if (parsed.data.location !== undefined) updateData.location = parsed.data.location;
 
-  try {
-    await prisma.user.update({ where: { id: userId }, data: updateData });
-    return { success: true as const };
-  } catch (error) {
-    if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
-      return { success: false as const, field: 'username', error: 'Username already taken' };
-    }
-    throw error;
-  }
+  if (Object.keys(updateData).length === 0) return { success: true as const };
+
+  await prisma.user.update({ where: { id: userId }, data: updateData });
+  return { success: true as const };
 }
 
 export async function uploadAvatarAction(formData: FormData) {

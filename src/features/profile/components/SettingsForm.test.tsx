@@ -167,4 +167,49 @@ describe('SettingsForm behavior', () => {
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/profile'));
     expect(mockChangePassword).not.toHaveBeenCalled();
   });
+
+  it('calls changePasswordAction when password fields are filled and navigates on success', async () => {
+    mockUpdateProfile.mockResolvedValue({ success: true });
+    mockChangePassword.mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    render(<SettingsForm {...defaultProps} hasPassword={true} />);
+    await user.type(screen.getByLabelText(/current password/i), 'OldPass123!');
+    await user.type(screen.getByLabelText(/new password/i), 'NewPass123!');
+    await user.type(screen.getByLabelText(/confirm password/i), 'NewPass123!');
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/profile'));
+    expect(mockChangePassword).toHaveBeenCalledWith({
+      currentPassword: 'OldPass123!',
+      newPassword: 'NewPass123!',
+    });
+  });
+
+  it('blocks navigation when changePasswordAction fails', async () => {
+    mockUpdateProfile.mockResolvedValue({ success: true });
+    mockChangePassword.mockResolvedValue({
+      success: false,
+      error: 'Current password is incorrect',
+    });
+    const user = userEvent.setup();
+    render(<SettingsForm {...defaultProps} hasPassword={true} />);
+    await user.type(screen.getByLabelText(/current password/i), 'WrongPass123!');
+    await user.type(screen.getByLabelText(/new password/i), 'NewPass123!');
+    await user.type(screen.getByLabelText(/confirm password/i), 'NewPass123!');
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await waitFor(() => expect(mockChangePassword).toHaveBeenCalled());
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('does not call changePasswordAction when updateProfileAction fails', async () => {
+    mockUpdateProfile.mockResolvedValue({ success: false, error: 'Server error' });
+    const user = userEvent.setup();
+    render(<SettingsForm {...defaultProps} hasPassword={true} />);
+    await user.type(screen.getByLabelText(/current password/i), 'OldPass123!');
+    await user.type(screen.getByLabelText(/new password/i), 'NewPass123!');
+    await user.type(screen.getByLabelText(/confirm password/i), 'NewPass123!');
+    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await waitFor(() => expect(mockUpdateProfile).toHaveBeenCalled());
+    expect(mockChangePassword).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
 });
