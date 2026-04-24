@@ -1,5 +1,5 @@
 'use client';
-import { Search, X } from 'lucide-react';
+import { Gauge, RotateCw, Search, Tag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
@@ -23,7 +23,7 @@ const capitalize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
 type CatalogFiltersProps = {
   filters: MoveFilters;
-  availableTags: { id: string; name: string }[];
+  availableTags: { id: string; name: string; color: string | null }[];
 };
 
 export default function CatalogFilters({ filters, availableTags }: CatalogFiltersProps) {
@@ -135,7 +135,10 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
       >
         <AccordionItem value="pole-state">
           <AccordionTrigger className="font-sans text-sm font-semibold">
-            Pole state
+            <span className="flex items-center gap-2">
+              <RotateCw className="h-4 w-4 text-muted-foreground" />
+              Pole state
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-0.5">
@@ -163,7 +166,10 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
 
         <AccordionItem value="difficulty">
           <AccordionTrigger className="font-sans text-sm font-semibold">
-            Difficulty
+            <span className="flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-muted-foreground" />
+              Difficulty
+            </span>
           </AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-0.5">
@@ -191,9 +197,14 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
 
         {availableTags.length > 0 && (
           <AccordionItem value="tags">
-            <AccordionTrigger className="font-sans text-sm font-semibold">Tags</AccordionTrigger>
+            <AccordionTrigger className="font-sans text-sm font-semibold">
+              <span className="flex items-center gap-2">
+                <Tag className="h-4 w-4 text-muted-foreground" />
+                Tags
+              </span>
+            </AccordionTrigger>
             <AccordionContent>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-wrap gap-1.5 px-1 pb-1">
                 {availableTags.map((tag) => {
                   const active = selectedTags.includes(tag.id);
                   return (
@@ -204,9 +215,14 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
                       aria-pressed={active}
                       onClick={() => toggleTag(tag.id)}
                       className={cn(
-                        'rounded-md py-2 pr-3 pl-6 text-left text-sm transition-colors hover:bg-accent',
-                        active ? 'text-primary' : 'text-on-surface-variant',
+                        'rounded-full px-2.5 py-1 text-xs font-medium transition-all',
+                        !active && 'bg-accent/70 text-muted-foreground hover:bg-accent',
                       )}
+                      style={
+                        active && tag.color
+                          ? { backgroundColor: `${tag.color}28`, color: tag.color }
+                          : undefined
+                      }
                     >
                       {tag.name}
                     </button>

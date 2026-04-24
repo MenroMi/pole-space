@@ -7,8 +7,8 @@ import CatalogFilters from './CatalogFilters';
 vi.mock('next/navigation', () => ({ useRouter: vi.fn() }));
 
 const mockTags = [
-  { id: 'tag-1', name: 'aerial' },
-  { id: 'tag-2', name: 'flexibility' },
+  { id: 'tag-1', name: 'aerial', color: '#3b82f6' },
+  { id: 'tag-2', name: 'flexibility', color: '#a855f7' },
 ];
 
 describe('CatalogFilters', () => {
@@ -131,9 +131,11 @@ describe('CatalogFilters', () => {
     expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
-  it('active tag button has text-primary class', () => {
+  it('active tag button has aria-pressed true and color style', () => {
     render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
-    expect(screen.getByRole('button', { name: 'aerial' }).className).toContain('text-primary');
+    const btn = screen.getByRole('button', { name: 'aerial' });
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+    expect(btn).toHaveStyle({ backgroundColor: '#3b82f628', color: '#3b82f6' });
   });
 
   // --- Cross-filter: filters preserved across groups ---

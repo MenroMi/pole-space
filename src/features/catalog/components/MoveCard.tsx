@@ -58,7 +58,12 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
             {visibleTags.map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-secondary-container px-2 py-0.5 text-xs text-on-secondary-container"
+                className="rounded-full px-2 py-0.5 text-xs font-medium"
+                style={
+                  tag.color
+                    ? { backgroundColor: `${tag.color}28`, color: tag.color }
+                    : undefined
+                }
               >
                 {tag.name}
               </span>
