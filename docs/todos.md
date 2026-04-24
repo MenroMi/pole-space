@@ -238,3 +238,19 @@
 - Дефолт GitHub: 5 открытых PR на ecosystem. Если накопится больше 5 ожидающих обновлений npm — Dependabot молча перестанет открывать новые PR без каких-либо уведомлений.
 - Fix: добавить `open-pull-requests-limit: 10` в каждый ecosystem-блок `.github/dependabot.yml`.
 - Приоритет: низкий — актуально только при большом количестве одновременных обновлений зависимостей.
+
+## Profile
+
+**`username` column — deferred feature** (2026-04-24)
+
+- `prisma/schema.prisma` has `username String? @unique` and it is selected in `getProfileUserAction`
+- No UI exists to set it; no signup/settings path writes it — every row has `username = NULL`
+- Fix: build a username settings field or remove the column entirely before public launch
+- Priority: low — harmless while all values are NULL, but confusing for future contributors
+
+**`"Elite Member"` badge — hardcoded stub** (2026-04-24)
+
+- `ProfileHero.tsx` and `SettingsForm.tsx` render "Elite Member" unconditionally for every user
+- Should be derived from `user.role` or a separate membership tier field
+- Fix: conditionalise on role/tier, or remove until the feature is properly designed
+- Priority: low — cosmetic stub, no functional impact

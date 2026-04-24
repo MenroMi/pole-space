@@ -11,6 +11,8 @@ import { z } from 'zod';
 import { Input } from '@/shared/components/ui/input';
 
 import { changePasswordAction, updateProfileAction } from '../actions';
+import { profileSchema } from '../lib/validation';
+import type { ProfileFormValues } from '../lib/validation';
 
 import AvatarUpload from './AvatarUpload';
 
@@ -57,17 +59,21 @@ function EyeOffIcon() {
 type PasswordFieldProps = InputHTMLAttributes<HTMLInputElement> & { error?: string };
 
 const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
-  ({ onKeyDown, onKeyUp, onBlur, error, type: _type, ...props }, ref) => {
+  ({ onKeyDown, onKeyUp, onBlur, error, type: _type, id, ...props }, ref) => {
     const [show, setShow] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
+    const errorId = id ? `${id}-error` : undefined;
 
     return (
       <div className="flex flex-col gap-1">
         <div className="relative">
           <Input
             ref={ref}
+            id={id}
             type={show ? 'text' : 'password'}
             className="pr-10 placeholder:text-on-surface-variant/40"
+            aria-describedby={error && errorId ? errorId : undefined}
+            aria-invalid={!!error}
             onKeyDown={(e) => {
               setCapsLock(e.getModifierState('CapsLock'));
               onKeyDown?.(e);
@@ -97,17 +103,18 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
             Caps Lock is on
           </p>
         )}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p id={errorId} className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
       </div>
     );
   },
 );
 PasswordField.displayName = 'PasswordField';
 
-export const profileSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
-});
+export { profileSchema };
 
 export const changePasswordSchema = z
   .object({
@@ -136,7 +143,6 @@ export const changePasswordSchema = z
     path: ['confirmPassword'],
   });
 
-type ProfileValues = z.infer<typeof profileSchema>;
 type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
 type SettingsFormProps = {
@@ -161,7 +167,7 @@ export default function SettingsForm({
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
-  const profileForm = useForm<ProfileValues>({
+  const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: firstName ?? '',
@@ -175,8 +181,6 @@ export default function SettingsForm({
   });
 
   function handleDiscard() {
-    profileForm.reset();
-    passwordForm.reset();
     router.push('/profile');
   }
 
@@ -184,44 +188,42 @@ export default function SettingsForm({
     setIsPending(true);
     setProfileError(null);
 
-    const profileValues = profileForm.getValues();
-    const isProfileValid = await profileForm.trigger();
-    if (!isProfileValid) {
-      setIsPending(false);
-      return;
-    }
+    try {
+      const profileValues = profileForm.getValues();
+      const isProfileValid = await profileForm.trigger();
+      if (!isProfileValid) return;
 
-    const profileResult = await updateProfileAction({
-      firstName: profileValues.firstName,
-      lastName: profileValues.lastName,
-    });
+      const profileResult = await updateProfileAction({
+        firstName: profileValues.firstName,
+        lastName: profileValues.lastName,
+      });
 
-    if (!profileResult.success) {
-      setProfileError(profileResult.error);
-      setIsPending(false);
-      return;
-    }
-
-    const { currentPassword, newPassword, confirmPassword } = passwordForm.getValues();
-    if (currentPassword || newPassword || confirmPassword) {
-      const isPasswordValid = await passwordForm.trigger();
-      if (!isPasswordValid) {
-        setIsPending(false);
+      if (!profileResult.success) {
+        setProfileError(profileResult.error);
         return;
       }
-      const passwordResult = await changePasswordAction({ currentPassword, newPassword });
-      if (!passwordResult.success) {
-        passwordForm.setError('currentPassword', { message: passwordResult.error });
-        setIsPending(false);
-        return;
-      }
-    }
 
-    const newName =
-      [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
-    await update({ name: newName });
-    setIsPending(false);
-    router.push('/profile');
+      const { currentPassword, newPassword, confirmPassword } = passwordForm.getValues();
+      if (currentPassword || newPassword || confirmPassword) {
+        const isPasswordValid = await passwordForm.trigger();
+        if (!isPasswordValid) return;
+
+        const passwordResult = await changePasswordAction({ currentPassword, newPassword });
+        if (!passwordResult.success) {
+          passwordForm.setError('currentPassword', { message: passwordResult.error });
+          return;
+        }
+      }
+
+      const newName =
+        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+      await update({ name: newName });
+      router.push('/profile');
+    } catch {
+      setProfileError('Something went wrong. Please try again.');
+    } finally {
+      setIsPending(false);
+    }
   }
 
   const watchedFirstName = profileForm.watch('firstName');

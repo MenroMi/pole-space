@@ -131,7 +131,16 @@ describe('updateProgressAction', () => {
 describe('updateProfileAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(updateProfileAction({})).rejects.toThrow('Unauthorized');
+    await expect(updateProfileAction({ firstName: 'Alice', lastName: 'Pole' })).rejects.toThrow(
+      'Unauthorized',
+    );
+  });
+
+  it('returns error for invalid input (empty firstName)', async () => {
+    mockAuth.mockResolvedValue(session);
+    const result = await updateProfileAction({ firstName: '', lastName: 'Pole' });
+    expect(result).toEqual({ success: false, error: 'Invalid input' });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 
   it('updates firstName and lastName', async () => {
@@ -143,23 +152,6 @@ describe('updateProfileAction', () => {
       data: { firstName: 'Alice', lastName: 'Pole' },
     });
     expect(result).toEqual({ success: true });
-  });
-
-  it('skips undefined fields (does not write them)', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
-    await updateProfileAction({ firstName: 'Alice' });
-    expect(mockUserUpdate).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      data: { firstName: 'Alice' },
-    });
-  });
-
-  it('returns success without DB call when called with empty object', async () => {
-    mockAuth.mockResolvedValue(session);
-    const result = await updateProfileAction({});
-    expect(result).toEqual({ success: true });
-    expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 });
 

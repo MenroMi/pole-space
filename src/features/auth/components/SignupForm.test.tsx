@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { SignupForm } from './SignupForm';
 
@@ -11,8 +11,17 @@ vi.mock('@/features/auth/actions', () => ({
 import { signupAction } from '@/features/auth/actions';
 const mockSignupAction = signupAction as ReturnType<typeof vi.fn>;
 
+const originalGeolocation = global.navigator.geolocation;
+
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  Object.defineProperty(global.navigator, 'geolocation', {
+    value: originalGeolocation,
+    configurable: true,
+  });
 });
 
 describe('SignupForm', () => {
@@ -63,6 +72,53 @@ describe('SignupForm', () => {
       email: 'alice@example.com',
       password: 'Password1!',
     });
+  });
+
+  it('appends detected location to signupAction when geolocation succeeds', async () => {
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: (success: PositionCallback) =>
+          success({ coords: { latitude: 52.23, longitude: 21.01 } } as GeolocationPosition),
+      },
+      configurable: true,
+    });
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ location: 'Warsaw, Poland' }) });
+    mockSignupAction.mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<SignupForm />);
+    await user.type(screen.getByLabelText(/first name/i), 'Alice');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
+    await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+    await waitFor(() =>
+      expect(mockSignupAction).toHaveBeenCalledWith(
+        expect.objectContaining({ location: 'Warsaw, Poland' }),
+      ),
+    );
+  });
+
+  it('omits location from signupAction when geolocation is unavailable', async () => {
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: undefined,
+      configurable: true,
+    });
+    mockSignupAction.mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<SignupForm />);
+    await user.type(screen.getByLabelText(/first name/i), 'Alice');
+    await user.type(screen.getByLabelText(/last name/i), 'Smith');
+    await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
+    await user.click(screen.getByRole('button', { name: /create account/i }));
+    await waitFor(() =>
+      expect(mockSignupAction).toHaveBeenCalledWith(
+        expect.not.objectContaining({ location: expect.anything() }),
+      ),
+    );
   });
 
   it('displays server error returned from signupAction', async () => {
