@@ -18,9 +18,9 @@ function parseEnumArray<T extends string>(param: string | undefined, valid: Set<
   return param.split(',').filter((v) => valid.has(v)) as T[];
 }
 
-function parseIds(param: string | undefined): string[] {
+function parseTagNames(param: string | undefined): string[] {
   if (!param) return [];
-  return param.split(',').filter(Boolean);
+  return param.split(',').filter(Boolean).map(decodeURIComponent);
 }
 
 export default async function CatalogPage({ searchParams }: { searchParams: SearchParams }) {
@@ -29,7 +29,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const filters: MoveFilters = {
     poleType: parseEnumArray<PoleType>(params.poleType, validPoleTypes),
     difficulty: parseEnumArray<Difficulty>(params.difficulty, validDifficulties),
-    tags: parseIds(params.tags),
+    tags: parseTagNames(params.tags),
     search: params.search || undefined,
   };
 

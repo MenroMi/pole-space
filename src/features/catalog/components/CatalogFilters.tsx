@@ -21,6 +21,20 @@ const DIFFICULTIES = Object.values(Difficulty);
 
 const capitalize = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
+function buildQuery(
+  poleType: PoleType[],
+  difficulty: Difficulty[],
+  tags: string[],
+  search: string,
+): string {
+  const parts: string[] = [];
+  if (poleType.length) parts.push(`poleType=${poleType.join(',')}`);
+  if (difficulty.length) parts.push(`difficulty=${difficulty.join(',')}`);
+  if (tags.length) parts.push(`tags=${tags.map(encodeURIComponent).join(',')}`);
+  if (search) parts.push(`search=${encodeURIComponent(search)}`);
+  return parts.join('&');
+}
+
 type CatalogFiltersProps = {
   filters: MoveFilters;
   availableTags: { id: string; name: string; color: string | null }[];
@@ -53,12 +67,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
 
     if (overrides.resetSearch) setSearchValue('');
 
-    const parts: string[] = [];
-    if (nextPoleType.length) parts.push(`poleType=${nextPoleType.join(',')}`);
-    if (nextDifficulty.length) parts.push(`difficulty=${nextDifficulty.join(',')}`);
-    if (nextTags.length) parts.push(`tags=${nextTags.join(',')}`);
-    if (nextSearch) parts.push(`search=${encodeURIComponent(nextSearch)}`);
-    const query = parts.join('&');
+    const query = buildQuery(nextPoleType, nextDifficulty, nextTags, nextSearch);
     router.replace(`/catalog${query ? `?${query}` : ''}`);
   };
 
@@ -88,12 +97,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null;
-      const parts: string[] = [];
-      if (selectedPoleTypes.length) parts.push(`poleType=${selectedPoleTypes.join(',')}`);
-      if (selectedDifficulties.length) parts.push(`difficulty=${selectedDifficulties.join(',')}`);
-      if (selectedTags.length) parts.push(`tags=${selectedTags.join(',')}`);
-      if (value) parts.push(`search=${encodeURIComponent(value)}`);
-      const query = parts.join('&');
+      const query = buildQuery(selectedPoleTypes, selectedDifficulties, selectedTags, value);
       router.replace(`/catalog${query ? `?${query}` : ''}`);
     }, 300);
   };

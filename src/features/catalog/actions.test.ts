@@ -145,12 +145,24 @@ describe('getMovesAction', () => {
 describe('getTagsAction', () => {
   it('returns tags ordered by name', async () => {
     const mockTags = [
-      { id: 'tag-1', name: 'aerial' },
-      { id: 'tag-2', name: 'flexibility' },
+      { id: 'tag-1', name: 'aerial', color: '#3b82f6' },
+      { id: 'tag-2', name: 'flexibility', color: '#a855f7' },
     ];
     mockTagFindMany.mockResolvedValue(mockTags);
     const result = await getTagsAction();
     expect(result).toEqual(mockTags);
     expect(mockTagFindMany).toHaveBeenCalledWith({ orderBy: { name: 'asc' } });
+  });
+
+  it('returns empty array when no tags exist', async () => {
+    mockTagFindMany.mockResolvedValue([]);
+    const result = await getTagsAction();
+    expect(result).toEqual([]);
+  });
+
+  it('includes color field in returned shape', async () => {
+    mockTagFindMany.mockResolvedValue([{ id: 'tag-1', name: 'aerial', color: '#3b82f6' }]);
+    const [tag] = await getTagsAction();
+    expect(tag).toHaveProperty('color');
   });
 });

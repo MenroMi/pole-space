@@ -126,7 +126,7 @@
 
 - ~~`getMovesAction` ignores `filters.tags` — tag-based filtering not implemented~~
 - ~~`MoveFilters.tags` field in `src/shared/types/index.ts` is misleadingly present~~
-- Implemented: `tags: { some: { id: { in: [...] } } }` Prisma WHERE clause; `getTagsAction` added
+- Implemented: `tags: { some: { name: { in: [...] } } }` Prisma WHERE clause; `getTagsAction` added; URL uses tag names (`?tags=aerial,flexibility`)
 
 **`src/features/auth/actions.ts`**
 
