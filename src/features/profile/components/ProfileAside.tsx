@@ -23,7 +23,7 @@ export default function ProfileAside() {
             <span
               key={href}
               aria-current="page"
-              className={`${BASE} kinetic-gradient cursor-default font-bold text-surface`}
+              className={`${BASE} bg-gradient-to-br from-primary to-primary-container cursor-default font-bold text-surface`}
             >
               <Icon size={20} aria-hidden="true" />
               {label}
