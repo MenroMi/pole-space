@@ -11,8 +11,9 @@ export async function getMovesAction(
   const pageSize = filters.pageSize ?? 12;
 
   const where = {
-    ...(filters.category && { category: filters.category }),
-    ...(filters.difficulty && { difficulty: filters.difficulty }),
+    ...(filters.poleType?.length && { poleType: { in: filters.poleType } }),
+    ...(filters.difficulty?.length && { difficulty: { in: filters.difficulty } }),
+    ...(filters.tags?.length && { tags: { some: { name: { in: filters.tags } } } }),
     ...(filters.search && {
       title: { contains: filters.search, mode: 'insensitive' as const },
     }),
@@ -30,4 +31,8 @@ export async function getMovesAction(
   ]);
 
   return { items: items as MoveWithTags[], total, page, pageSize };
+}
+
+export async function getTagsAction(): Promise<{ id: string; name: string; color: string | null }[]> {
+  return prisma.tag.findMany({ orderBy: { name: 'asc' } });
 }

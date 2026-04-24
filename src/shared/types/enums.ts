@@ -1,3 +1,9 @@
+export const PoleType = {
+  STATIC: 'STATIC',
+  SPIN: 'SPIN',
+} as const;
+export type PoleType = (typeof PoleType)[keyof typeof PoleType];
+
 export const Category = {
   SPINS: 'SPINS',
   CLIMBS: 'CLIMBS',

@@ -15,6 +15,7 @@ const baseMove: MoveWithTags = {
   description: 'A beautiful aerial move requiring flexibility.',
   difficulty: 'BEGINNER',
   category: 'SPINS',
+  poleType: null,
   youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   imageUrl: null,
   createdAt: new Date(),
@@ -58,10 +59,10 @@ describe('MoveCard', () => {
     const move = {
       ...baseMove,
       tags: [
-        { id: '1', name: 'flexibility' },
-        { id: '2', name: 'strength' },
-        { id: '3', name: 'core' },
-        { id: '4', name: 'hidden-tag' },
+        { id: '1', name: 'flexibility', color: null },
+        { id: '2', name: 'strength', color: null },
+        { id: '3', name: 'core', color: null },
+        { id: '4', name: 'hidden-tag', color: null },
       ] as MoveWithTags['tags'],
     };
     render(<MoveCard move={move} />);
@@ -69,6 +70,26 @@ describe('MoveCard', () => {
     expect(screen.getByText('strength')).toBeInTheDocument();
     expect(screen.getByText('core')).toBeInTheDocument();
     expect(screen.queryByText('hidden-tag')).not.toBeInTheDocument();
+  });
+
+  it('renders tag with tinted bg and colored text when color is set', () => {
+    const move = {
+      ...baseMove,
+      tags: [{ id: '1', name: 'aerial', color: '#3b82f6' }] as MoveWithTags['tags'],
+    };
+    render(<MoveCard move={move} />);
+    const tag = screen.getByText('aerial');
+    expect(tag).toHaveStyle({ backgroundColor: '#3b82f628', color: '#3b82f6' });
+  });
+
+  it('renders tag without inline style when color is null', () => {
+    const move = {
+      ...baseMove,
+      tags: [{ id: '1', name: 'aerial', color: null }] as MoveWithTags['tags'],
+    };
+    render(<MoveCard move={move} />);
+    const tag = screen.getByText('aerial');
+    expect(tag).not.toHaveAttribute('style');
   });
 
   it('card wraps content in a link to /moves/{id}', () => {
@@ -82,5 +103,13 @@ describe('MoveCard', () => {
     const badge = screen.getByText('INTERMEDIATE');
     expect(badge.className).toContain('bg-primary-container');
     expect(badge.className).toContain('text-on-surface');
+  });
+
+  it('renders placeholder icon when imageUrl is null and youtubeUrl has no valid id', () => {
+    const move = { ...baseMove, imageUrl: null, youtubeUrl: '' };
+    const { container } = render(<MoveCard move={move} />);
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    // lucide icons render as svg
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 });

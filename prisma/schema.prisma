@@ -66,6 +66,7 @@ model Move {
   description String?
   difficulty  Difficulty
   category    Category
+  poleType    PoleType?
   youtubeUrl  String
   imageUrl    String?
   createdAt   DateTime   @default(now())
@@ -101,8 +102,9 @@ model UserFavourite {
 }
 
 model Tag {
-  id    String @id @default(cuid())
-  name  String @unique
+  id    String  @id @default(cuid())
+  name  String  @unique
+  color String?
   moves Move[]
 }
 
@@ -123,6 +125,11 @@ enum Category {
   HOLDS
   COMBOS
   FLOORWORK
+}
+
+enum PoleType {
+  STATIC
+  SPIN
 }
 
 enum LearnStatus {

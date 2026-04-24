@@ -21,6 +21,7 @@ function makeMoves(count: number, offset = 0): MoveWithTags[] {
     description: null,
     difficulty: 'BEGINNER' as const,
     category: 'SPINS' as const,
+    poleType: null,
     youtubeUrl: '',
     imageUrl: null,
     createdAt: new Date(),
@@ -108,7 +109,7 @@ describe('MoveGrid', () => {
       <MoveGrid
         initialMoves={initialMoves}
         initialHasMore={true}
-        filters={{ category: 'SPINS', difficulty: 'BEGINNER' }}
+        filters={{ difficulty: ['BEGINNER'] }}
       />,
     );
 
@@ -120,7 +121,7 @@ describe('MoveGrid', () => {
     });
 
     expect(mockGetMovesAction).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'SPINS', difficulty: 'BEGINNER', page: 2 }),
+      expect.objectContaining({ difficulty: ['BEGINNER'], page: 2 }),
     );
   });
 
@@ -203,6 +204,7 @@ describe('MoveGrid', () => {
             description: null,
             difficulty: 'BEGINNER',
             category: 'SPINS',
+            poleType: null,
             youtubeUrl: '',
             imageUrl: null,
             createdAt: new Date(),

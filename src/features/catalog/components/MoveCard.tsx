@@ -1,7 +1,9 @@
-import Image from 'next/image';
+import { ImageOff } from 'lucide-react';
 import Link from 'next/link';
 
 import type { MoveWithTags } from '../types';
+
+import MoveCardImage from './MoveCardImage';
 
 function extractVideoId(youtubeUrl: string): string | null {
   const match = youtubeUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -31,11 +33,13 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
       href={`/moves/${move.id}`}
       className="block overflow-hidden rounded-xl bg-surface-container transition-colors hover:bg-surface-high"
     >
-      {imageSrc && (
-        <div className="relative aspect-video">
-          <Image src={imageSrc} alt={move.title} fill className="object-cover" />
-        </div>
-      )}
+      <div className="relative flex aspect-video items-center justify-center bg-accent">
+        {imageSrc ? (
+          <MoveCardImage src={imageSrc} alt={move.title} />
+        ) : (
+          <ImageOff className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
+        )}
+      </div>
       <div className="flex flex-col gap-2 p-4">
         <span
           className={`self-start rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}
@@ -54,7 +58,12 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
             {visibleTags.map((tag) => (
               <span
                 key={tag.id}
-                className="rounded-full bg-secondary-container px-2 py-0.5 text-xs text-on-secondary-container"
+                className="rounded-full px-2 py-0.5 text-xs font-medium"
+                style={
+                  tag.color
+                    ? { backgroundColor: `${tag.color}28`, color: tag.color }
+                    : undefined
+                }
               >
                 {tag.name}
               </span>

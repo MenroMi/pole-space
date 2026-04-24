@@ -1,4 +1,5 @@
 # Cross-Tab Auth Sync — Design Spec
+
 Date: 2026-04-22
 
 ## Problem
@@ -15,12 +16,14 @@ Both are fixed without polling or BroadcastChannel.
 ## Scope
 
 ### In scope
+
 - Fix `resendVerificationAction` redirect when user is already verified (goes into `feature/auth-redesign`)
 - `visibilitychange` check on `/verify-email` — auto-redirect to `/login` when email is verified in another tab
 - `SessionProvider` in root layout with `refetchOnWindowFocus`
 - `SessionGuard` in `/profile` layout — redirect to `/login` when session is gone
 
 ### Out of scope
+
 - BroadcastChannel / real-time push
 - `/admin` SessionGuard (added when admin is built)
 - Token/session expiry handling (post-MVP)
@@ -32,12 +35,15 @@ Both are fixed without polling or BroadcastChannel.
 **File:** `src/features/auth/actions.ts`
 
 Change:
+
 ```ts
 if (!user || user.emailVerified !== null) {
   redirect('/verify-email?error=invalid');
 }
 ```
+
 To:
+
 ```ts
 if (!user) redirect('/verify-email?error=invalid');
 if (user.emailVerified !== null) redirect('/login');
@@ -50,6 +56,7 @@ No new UI needed — `/login` already exists. No query param message needed (the
 ## Part 1 — SessionProvider in root layout
 
 ### New file: `src/shared/components/Providers.tsx`
+
 ```tsx
 'use client';
 import { SessionProvider } from 'next-auth/react';
@@ -60,6 +67,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```
 
 ### Updated: `src/app/layout.tsx`
+
 Wrap `{children}` with `<Providers>`. Root layout stays a Server Component — `Providers` is the only client boundary here.
 
 `refetchOnWindowFocus` causes NextAuth to re-fetch the session when a tab gains focus. No polling, no interval.
@@ -69,6 +77,7 @@ Wrap `{children}` with `<Providers>`. Root layout stays a Server Component — `
 ## Part 2 — verify-email visibilitychange
 
 ### New server action: `checkEmailVerifiedAction`
+
 **File:** `src/features/auth/actions.ts`
 
 ```ts
@@ -82,6 +91,7 @@ export async function checkEmailVerifiedAction(email: string): Promise<boolean> 
 ```
 
 ### Updated: `src/app/(auth)/verify-email/ResendForm.tsx`
+
 - Add `email: string` to `Props`
 - Add `useRouter` from `next/navigation`
 - Add `useEffect` that registers a `visibilitychange` listener:
@@ -90,6 +100,7 @@ export async function checkEmailVerifiedAction(email: string): Promise<boolean> 
 - Cleanup on unmount
 
 ### Updated: `src/app/(auth)/verify-email/page.tsx`
+
 Pass `email={validEmail}` (or `email={email!}`) to all `<ResendForm>` instances. The `validEmail` string is already available at each render path.
 
 ---
@@ -97,6 +108,7 @@ Pass `email={validEmail}` (or `email={email!}`) to all `<ResendForm>` instances.
 ## Part 3 — SessionGuard for /profile
 
 ### New file: `src/shared/components/SessionGuard.tsx`
+
 ```tsx
 'use client';
 import { useSession } from 'next-auth/react';
@@ -116,6 +128,7 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
 ```
 
 ### Updated: `src/app/(main)/profile/layout.tsx`
+
 Wrap the returned JSX with `<SessionGuard>`. The existing server-side `auth()` check stays — it handles the initial page load. `SessionGuard` handles the cross-tab case after page load.
 
 **Not** added to `(main)/layout.tsx` — the catalog and other public routes don't need a session.
@@ -156,9 +169,11 @@ Tab A (/profile) gains focus
 ## Files changed
 
 **feature/auth-redesign (before merge):**
+
 - `src/features/auth/actions.ts` — fix resend redirect
 
 **feature/cross-tab-auth-sync (new branch from main after auth-redesign merge):**
+
 - `src/app/layout.tsx` — add `<Providers>`
 - `src/shared/components/Providers.tsx` — new
 - `src/features/auth/actions.ts` — add `checkEmailVerifiedAction`
