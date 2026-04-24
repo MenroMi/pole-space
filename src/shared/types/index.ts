@@ -1,10 +1,10 @@
 // src/shared/types/index.ts
 import type { Role, LearnStatus } from '@prisma/client';
 
-import type { Category, Difficulty } from './enums';
+import type { Difficulty, PoleType } from './enums';
 
 export type { Role, LearnStatus };
-export type { Category, Difficulty } from './enums';
+export type { Category, Difficulty, PoleType } from './enums';
 
 export interface UserSession {
   id: string;
@@ -15,8 +15,8 @@ export interface UserSession {
 }
 
 export interface MoveFilters {
-  category?: Category;
-  difficulty?: Difficulty;
+  poleType?: PoleType[];
+  difficulty?: Difficulty[];
   search?: string;
   tags?: string[];
   page?: number;

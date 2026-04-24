@@ -1,35 +1,47 @@
-import { getMovesAction, CatalogFilters, MoveGrid } from '@/features/catalog';
+import { getMovesAction, getTagsAction, CatalogFilters, MoveGrid } from '@/features/catalog';
 import PageShell from '@/shared/components/PageShell';
 import type { MoveFilters } from '@/shared/types';
-import { Category, Difficulty } from '@/shared/types/enums';
+import { PoleType, Difficulty } from '@/shared/types/enums';
 
 type SearchParams = Promise<{
-  category?: string;
+  poleType?: string;
   difficulty?: string;
+  tags?: string;
   search?: string;
 }>;
 
-const validCategories = new Set<string>(Object.values(Category));
+const validPoleTypes = new Set<string>(Object.values(PoleType));
 const validDifficulties = new Set<string>(Object.values(Difficulty));
+
+function parseEnumArray<T extends string>(param: string | undefined, valid: Set<string>): T[] {
+  if (!param) return [];
+  return param.split(',').filter((v) => valid.has(v)) as T[];
+}
+
+function parseIds(param: string | undefined): string[] {
+  if (!param) return [];
+  return param.split(',').filter(Boolean);
+}
 
 export default async function CatalogPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
 
   const filters: MoveFilters = {
-    category: validCategories.has(params.category ?? '')
-      ? (params.category as Category)
-      : undefined,
-    difficulty: validDifficulties.has(params.difficulty ?? '')
-      ? (params.difficulty as Difficulty)
-      : undefined,
+    poleType: parseEnumArray<PoleType>(params.poleType, validPoleTypes),
+    difficulty: parseEnumArray<Difficulty>(params.difficulty, validDifficulties),
+    tags: parseIds(params.tags),
     search: params.search || undefined,
   };
 
-  const result = await getMovesAction({ ...filters, page: 1, pageSize: 12 });
+  const [result, availableTags] = await Promise.all([
+    getMovesAction({ ...filters, page: 1, pageSize: 12 }),
+    getTagsAction(),
+  ]);
+
   const initialHasMore = result.total > result.items.length;
 
   return (
-    <PageShell aside={<CatalogFilters filters={filters} />}>
+    <PageShell aside={<CatalogFilters filters={filters} availableTags={availableTags} />}>
       <MoveGrid
         key={JSON.stringify(filters)}
         initialMoves={result.items}

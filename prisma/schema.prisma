@@ -66,6 +66,7 @@ model Move {
   description String?
   difficulty  Difficulty
   category    Category
+  poleType    PoleType?
   youtubeUrl  String
   imageUrl    String?
   createdAt   DateTime   @default(now())
@@ -123,6 +124,11 @@ enum Category {
   HOLDS
   COMBOS
   FLOORWORK
+}
+
+enum PoleType {
+  STATIC
+  SPIN
 }
 
 enum LearnStatus {

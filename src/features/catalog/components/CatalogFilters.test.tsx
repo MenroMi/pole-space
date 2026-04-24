@@ -6,6 +6,11 @@ import CatalogFilters from './CatalogFilters';
 
 vi.mock('next/navigation', () => ({ useRouter: vi.fn() }));
 
+const mockTags = [
+  { id: 'tag-1', name: 'aerial' },
+  { id: 'tag-2', name: 'flexibility' },
+];
+
 describe('CatalogFilters', () => {
   let mockReplace: ReturnType<typeof vi.fn>;
 
@@ -27,174 +32,180 @@ describe('CatalogFilters', () => {
     vi.clearAllMocks();
   });
 
-  it('renders all 5 category triggers', () => {
-    render(<CatalogFilters filters={{}} />);
-    expect(screen.getByRole('button', { name: 'SPINS' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'CLIMBS' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'HOLDS' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'COMBOS' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'FLOORWORK' })).toBeInTheDocument();
+  // --- Pole state ---
+
+  it('renders Static and Spin buttons', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    expect(screen.getByRole('button', { name: 'Static' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Spin' })).toBeInTheDocument();
   });
 
-  it('clicking a category trigger does not navigate (expand only)', () => {
-    render(<CatalogFilters filters={{}} />);
-    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }));
-    expect(mockReplace).not.toHaveBeenCalled();
+  it('clicking Static adds poleType=STATIC to URL', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Static' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC');
   });
 
-  it('clicking "All levels" selects category and clears any difficulty', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'All levels' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS');
+  it('clicking Static then Spin adds both to URL (multi-select)', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC,SPIN');
   });
 
-  it('"All levels" is never highlighted as active', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    expect(screen.getByRole('button', { name: 'All levels' }).className).not.toContain(
-      'text-primary',
-    );
-  });
-
-  it('clicking a difficulty inside a category navigates with both params', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER');
-  });
-
-  it('clicking active difficulty toggles only difficulty off, keeps category', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS');
-  });
-
-  it('clicking active category trigger clears category and difficulty', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }));
+  it('clicking active Static removes it from URL', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Static' }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
-  it('clicking active category trigger preserves search', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?search=jade');
+  it('active pole type button has text-primary class', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    expect(screen.getByRole('button', { name: 'Static' }).className).toContain('text-primary');
   });
 
-  it('clicking "All levels" clears existing difficulty', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'All levels' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS');
+  it('inactive pole type button does not have text-primary class', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    expect(screen.getByRole('button', { name: 'Spin' }).className).not.toContain('text-primary');
   });
 
-  it('clicking a difficulty preserves existing search', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith(
-      '/catalog?category=SPINS&difficulty=BEGINNER&search=jade',
-    );
+  // --- Difficulty ---
+
+  it('renders Beginner, Intermediate, Advanced buttons', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    expect(screen.getByRole('button', { name: 'Beginner' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Intermediate' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Advanced' })).toBeInTheDocument();
   });
 
-  it('clicking a difficulty during typing includes typed value', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
-      target: { value: 'jade' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith(
-      '/catalog?category=SPINS&difficulty=BEGINNER&search=jade',
-    );
+  it('clicking Beginner adds difficulty=BEGINNER to URL', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Beginner' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?difficulty=BEGINNER');
   });
 
-  it('clicking a difficulty during typing cancels pending debounce (no duplicate)', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
-      target: { value: 'jade' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    mockReplace.mockClear();
-    act(() => vi.advanceTimersByTime(500));
-    expect(mockReplace).not.toHaveBeenCalled();
+  it('clicking Beginner then Intermediate adds both (multi-select)', () => {
+    render(<CatalogFilters filters={{ difficulty: ['BEGINNER'] }} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Intermediate' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?difficulty=BEGINNER,INTERMEDIATE');
   });
 
-  it('active category trigger has text-primary class', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    expect(screen.getByRole('button', { name: 'SPINS' }).className).toContain('text-primary');
+  it('clicking active Beginner removes it from URL', () => {
+    render(<CatalogFilters filters={{ difficulty: ['BEGINNER'] }} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Beginner' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
-  it('auto-expands active category on mount', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    expect(screen.getByRole('button', { name: 'SPINS' })).toHaveAttribute('data-state', 'open');
+  it('active difficulty button has text-primary class', () => {
+    render(<CatalogFilters filters={{ difficulty: ['BEGINNER'] }} availableTags={[]} />);
+    expect(screen.getByRole('button', { name: 'Beginner' }).className).toContain('text-primary');
   });
 
-  it('non-active category is collapsed on mount', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
-    expect(screen.getByRole('button', { name: 'CLIMBS' })).toHaveAttribute('data-state', 'closed');
+  // --- Tags ---
+
+  it('renders tag buttons by name', () => {
+    render(<CatalogFilters filters={{}} availableTags={mockTags} />);
+    expect(screen.getByRole('button', { name: 'aerial' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'flexibility' })).toBeInTheDocument();
   });
 
-  it('Clear filters button is visible when a filter is active', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
+  it('does not render tags section when availableTags is empty', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    expect(screen.queryByRole('button', { name: 'aerial' })).not.toBeInTheDocument();
+  });
+
+  it('clicking a tag adds its id to URL', () => {
+    render(<CatalogFilters filters={{}} availableTags={mockTags} />);
+    fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=tag-1');
+  });
+
+  it('clicking two tags adds both ids (multi-select)', () => {
+    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+    fireEvent.click(screen.getByRole('button', { name: 'flexibility' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?tags=tag-1,tag-2');
+  });
+
+  it('clicking active tag removes it from URL', () => {
+    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+    fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog');
+  });
+
+  it('active tag button has text-primary class', () => {
+    render(<CatalogFilters filters={{ tags: ['tag-1'] }} availableTags={mockTags} />);
+    expect(screen.getByRole('button', { name: 'aerial' }).className).toContain('text-primary');
+  });
+
+  // --- Cross-filter: filters preserved across groups ---
+
+  it('clicking difficulty preserves active poleType in URL', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Beginner' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC&difficulty=BEGINNER');
+  });
+
+  it('clicking tag preserves active difficulty in URL', () => {
+    render(<CatalogFilters filters={{ difficulty: ['BEGINNER'] }} availableTags={mockTags} />);
+    fireEvent.click(screen.getByRole('button', { name: 'aerial' }));
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?difficulty=BEGINNER&tags=tag-1');
+  });
+
+  // --- Clear filters ---
+
+  it('Clear filters button is visible when any filter is active', () => {
+    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
     expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
   });
 
   it('Clear filters button is hidden when no filters are active', () => {
-    render(<CatalogFilters filters={{}} />);
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
     expect(screen.queryByRole('button', { name: /clear filters/i })).not.toBeInTheDocument();
   });
 
-  it('Clear filters navigates to /catalog', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS' }} />);
+  it('Clear filters resets all filters and navigates to /catalog', () => {
+    render(
+      <CatalogFilters
+        filters={{ poleType: ['STATIC'], difficulty: ['BEGINNER'], tags: ['tag-1'] }}
+        availableTags={mockTags}
+      />,
+    );
     fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
-  it('Clear filters resets the search input value', () => {
-    render(<CatalogFilters filters={{ search: 'jade' }} />);
+  it('Clear filters resets search input value', () => {
+    render(<CatalogFilters filters={{ search: 'jade' }} availableTags={[]} />);
     const input = screen.getByRole('textbox', { name: /search/i }) as HTMLInputElement;
     expect(input.value).toBe('jade');
     fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
     expect(input.value).toBe('');
   });
 
-  it('search clear button is hidden when search is empty', () => {
-    render(<CatalogFilters filters={{}} />);
+  // --- Search ---
+
+  it('search clear button hidden when search is empty', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
     expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument();
   });
 
-  it('search clear button is visible when search has value', () => {
-    render(<CatalogFilters filters={{ search: 'jade' }} />);
+  it('search clear button visible when search has value', () => {
+    render(<CatalogFilters filters={{ search: 'jade' }} availableTags={[]} />);
     expect(screen.getByRole('button', { name: /clear search/i })).toBeInTheDocument();
   });
 
-  it('search clear button clears input and resets search in URL but keeps category', () => {
-    render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />);
+  it('search clear button clears input and removes search from URL, keeps other filters', () => {
+    render(
+      <CatalogFilters filters={{ poleType: ['STATIC'], search: 'jade' }} availableTags={[]} />,
+    );
     const input = screen.getByRole('textbox', { name: /search/i }) as HTMLInputElement;
     expect(input.value).toBe('jade');
     fireEvent.click(screen.getByRole('button', { name: /clear search/i }));
     expect(input.value).toBe('');
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS');
+    expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC');
   });
 
-  it('leaves all accordions collapsed after manual collapse + Clear filters', () => {
-    // Regression: Radix Accordion switches from controlled → uncontrolled if
-    // value becomes undefined, which used to leave a random section open.
-    const { rerender } = render(
-      <CatalogFilters filters={{ category: 'SPINS', difficulty: 'BEGINNER' }} />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'SPINS' }));
-    expect(screen.getByRole('button', { name: 'SPINS' })).toHaveAttribute('data-state', 'closed');
-
-    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
-    rerender(<CatalogFilters filters={{}} />);
-
-    for (const category of ['SPINS', 'CLIMBS', 'HOLDS', 'COMBOS', 'FLOORWORK']) {
-      expect(screen.getByRole('button', { name: category })).toHaveAttribute(
-        'data-state',
-        'closed',
-      );
-    }
-  });
-
-  it('search input triggers router.replace after 300ms debounce', () => {
-    render(<CatalogFilters filters={{}} />);
+  it('search triggers router.replace after 300ms debounce', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
     fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
       target: { value: 'jade' },
     });
@@ -204,7 +215,7 @@ describe('CatalogFilters', () => {
   });
 
   it('search does not trigger router.replace before debounce fires', () => {
-    render(<CatalogFilters filters={{}} />);
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
     fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
       target: { value: 'jade' },
     });
@@ -212,8 +223,19 @@ describe('CatalogFilters', () => {
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
+  it('clicking a filter during typing cancels pending debounce', () => {
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
+    fireEvent.change(screen.getByRole('textbox', { name: /search/i }), {
+      target: { value: 'jade' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Static' }));
+    mockReplace.mockClear();
+    act(() => vi.advanceTimersByTime(500));
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
   it('does not trigger router.replace on initial mount', () => {
-    render(<CatalogFilters filters={{}} />);
+    render(<CatalogFilters filters={{}} availableTags={[]} />);
     act(() => vi.advanceTimersByTime(500));
     expect(mockReplace).not.toHaveBeenCalled();
   });
