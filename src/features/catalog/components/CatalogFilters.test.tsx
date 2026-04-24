@@ -88,7 +88,9 @@ describe('CatalogFilters', () => {
   it('clicking a difficulty preserves existing search', () => {
     render(<CatalogFilters filters={{ category: 'SPINS', search: 'jade' }} />);
     fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER&search=jade');
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/catalog?category=SPINS&difficulty=BEGINNER&search=jade',
+    );
   });
 
   it('clicking a difficulty during typing includes typed value', () => {
@@ -97,7 +99,9 @@ describe('CatalogFilters', () => {
       target: { value: 'jade' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'BEGINNER in SPINS' }));
-    expect(mockReplace).toHaveBeenCalledWith('/catalog?category=SPINS&difficulty=BEGINNER&search=jade');
+    expect(mockReplace).toHaveBeenCalledWith(
+      '/catalog?category=SPINS&difficulty=BEGINNER&search=jade',
+    );
   });
 
   it('clicking a difficulty during typing cancels pending debounce (no duplicate)', () => {
@@ -182,7 +186,10 @@ describe('CatalogFilters', () => {
     rerender(<CatalogFilters filters={{}} />);
 
     for (const category of ['SPINS', 'CLIMBS', 'HOLDS', 'COMBOS', 'FLOORWORK']) {
-      expect(screen.getByRole('button', { name: category })).toHaveAttribute('data-state', 'closed');
+      expect(screen.getByRole('button', { name: category })).toHaveAttribute(
+        'data-state',
+        'closed',
+      );
     }
   });
 

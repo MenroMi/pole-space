@@ -1,9 +1,7 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-
-import { useRouter } from 'next/navigation';
-
 import { Search, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   Accordion,
@@ -87,20 +85,20 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           aria-label="Search moves"
           placeholder="Search moves..."
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-9 pr-9"
+          className="pr-9 pl-9"
         />
         {searchValue && (
           <button
             type="button"
             aria-label="Clear search"
             onClick={() => navigate({ resetSearch: true })}
-            className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
@@ -135,7 +133,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
                 <button
                   type="button"
                   onClick={() => navigate({ category, difficulty: null })}
-                  className="rounded-md py-2 pl-6 pr-3 text-left text-sm text-on-surface-variant transition-colors hover:bg-accent"
+                  className="rounded-md py-2 pr-3 pl-6 text-left text-sm text-on-surface-variant transition-colors hover:bg-accent"
                 >
                   All levels
                 </button>
@@ -153,7 +151,7 @@ export default function CatalogFilters({ filters }: CatalogFiltersProps) {
                           : navigate({ category, difficulty })
                       }
                       className={cn(
-                        'rounded-md py-2 pl-6 pr-3 text-left text-sm transition-colors hover:bg-accent',
+                        'rounded-md py-2 pr-3 pl-6 text-left text-sm transition-colors hover:bg-accent',
                         difficultyActive ? 'text-primary' : 'text-on-surface-variant',
                       )}
                     >

@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   AlertDialog,
@@ -128,7 +128,7 @@ export default function UserMenu({ user }: UserMenuProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={async (e) => {
+              onClick={async (e: React.MouseEvent) => {
                 e.preventDefault();
                 try {
                   await signOut({ callbackUrl: '/' });

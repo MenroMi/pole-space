@@ -1,6 +1,5 @@
-import Link from 'next/link';
-
 import { ImageOff } from 'lucide-react';
+import Link from 'next/link';
 
 import type { MoveWithTags } from '../types';
 
