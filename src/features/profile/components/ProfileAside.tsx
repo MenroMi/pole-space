@@ -4,30 +4,47 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
-  { href: '/profile', label: 'Overview', icon: LayoutDashboard },
-  { href: '/profile/progress', label: 'Progress', icon: TrendingUp },
-  { href: '/profile/favourite-moves', label: 'Favourite Moves', icon: Star },
+  {
+    href: '/profile',
+    label: 'Overview',
+    icon: LayoutDashboard,
+    matches: ['/profile', '/profile/settings'],
+  },
+  {
+    href: '/profile/progress',
+    label: 'Progress',
+    icon: TrendingUp,
+    matches: ['/profile/progress'],
+  },
+  {
+    href: '/profile/favourite-moves',
+    label: 'Favourite Moves',
+    icon: Star,
+    matches: ['/profile/favourite-moves'],
+  },
 ];
 
-const BASE = 'mx-4 my-1 flex items-center gap-4 rounded-md px-4 py-3 font-display text-xs uppercase tracking-widest';
+const BASE =
+  'mx-4 my-1 flex items-center gap-4 rounded-md px-4 py-3 font-display text-xs uppercase tracking-widest';
 
 export default function ProfileAside() {
   const pathname = usePathname();
 
   return (
     <nav className="flex h-full flex-col gap-2 py-10">
-      {NAV_LINKS.map(({ href, label, icon: Icon }) => {
-        const isActive = pathname === href;
+      {NAV_LINKS.map(({ href, label, icon: Icon, matches }) => {
+        const isActive = matches.includes(pathname);
         if (isActive) {
           return (
-            <span
+            <Link
               key={href}
+              href={href}
               aria-current="page"
-              className={`${BASE} bg-gradient-to-br from-primary to-primary-container cursor-default font-bold text-surface`}
+              className={`${BASE} bg-linear-to-br from-primary to-primary-container font-bold text-surface`}
             >
               <Icon size={20} aria-hidden="true" />
               {label}
-            </span>
+            </Link>
           );
         }
         return (

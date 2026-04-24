@@ -58,8 +58,8 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
   const displayImage = preview ?? currentImage;
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative h-20 w-20 overflow-hidden rounded-full bg-surface-high">
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-surface-high">
         {displayImage ? (
           <Image src={displayImage} alt="Avatar" fill className="object-cover" />
         ) : (

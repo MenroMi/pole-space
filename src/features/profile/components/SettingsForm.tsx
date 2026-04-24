@@ -15,7 +15,17 @@ import AvatarUpload from './AvatarUpload';
 
 function EyeIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M1 8s2.667-5 7-5 7 5 7 5-2.667 5-7 5-7-5-7-5z" />
       <circle cx="8" cy="8" r="2" />
     </svg>
@@ -24,7 +34,17 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M2 2l12 12" />
       <path d="M6.5 6.5a2 2 0 002.83 2.83" />
       <path d="M4 4.3A8 8 0 001 8s2.667 5 7 5c1.1 0 2.1-.25 3-.7" />
@@ -47,9 +67,18 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
             ref={ref}
             type={show ? 'text' : 'password'}
             className="pr-10 placeholder:text-on-surface-variant/40"
-            onKeyDown={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyDown?.(e); }}
-            onKeyUp={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyUp?.(e); }}
-            onBlur={(e) => { setCapsLock(false); onBlur?.(e); }}
+            onKeyDown={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyDown?.(e);
+            }}
+            onKeyUp={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyUp?.(e);
+            }}
+            onBlur={(e) => {
+              setCapsLock(false);
+              onBlur?.(e);
+            }}
             {...props}
           />
           <button
@@ -197,24 +226,24 @@ export default function SettingsForm({
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'anonymous';
 
   return (
-    <div className="p-6 md:p-12 space-y-8">
+    <div className="space-y-8 p-6 md:p-12">
       <div className="space-y-2">
-        <h1 className="font-display text-4xl md:text-5xl lowercase tracking-tight text-primary">
+        <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
           settings
         </h1>
-        <p className="text-on-surface-variant text-lg">
+        <p className="text-lg text-on-surface-variant">
           Manage your athlete profile and preferences.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Profile block */}
-        <section className="md:col-span-4 bg-surface-low rounded-2xl p-8 flex flex-col items-center text-center space-y-6">
+        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center lg:col-span-4">
           <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
           <div className="space-y-2">
             <p className="font-display text-xl text-on-surface">{displayName}</p>
             {email && <p className="text-sm text-on-surface-variant">{email}</p>}
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs uppercase tracking-widest text-on-secondary-container ring-1 ring-outline-variant/15">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
               <BadgeCheck size={14} aria-hidden="true" />
               Elite Member
             </div>
@@ -222,17 +251,21 @@ export default function SettingsForm({
         </section>
 
         {/* Personal Information */}
-        <section className="md:col-span-8 bg-surface-low rounded-2xl p-8 space-y-6">
+        <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8 lg:col-span-8">
           <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
             <User size={20} className="text-primary" aria-hidden="true" />
             <h2 className="font-display text-lg text-on-surface">Personal Information</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 First Name
               </label>
-              <Input {...profileForm.register('firstName')} placeholder="Your first name" className="placeholder:text-on-surface-variant/40" />
+              <Input
+                {...profileForm.register('firstName')}
+                placeholder="Your first name"
+                className="placeholder:text-on-surface-variant/40"
+              />
               {profileForm.formState.errors.firstName && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.firstName.message}
@@ -240,29 +273,37 @@ export default function SettingsForm({
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Last Name
               </label>
-              <Input {...profileForm.register('lastName')} placeholder="Your last name" className="placeholder:text-on-surface-variant/40" />
+              <Input
+                {...profileForm.register('lastName')}
+                placeholder="Your last name"
+                className="placeholder:text-on-surface-variant/40"
+              />
               {profileForm.formState.errors.lastName && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.lastName.message}
                 </p>
               )}
             </div>
-            <div className="md:col-span-2 flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Username
               </label>
-              <Input {...profileForm.register('username')} placeholder="your_username" className="placeholder:text-on-surface-variant/40" />
+              <Input
+                {...profileForm.register('username')}
+                placeholder="your_username"
+                className="placeholder:text-on-surface-variant/40"
+              />
               {profileForm.formState.errors.username && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.username.message}
                 </p>
               )}
             </div>
-            <div className="md:col-span-2 flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Location
               </label>
               <Input
@@ -282,14 +323,14 @@ export default function SettingsForm({
 
         {/* Security */}
         {hasPassword && (
-          <section className="md:col-span-12 bg-surface-low rounded-2xl p-8 space-y-6">
+          <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8">
             <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
               <Lock size={20} className="text-primary" aria-hidden="true" />
               <h2 className="font-display text-lg text-on-surface">Security</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   Current Password
                 </label>
                 <PasswordField
@@ -299,7 +340,7 @@ export default function SettingsForm({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   New Password
                 </label>
                 <PasswordField
@@ -309,7 +350,7 @@ export default function SettingsForm({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   Confirm Password
                 </label>
                 <PasswordField
@@ -324,11 +365,11 @@ export default function SettingsForm({
         )}
 
         {/* Actions */}
-        <div className="md:col-span-12 flex justify-end gap-4">
+        <div className="col-span-12 flex flex-col justify-end gap-4 lg:flex-row">
           <button
             type="button"
             onClick={handleDiscard}
-            className="px-8 py-3 font-display font-bold lowercase text-primary border border-outline-variant/20 rounded-lg hover:bg-surface-container transition-colors"
+            className="order-1 cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first"
           >
             discard
           </button>
@@ -336,7 +377,7 @@ export default function SettingsForm({
             type="button"
             onClick={handleSave}
             disabled={isPending}
-            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container transition-transform duration-150 active:scale-95 disabled:opacity-50"
+            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
           >
             {isPending ? 'saving…' : 'save changes'}
           </button>
