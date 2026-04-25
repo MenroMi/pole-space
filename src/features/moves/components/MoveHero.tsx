@@ -3,7 +3,7 @@ import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-type Phase = 'idle' | 'entering' | 'playing';
+type Phase = 'idle' | 'transitioning' | 'playing';
 
 type MoveHeroProps = {
   title: string;
@@ -37,14 +37,14 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
     if (prefersReduced) {
       setPhase('playing');
     } else {
-      setPhase('entering');
-      timeoutRef.current = setTimeout(() => setPhase('playing'), 600);
+      setPhase('transitioning');
+      timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
     }
   }
 
   return (
     <div className="relative h-[65vh] w-full overflow-hidden bg-black">
-      {/* Thumbnail / placeholder */}
+      {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
       {phase !== 'playing' &&
         (thumbnail ? (
           <Image
@@ -52,49 +52,30 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
             alt={title}
             fill
             priority
-            className={`object-cover transition-opacity duration-500 ${
-              phase === 'entering' ? 'opacity-0' : 'opacity-80'
+            className={`object-cover ${
+              phase === 'transitioning'
+                ? 'scale-110 opacity-0 blur-sm transition-all duration-500'
+                : 'blur-0 scale-100 opacity-80'
             }`}
           />
         ) : (
           <div className="absolute inset-0 bg-surface-container" />
         ))}
 
-      {/* YouTube iframe */}
-      {phase === 'playing' && videoId && (
+      {/* iframe — mounts during transitioning (opacity-0), fades in, stays for playing */}
+      {phase !== 'idle' && videoId && (
         <iframe
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title={title}
-          className="absolute inset-0 h-full w-full border-0"
+          className={`absolute inset-0 h-full w-full border-0 ${
+            phase === 'transitioning' ? 'opacity-0 transition-opacity duration-500' : 'opacity-100'
+          }`}
           allow="autoplay; encrypted-media; fullscreen"
           allowFullScreen
         />
       )}
 
-      {/* Top letterbox bar */}
-      <div
-        aria-hidden="true"
-        className={`absolute top-0 left-0 h-1/2 w-full bg-black ${
-          phase === 'playing'
-            ? 'hidden'
-            : `transition-transform duration-500 ease-in-out ${
-                phase === 'entering' ? 'translate-y-0' : '-translate-y-full'
-              }`
-        }`}
-      />
-      {/* Bottom letterbox bar */}
-      <div
-        aria-hidden="true"
-        className={`absolute bottom-0 left-0 h-1/2 w-full bg-black ${
-          phase === 'playing'
-            ? 'hidden'
-            : `transition-transform duration-500 ease-in-out ${
-                phase === 'entering' ? 'translate-y-0' : 'translate-y-full'
-              }`
-        }`}
-      />
-
-      {/* Play button */}
+      {/* Play button — visible only in idle */}
       {phase === 'idle' && videoId && (
         <button
           type="button"
