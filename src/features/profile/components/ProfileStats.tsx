@@ -30,19 +30,31 @@ function StatCard({ icon, value, label }: StatCardProps) {
 
 export default function ProfileStats({ masteredCount, favouritesCount }: ProfileStatsProps) {
   return (
-    <section className="grid grid-cols-1 gap-4 xl:grid-cols-4 xl:gap-6">
-      <StatCard
-        icon={<CheckCircle2 size={32} aria-hidden="true" />}
-        value={masteredCount}
-        label="Moves Mastered"
-      />
-      <StatCard
-        icon={<Heart size={32} aria-hidden="true" />}
-        value={favouritesCount}
-        label="Favourites"
-      />
-      <StatCard icon={<Flame size={32} aria-hidden="true" />} value="—" label="Current Streak" />
-      <StatCard icon={<Award size={32} aria-hidden="true" />} value="—" label="Skill Tier" />
-    </section>
+    <div className="relative">
+      <section
+        className="pointer-events-none grid grid-cols-1 gap-4 blur-sm select-none xl:grid-cols-4 xl:gap-6"
+        aria-hidden="true"
+      >
+        <StatCard
+          icon={<CheckCircle2 size={32} aria-hidden="true" />}
+          value={masteredCount}
+          label="Moves Mastered"
+        />
+        <StatCard
+          icon={<Heart size={32} aria-hidden="true" />}
+          value={favouritesCount}
+          label="Favourites"
+        />
+        <StatCard icon={<Flame size={32} aria-hidden="true" />} value="—" label="Current Streak" />
+        <StatCard icon={<Award size={32} aria-hidden="true" />} value="—" label="Skill Tier" />
+      </section>
+
+      <p
+        aria-label="Stats — coming soon"
+        className="absolute inset-0 flex items-center justify-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase"
+      >
+        Coming soon
+      </p>
+    </div>
   );
 }

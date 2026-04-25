@@ -9,18 +9,21 @@ const NAV_LINKS = [
     label: 'Overview',
     icon: LayoutDashboard,
     matches: ['/profile'],
-  },
-  {
-    href: '/profile/progress',
-    label: 'Progress',
-    icon: TrendingUp,
-    matches: ['/profile/progress'],
+    disabled: false,
   },
   {
     href: '/profile/favourite-moves',
     label: 'Favourite Moves',
     icon: Heart,
     matches: ['/profile/favourite-moves'],
+    disabled: false,
+  },
+  {
+    href: '/profile/progress',
+    label: 'Progress',
+    icon: TrendingUp,
+    matches: ['/profile/progress'],
+    disabled: true,
   },
 ];
 
@@ -32,7 +35,23 @@ export default function ProfileAside() {
 
   return (
     <nav className="flex h-full flex-col gap-2 py-10">
-      {NAV_LINKS.map(({ href, label, icon: Icon, matches }) => {
+      {NAV_LINKS.map(({ href, label, icon: Icon, matches, disabled }) => {
+        if (disabled) {
+          return (
+            <span
+              key={href}
+              aria-disabled="true"
+              className={`${BASE} cursor-not-allowed text-outline opacity-50 select-none`}
+            >
+              <Icon size={20} aria-hidden="true" />
+              <span className="flex-1">{label}</span>
+              <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] tracking-widest text-on-surface-variant">
+                Soon
+              </span>
+            </span>
+          );
+        }
+
         const isActive = matches.includes(pathname);
         if (isActive) {
           return (
