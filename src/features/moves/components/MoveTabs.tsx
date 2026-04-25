@@ -42,12 +42,14 @@ export default function MoveTabs({ steps }: { steps: string[] }) {
       </div>
 
       <div id="move-tabpanel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0}>
-        {active === 'breakdown' && <MoveBreakdown steps={steps} />}
-        {(active === 'muscles' || active === 'safety') && (
-          <p className="py-12 text-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase">
-            Coming soon
-          </p>
-        )}
+        <div key={active} className="animate-in duration-200 fade-in-0 slide-in-from-bottom-2">
+          {active === 'breakdown' && <MoveBreakdown steps={steps} />}
+          {(active === 'muscles' || active === 'safety') && (
+            <p className="py-12 text-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase">
+              Coming soon
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

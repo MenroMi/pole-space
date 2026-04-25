@@ -45,10 +45,10 @@ export default function MoveFavouriteButton({
       className="group flex flex-col items-center gap-1 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <div
-        className={`flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
+        className={`flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 ${
           optimisticFav
-            ? 'bg-error/20 text-error'
-            : 'bg-surface-container text-on-surface group-hover:bg-primary-container group-hover:text-primary'
+            ? 'bg-error/20 text-error hover:bg-error/35 hover:scale-110'
+            : 'bg-surface-container text-on-surface group-hover:scale-110 group-hover:bg-primary-container group-hover:text-primary'
         }`}
       >
         <Heart size={20} fill={optimisticFav ? 'currentColor' : 'none'} aria-hidden="true" />

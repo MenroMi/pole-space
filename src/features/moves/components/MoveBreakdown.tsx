@@ -2,13 +2,7 @@ export default function MoveBreakdown({ steps }: { steps: string[] }) {
   if (steps.length === 0) return null;
 
   return (
-    <section
-      aria-labelledby="breakdown-heading"
-      className="bg-surface-container-low rounded-xl p-8"
-    >
-      <h3 id="breakdown-heading" className="mb-6 font-display text-xl text-primary">
-        Breakdown
-      </h3>
+    <div className="bg-surface-container-low rounded-xl p-8">
       <div className="space-y-6">
         {steps.map((step, index) => (
           // stable display-only list — index key is safe
@@ -23,6 +17,6 @@ export default function MoveBreakdown({ steps }: { steps: string[] }) {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
