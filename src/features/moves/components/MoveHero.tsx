@@ -1,7 +1,7 @@
 'use client';
 import { Play } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Phase = 'idle' | 'entering' | 'playing';
 
@@ -18,9 +18,16 @@ function extractVideoId(url: string): string | null {
 
 export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoId = extractVideoId(youtubeUrl);
   const thumbnail =
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   function handlePlay() {
     const prefersReduced =
@@ -31,7 +38,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
       setPhase('playing');
     } else {
       setPhase('entering');
-      setTimeout(() => setPhase('playing'), 600);
+      timeoutRef.current = setTimeout(() => setPhase('playing'), 600);
     }
   }
 

@@ -27,6 +27,10 @@ function makeMoves(count: number, offset = 0): MoveWithTags[] {
     createdAt: new Date(),
     updatedAt: new Date(),
     tags: [],
+    steps: [],
+    gripType: null,
+    entry: null,
+    duration: null,
   }));
 }
 
@@ -210,6 +214,10 @@ describe('MoveGrid', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             tags: [],
+            steps: [],
+            gripType: null,
+            entry: null,
+            duration: null,
           },
         ],
         total: 13,

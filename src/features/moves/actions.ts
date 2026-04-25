@@ -1,13 +1,9 @@
 'use server';
-import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
 import type { MoveDetail } from './types';
 
-export async function getMoveByIdAction(id: string): Promise<MoveDetail | null> {
-  const session = await auth();
-  const userId = session?.user?.id;
-
+export async function getMoveByIdAction(id: string, userId?: string): Promise<MoveDetail | null> {
   const move = await prisma.move.findUnique({
     where: { id },
     include: { tags: true },

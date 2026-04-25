@@ -37,9 +37,7 @@ export default function MoveSpecs({ gripType, entry, duration, poleType }: MoveS
     <section aria-label="Move specs">
       <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {specs.map(({ label, value }) => (
-          <div key={label}>
-            <SpecCard label={label} value={value} />
-          </div>
+          <SpecCard key={label} label={label} value={value} />
         ))}
       </dl>
     </section>

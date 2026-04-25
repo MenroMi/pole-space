@@ -1,13 +1,17 @@
+import type { Difficulty } from '@prisma/client';
 import { notFound } from 'next/navigation';
+import type { CSSProperties } from 'react';
 
-import { getMoveByIdAction } from '@/features/moves';
-import MoveFavouriteButton from '@/features/moves/components/MoveFavouriteButton';
-import MoveHero from '@/features/moves/components/MoveHero';
-import MoveSpecs from '@/features/moves/components/MoveSpecs';
-import MoveTabs from '@/features/moves/components/MoveTabs';
+import {
+  getMoveByIdAction,
+  MoveHero,
+  MoveFavouriteButton,
+  MoveSpecs,
+  MoveTabs,
+} from '@/features/moves';
 import { auth } from '@/shared/lib/auth';
 
-const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {
+const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSProperties }> = {
   BEGINNER: { className: 'bg-secondary-container text-on-secondary-container' },
   INTERMEDIATE: { className: 'bg-primary-container text-on-surface' },
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
@@ -15,13 +19,15 @@ const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSPro
 
 export default async function MoveDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [move, session] = await Promise.all([getMoveByIdAction(id), auth()]);
+  const session = await auth();
+  const userId = session?.user?.id;
+  const move = await getMoveByIdAction(id, userId);
 
   if (!move) notFound();
 
   const isFavourited = move.favourites.length > 0;
-  const isAuthenticated = !!session?.user?.id;
-  const badge = DIFFICULTY_BADGE[move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
+  const isAuthenticated = !!userId;
+  const badge = DIFFICULTY_BADGE[move.difficulty];
   const difficultyLabel = move.difficulty.charAt(0) + move.difficulty.slice(1).toLowerCase();
   const poleTypeLabel = move.poleType
     ? move.poleType.charAt(0) + move.poleType.slice(1).toLowerCase()
@@ -35,7 +41,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="mb-4 font-display text-5xl font-bold tracking-tighter text-on-surface lowercase md:text-7xl">
-              {move.title.toLowerCase()}
+              {move.title}
             </h1>
             <div className="flex flex-wrap items-center gap-3">
               {poleTypeLabel && (
