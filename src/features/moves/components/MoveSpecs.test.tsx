@@ -22,4 +22,18 @@ describe('MoveSpecs', () => {
     expect(screen.getByText('Spin')).toBeInTheDocument();
     expect(screen.getByText('Pole Setting')).toBeInTheDocument();
   });
+
+  it('renders poleType as capitalized label (STATIC → Static)', () => {
+    render(<MoveSpecs gripType={null} entry={null} duration={null} poleType="STATIC" />);
+    expect(screen.getByText('Static')).toBeInTheDocument();
+    expect(screen.getByText('Pole Setting')).toBeInTheDocument();
+  });
+
+  it('renders all four cards when all fields are provided', () => {
+    render(<MoveSpecs gripType="Twisted" entry="Standing" duration="Short" poleType="SPIN" />);
+    expect(screen.getByText('Grip Type')).toBeInTheDocument();
+    expect(screen.getByText('Entry')).toBeInTheDocument();
+    expect(screen.getByText('Duration')).toBeInTheDocument();
+    expect(screen.getByText('Pole Setting')).toBeInTheDocument();
+  });
 });
