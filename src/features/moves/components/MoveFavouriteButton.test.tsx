@@ -15,8 +15,8 @@ vi.mock('next/navigation', () => ({
 
 import { addFavouriteAction, removeFavouriteAction } from '@/features/profile/actions';
 
-const mockAdd = addFavouriteAction as ReturnType<typeof vi.fn>;
-const mockRemove = removeFavouriteAction as ReturnType<typeof vi.fn>;
+const mockAdd = vi.mocked(addFavouriteAction);
+const mockRemove = vi.mocked(removeFavouriteAction);
 
 beforeEach(() => vi.clearAllMocks());
 

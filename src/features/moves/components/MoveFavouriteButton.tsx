@@ -26,8 +26,8 @@ export default function MoveFavouriteButton({
       return;
     }
     startTransition(async () => {
-      setOptimisticFav(!optimisticFav);
-      if (optimisticFav) {
+      setOptimisticFav(!isFavourited);
+      if (isFavourited) {
         await removeFavouriteAction(moveId);
       } else {
         await addFavouriteAction(moveId);
