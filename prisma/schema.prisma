@@ -72,6 +72,10 @@ model Move {
   poleType    PoleType?
   youtubeUrl  String
   imageUrl    String?
+  steps       String[]  @default([])
+  gripType    String?
+  entry       String?
+  duration    String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
