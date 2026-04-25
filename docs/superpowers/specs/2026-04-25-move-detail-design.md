@@ -29,18 +29,23 @@ Below hero (max-w-4xl mx-auto, px-6 md:px-12):
 
 ## Schema Changes
 
-Add four fields to `Move` in `prisma/schema.prisma`:
+Add fields to `Move` in `prisma/schema.prisma`:
 
 ```prisma
-steps    String[]  // breakdown steps; empty array = no content
-gripType String?
-entry    String?
-duration String?
+stepsData Json      @default("[]")  // { text: string; timestamp?: number }[]
+gripType  String?
+entry     String?
+duration  String?
 ```
 
 `poleType` (existing) serves as "Pole Setting" in the specs grid — no new field needed.
 
-Migration name: `add_move_detail_fields`.
+Migrations:
+
+- `add_move_detail_fields` — added gripType, entry, duration, steps (String[])
+- `replace_steps_with_steps_data` — replaced steps String[] with stepsData Json (for timestamp support)
+
+See `docs/superpowers/specs/2026-04-25-step-timestamps-design.md` for the stepsData feature spec.
 
 ## Data Layer
 
@@ -113,9 +118,11 @@ src/features/moves/
 
 ### MoveBreakdown
 
-- Receives `steps: string[]`
+- Receives `stepsData: StepItem[]` (where `StepItem = { text: string; timestamp?: number }`)
 - Numbered list (01, 02, 03…) matching mockup style
-- If `steps` is empty: renders nothing
+- Steps with a timestamp show a clickable `▶ 0:45` badge that seeks the video
+- If `stepsData` is empty: renders nothing
+- See `docs/superpowers/specs/2026-04-25-step-timestamps-design.md` for full timestamps spec
 
 ### MoveTabs
 
