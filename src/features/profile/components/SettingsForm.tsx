@@ -1,15 +1,17 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { BadgeCheck, Lock, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 
-import { updateProfileAction, changePasswordAction } from '../actions';
+import { changePasswordAction, updateProfileAction } from '../actions';
+import { changePasswordSchema, profileNameSchema } from '../lib/validation';
+import type { ChangePasswordFormValues, ProfileNameFormValues } from '../lib/validation';
 
 import AvatarUpload from './AvatarUpload';
 
@@ -56,17 +58,21 @@ function EyeOffIcon() {
 type PasswordFieldProps = InputHTMLAttributes<HTMLInputElement> & { error?: string };
 
 const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
-  ({ onKeyDown, onKeyUp, onBlur, error, type: _type, ...props }, ref) => {
+  ({ onKeyDown, onKeyUp, onBlur, error, type: _type, id, ...props }, ref) => {
     const [show, setShow] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
+    const errorId = id ? `${id}-error` : undefined;
 
     return (
       <div className="flex flex-col gap-1">
         <div className="relative">
           <Input
             ref={ref}
+            id={id}
             type={show ? 'text' : 'password'}
-            className="pr-10"
+            className="pr-10 placeholder:text-on-surface-variant/40"
+            aria-describedby={error && errorId ? errorId : undefined}
+            aria-invalid={!!error}
             onKeyDown={(e) => {
               setCapsLock(e.getModifierState('CapsLock'));
               onKeyDown?.(e);
@@ -96,45 +102,45 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
             Caps Lock is on
           </p>
         )}
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p id={errorId} className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
       </div>
     );
   },
 );
 PasswordField.displayName = 'PasswordField';
 
-export const profileNameSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
-});
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Required'),
-    newPassword: z.string().min(8, 'Password must be at least 8 characters').max(100),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type ProfileNameValues = z.infer<typeof profileNameSchema>;
-type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
-
 type SettingsFormProps = {
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   image: string | null;
+  location: string | null;
+  email: string | null;
   hasPassword: boolean;
 };
 
-export default function SettingsForm({ name, image, hasPassword }: SettingsFormProps) {
+export default function SettingsForm({
+  firstName,
+  lastName,
+  image,
+  location,
+  email,
+  hasPassword,
+}: SettingsFormProps) {
   const router = useRouter();
-  const [nameSuccess, setNameSuccess] = useState(false);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const { update } = useSession();
+  const [isPending, setIsPending] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
-  const nameForm = useForm<ProfileNameValues>({
+  const profileForm = useForm<ProfileNameFormValues>({
     resolver: zodResolver(profileNameSchema),
-    defaultValues: { name: name ?? '' },
+    defaultValues: {
+      firstName: firstName ?? '',
+      lastName: lastName ?? '',
+    },
   });
 
   const passwordForm = useForm<ChangePasswordFormValues>({
@@ -142,99 +148,230 @@ export default function SettingsForm({ name, image, hasPassword }: SettingsFormP
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 
-  async function handleNameSubmit(values: ProfileNameValues) {
-    setNameSuccess(false);
-    const result = await updateProfileAction(values);
-    if (!result.success) {
-      nameForm.setError('name', { message: result.error });
-    } else {
-      setNameSuccess(true);
-      router.refresh();
-    }
+  function handleDiscard() {
+    router.push('/profile');
   }
 
-  async function handlePasswordSubmit(values: ChangePasswordFormValues) {
-    setPasswordSuccess(false);
-    const result = await changePasswordAction({
-      currentPassword: values.currentPassword,
-      newPassword: values.newPassword,
-    });
-    if (!result.success) {
-      passwordForm.setError('currentPassword', { message: result.error });
-    } else {
-      setPasswordSuccess(true);
-      passwordForm.reset();
+  const handleSave = profileForm.handleSubmit(async (profileValues) => {
+    setIsPending(true);
+    setProfileError(null);
+
+    try {
+      const profileResult = await updateProfileAction({
+        firstName: profileValues.firstName,
+        lastName: profileValues.lastName,
+      });
+
+      if (!profileResult.success) {
+        setProfileError(profileResult.error);
+        return;
+      }
+
+      const preCheck = passwordForm.getValues();
+      if (preCheck.currentPassword || preCheck.newPassword || preCheck.confirmPassword) {
+        const isPasswordValid = await passwordForm.trigger();
+        if (!isPasswordValid) return;
+
+        const { currentPassword, newPassword } = passwordForm.getValues();
+        const passwordResult = await changePasswordAction({ currentPassword, newPassword });
+        if (!passwordResult.success) {
+          passwordForm.setError('currentPassword', { message: passwordResult.error });
+          return;
+        }
+      }
+
+      const newName =
+        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+      await update({ name: newName });
+      router.push('/profile');
+    } catch {
+      setProfileError('Something went wrong. Please try again.');
+    } finally {
+      setIsPending(false);
     }
-  }
+  });
+
+  const watchedFirstName = profileForm.watch('firstName');
+  const watchedLastName = profileForm.watch('lastName');
+  const displayName = [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || 'anonymous';
 
   return (
-    <div className="flex flex-col gap-8 p-6">
-      <h1 className="font-display text-xl font-semibold text-on-surface">Settings</h1>
+    <form onSubmit={handleSave} className="space-y-8 p-6 md:p-12">
+      <div className="space-y-2">
+        <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
+          settings
+        </h1>
+        <p className="text-lg text-on-surface-variant">
+          Manage your athlete profile and preferences.
+        </p>
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-semibold text-on-surface">Profile photo</h2>
-        <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <h2 className="font-semibold text-on-surface">Display name</h2>
-        <form
-          onSubmit={nameForm.handleSubmit(handleNameSubmit)}
-          className="flex max-w-sm flex-col gap-3"
-        >
-          <div className="flex flex-col gap-1">
-            <Input
-              {...nameForm.register('name')}
-              placeholder="Your name"
-              aria-label="Display name"
-            />
-            {nameForm.formState.errors.name && (
-              <p className="text-sm text-destructive">{nameForm.formState.errors.name.message}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={nameForm.formState.isSubmitting}>
-              {nameForm.formState.isSubmitting ? 'Saving…' : 'Save name'}
-            </Button>
-            {nameSuccess && <p className="text-sm text-primary">Name updated!</p>}
-          </div>
-        </form>
-      </section>
-
-      {hasPassword && (
-        <section className="flex flex-col gap-3">
-          <h2 className="font-semibold text-on-surface">Change password</h2>
-          <form
-            onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
-            className="flex max-w-sm flex-col gap-3"
-          >
-            <PasswordField
-              {...passwordForm.register('currentPassword')}
-              placeholder="Current password"
-              aria-label="Current password"
-              error={passwordForm.formState.errors.currentPassword?.message}
-            />
-            <PasswordField
-              {...passwordForm.register('newPassword')}
-              placeholder="New password"
-              aria-label="New password"
-              error={passwordForm.formState.errors.newPassword?.message}
-            />
-            <PasswordField
-              {...passwordForm.register('confirmPassword')}
-              placeholder="Confirm new password"
-              aria-label="Confirm new password"
-              error={passwordForm.formState.errors.confirmPassword?.message}
-            />
-            <div className="flex items-center gap-3">
-              <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
-                {passwordForm.formState.isSubmitting ? 'Saving…' : 'Change password'}
-              </Button>
-              {passwordSuccess && <p className="text-sm text-primary">Password updated!</p>}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        {/* Profile block */}
+        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center lg:col-span-4">
+          <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
+          <div className="space-y-2">
+            <p className="font-display text-xl text-on-surface">{displayName}</p>
+            {email && <p className="text-sm text-on-surface-variant">{email}</p>}
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
+              <BadgeCheck size={14} aria-hidden="true" />
+              Elite Member
             </div>
-          </form>
+          </div>
         </section>
-      )}
-    </div>
+
+        {/* Personal Information */}
+        <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8 lg:col-span-8">
+          <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
+            <User size={20} className="text-primary" aria-hidden="true" />
+            <h2 className="font-display text-lg text-on-surface">Personal Information</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="firstName"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
+                First Name
+              </label>
+              <Input
+                id="firstName"
+                {...profileForm.register('firstName')}
+                placeholder="Your first name"
+                aria-invalid={!!profileForm.formState.errors.firstName}
+                aria-describedby={
+                  profileForm.formState.errors.firstName ? 'firstName-error' : undefined
+                }
+                className="placeholder:text-on-surface-variant/40"
+              />
+              {profileForm.formState.errors.firstName && (
+                <p id="firstName-error" role="alert" className="text-sm text-destructive">
+                  {profileForm.formState.errors.firstName.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="lastName"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
+                Last Name
+              </label>
+              <Input
+                id="lastName"
+                {...profileForm.register('lastName')}
+                placeholder="Your last name"
+                aria-invalid={!!profileForm.formState.errors.lastName}
+                aria-describedby={
+                  profileForm.formState.errors.lastName ? 'lastName-error' : undefined
+                }
+                className="placeholder:text-on-surface-variant/40"
+              />
+              {profileForm.formState.errors.lastName && (
+                <p id="lastName-error" role="alert" className="text-sm text-destructive">
+                  {profileForm.formState.errors.lastName.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="location"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
+                Location
+              </label>
+              <Input
+                id="location"
+                readOnly
+                value={location ?? ''}
+                placeholder="Not set"
+                aria-describedby="location-hint"
+                className="cursor-default opacity-50 placeholder:text-on-surface-variant/40"
+              />
+              <p id="location-hint" className="text-xs text-on-surface-variant/60">
+                Auto-detected at sign-up. Cannot be changed.
+              </p>
+            </div>
+          </div>
+          {profileError && (
+            <p role="alert" className="text-sm text-destructive">
+              {profileError}
+            </p>
+          )}
+        </section>
+
+        {/* Security */}
+        {hasPassword && (
+          <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8">
+            <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
+              <Lock size={20} className="text-primary" aria-hidden="true" />
+              <h2 className="font-display text-lg text-on-surface">Security</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="currentPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
+                  Current Password
+                </label>
+                <PasswordField
+                  id="currentPassword"
+                  {...passwordForm.register('currentPassword')}
+                  placeholder="Current password"
+                  error={passwordForm.formState.errors.currentPassword?.message}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="newPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
+                  New Password
+                </label>
+                <PasswordField
+                  id="newPassword"
+                  {...passwordForm.register('newPassword')}
+                  placeholder="New password"
+                  error={passwordForm.formState.errors.newPassword?.message}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-xs tracking-widest text-on-surface-variant uppercase"
+                >
+                  Confirm Password
+                </label>
+                <PasswordField
+                  id="confirmPassword"
+                  {...passwordForm.register('confirmPassword')}
+                  placeholder="Confirm new password"
+                  error={passwordForm.formState.errors.confirmPassword?.message}
+                />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Actions */}
+        <div className="col-span-12 flex flex-col justify-end gap-4 lg:flex-row">
+          <button
+            type="button"
+            onClick={handleDiscard}
+            className="order-1 cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first"
+          >
+            discard
+          </button>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
+          >
+            {isPending ? 'saving…' : 'save changes'}
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }

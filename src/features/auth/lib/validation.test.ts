@@ -22,28 +22,52 @@ describe('loginSchema', () => {
 });
 
 describe('signupSchema', () => {
-  const VALID = { name: 'Alice Smith', email: 'a@b.com', password: 'Password1!' };
+  const VALID = {
+    firstName: 'Alice',
+    lastName: 'Smith',
+    email: 'a@b.com',
+    password: 'Password1!',
+  };
 
-  it('accepts valid name, email, and password', () => {
+  it('accepts valid firstName, lastName, email, and password', () => {
     expect(signupSchema.safeParse(VALID).success).toBe(true);
   });
 
-  describe('name', () => {
-    it('rejects name shorter than 5 characters', () => {
-      const result = signupSchema.safeParse({ ...VALID, name: 'Ali' });
+  describe('firstName', () => {
+    it('rejects missing firstName', () => {
+      const result = signupSchema.safeParse({ ...VALID, firstName: '' });
       expect(result.success).toBe(false);
-      expect(result.error?.issues[0].path).toContain('name');
+      expect(result.error?.issues[0].path).toContain('firstName');
     });
 
-    it('shows correct message for name shorter than 5 characters', () => {
-      const result = signupSchema.safeParse({ ...VALID, name: 'Ali' });
-      expect(result.error?.issues[0].message).toBe('Name must be at least 5 characters');
+    it('shows correct message for missing firstName', () => {
+      const result = signupSchema.safeParse({ ...VALID, firstName: '' });
+      expect(result.error?.issues[0].message).toBe('First name is required');
     });
 
-    it('rejects name longer than 50 characters', () => {
-      const result = signupSchema.safeParse({ ...VALID, name: 'A'.repeat(51) });
+    it('rejects firstName longer than 50 characters', () => {
+      const result = signupSchema.safeParse({ ...VALID, firstName: 'A'.repeat(51) });
       expect(result.success).toBe(false);
-      expect(result.error?.issues[0].message).toBe('Name is too long');
+      expect(result.error?.issues[0].message).toBe('First name is too long');
+    });
+  });
+
+  describe('lastName', () => {
+    it('rejects missing lastName', () => {
+      const result = signupSchema.safeParse({ ...VALID, lastName: '' });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0].path).toContain('lastName');
+    });
+
+    it('shows correct message for missing lastName', () => {
+      const result = signupSchema.safeParse({ ...VALID, lastName: '' });
+      expect(result.error?.issues[0].message).toBe('Last name is required');
+    });
+
+    it('rejects lastName longer than 50 characters', () => {
+      const result = signupSchema.safeParse({ ...VALID, lastName: 'A'.repeat(51) });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0].message).toBe('Last name is too long');
     });
   });
 

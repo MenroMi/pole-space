@@ -1,12 +1,15 @@
 'use server';
 import bcrypt from 'bcryptjs';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { auth } from '@/shared/lib/auth';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { prisma } from '@/shared/lib/prisma';
 import type { LearnStatus } from '@/shared/types';
 
+import { profileSchema } from './lib/validation';
 import type { FavouriteWithMove, ProgressWithMove } from './types';
 
 async function requireAuth() {
@@ -17,13 +20,9 @@ async function requireAuth() {
   return session.user.id;
 }
 
-const profileNameSchema = z.object({
-  name: z.string().min(5, 'Name must be at least 5 characters').max(50, 'Name is too long'),
-});
-
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8).max(100),
+  newPassword: z.string().min(8).max(100).superRefine(applyPasswordComplexity),
 });
 
 export async function getUserProgressAction(status?: LearnStatus): Promise<ProgressWithMove[]> {
@@ -43,11 +42,22 @@ export async function updateProgressAction(moveId: string, status: LearnStatus) 
   });
 }
 
-export async function updateProfileAction(data: { name: string }) {
+export async function updateProfileAction(data: {
+  firstName: string;
+  lastName: string;
+  location?: string | null;
+}) {
   const userId = await requireAuth();
-  const parsed = profileNameSchema.safeParse(data);
+  const parsed = profileSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
-  await prisma.user.update({ where: { id: userId }, data: { name: parsed.data.name } });
+
+  const updateData: { firstName: string; lastName: string; location?: string | null } = {
+    firstName: parsed.data.firstName,
+    lastName: parsed.data.lastName,
+  };
+  if (parsed.data.location !== undefined) updateData.location = parsed.data.location;
+
+  await prisma.user.update({ where: { id: userId }, data: updateData });
   return { success: true as const };
 }
 
@@ -104,6 +114,8 @@ export async function addFavouriteAction(moveId: string) {
     create: { userId, moveId },
     update: {},
   });
+  revalidatePath('/profile/favourite-moves');
+  revalidatePath('/profile');
   return { success: true as const };
 }
 
@@ -112,6 +124,8 @@ export async function removeFavouriteAction(moveId: string) {
   await prisma.userFavourite.deleteMany({
     where: { userId, moveId },
   });
+  revalidatePath('/profile/favourite-moves');
+  revalidatePath('/profile');
   return { success: true as const };
 }
 
@@ -122,4 +136,39 @@ export async function getUserFavouritesAction(): Promise<FavouriteWithMove[]> {
     include: { move: true },
     orderBy: { createdAt: 'desc' },
   });
+}
+
+export async function getProfileUserAction() {
+  const userId = await requireAuth();
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      image: true,
+      location: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function getProfileSettingsAction() {
+  const userId = await requireAuth();
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { firstName: true, lastName: true, image: true, location: true, password: true },
+  });
+  if (!user) return null;
+  const { password, ...profile } = user;
+  return { ...profile, hasPassword: password != null };
+}
+
+export async function getProfileStatsAction() {
+  const userId = await requireAuth();
+  const [masteredCount, favouritesCount] = await Promise.all([
+    prisma.userProgress.count({ where: { userId, status: 'LEARNED' } }),
+    prisma.userFavourite.count({ where: { userId } }),
+  ]);
+  return { masteredCount, favouritesCount };
 }

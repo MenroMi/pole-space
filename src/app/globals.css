@@ -14,6 +14,7 @@
   --primary: #dcb8ff;
   --primary-container: #8458b3;
   --on-primary: #441671;
+  --on-primary-container: #f8ebff;
   --secondary-container: #52416c;
   --on-secondary-container: #c5afe2;
   --outline: #978e9b;
@@ -54,6 +55,7 @@
   --color-primary: var(--primary);
   --color-primary-container: var(--primary-container);
   --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
   --color-secondary-container: var(--secondary-container);
   --color-on-secondary-container: var(--on-secondary-container);
   --color-outline: var(--outline);

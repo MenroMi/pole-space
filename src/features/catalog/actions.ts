@@ -23,7 +23,7 @@ export async function getMovesAction(
     prisma.move.findMany({
       where,
       include: { tags: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { title: 'asc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

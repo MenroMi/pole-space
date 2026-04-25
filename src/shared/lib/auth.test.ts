@@ -45,6 +45,54 @@ describe('authConfig', () => {
   });
 });
 
+describe('jwt callback', () => {
+  const getJwt = () =>
+    authConfig.callbacks?.jwt as (params: {
+      token: Record<string, unknown>;
+      user?: Record<string, unknown>;
+      trigger?: string;
+      session?: unknown;
+    }) => Record<string, unknown>;
+
+  it('sets name from firstName and lastName on sign-in', async () => {
+    const jwt = getJwt();
+    const token = await jwt({
+      token: {},
+      user: { firstName: 'Alice', lastName: 'Pole', role: 'USER' },
+    });
+    expect(token.name).toBe('Alice Pole');
+  });
+
+  it('sets name to null when firstName and lastName are empty on sign-in', async () => {
+    const jwt = getJwt();
+    const token = await jwt({
+      token: {},
+      user: { firstName: null, lastName: null, role: 'USER' },
+    });
+    expect(token.name).toBeNull();
+  });
+
+  it('updates token.name when trigger is update and session.name is provided', async () => {
+    const jwt = getJwt();
+    const token = await jwt({
+      token: { name: 'Old Name' },
+      trigger: 'update',
+      session: { name: 'New Name' },
+    });
+    expect(token.name).toBe('New Name');
+  });
+
+  it('leaves token.name unchanged when trigger is update but session.name is absent', async () => {
+    const jwt = getJwt();
+    const token = await jwt({
+      token: { name: 'Old Name' },
+      trigger: 'update',
+      session: {},
+    });
+    expect(token.name).toBe('Old Name');
+  });
+});
+
 describe('authorize', () => {
   const getAuthorize = () => {
     const provider = authConfig.providers.find(

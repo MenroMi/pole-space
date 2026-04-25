@@ -18,6 +18,13 @@
 
 > Implement after core feature set is complete, before public launch.
 
+### `/api/geocode` unauthenticated — Nominatim rate-limit abuse ⚠️ pre-launch blocker
+
+- `src/app/api/geocode/route.ts` has no auth check — any unauthenticated client can call it freely
+- Nominatim ToS: max 1 req/sec per IP; abuse can get the server IP banned
+- Cannot simply require a session because `SignupForm` calls it before the user has an account
+- Fix options: (a) lightweight CSRF-style token (signed with `NEXTAUTH_SECRET`, short TTL, issued from a pre-signup endpoint), (b) IP-level rate-limit at Next.js middleware layer via Upstash Ratelimit, (c) move geocoding fully client-side via a third-party geocoding SaaS that issues per-origin keys
+
 ### Rate limiting on auth endpoints ⚠️ pre-launch blocker
 
 - No rate limiting on `/api/auth/signin` — brute force possible
@@ -99,7 +106,6 @@
 - ~~Password had no complexity requirements — `qwerty123` was accepted~~
 - `signupSchema.name`: min 5 chars, custom messages; consistent with `password` field
 - `signupSchema.password`: `.superRefine()` enforces uppercase + lowercase + digit + special char, reports all failures simultaneously
-- `profileNameSchema` in `src/features/profile/actions.ts` also updated to min 5
 
 ~~**`src/features/auth/components/SignupForm.test.tsx`**~~ ✅ Resolved (2026-04-19)
 
@@ -108,6 +114,44 @@
 - 3 tests added: 2 in `validation.test.ts` (min/max message strings), 1 in `SignupForm.test.tsx` (UI render)
 
 ## Feature Gaps
+
+**Profile Settings — Preferences section not implemented** (2026-04-24)
+
+- Секция Preferences (тема, язык, уведомления и пр.) пропущена при Settings redesign — в дизайне Stitch присутствует, но требования не определены
+- Fix: добавить секцию после финализации требований: какие настройки нужны, где хранятся (поля User или отдельная таблица UserPreferences), UX (toggles, select-ы)
+
+**Profile — полная мобильная версия** (2026-04-24)
+
+- Профиль не адаптирован для мобильных устройств: aside скрыт, Hero и Stats карточки не оптимизированы под маленькие экраны
+- Нужно: мобильная навигация (bottom bar или drawer), адаптация ProfileHero (вертикальная компоновка, меньший шрифт), адаптация кнопок Share/Edit Profile
+- Бенто карточки: ниже 1280px идут в одну колонку — приемлемо, но стоит рассмотреть 2-колоночный лейаут для планшетов (768–1279px)
+
+**Profile — Current Streak stub** (2026-04-24)
+
+- `ProfileStats` renders `"—"` for Current Streak — no streak tracking logic exists
+- Needs: `UserStreak` model (or derived from `UserProgress` timestamps), server action, cron/trigger to reset on missed day
+- Design: show consecutive days with at least one progress update; reset to 0 if a day is skipped
+
+**Profile — Skill Tier stub** (2026-04-24)
+
+- `ProfileStats` renders `"—"` for Skill Tier — no tier classification logic exists
+- Needs: tier thresholds based on mastered moves count and/or difficulty spread (e.g. Beginner → Intermediate → Advanced → Elite)
+- Design decision pending: formula, display name, icon per tier
+
+~~**Favourite Moves gallery**~~ ✅ Resolved (2026-04-25)
+
+- Full redesign: responsive 4-col gallery, client-side search, `useOptimistic` removal
+- AlertDialog confirmation (same pattern as logout), `onCloseAutoFocus` prevents jump
+- `revalidatePath` on add/remove for both `/profile/favourite-moves` and `/profile`
+- Catalog sort fixed: `orderBy: { title: 'asc' }` (was `createdAt: desc`)
+- ProfileAside: Favourite Moves icon changed Star → Heart
+- e2e test cases written (Playwright not installed yet)
+
+**Profile — Elite Member badge stub** (2026-04-24)
+
+- `ProfileHero` always renders the "Elite Member" badge — no membership or achievement check
+- Needs: criteria definition (e.g. moves mastered ≥ N, account age, admin-granted flag), conditional rendering
+- Until criteria are defined, badge is hardcoded and misleading for new users
 
 **Password reset (`/forgot-password`)** (2026-04-22)
 
@@ -184,9 +228,11 @@
 
 ## Database
 
-**`PoleType` on existing moves** (2026-04-24)
+~~**`PoleType` on existing moves**~~ ✅ Resolved (2026-04-25) — `prisma/seed-progress.ts`
 
-- All existing moves have `poleType = NULL` (unclassified) — need to be set via admin UI once admin feature is built
+- Seeded via `seed-progress.ts`: SPIN for all spin-category moves, STATIC for climbs/holds/combos/floorwork
+- Run: `SEED_USER_EMAIL=<email> npx tsx prisma/seed-progress.ts`
+- Script also seeds `UserProgress` (18 records) and `UserFavourite` (5 records) for the given user
 
 **`prisma/schema.prisma` — `UserProgress` relations missing `onDelete: Cascade`**
 
@@ -209,3 +255,19 @@
 - Дефолт GitHub: 5 открытых PR на ecosystem. Если накопится больше 5 ожидающих обновлений npm — Dependabot молча перестанет открывать новые PR без каких-либо уведомлений.
 - Fix: добавить `open-pull-requests-limit: 10` в каждый ecosystem-блок `.github/dependabot.yml`.
 - Приоритет: низкий — актуально только при большом количестве одновременных обновлений зависимостей.
+
+## Profile
+
+**`username` column — deferred feature** (2026-04-24)
+
+- `prisma/schema.prisma` has `username String? @unique` and it is selected in `getProfileUserAction`
+- No UI exists to set it; no signup/settings path writes it — every row has `username = NULL`
+- Fix: build a username settings field or remove the column entirely before public launch
+- Priority: low — harmless while all values are NULL, but confusing for future contributors
+
+**`"Elite Member"` badge — hardcoded stub** (2026-04-24)
+
+- `ProfileHero.tsx` and `SettingsForm.tsx` render "Elite Member" unconditionally for every user
+- Should be derived from `user.role` or a separate membership tier field
+- Fix: conditionalise on role/tier, or remove until the feature is properly designed
+- Priority: low — cosmetic stub, no functional impact

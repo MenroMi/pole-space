@@ -11,13 +11,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 
   return (
     <SessionGuard>
-      <PageShell
-        aside={
-          <ProfileAside name={session?.user?.name ?? null} image={session?.user?.image ?? null} />
-        }
-      >
-        {children}
-      </PageShell>
+      <PageShell aside={<ProfileAside />}>{children}</PageShell>
     </SessionGuard>
   );
 }

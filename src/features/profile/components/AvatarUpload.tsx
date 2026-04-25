@@ -8,7 +8,7 @@ import { uploadAvatarAction } from '../actions';
 
 type AvatarUploadProps = {
   currentImage: string | null;
-  onUploadSuccess: (imageUrl: string) => void;
+  onUploadSuccess: () => void;
 };
 
 export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUploadProps) {
@@ -43,23 +43,28 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
     if (!file) return;
     setIsPending(true);
     setError(null);
-    const formData = new FormData();
-    formData.append('avatar', file);
-    const result = await uploadAvatarAction(formData);
-    setIsPending(false);
-    if (!result.success) {
-      setError(result.error ?? 'Upload failed');
-    } else {
-      onUploadSuccess(result.imageUrl);
-      setPreview(null);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const result = await uploadAvatarAction(formData);
+      if (!result.success) {
+        setError(result.error ?? 'Upload failed');
+      } else {
+        onUploadSuccess();
+        setPreview(null);
+      }
+    } catch {
+      setError('Upload failed');
+    } finally {
+      setIsPending(false);
     }
   }
 
   const displayImage = preview ?? currentImage;
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative h-20 w-20 overflow-hidden rounded-full bg-surface-high">
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-surface-high">
         {displayImage ? (
           <Image src={displayImage} alt="Avatar" fill className="object-cover" />
         ) : (
@@ -72,6 +77,7 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
         ref={inputRef}
         type="file"
         accept="image/*"
+        aria-hidden="true"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -85,7 +91,11 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
           </Button>
         )}
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

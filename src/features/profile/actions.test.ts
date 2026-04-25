@@ -1,15 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
     userProgress: {
       findMany: vi.fn(),
       upsert: vi.fn(),
+      count: vi.fn(),
     },
     userFavourite: {
       upsert: vi.fn(),
       deleteMany: vi.fn(),
       findMany: vi.fn(),
+      count: vi.fn(),
     },
     user: {
       findUnique: vi.fn(),
@@ -38,9 +42,12 @@ vi.mock('@/shared/lib/cloudinary', () => ({
 }));
 
 import { auth } from '@/shared/lib/auth';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/shared/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { cloudinary } from '@/shared/lib/cloudinary';
+
+const mockRevalidatePath = revalidatePath as ReturnType<typeof vi.fn>;
 
 import {
   getUserProgressAction,
@@ -51,6 +58,9 @@ import {
   addFavouriteAction,
   removeFavouriteAction,
   getUserFavouritesAction,
+  getProfileUserAction,
+  getProfileSettingsAction,
+  getProfileStatsAction,
 } from './actions';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
@@ -61,6 +71,8 @@ const mockUserUpdate = prisma.user.update as ReturnType<typeof vi.fn>;
 const mockFavouriteUpsert = prisma.userFavourite.upsert as ReturnType<typeof vi.fn>;
 const mockFavouriteDeleteMany = prisma.userFavourite.deleteMany as ReturnType<typeof vi.fn>;
 const mockFavouriteFindMany = prisma.userFavourite.findMany as ReturnType<typeof vi.fn>;
+const mockProgressCount = prisma.userProgress.count as ReturnType<typeof vi.fn>;
+const mockFavouriteCount = prisma.userFavourite.count as ReturnType<typeof vi.fn>;
 const mockBcryptCompare = bcrypt.compare as ReturnType<typeof vi.fn>;
 const mockBcryptHash = bcrypt.hash as ReturnType<typeof vi.fn>;
 const mockUploadStream = cloudinary.uploader.upload_stream as ReturnType<typeof vi.fn>;
@@ -124,23 +136,25 @@ describe('updateProgressAction', () => {
 describe('updateProfileAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(updateProfileAction({ name: 'Alice' })).rejects.toThrow('Unauthorized');
+    await expect(updateProfileAction({ firstName: 'Alice', lastName: 'Pole' })).rejects.toThrow(
+      'Unauthorized',
+    );
   });
 
-  it('returns error for invalid name (too short)', async () => {
+  it('returns error for invalid input (empty firstName)', async () => {
     mockAuth.mockResolvedValue(session);
-    const result = await updateProfileAction({ name: 'A' });
+    const result = await updateProfileAction({ firstName: '', lastName: 'Pole' });
     expect(result).toEqual({ success: false, error: 'Invalid input' });
     expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 
-  it('updates user name and returns success', async () => {
+  it('updates firstName and lastName', async () => {
     mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123', name: 'Alice' });
-    const result = await updateProfileAction({ name: 'Alice' });
+    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+    const result = await updateProfileAction({ firstName: 'Alice', lastName: 'Pole' });
     expect(mockUserUpdate).toHaveBeenCalledWith({
       where: { id: 'user-123' },
-      data: { name: 'Alice' },
+      data: { firstName: 'Alice', lastName: 'Pole' },
     });
     expect(result).toEqual({ success: true });
   });
@@ -213,10 +227,20 @@ describe('changePasswordAction', () => {
     mockUserFindUnique.mockResolvedValue({ password: null });
     const result = await changePasswordAction({
       currentPassword: 'old',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
     expect(result).toEqual({ success: false, error: 'Password change is not available' });
     expect(mockBcryptCompare).not.toHaveBeenCalled();
+  });
+
+  it('returns Invalid input when new password does not meet complexity rules', async () => {
+    mockAuth.mockResolvedValue(session);
+    const result = await changePasswordAction({
+      currentPassword: 'anything',
+      newPassword: 'alllowercase1!',
+    });
+    expect(result).toEqual({ success: false, error: 'Invalid input' });
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
   });
 
   it('returns error when current password is incorrect', async () => {
@@ -225,7 +249,7 @@ describe('changePasswordAction', () => {
     mockBcryptCompare.mockResolvedValue(false);
     const result = await changePasswordAction({
       currentPassword: 'wrong',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
     expect(result).toEqual({ success: false, error: 'Current password is incorrect' });
     expect(mockUserUpdate).not.toHaveBeenCalled();
@@ -239,9 +263,9 @@ describe('changePasswordAction', () => {
     mockUserUpdate.mockResolvedValue({ id: 'user-123' });
     const result = await changePasswordAction({
       currentPassword: 'correct',
-      newPassword: 'newpassword123',
+      newPassword: 'Newpassword123!',
     });
-    expect(mockBcryptHash).toHaveBeenCalledWith('newpassword123', 10);
+    expect(mockBcryptHash).toHaveBeenCalledWith('Newpassword123!', 10);
     expect(mockUserUpdate).toHaveBeenCalledWith({
       where: { id: 'user-123' },
       data: { password: 'newhashed' },
@@ -265,6 +289,8 @@ describe('addFavouriteAction', () => {
       create: { userId: 'user-123', moveId: 'move-1' },
       update: {},
     });
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(result).toEqual({ success: true });
   });
 });
@@ -282,6 +308,8 @@ describe('removeFavouriteAction', () => {
     expect(mockFavouriteDeleteMany).toHaveBeenCalledWith({
       where: { userId: 'user-123', moveId: 'move-1' },
     });
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(result).toEqual({ success: true });
   });
 });
@@ -303,5 +331,110 @@ describe('getUserFavouritesAction', () => {
       }),
     );
     expect(result).toEqual([{ id: 'fav-1', move: { title: 'Spin' } }]);
+  });
+});
+
+describe('getProfileStatsAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileStatsAction()).rejects.toThrow('Unauthorized');
+    expect(mockProgressCount).not.toHaveBeenCalled();
+    expect(mockFavouriteCount).not.toHaveBeenCalled();
+  });
+
+  it('returns mastered count and favourites count', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockProgressCount.mockResolvedValue(7);
+    mockFavouriteCount.mockResolvedValue(3);
+    const result = await getProfileStatsAction();
+    expect(mockProgressCount).toHaveBeenCalledWith({
+      where: { userId: 'user-123', status: 'LEARNED' },
+    });
+    expect(mockFavouriteCount).toHaveBeenCalledWith({
+      where: { userId: 'user-123' },
+    });
+    expect(result).toEqual({ masteredCount: 7, favouritesCount: 3 });
+  });
+});
+
+describe('getProfileUserAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileUserAction()).rejects.toThrow('Unauthorized');
+  });
+
+  it('returns null when user is not found', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue(null);
+    const result = await getProfileUserAction();
+    expect(result).toBeNull();
+  });
+
+  it('returns user profile fields', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      username: 'alice_pole',
+      image: null,
+      location: 'Warsaw',
+      createdAt: new Date('2024-01-01'),
+    });
+    const result = await getProfileUserAction();
+    expect(result?.firstName).toBe('Alice');
+  });
+});
+
+describe('getProfileSettingsAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileSettingsAction()).rejects.toThrow('Unauthorized');
+  });
+
+  it('returns null when user is not found', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue(null);
+    const result = await getProfileSettingsAction();
+    expect(result).toBeNull();
+  });
+
+  it('returns hasPassword: true and strips password hash when user has a password', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      image: null,
+      location: 'Warsaw, Poland',
+      password: 'hashed_pw',
+    });
+    const result = await getProfileSettingsAction();
+    expect(result).toEqual({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      image: null,
+      location: 'Warsaw, Poland',
+      hasPassword: true,
+    });
+    expect(result).not.toHaveProperty('password');
+  });
+
+  it('returns hasPassword: false for OAuth accounts (no password)', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Bob',
+      lastName: 'OAuth',
+      image: 'https://example.com/photo.jpg',
+      location: null,
+      password: null,
+    });
+    const result = await getProfileSettingsAction();
+    expect(result).toEqual({
+      firstName: 'Bob',
+      lastName: 'OAuth',
+      image: 'https://example.com/photo.jpg',
+      location: null,
+      hasPassword: false,
+    });
+    expect(result).not.toHaveProperty('password');
   });
 });

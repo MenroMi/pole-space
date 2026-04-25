@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { PasswordInput } from '@/shared/components/PasswordInput';
@@ -12,6 +13,23 @@ import type { SignupFormData } from '../lib/validation';
 import { FacebookIcon, GoogleIcon } from './SocialIcons';
 
 export function SignupForm() {
+  const [detectedLocation, setDetectedLocation] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`);
+        if (!res.ok) return;
+        const data = (await res.json()) as { location?: string | null };
+        if (data.location) setDetectedLocation(data.location);
+      } catch {
+        // silent — location is optional
+      }
+    });
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -20,7 +38,10 @@ export function SignupForm() {
   } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
   const onSubmit = async (data: SignupFormData) => {
-    const result = await signupAction(data);
+    const result = await signupAction({
+      ...data,
+      ...(detectedLocation ? { location: detectedLocation } : {}),
+    });
     if (result?.error) {
       setError('root', { message: result.error });
     }
@@ -37,33 +58,64 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-6">
-          {/* Name */}
+          {/* First Name */}
           <div className="group">
             <label
-              htmlFor="name"
+              htmlFor="firstName"
               className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
             >
-              full name
+              first name
             </label>
             <div className="relative">
               <input
-                id="name"
+                id="firstName"
                 type="text"
-                placeholder="your name"
+                placeholder="your first name"
                 className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
-                aria-describedby={errors.name ? 'name-error' : undefined}
-                aria-invalid={!!errors.name}
-                {...register('name')}
+                aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+                aria-invalid={!!errors.firstName}
+                {...register('firstName')}
               />
               <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
             </div>
-            {errors.name && (
+            {errors.firstName && (
               <p
-                id="name-error"
+                id="firstName-error"
                 role="alert"
                 className="mt-1.5 text-xs tracking-wide text-red-400/80"
               >
-                {errors.name.message}
+                {errors.firstName.message}
+              </p>
+            )}
+          </div>
+
+          {/* Last Name */}
+          <div className="group">
+            <label
+              htmlFor="lastName"
+              className="mb-1 block text-[10px] font-medium tracking-widest text-outline-variant uppercase transition-colors duration-200 group-focus-within:text-primary"
+            >
+              last name
+            </label>
+            <div className="relative">
+              <input
+                id="lastName"
+                type="text"
+                placeholder="your last name"
+                className="w-full border-b border-outline-variant bg-transparent px-0 py-3 text-on-surface placeholder:text-outline-variant/40 focus:outline-none"
+                aria-describedby={errors.lastName ? 'lastName-error' : undefined}
+                aria-invalid={!!errors.lastName}
+                {...register('lastName')}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full origin-center scale-x-0 bg-primary transition-transform duration-300 group-focus-within:scale-x-100" />
+            </div>
+            {errors.lastName && (
+              <p
+                id="lastName-error"
+                role="alert"
+                className="mt-1.5 text-xs tracking-wide text-red-400/80"
+              >
+                {errors.lastName.message}
               </p>
             )}
           </div>
