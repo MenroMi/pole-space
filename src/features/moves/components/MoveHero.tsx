@@ -52,10 +52,10 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
             alt={title}
             fill
             priority
-            className={`object-cover ${
+            className={`object-cover transition-all duration-500 ${
               phase === 'transitioning'
-                ? 'scale-110 opacity-0 blur-sm transition-all duration-500'
-                : 'blur-0 scale-100 opacity-80'
+                ? 'scale-110 opacity-0 blur-sm'
+                : 'scale-100 opacity-80 blur-none'
             }`}
           />
         ) : (
@@ -67,8 +67,8 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
         <iframe
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title={title}
-          className={`absolute inset-0 h-full w-full border-0 ${
-            phase === 'transitioning' ? 'opacity-0 transition-opacity duration-500' : 'opacity-100'
+          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
+            phase === 'transitioning' ? 'opacity-0' : 'opacity-100'
           }`}
           allow="autoplay; encrypted-media; fullscreen"
           allowFullScreen
