@@ -10,7 +10,7 @@ const POLE_TYPE_LABEL: Record<PoleType, string> = {
 
 function SpecCard({ label, value }: SpecItem) {
   return (
-    <div className="bg-surface-container-high flex flex-col gap-2 rounded-lg border border-outline-variant/15 p-6">
+    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant/15 bg-surface-highest p-6">
       <dt className="font-sans text-[10px] tracking-widest text-on-surface-variant uppercase">
         {label}
       </dt>
