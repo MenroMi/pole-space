@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
     userProgress: {
@@ -40,9 +42,12 @@ vi.mock('@/shared/lib/cloudinary', () => ({
 }));
 
 import { auth } from '@/shared/lib/auth';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/shared/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { cloudinary } from '@/shared/lib/cloudinary';
+
+const mockRevalidatePath = revalidatePath as ReturnType<typeof vi.fn>;
 
 import {
   getUserProgressAction,
@@ -284,6 +289,8 @@ describe('addFavouriteAction', () => {
       create: { userId: 'user-123', moveId: 'move-1' },
       update: {},
     });
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(result).toEqual({ success: true });
   });
 });
@@ -301,6 +308,8 @@ describe('removeFavouriteAction', () => {
     expect(mockFavouriteDeleteMany).toHaveBeenCalledWith({
       where: { userId: 'user-123', moveId: 'move-1' },
     });
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(result).toEqual({ success: true });
   });
 });

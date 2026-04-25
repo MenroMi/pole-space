@@ -1,5 +1,6 @@
 'use server';
 import bcrypt from 'bcryptjs';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 import { applyPasswordComplexity } from '@/features/auth/lib/validation';
@@ -113,6 +114,8 @@ export async function addFavouriteAction(moveId: string) {
     create: { userId, moveId },
     update: {},
   });
+  revalidatePath('/profile/favourite-moves');
+  revalidatePath('/profile');
   return { success: true as const };
 }
 
@@ -121,6 +124,8 @@ export async function removeFavouriteAction(moveId: string) {
   await prisma.userFavourite.deleteMany({
     where: { userId, moveId },
   });
+  revalidatePath('/profile/favourite-moves');
+  revalidatePath('/profile');
   return { success: true as const };
 }
 

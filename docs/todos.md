@@ -138,6 +138,15 @@
 - Needs: tier thresholds based on mastered moves count and/or difficulty spread (e.g. Beginner → Intermediate → Advanced → Elite)
 - Design decision pending: formula, display name, icon per tier
 
+~~**Favourite Moves gallery**~~ ✅ Resolved (2026-04-25)
+
+- Full redesign: responsive 4-col gallery, client-side search, `useOptimistic` removal
+- AlertDialog confirmation (same pattern as logout), `onCloseAutoFocus` prevents jump
+- `revalidatePath` on add/remove for both `/profile/favourite-moves` and `/profile`
+- Catalog sort fixed: `orderBy: { title: 'asc' }` (was `createdAt: desc`)
+- ProfileAside: Favourite Moves icon changed Star → Heart
+- e2e test cases written (Playwright not installed yet)
+
 **Profile — Elite Member badge stub** (2026-04-24)
 
 - `ProfileHero` always renders the "Elite Member" badge — no membership or achievement check
@@ -219,9 +228,11 @@
 
 ## Database
 
-**`PoleType` on existing moves** (2026-04-24)
+~~**`PoleType` on existing moves**~~ ✅ Resolved (2026-04-25) — `prisma/seed-progress.ts`
 
-- All existing moves have `poleType = NULL` (unclassified) — need to be set via admin UI once admin feature is built
+- Seeded via `seed-progress.ts`: SPIN for all spin-category moves, STATIC for climbs/holds/combos/floorwork
+- Run: `SEED_USER_EMAIL=<email> npx tsx prisma/seed-progress.ts`
+- Script also seeds `UserProgress` (18 records) and `UserFavourite` (5 records) for the given user
 
 **`prisma/schema.prisma` — `UserProgress` relations missing `onDelete: Cascade`**
 

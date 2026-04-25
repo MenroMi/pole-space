@@ -1,5 +1,5 @@
 'use client';
-import { LayoutDashboard, Star, TrendingUp } from 'lucide-react';
+import { Heart, LayoutDashboard, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -19,7 +19,7 @@ const NAV_LINKS = [
   {
     href: '/profile/favourite-moves',
     label: 'Favourite Moves',
-    icon: Star,
+    icon: Heart,
     matches: ['/profile/favourite-moves'],
   },
 ];
