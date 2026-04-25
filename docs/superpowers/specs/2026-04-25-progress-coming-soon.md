@@ -9,7 +9,8 @@ Mark the Progress feature as unavailable until properly implemented.
 ### 1. ProfileAside nav order + disabled Progress
 
 - Order: Overview → Favourite Moves → Progress
-- Progress rendered as `<span>` (not `<Link>`): `opacity-50`, `cursor-not-allowed`, `title="Coming soon"`
+- Progress rendered as `<span>` (not `<Link>`): `opacity-50`, `cursor-not-allowed`, `aria-disabled="true"`
+- Always-visible "Soon" pill badge rendered inside the span (native `title` tooltip not used — invisible without hover delay)
 - No route navigation possible from aside
 
 ### 2. Progress route → redirect
@@ -20,6 +21,6 @@ Mark the Progress feature as unavailable until properly implemented.
 ### 3. ProfileStats grid — blur overlay
 
 - Wrap entire `<section>` grid in a `relative` container
-- Grid gets `blur-sm pointer-events-none select-none`
-- Absolute overlay centered: "Coming soon" label (uppercase, tracked, muted color)
+- Grid gets `blur-sm pointer-events-none select-none aria-hidden="true"` — hides stub data from screen readers
+- Overlay: `<p aria-label="Stats — coming soon">` absolutely positioned, centered, "Coming soon" text
 - Grid stays visible underneath — creates intrigue, easy to remove when feature ships
