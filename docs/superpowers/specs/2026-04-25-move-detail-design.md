@@ -12,7 +12,7 @@ Full move detail page at `/moves/[id]` — currently a stub `<div>Move: {id}</di
 
 ```
 Hero (full-width, ~65vh)
-  └─ image (YouTube thumbnail) → iframe on click (letterbox animation)
+  └─ image (YouTube thumbnail) → iframe on click (zoom+fade animation)
   └─ Play button overlay (centered)
 
 Below hero (max-w-4xl mx-auto, px-6 md:px-12):
@@ -80,7 +80,7 @@ src/features/moves/
   types.ts                                updated MoveDetail
   index.ts                                re-export new components
   components/
-    MoveHero.tsx                          Client — image ↔ iframe with letterbox animation
+    MoveHero.tsx                          Client — image ↔ iframe with zoom+fade animation
     MoveFavouriteButton.tsx               Client — optimistic favourite toggle
     MoveSpecs.tsx                         RSC — specs grid
     MoveBreakdown.tsx                     RSC — numbered steps
@@ -89,11 +89,13 @@ src/features/moves/
 
 ### MoveHero
 
-- Displays YouTube thumbnail as background image (`img.youtube.com/vi/{id}/hqdefault.jpg`)
+- Displays YouTube thumbnail (`imageUrl` or fallback `img.youtube.com/vi/{id}/hqdefault.jpg`)
 - If no valid YouTube URL and no `imageUrl`: renders a placeholder div
 - Play button centered overlay
-- On click: two `<div>` bars (top + bottom, `h-1/2`, `bg-black`) animate in via Tailwind transitions (`translate-y-0 → -translate-y-full` top bar, `→ translate-y-full` bottom bar), simultaneously image crossfades to YouTube iframe (`?autoplay=1`)
-- After animation: bars animate out, iframe is visible
+- Phase machine: `'idle' | 'transitioning' | 'playing'`
+- On click (`idle → transitioning`): thumbnail scales up (`scale-110`), blurs (`blur-sm`), and fades out (`opacity-0`) over 500ms; iframe mounts simultaneously at `opacity-0` and fades in to `opacity-100` over 500ms
+- After 500ms (`transitioning → playing`): thumbnail unmounts, iframe fully visible with autoplay
+- `prefers-reduced-motion`: skips transitioning, jumps directly to `playing`
 
 ### MoveFavouriteButton
 

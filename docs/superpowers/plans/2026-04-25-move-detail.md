@@ -4,7 +4,7 @@
 
 **Goal:** Build a full `/moves/[id]` detail page with cinematic video hero, specs grid, description, tabbed breakdown, and optimistic favourite toggle.
 
-**Architecture:** RSC page fetches move + session in parallel; two Client islands handle interactivity (`MoveHero` for letterbox video animation, `MoveFavouriteButton` for optimistic favourite). All other components are server-rendered. TDD throughout.
+**Architecture:** RSC page fetches move + session in parallel; two Client islands handle interactivity (`MoveHero` for zoom+fade video animation, `MoveFavouriteButton` for optimistic favourite). All other components are server-rendered. TDD throughout.
 
 **Tech Stack:** Next.js App Router, Prisma 7, Vitest + Testing Library, Tailwind v4, Lucide icons, `next/image`, `useOptimistic`, `useTransition`.
 
@@ -635,7 +635,7 @@ git commit -m "feat(moves): add MoveTabs component with coming soon placeholders
 
 - Create: `src/features/moves/components/MoveHero.tsx`
 
-No unit tests — the letterbox animation requires real timers and DOM transitions; visual testing is done manually.
+No unit tests — animation requires real timers and DOM transitions; visual testing is done manually.
 
 - [ ] **Step 1: Create MoveHero**
 
@@ -645,9 +645,9 @@ Create `src/features/moves/components/MoveHero.tsx`:
 'use client';
 import { Play } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-type Phase = 'idle' | 'entering' | 'playing';
+type Phase = 'idle' | 'transitioning' | 'playing';
 
 type MoveHeroProps = {
   title: string;
@@ -656,25 +656,39 @@ type MoveHeroProps = {
 };
 
 function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 }
 
 export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const videoId = extractVideoId(youtubeUrl);
   const thumbnail =
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
   function handlePlay() {
-    if (!videoId) return;
-    setPhase('entering');
-    setTimeout(() => setPhase('playing'), 600);
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      setPhase('playing');
+    } else {
+      setPhase('transitioning');
+      timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
+    }
   }
 
   return (
     <div className="relative h-[65vh] w-full overflow-hidden bg-black">
-      {/* Thumbnail / placeholder */}
+      {/* Thumbnail — zoom+blur+fade during transitioning */}
       {phase !== 'playing' &&
         (thumbnail ? (
           <Image
@@ -682,40 +696,30 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
             alt={title}
             fill
             priority
-            className={`object-cover transition-opacity duration-500 ${
-              phase === 'entering' ? 'opacity-0' : 'opacity-80'
+            className={`object-cover transition-all duration-500 ${
+              phase === 'transitioning'
+                ? 'scale-110 opacity-0 blur-sm'
+                : 'scale-100 opacity-80 blur-none'
             }`}
           />
         ) : (
           <div className="absolute inset-0 bg-surface-container" />
         ))}
 
-      {/* YouTube iframe */}
-      {phase === 'playing' && videoId && (
+      {/* iframe — mounts at transitioning (opacity-0), fades in to playing */}
+      {phase !== 'idle' && videoId && (
         <iframe
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title={title}
-          className="absolute inset-0 h-full w-full border-0"
-          allow="autoplay; fullscreen"
+          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
+            phase === 'transitioning' ? 'opacity-0' : 'opacity-100'
+          }`}
+          allow="autoplay; encrypted-media; fullscreen"
           allowFullScreen
         />
       )}
 
-      {/* Letterbox bars — B animation */}
-      <div
-        aria-hidden="true"
-        className={`absolute top-0 left-0 h-1/2 w-full bg-black transition-transform duration-500 ease-in-out ${
-          phase === 'entering' ? 'translate-y-0' : '-translate-y-full'
-        }`}
-      />
-      <div
-        aria-hidden="true"
-        className={`absolute bottom-0 left-0 h-1/2 w-full bg-black transition-transform duration-500 ease-in-out ${
-          phase === 'entering' ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      />
-
-      {/* Play button */}
+      {/* Play button — visible only in idle */}
       {phase === 'idle' && videoId && (
         <button
           type="button"
@@ -743,7 +747,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
 
 ```bash
 git add src/features/moves/components/MoveHero.tsx
-git commit -m "feat(moves): add MoveHero with letterbox video animation"
+git commit -m "feat(moves): add MoveHero with zoom+fade video animation"
 ```
 
 ---
