@@ -12,7 +12,7 @@ type MoveHeroProps = {
 };
 
 function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 }
 
@@ -23,9 +23,16 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
 
   function handlePlay() {
-    if (!videoId) return;
-    setPhase('entering');
-    setTimeout(() => setPhase('playing'), 600);
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      setPhase('playing');
+    } else {
+      setPhase('entering');
+      setTimeout(() => setPhase('playing'), 600);
+    }
   }
 
   return (
@@ -52,22 +59,31 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title={title}
           className="absolute inset-0 h-full w-full border-0"
-          allow="autoplay; fullscreen"
+          allow="autoplay; encrypted-media; fullscreen"
           allowFullScreen
         />
       )}
 
-      {/* Letterbox bars */}
+      {/* Top letterbox bar */}
       <div
         aria-hidden="true"
-        className={`absolute top-0 left-0 h-1/2 w-full bg-black transition-transform duration-500 ease-in-out ${
-          phase === 'entering' ? 'translate-y-0' : '-translate-y-full'
+        className={`absolute top-0 left-0 h-1/2 w-full bg-black ${
+          phase === 'playing'
+            ? 'hidden'
+            : `transition-transform duration-500 ease-in-out ${
+                phase === 'entering' ? 'translate-y-0' : '-translate-y-full'
+              }`
         }`}
       />
+      {/* Bottom letterbox bar */}
       <div
         aria-hidden="true"
-        className={`absolute bottom-0 left-0 h-1/2 w-full bg-black transition-transform duration-500 ease-in-out ${
-          phase === 'entering' ? 'translate-y-0' : 'translate-y-full'
+        className={`absolute bottom-0 left-0 h-1/2 w-full bg-black ${
+          phase === 'playing'
+            ? 'hidden'
+            : `transition-transform duration-500 ease-in-out ${
+                phase === 'entering' ? 'translate-y-0' : 'translate-y-full'
+              }`
         }`}
       />
 
