@@ -2,10 +2,16 @@ export default function MoveBreakdown({ steps }: { steps: string[] }) {
   if (steps.length === 0) return null;
 
   return (
-    <div className="bg-surface-container-low rounded-xl p-8">
-      <h3 className="mb-6 font-display text-xl text-primary">Breakdown</h3>
+    <section
+      aria-labelledby="breakdown-heading"
+      className="bg-surface-container-low rounded-xl p-8"
+    >
+      <h3 id="breakdown-heading" className="mb-6 font-display text-xl text-primary">
+        Breakdown
+      </h3>
       <div className="space-y-6">
         {steps.map((step, index) => (
+          // stable display-only list — index key is safe
           <div
             key={index}
             className="group hover:bg-surface-container-highest -mx-4 flex gap-6 rounded-lg p-4 transition-colors"
@@ -17,6 +23,6 @@ export default function MoveBreakdown({ steps }: { steps: string[] }) {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
