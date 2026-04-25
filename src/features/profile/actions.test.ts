@@ -291,6 +291,7 @@ describe('addFavouriteAction', () => {
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
     expect(result).toEqual({ success: true });
   });
 });
@@ -310,6 +311,7 @@ describe('removeFavouriteAction', () => {
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/favourite-moves');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
     expect(result).toEqual({ success: true });
   });
 });
