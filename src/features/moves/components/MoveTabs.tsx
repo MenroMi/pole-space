@@ -20,8 +20,11 @@ export default function MoveTabs({ steps }: { steps: string[] }) {
         {TABS.map(({ id, label }) => (
           <button
             key={id}
+            id={`tab-${id}`}
             role="tab"
             aria-selected={active === id}
+            aria-controls="move-tabpanel"
+            tabIndex={active === id ? 0 : -1}
             onClick={() => setActive(id)}
             className={`relative font-display text-lg tracking-wide uppercase transition-colors ${
               active === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
@@ -38,7 +41,7 @@ export default function MoveTabs({ steps }: { steps: string[] }) {
         ))}
       </div>
 
-      <div role="tabpanel">
+      <div id="move-tabpanel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0}>
         {active === 'breakdown' && <MoveBreakdown steps={steps} />}
         {(active === 'muscles' || active === 'safety') && (
           <p className="py-12 text-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase">

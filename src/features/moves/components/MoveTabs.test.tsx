@@ -14,6 +14,9 @@ describe('MoveTabs', () => {
   it('shows Breakdown tab content by default', () => {
     render(<MoveTabs steps={['Step one']} />);
     expect(screen.getByText('Step one')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Breakdown' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Muscles' })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('tab', { name: 'Safety' })).toHaveAttribute('aria-selected', 'false');
   });
 
   it('switches to Muscles coming soon on click', async () => {
@@ -21,6 +24,11 @@ describe('MoveTabs', () => {
     render(<MoveTabs steps={[]} />);
     await user.click(screen.getByRole('tab', { name: 'Muscles' }));
     expect(screen.getAllByText('Coming soon')).toHaveLength(1);
+    expect(screen.getByRole('tab', { name: 'Muscles' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Breakdown' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
   });
 
   it('switches to Safety coming soon on click', async () => {
@@ -28,5 +36,15 @@ describe('MoveTabs', () => {
     render(<MoveTabs steps={[]} />);
     await user.click(screen.getByRole('tab', { name: 'Safety' }));
     expect(screen.getAllByText('Coming soon')).toHaveLength(1);
+    expect(screen.getByRole('tab', { name: 'Safety' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Breakdown' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
+  });
+
+  it('renders the tabpanel even when steps is empty', () => {
+    render(<MoveTabs steps={[]} />);
+    expect(screen.getByRole('tabpanel')).toBeInTheDocument();
   });
 });
