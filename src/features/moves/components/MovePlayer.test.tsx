@@ -1,6 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+const scrollToMock = vi.fn();
+vi.stubGlobal('scrollTo', scrollToMock);
 
 import type { StepItem } from '../types';
 
@@ -28,6 +31,8 @@ const baseProps = {
 };
 
 describe('MovePlayer', () => {
+  beforeEach(() => scrollToMock.mockClear());
+
   it('renders MoveHero and MoveTabs', () => {
     render(<MovePlayer {...baseProps}>content</MovePlayer>);
     expect(screen.getByTestId('move-hero')).toBeInTheDocument();
@@ -53,5 +58,12 @@ describe('MovePlayer', () => {
     render(<MovePlayer {...baseProps}>content</MovePlayer>);
     await user.click(screen.getByRole('button', { name: 'seek' }));
     expect(screen.getByTestId('move-hero')).toHaveAttribute('data-seek-to', '45');
+  });
+
+  it('scrolls to top when onSeek is called', async () => {
+    const user = userEvent.setup();
+    render(<MovePlayer {...baseProps}>content</MovePlayer>);
+    await user.click(screen.getByRole('button', { name: 'seek' }));
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 });
