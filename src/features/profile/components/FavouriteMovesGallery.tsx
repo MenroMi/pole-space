@@ -30,6 +30,11 @@ function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function extractVideoId(url: string): string | null {
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
 function MovePlaceholder() {
   return (
     <div className="to-surface-container-highest flex h-full w-full items-center justify-center bg-linear-to-br from-surface-container">
@@ -173,16 +178,22 @@ export default function FavouriteMovesGallery({
                 >
                   {/* Image */}
                   <div className="relative aspect-[4/5] overflow-hidden">
-                    {fav.move.imageUrl ? (
-                      <Image
-                        src={fav.move.imageUrl}
-                        alt={fav.move.title}
-                        fill
-                        className="object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
-                      />
-                    ) : (
-                      <MovePlaceholder />
-                    )}
+                    {(() => {
+                      const videoId = extractVideoId(fav.move.youtubeUrl);
+                      const src =
+                        fav.move.imageUrl ??
+                        (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+                      return src ? (
+                        <Image
+                          src={src}
+                          alt={fav.move.title}
+                          fill
+                          className="object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+                        />
+                      ) : (
+                        <MovePlaceholder />
+                      );
+                    })()}
 
                     {/* Top overlay */}
                     <div className="absolute inset-x-0 top-0 flex items-start justify-between bg-linear-to-b from-surface/80 to-transparent p-4">
