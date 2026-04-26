@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { StepItem } from '../types';
 
@@ -22,6 +22,13 @@ export default function MovePlayer({
   children,
 }: MovePlayerProps) {
   const [seekRequest, setSeekRequest] = useState<{ seconds: number } | null>(null);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+    };
+  }, []);
 
   function handleSeek(seconds: number) {
     const request = { seconds };
@@ -29,7 +36,7 @@ export default function MovePlayer({
       setSeekRequest(request);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => setSeekRequest(request), 400);
+      scrollTimerRef.current = setTimeout(() => setSeekRequest(request), 400);
     }
   }
 

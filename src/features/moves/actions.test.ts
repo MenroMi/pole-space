@@ -69,6 +69,7 @@ describe('getMoveByIdAction', () => {
         'string entry',
         42,
         { text: 'Another valid', timestamp: 5 },
+        { text: 'String timestamp', timestamp: 'not-a-number' },
       ],
     });
     const result = await getMoveByIdAction('move-1');

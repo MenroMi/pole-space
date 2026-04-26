@@ -16,7 +16,11 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
     : [];
 
   const stepsData = (Array.isArray(move.stepsData) ? move.stepsData : []).filter(
-    (s): s is StepItem => typeof s === 'object' && s !== null && typeof s.text === 'string',
+    (s): s is StepItem =>
+      typeof s === 'object' &&
+      s !== null &&
+      typeof s.text === 'string' &&
+      (s.timestamp === undefined || typeof s.timestamp === 'number'),
   );
 
   return { ...move, favourites, stepsData };

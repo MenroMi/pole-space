@@ -73,4 +73,20 @@ describe('MoveTabs', () => {
     await user.click(screen.getByRole('button', { name: 'trigger seek' }));
     expect(onSeek).toHaveBeenCalledWith(30);
   });
+
+  it('navigates to next tab with ArrowRight', async () => {
+    const user = userEvent.setup();
+    render(<MoveTabs stepsData={[]} onSeek={noop} />);
+    screen.getByRole('tab', { name: 'Breakdown' }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('tab', { name: 'Muscles' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('wraps around to last tab with ArrowLeft from first', async () => {
+    const user = userEvent.setup();
+    render(<MoveTabs stepsData={[]} onSeek={noop} />);
+    screen.getByRole('tab', { name: 'Breakdown' }).focus();
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('tab', { name: 'Safety' })).toHaveAttribute('aria-selected', 'true');
+  });
 });

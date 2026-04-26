@@ -49,7 +49,6 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
       setIframeKey((k) => k + 1);
     } else if (currentPhase === 'idle') {
       setStartAt(seconds);
-      setIframeKey((k) => k + 1);
       const prefersReduced =
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
