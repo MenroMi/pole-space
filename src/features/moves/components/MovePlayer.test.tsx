@@ -8,8 +8,8 @@ vi.stubGlobal('scrollTo', scrollToMock);
 import type { StepItem } from '../types';
 
 vi.mock('./MoveHero', () => ({
-  default: vi.fn(({ seekTo }: { seekTo?: number }) => (
-    <div data-testid="move-hero" data-seek-to={seekTo ?? ''} />
+  default: vi.fn(({ seekRequest }: { seekRequest?: { seconds: number } }) => (
+    <div data-testid="move-hero" data-seek-to={seekRequest?.seconds ?? ''} />
   )),
 }));
 

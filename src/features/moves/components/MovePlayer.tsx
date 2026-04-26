@@ -21,14 +21,15 @@ export default function MovePlayer({
   stepsData,
   children,
 }: MovePlayerProps) {
-  const [seekTo, setSeekTo] = useState<number | null>(null);
+  const [seekRequest, setSeekRequest] = useState<{ seconds: number } | null>(null);
 
   function handleSeek(seconds: number) {
+    const request = { seconds };
     if (window.scrollY === 0) {
-      setSeekTo(seconds);
+      setSeekRequest(request);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => setSeekTo(seconds), 400);
+      setTimeout(() => setSeekRequest(request), 400);
     }
   }
 
@@ -38,7 +39,7 @@ export default function MovePlayer({
         title={title}
         youtubeUrl={youtubeUrl}
         imageUrl={imageUrl}
-        seekTo={seekTo ?? undefined}
+        seekRequest={seekRequest ?? undefined}
       />
       <div className="mx-auto max-w-4xl space-y-10 px-6 py-10 md:px-12">
         {children}

@@ -9,7 +9,7 @@ type MoveHeroProps = {
   title: string;
   youtubeUrl: string;
   imageUrl: string | null;
-  seekTo?: number;
+  seekRequest?: { seconds: number };
 };
 
 function extractVideoId(url: string): string | null {
@@ -17,7 +17,7 @@ function extractVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHeroProps) {
+export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [startAt, setStartAt] = useState<number | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -26,7 +26,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
   const thumbnail =
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
 
-  // Keep phaseRef in sync so the seekTo effect always reads current phase
+  // Keep phaseRef in sync so the seek effect always reads current phase
   useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
@@ -38,19 +38,20 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
     };
   }, []);
 
-  // Handle seek requests
+  // Handle seek requests — object reference changes on every seek, even to the same timestamp
   useEffect(() => {
-    if (seekTo == null || !videoId) return;
+    if (seekRequest == null || !videoId) return;
+    const { seconds } = seekRequest;
     const currentPhase = phaseRef.current;
     if (currentPhase === 'playing') {
-      setStartAt(seekTo);
+      setStartAt(seconds);
     } else if (currentPhase === 'idle') {
-      setStartAt(seekTo);
+      setStartAt(seconds);
       const prefersReduced =
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: responding to external seekTo prop, not deriving state from state
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: responding to external prop, not deriving state from state
         setPhase('playing');
       } else {
         setPhase('transitioning');
@@ -58,7 +59,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
       }
     }
     // 'transitioning': ignore — animation already in progress
-  }, [seekTo, videoId]);
+  }, [seekRequest, videoId]);
 
   function handlePlay() {
     const prefersReduced =
