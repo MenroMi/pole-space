@@ -1,6 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+vi.mock('./MoveBreakdown', () => ({
+  default: vi.fn(
+    ({ stepsData, onSeek }: { stepsData: { text: string }[]; onSeek: (s: number) => void }) => (
+      <>
+        {stepsData.map((s, i) => (
+          <span key={i}>{s.text}</span>
+        ))}
+        <button type="button" onClick={() => onSeek(30)}>
+          trigger seek
+        </button>
+      </>
+    ),
+  ),
+}));
+
 import MoveTabs from './MoveTabs';
 
 const noop = () => {};
@@ -25,7 +41,7 @@ describe('MoveTabs', () => {
     const user = userEvent.setup();
     render(<MoveTabs stepsData={[]} onSeek={noop} />);
     await user.click(screen.getByRole('tab', { name: 'Muscles' }));
-    expect(screen.getAllByText('Coming soon')).toHaveLength(1);
+    expect(screen.getByText('Coming soon')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Muscles' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Breakdown' })).toHaveAttribute(
       'aria-selected',
@@ -37,7 +53,7 @@ describe('MoveTabs', () => {
     const user = userEvent.setup();
     render(<MoveTabs stepsData={[]} onSeek={noop} />);
     await user.click(screen.getByRole('tab', { name: 'Safety' }));
-    expect(screen.getAllByText('Coming soon')).toHaveLength(1);
+    expect(screen.getByText('Coming soon')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Safety' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Breakdown' })).toHaveAttribute(
       'aria-selected',
@@ -48,5 +64,13 @@ describe('MoveTabs', () => {
   it('renders the tabpanel even when stepsData is empty', () => {
     render(<MoveTabs stepsData={[]} onSeek={noop} />);
     expect(screen.getByRole('tabpanel')).toBeInTheDocument();
+  });
+
+  it('forwards onSeek to MoveBreakdown', async () => {
+    const user = userEvent.setup();
+    const onSeek = vi.fn();
+    render(<MoveTabs stepsData={[{ text: 'step' }]} onSeek={onSeek} />);
+    await user.click(screen.getByRole('button', { name: 'trigger seek' }));
+    expect(onSeek).toHaveBeenCalledWith(30);
   });
 });

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 import type { StepItem } from '../types';
 
@@ -24,7 +24,7 @@ export default function MoveTabs({
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const activeIndex = TABS.findIndex((t) => t.id === active);
     const el = tabRefs.current[activeIndex];
     if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
@@ -48,6 +48,19 @@ export default function MoveTabs({
             aria-controls="move-tabpanel"
             tabIndex={active === id ? 0 : -1}
             onClick={() => setActive(id)}
+            onKeyDown={(e) => {
+              const count = TABS.length;
+              const activeIndex = TABS.findIndex((t) => t.id === active);
+              if (e.key === 'ArrowRight') {
+                const nextIndex = (activeIndex + 1) % count;
+                setActive(TABS[nextIndex].id);
+                tabRefs.current[nextIndex]?.focus();
+              } else if (e.key === 'ArrowLeft') {
+                const prevIndex = (activeIndex - 1 + count) % count;
+                setActive(TABS[prevIndex].id);
+                tabRefs.current[prevIndex]?.focus();
+              }
+            }}
             className={`font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
               active === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
