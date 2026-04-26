@@ -2,13 +2,7 @@ import type { Difficulty } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import type { CSSProperties } from 'react';
 
-import {
-  getMoveByIdAction,
-  MoveHero,
-  MoveFavouriteButton,
-  MoveSpecs,
-  MoveTabs,
-} from '@/features/moves';
+import { getMoveByIdAction, MovePlayer, MoveFavouriteButton, MoveSpecs } from '@/features/moves';
 import { auth } from '@/shared/lib/auth';
 
 const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSProperties }> = {
@@ -35,9 +29,12 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <main>
-      <MoveHero title={move.title} youtubeUrl={move.youtubeUrl} imageUrl={move.imageUrl} />
-
-      <div className="mx-auto max-w-4xl space-y-10 px-6 py-10 md:px-12">
+      <MovePlayer
+        title={move.title}
+        youtubeUrl={move.youtubeUrl}
+        imageUrl={move.imageUrl}
+        stepsData={move.stepsData}
+      >
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="mb-4 font-display text-5xl font-bold tracking-tighter text-on-surface lowercase md:text-7xl">
@@ -76,9 +73,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
             {move.description}
           </p>
         )}
-
-        <MoveTabs steps={move.steps} />
-      </div>
+      </MovePlayer>
     </main>
   );
 }
