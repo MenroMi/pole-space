@@ -136,6 +136,12 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
         </button>
       )}
 
+      {/* Top gradient */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background to-transparent"
+      />
+
       {/* Bottom gradient */}
       <div
         aria-hidden="true"
