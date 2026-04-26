@@ -52,4 +52,29 @@ describe('getMoveByIdAction', () => {
     const result = await getMoveByIdAction('move-1');
     expect(result?.stepsData).toEqual([{ text: 'Grip the pole', timestamp: 10 }]);
   });
+
+  it('returns empty stepsData when DB value is not an array', async () => {
+    mockFindUnique.mockResolvedValue({ ...move, stepsData: null });
+    const result = await getMoveByIdAction('move-1');
+    expect(result?.stepsData).toEqual([]);
+  });
+
+  it('filters out invalid entries from stepsData', async () => {
+    mockFindUnique.mockResolvedValue({
+      ...move,
+      stepsData: [
+        { text: 'Valid step' },
+        { timestamp: 10 },
+        null,
+        'string entry',
+        42,
+        { text: 'Another valid', timestamp: 5 },
+      ],
+    });
+    const result = await getMoveByIdAction('move-1');
+    expect(result?.stepsData).toEqual([
+      { text: 'Valid step' },
+      { text: 'Another valid', timestamp: 5 },
+    ]);
+  });
 });

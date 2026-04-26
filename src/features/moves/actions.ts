@@ -15,5 +15,9 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
     ? await prisma.userFavourite.findMany({ where: { userId, moveId: id } })
     : [];
 
-  return { ...move, favourites, stepsData: move.stepsData as StepItem[] };
+  const stepsData = (Array.isArray(move.stepsData) ? move.stepsData : []).filter(
+    (s): s is StepItem => typeof s === 'object' && s !== null && typeof s.text === 'string',
+  );
+
+  return { ...move, favourites, stepsData };
 }
