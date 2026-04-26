@@ -12,26 +12,27 @@
 
 ## File Map
 
-| Action | File |
-|--------|------|
-| Modify | `prisma/schema.prisma` |
-| Modify | `src/features/profile/actions.ts` |
-| Modify | `src/features/profile/actions.test.ts` |
-| Modify | `src/features/profile/types.ts` |
-| Modify | `src/features/profile/components/ProfileAside.tsx` |
-| Modify | `src/features/profile/components/ProfileOverview.tsx` |
-| Modify | `src/features/profile/components/SettingsForm.tsx` |
+| Action | File                                                    |
+| ------ | ------------------------------------------------------- |
+| Modify | `prisma/schema.prisma`                                  |
+| Modify | `src/features/profile/actions.ts`                       |
+| Modify | `src/features/profile/actions.test.ts`                  |
+| Modify | `src/features/profile/types.ts`                         |
+| Modify | `src/features/profile/components/ProfileAside.tsx`      |
+| Modify | `src/features/profile/components/ProfileOverview.tsx`   |
+| Modify | `src/features/profile/components/SettingsForm.tsx`      |
 | Modify | `src/features/profile/components/SettingsForm.test.tsx` |
-| Modify | `src/app/(main)/profile/settings/page.tsx` |
-| Create | `src/features/profile/components/ProfileHero.tsx` |
-| Create | `src/features/profile/components/ProfileStats.tsx` |
-| Modify | `docs/todos.md` |
+| Modify | `src/app/(main)/profile/settings/page.tsx`              |
+| Create | `src/features/profile/components/ProfileHero.tsx`       |
+| Create | `src/features/profile/components/ProfileStats.tsx`      |
+| Modify | `docs/todos.md`                                         |
 
 ---
 
 ### Task 1: DB — add `location` field to User
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 
 - [ ] **Step 1: Add `location String?` to User model**
@@ -87,10 +88,12 @@ git commit -m "feat(db): add location field to User model"
 ### Task 2: Server actions — `getProfileUserAction`, `getProfileStatsAction`, extend `updateProfileAction`
 
 **Files:**
+
 - Modify: `src/features/profile/actions.ts`
 - Modify: `src/features/profile/actions.test.ts`
 
 **Context:**
+
 - `LearnStatus.LEARNED` = "Mastered" (no MASTERED status exists in the enum)
 - `getProfileStatsAction` uses `prisma.userProgress.count` and `prisma.userFavourite.count` — the test mock needs both
 - `updateProfileAction` currently only accepts `{ name }` — extend to accept optional `location`
@@ -222,16 +225,16 @@ describe('getProfileUserAction', () => {
 Add in `actions.test.ts`, inside the existing `describe('updateProfileAction')` block, after the last `it`:
 
 ```ts
-  it('updates name and location when location is provided', async () => {
-    mockAuth.mockResolvedValue(session);
-    mockUserUpdate.mockResolvedValue({ id: 'user-123' });
-    const result = await updateProfileAction({ name: 'Alice Pole', location: 'Warsaw, PL' });
-    expect(mockUserUpdate).toHaveBeenCalledWith({
-      where: { id: 'user-123' },
-      data: { name: 'Alice Pole', location: 'Warsaw, PL' },
-    });
-    expect(result).toEqual({ success: true });
+it('updates name and location when location is provided', async () => {
+  mockAuth.mockResolvedValue(session);
+  mockUserUpdate.mockResolvedValue({ id: 'user-123' });
+  const result = await updateProfileAction({ name: 'Alice Pole', location: 'Warsaw, PL' });
+  expect(mockUserUpdate).toHaveBeenCalledWith({
+    where: { id: 'user-123' },
+    data: { name: 'Alice Pole', location: 'Warsaw, PL' },
   });
+  expect(result).toEqual({ success: true });
+});
 ```
 
 - [ ] **Step 7: Run tests — verify they fail**
@@ -310,6 +313,7 @@ git commit -m "feat(profile): add getProfileUserAction, getProfileStatsAction; e
 ### Task 3: Redesign `ProfileAside`
 
 **Files:**
+
 - Modify: `src/features/profile/components/ProfileAside.tsx`
 
 **Context:** Remove avatar/name block. Remove Settings link. Add Lucide icons. Keep active-state color scheme (`bg-primary-container text-on-surface`) — it already matches the design's purple highlight. The `PageShell` gives the aside `bg-surface-low` background which matches the design's dark sidebar.
@@ -396,6 +400,7 @@ git commit -m "feat(profile): redesign ProfileAside — icons, remove avatar, re
 ### Task 4: Create `ProfileHero`
 
 **Files:**
+
 - Create: `src/features/profile/components/ProfileHero.tsx`
 
 **Context:** Server Component. Receives user data as props (fetched by ProfileOverview). Avatar: if `image` exists → `next/image`, else → Lucide `User` icon in a styled placeholder. Location + join date shown as `"Los Angeles, CA • Joined 2021"` (or just `"Joined 2021"` if no location). ELITE MEMBER badge is a visual stub. Share button is decorative (no action). Edit Profile button → `/profile/settings`.
@@ -440,7 +445,7 @@ export default function ProfileHero({ name, image, location, createdAt }: Profil
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-primary-container/40 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-primary">
+              <span className="rounded-full bg-primary-container/40 px-2 py-0.5 text-xs font-medium tracking-wide text-primary uppercase">
                 Elite Member
               </span>
             </div>
@@ -492,6 +497,7 @@ git commit -m "feat(profile): add ProfileHero component"
 ### Task 5: Create `ProfileStats`
 
 **Files:**
+
 - Create: `src/features/profile/components/ProfileStats.tsx`
 
 **Context:** Server Component. Receives `masteredCount` and `favouritesCount` as props. Current Streak and Skill Tier are stubs displaying `"—"`. Four cards in a 2-col (mobile) / 4-col (md+) grid.
@@ -517,7 +523,7 @@ function StatCard({ icon, value, label }: StatCardProps) {
     <div className="flex flex-col gap-2 rounded-xl bg-surface-container p-4">
       <div className="text-on-surface-variant">{icon}</div>
       <p className="font-display text-2xl font-bold text-on-surface">{value}</p>
-      <p className="text-xs uppercase tracking-wide text-on-surface-variant">{label}</p>
+      <p className="text-xs tracking-wide text-on-surface-variant uppercase">{label}</p>
     </div>
   );
 }
@@ -535,16 +541,8 @@ export default function ProfileStats({ masteredCount, favouritesCount }: Profile
         value={favouritesCount}
         label="Favorites"
       />
-      <StatCard
-        icon={<Flame size={20} aria-hidden="true" />}
-        value="—"
-        label="Current Streak"
-      />
-      <StatCard
-        icon={<Award size={20} aria-hidden="true" />}
-        value="—"
-        label="Skill Tier"
-      />
+      <StatCard icon={<Flame size={20} aria-hidden="true" />} value="—" label="Current Streak" />
+      <StatCard icon={<Award size={20} aria-hidden="true" />} value="—" label="Skill Tier" />
     </div>
   );
 }
@@ -570,6 +568,7 @@ git commit -m "feat(profile): add ProfileStats component (mastered + favourites 
 ### Task 6: Rebuild `ProfileOverview`
 
 **Files:**
+
 - Modify: `src/features/profile/components/ProfileOverview.tsx`
 
 **Context:** Becomes an async Server Component. Fetches user and stats in parallel via `Promise.all`. Renders `ProfileHero` + `ProfileStats`. Replaces the old `ProgressWidget` + `FavouritesWidget` grid.
@@ -592,10 +591,7 @@ export default async function ProfileOverview() {
         location={user?.location ?? null}
         createdAt={user?.createdAt ?? new Date()}
       />
-      <ProfileStats
-        masteredCount={stats.masteredCount}
-        favouritesCount={stats.favouritesCount}
-      />
+      <ProfileStats masteredCount={stats.masteredCount} favouritesCount={stats.favouritesCount} />
     </div>
   );
 }
@@ -629,6 +625,7 @@ git commit -m "feat(profile): rebuild ProfileOverview with ProfileHero + Profile
 ### Task 7: Update `SettingsForm` + `SettingsPage` for location
 
 **Files:**
+
 - Modify: `src/features/profile/components/SettingsForm.tsx`
 - Modify: `src/features/profile/components/SettingsForm.test.tsx`
 - Modify: `src/app/(main)/profile/settings/page.tsx`
@@ -650,21 +647,21 @@ Update every call `profileNameSchema.safeParse(...)` → `profileSchema.safePars
 Add location tests inside `describe('profileSchema')`:
 
 ```ts
-  it('accepts valid name with no location', () => {
-    const result = profileSchema.safeParse({ name: 'Alice' });
-    expect(result.success).toBe(true);
-  });
+it('accepts valid name with no location', () => {
+  const result = profileSchema.safeParse({ name: 'Alice' });
+  expect(result.success).toBe(true);
+});
 
-  it('accepts valid name with location', () => {
-    const result = profileSchema.safeParse({ name: 'Alice', location: 'Warsaw, PL' });
-    expect(result.success).toBe(true);
-    expect(result.data?.location).toBe('Warsaw, PL');
-  });
+it('accepts valid name with location', () => {
+  const result = profileSchema.safeParse({ name: 'Alice', location: 'Warsaw, PL' });
+  expect(result.success).toBe(true);
+  expect(result.data?.location).toBe('Warsaw, PL');
+});
 
-  it('rejects location longer than 100 characters', () => {
-    const result = profileSchema.safeParse({ name: 'Alice', location: 'A'.repeat(101) });
-    expect(result.success).toBe(false);
-  });
+it('rejects location longer than 100 characters', () => {
+  const result = profileSchema.safeParse({ name: 'Alice', location: 'A'.repeat(101) });
+  expect(result.success).toBe(false);
+});
 ```
 
 - [ ] **Step 2: Run tests — verify they fail (schema not renamed yet)**
@@ -742,9 +739,7 @@ async function handleProfileSubmit(values: ProfileValues) {
     aria-label="Location"
   />
   {profileForm.formState.errors.location && (
-    <p className="text-sm text-destructive">
-      {profileForm.formState.errors.location.message}
-    </p>
+    <p className="text-sm text-destructive">{profileForm.formState.errors.location.message}</p>
   )}
 </div>
 ```
@@ -808,6 +803,7 @@ git commit -m "feat(profile): add location field to SettingsForm and settings pa
 ### Task 8: Tech debt — update `docs/todos.md`
 
 **Files:**
+
 - Modify: `docs/todos.md`
 
 - [ ] **Step 1: Add tech debt entries**
@@ -818,14 +814,17 @@ Add a new section `## Profile` (or append to existing) in `docs/todos.md`:
 ## Profile
 
 ### Current Streak stat ⚠️ stub
+
 - `ProfileStats` displays "—" for Current Streak
 - Needs: streak calculation based on consecutive days of UserProgress updates (requires `updatedAt` or a dedicated `activityDate` log table)
 
 ### Skill Tier stat ⚠️ stub
+
 - `ProfileStats` displays "—" for Skill Tier
 - Suggested: derive from LEARNED count (e.g. 0–5 → Beginner, 6–20 → Intermediate, 21+ → Advanced)
 
 ### Elite Member badge ⚠️ stub
+
 - `ProfileHero` always renders "Elite Member" badge
 - Needs: membership/tier system on User model, or remove badge entirely
 ```
