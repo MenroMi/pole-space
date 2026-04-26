@@ -50,7 +50,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: responding to external seekTo prop, not deriving state from state
         setPhase('playing');
       } else {
         setPhase('transitioning');
