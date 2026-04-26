@@ -1,5 +1,5 @@
 export { getMoveByIdAction } from './actions';
-export type { MoveDetail } from './types';
+export type { MoveDetail, StepItem } from './types';
 export { default as MoveHero } from './components/MoveHero';
 export { default as MovePlayer } from './components/MovePlayer';
 export { default as MoveFavouriteButton } from './components/MoveFavouriteButton';

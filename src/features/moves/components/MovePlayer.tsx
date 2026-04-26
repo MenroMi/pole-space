@@ -36,6 +36,7 @@ export default function MovePlayer({
       setSeekRequest(request);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      // 400ms matches the browser's smooth-scroll animation duration
       scrollTimerRef.current = setTimeout(() => setSeekRequest(request), 400);
     }
   }
