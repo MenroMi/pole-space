@@ -17,15 +17,21 @@ function extractVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+// YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
+const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
+
 export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [startAt, setStartAt] = useState<number | null>(null);
   const [iframeKey, setIframeKey] = useState(0);
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>('idle');
   const videoId = extractVideoId(youtubeUrl);
   const thumbnail =
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+  // If the thumbnail is derived from YouTube and failed, the video is likely unavailable too
+  const hasVideo = !!videoId && !thumbnailFailed;
 
   // Keep phaseRef in sync so the seek effect always reads current phase
   useEffect(() => {
@@ -41,7 +47,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
 
   // Handle seek requests — object reference changes on every seek, even to the same timestamp
   useEffect(() => {
-    if (seekRequest == null || !videoId) return;
+    if (seekRequest == null || !hasVideo) return;
     const { seconds } = seekRequest;
     const currentPhase = phaseRef.current;
     if (currentPhase === 'playing') {
@@ -61,7 +67,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
       }
     }
     // 'transitioning': ignore — animation already in progress
-  }, [seekRequest, videoId]);
+  }, [seekRequest, hasVideo]);
 
   function handlePlay() {
     const prefersReduced =
@@ -81,7 +87,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
     <div className="relative h-[65vh] w-full overflow-hidden bg-black">
       {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
       {phase !== 'playing' &&
-        (thumbnail ? (
+        (thumbnail && !thumbnailFailed ? (
           <Image
             src={thumbnail}
             alt={title}
@@ -92,13 +98,18 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
                 ? 'scale-110 opacity-0 blur-sm'
                 : 'scale-100 opacity-80 blur-none'
             }`}
+            onLoad={(e) => {
+              if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH)
+                setThumbnailFailed(true);
+            }}
+            onError={() => setThumbnailFailed(true)}
           />
         ) : (
           <div className="absolute inset-0 bg-surface-container" />
         ))}
 
       {/* iframe — mounts during transitioning (opacity-0), fades in, stays for playing */}
-      {phase !== 'idle' && videoId && (
+      {phase !== 'idle' && hasVideo && (
         <iframe
           key={iframeKey}
           src={iframeSrc}
@@ -112,7 +123,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
       )}
 
       {/* Play button — visible only in idle */}
-      {phase === 'idle' && videoId && (
+      {phase === 'idle' && hasVideo && (
         <button
           type="button"
           onClick={handlePlay}
