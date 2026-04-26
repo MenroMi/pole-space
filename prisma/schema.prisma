@@ -72,7 +72,7 @@ model Move {
   poleType    PoleType?
   youtubeUrl  String
   imageUrl    String?
-  steps       String[]  @default([])
+  stepsData   Json       @default("[]")
   gripType    String?
   entry       String?
   duration    String?
