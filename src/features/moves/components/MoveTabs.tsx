@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
+import type { StepItem } from '../types';
+
 import MoveBreakdown from './MoveBreakdown';
 
 type Tab = 'breakdown' | 'muscles' | 'safety';
@@ -11,7 +13,13 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'safety', label: 'Safety' },
 ];
 
-export default function MoveTabs({ steps }: { steps: string[] }) {
+export default function MoveTabs({
+  stepsData,
+  onSeek,
+}: {
+  stepsData: StepItem[];
+  onSeek: (seconds: number) => void;
+}) {
   const [active, setActive] = useState<Tab>('breakdown');
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -58,7 +66,7 @@ export default function MoveTabs({ steps }: { steps: string[] }) {
 
       <div id="move-tabpanel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0}>
         <div key={active} className="animate-in duration-200 fade-in-0 slide-in-from-bottom-2">
-          {active === 'breakdown' && <MoveBreakdown steps={steps} />}
+          {active === 'breakdown' && <MoveBreakdown stepsData={stepsData} onSeek={onSeek} />}
           {(active === 'muscles' || active === 'safety') && (
             <p className="py-12 text-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase">
               Coming soon
