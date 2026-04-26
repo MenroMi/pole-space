@@ -20,6 +20,7 @@ function extractVideoId(url: string): string | null {
 export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [startAt, setStartAt] = useState<number | null>(null);
+  const [iframeKey, setIframeKey] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phaseRef = useRef<Phase>('idle');
   const videoId = extractVideoId(youtubeUrl);
@@ -45,8 +46,10 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
     const currentPhase = phaseRef.current;
     if (currentPhase === 'playing') {
       setStartAt(seconds);
+      setIframeKey((k) => k + 1);
     } else if (currentPhase === 'idle') {
       setStartAt(seconds);
+      setIframeKey((k) => k + 1);
       const prefersReduced =
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -98,6 +101,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
       {/* iframe — mounts during transitioning (opacity-0), fades in, stays for playing */}
       {phase !== 'idle' && videoId && (
         <iframe
+          key={iframeKey}
           src={iframeSrc}
           title={title}
           className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
