@@ -9,6 +9,7 @@ type MoveHeroProps = {
   title: string;
   youtubeUrl: string;
   imageUrl: string | null;
+  seekTo?: number;
 };
 
 function extractVideoId(url: string): string | null {
@@ -16,24 +17,52 @@ function extractVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps) {
+export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHeroProps) {
   const [phase, setPhase] = useState<Phase>('idle');
+  const [startAt, setStartAt] = useState<number | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const phaseRef = useRef<Phase>('idle');
   const videoId = extractVideoId(youtubeUrl);
   const thumbnail =
     imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
 
+  // Keep phaseRef in sync so the seekTo effect always reads current phase
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+
+  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
 
+  // Handle seek requests
+  useEffect(() => {
+    if (seekTo == null || !videoId) return;
+    const currentPhase = phaseRef.current;
+    if (currentPhase === 'playing') {
+      queueMicrotask(() => setStartAt(seekTo));
+    } else if (currentPhase === 'idle') {
+      queueMicrotask(() => setStartAt(seekTo));
+      const prefersReduced =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        queueMicrotask(() => setPhase('playing'));
+      } else {
+        queueMicrotask(() => setPhase('transitioning'));
+        timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
+      }
+    }
+    // 'transitioning': ignore — animation already in progress
+  }, [seekTo, videoId]);
+
   function handlePlay() {
     const prefersReduced =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     if (prefersReduced) {
       setPhase('playing');
     } else {
@@ -41,6 +70,8 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
       timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
     }
   }
+
+  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1${startAt != null ? `&start=${startAt}` : ''}`;
 
   return (
     <div className="relative h-[65vh] w-full overflow-hidden bg-black">
@@ -65,7 +96,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
       {/* iframe — mounts during transitioning (opacity-0), fades in, stays for playing */}
       {phase !== 'idle' && videoId && (
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+          src={iframeSrc}
           title={title}
           className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
             phase === 'transitioning' ? 'opacity-0' : 'opacity-100'
