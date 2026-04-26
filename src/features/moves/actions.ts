@@ -1,7 +1,7 @@
 'use server';
 import { prisma } from '@/shared/lib/prisma';
 
-import type { MoveDetail } from './types';
+import type { MoveDetail, StepItem } from './types';
 
 export async function getMoveByIdAction(id: string, userId?: string): Promise<MoveDetail | null> {
   const move = await prisma.move.findUnique({
@@ -15,5 +15,5 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
     ? await prisma.userFavourite.findMany({ where: { userId, moveId: id } })
     : [];
 
-  return { ...move, favourites };
+  return { ...move, favourites, stepsData: move.stepsData as StepItem[] };
 }

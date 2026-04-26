@@ -16,7 +16,12 @@ const mockFavouriteFindMany = prisma.userFavourite.findMany as ReturnType<typeof
 beforeEach(() => vi.clearAllMocks());
 
 describe('getMoveByIdAction', () => {
-  const move = { id: 'move-1', title: 'Test Move', tags: [] };
+  const move = {
+    id: 'move-1',
+    title: 'Test Move',
+    tags: [],
+    stepsData: [{ text: 'Grip the pole', timestamp: 10 }],
+  };
 
   it('returns null when move is not found', async () => {
     mockFindUnique.mockResolvedValue(null);
@@ -40,5 +45,11 @@ describe('getMoveByIdAction', () => {
     const result = await getMoveByIdAction('move-1');
     expect(mockFavouriteFindMany).not.toHaveBeenCalled();
     expect(result?.favourites).toEqual([]);
+  });
+
+  it('returns stepsData as StepItem array', async () => {
+    mockFindUnique.mockResolvedValue(move);
+    const result = await getMoveByIdAction('move-1');
+    expect(result?.stepsData).toEqual([{ text: 'Grip the pole', timestamp: 10 }]);
   });
 });
