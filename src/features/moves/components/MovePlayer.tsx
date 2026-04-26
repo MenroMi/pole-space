@@ -24,8 +24,12 @@ export default function MovePlayer({
   const [seekTo, setSeekTo] = useState<number | null>(null);
 
   function handleSeek(seconds: number) {
-    setSeekTo(seconds);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.scrollY === 0) {
+      setSeekTo(seconds);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => setSeekTo(seconds), 400);
+    }
   }
 
   return (

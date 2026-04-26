@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const scrollToMock = vi.fn();
@@ -53,17 +53,37 @@ describe('MovePlayer', () => {
     expect(screen.getByTestId('move-hero')).toHaveAttribute('data-seek-to', '');
   });
 
-  it('updates seekTo on MoveHero when onSeek is called', async () => {
+  it('seeks immediately when already at top (scrollY === 0)', async () => {
     const user = userEvent.setup();
     render(<MovePlayer {...baseProps}>content</MovePlayer>);
     await user.click(screen.getByRole('button', { name: 'seek' }));
+    expect(scrollToMock).not.toHaveBeenCalled();
     expect(screen.getByTestId('move-hero')).toHaveAttribute('data-seek-to', '45');
   });
 
-  it('scrolls to top when onSeek is called', async () => {
-    const user = userEvent.setup();
-    render(<MovePlayer {...baseProps}>content</MovePlayer>);
-    await user.click(screen.getByRole('button', { name: 'seek' }));
-    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  describe('when scrolled down', () => {
+    beforeEach(() => {
+      vi.stubGlobal('scrollY', 500);
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.stubGlobal('scrollY', 0);
+    });
+
+    it('scrolls to top before seeking', () => {
+      render(<MovePlayer {...baseProps}>content</MovePlayer>);
+      fireEvent.click(screen.getByRole('button', { name: 'seek' }));
+      expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+      expect(screen.getByTestId('move-hero')).toHaveAttribute('data-seek-to', '');
+    });
+
+    it('seeks after 400ms scroll delay', () => {
+      render(<MovePlayer {...baseProps}>content</MovePlayer>);
+      fireEvent.click(screen.getByRole('button', { name: 'seek' }));
+      act(() => vi.advanceTimersByTime(400));
+      expect(screen.getByTestId('move-hero')).toHaveAttribute('data-seek-to', '45');
+    });
   });
 });
