@@ -43,16 +43,17 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
     if (seekTo == null || !videoId) return;
     const currentPhase = phaseRef.current;
     if (currentPhase === 'playing') {
-      queueMicrotask(() => setStartAt(seekTo));
+      setStartAt(seekTo);
     } else if (currentPhase === 'idle') {
-      queueMicrotask(() => setStartAt(seekTo));
+      setStartAt(seekTo);
       const prefersReduced =
         typeof window !== 'undefined' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReduced) {
-        queueMicrotask(() => setPhase('playing'));
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPhase('playing');
       } else {
-        queueMicrotask(() => setPhase('transitioning'));
+        setPhase('transitioning');
         timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
       }
     }
