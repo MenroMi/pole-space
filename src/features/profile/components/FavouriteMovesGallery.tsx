@@ -43,6 +43,28 @@ function MovePlaceholder() {
   );
 }
 
+// YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
+const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
+
+function FavouriteCardImage({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) return <MovePlaceholder />;
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+      onLoad={(e) => {
+        if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH) setFailed(true);
+      }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function FavouriteMovesGallery({
   initialFavourites,
 }: {
@@ -184,12 +206,7 @@ export default function FavouriteMovesGallery({
                         fav.move.imageUrl ??
                         (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
                       return src ? (
-                        <Image
-                          src={src}
-                          alt={fav.move.title}
-                          fill
-                          className="object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
-                        />
+                        <FavouriteCardImage src={src} alt={fav.move.title} />
                       ) : (
                         <MovePlaceholder />
                       );
