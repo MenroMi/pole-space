@@ -21,7 +21,7 @@ const baseMove: MoveWithTags = {
   createdAt: new Date(),
   updatedAt: new Date(),
   tags: [],
-  steps: [],
+  stepsData: [],
   gripType: null,
   entry: null,
   duration: null,
