@@ -1,6 +1,6 @@
 # Step Timestamps Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Replace `steps String[]` with `stepsData Json` and add clickable YouTube timestamp badges to breakdown steps that seek the video to that moment.
 
@@ -39,7 +39,7 @@
 
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Update schema.prisma**
+- [x] **Step 1: Update schema.prisma**
 
 Replace `steps String[] @default([])` with `stepsData Json @default("[]")` in the `Move` model:
 
@@ -66,7 +66,7 @@ model Move {
 }
 ```
 
-- [ ] **Step 2: Run migration**
+- [x] **Step 2: Run migration**
 
 Working directory: `pole-dance-catalog/.worktrees/move-detail`
 
@@ -78,7 +78,7 @@ Expected output: `The following migration(s) have been applied: .../replace_step
 
 Note: This drops the `steps` column and adds `stepsData JSONB NOT NULL DEFAULT '[]'`. Existing `steps` data is lost — the seed script (Task 9) will repopulate.
 
-- [ ] **Step 3: Verify Prisma client was regenerated**
+- [x] **Step 3: Verify Prisma client was regenerated**
 
 ```bash
 npx prisma generate
@@ -86,7 +86,7 @@ npx prisma generate
 
 Expected: `✔ Generated Prisma Client`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations/
@@ -103,7 +103,7 @@ git commit -m "feat: replace steps String[] with stepsData Json in Move schema"
 - Modify: `src/features/moves/actions.ts`
 - Modify: `src/features/moves/actions.test.ts`
 
-- [ ] **Step 1: Write the failing test for stepsData**
+- [x] **Step 1: Write the failing test for stepsData**
 
 Open `src/features/moves/actions.test.ts`. The mock currently returns `{ id: 'move-1', title: 'Test Move', tags: [] }`. Add a test that verifies `stepsData` is returned as a typed array:
 
@@ -165,7 +165,7 @@ describe('getMoveByIdAction', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 ```bash
 npx vitest run src/features/moves/actions.test.ts
@@ -173,7 +173,7 @@ npx vitest run src/features/moves/actions.test.ts
 
 Expected: FAIL — `stepsData` not returned or wrongly typed.
 
-- [ ] **Step 3: Update types.ts**
+- [x] **Step 3: Update types.ts**
 
 ```ts
 import type { Move, Tag, UserFavourite } from '@prisma/client';
@@ -187,7 +187,7 @@ export type MoveDetail = Omit<Move, 'stepsData'> & {
 };
 ```
 
-- [ ] **Step 4: Update actions.ts**
+- [x] **Step 4: Update actions.ts**
 
 ```ts
 'use server';
@@ -211,7 +211,7 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 ```bash
 npx vitest run src/features/moves/actions.test.ts
@@ -219,7 +219,7 @@ npx vitest run src/features/moves/actions.test.ts
 
 Expected: PASS — 4 tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/features/moves/types.ts src/features/moves/actions.ts src/features/moves/actions.test.ts
@@ -237,7 +237,7 @@ git commit -m "feat: add StepItem type and update getMoveByIdAction to return st
 
 After the schema change, `Move` from Prisma has `stepsData: Prisma.JsonValue` instead of `steps: string[]`. The catalog fixtures must be updated.
 
-- [ ] **Step 1: Run catalog tests to see they fail**
+- [x] **Step 1: Run catalog tests to see they fail**
 
 ```bash
 npx vitest run src/features/catalog
@@ -245,7 +245,7 @@ npx vitest run src/features/catalog
 
 Expected: TypeScript errors — `steps` does not exist on type `Move`.
 
-- [ ] **Step 2: Fix MoveCard.test.tsx**
+- [x] **Step 2: Fix MoveCard.test.tsx**
 
 In the `baseMove` fixture, replace `steps: []` with `stepsData: []`:
 
@@ -269,7 +269,7 @@ const baseMove: MoveWithTags = {
 };
 ```
 
-- [ ] **Step 3: Fix MoveGrid.test.tsx**
+- [x] **Step 3: Fix MoveGrid.test.tsx**
 
 In the `makeMoves` factory and the inline fixture inside `resolveLoad`, replace `steps: []` with `stepsData: []`:
 
@@ -324,7 +324,7 @@ resolveLoad({
 });
 ```
 
-- [ ] **Step 4: Run catalog tests**
+- [x] **Step 4: Run catalog tests**
 
 ```bash
 npx vitest run src/features/catalog
@@ -332,7 +332,7 @@ npx vitest run src/features/catalog
 
 Expected: PASS — all catalog tests green.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/catalog/components/MoveCard.test.tsx src/features/catalog/components/MoveGrid.test.tsx
@@ -348,7 +348,7 @@ git commit -m "fix: update catalog test fixtures steps→stepsData after schema 
 - Modify: `src/features/moves/components/MoveBreakdown.tsx`
 - Modify: `src/features/moves/components/MoveBreakdown.test.tsx`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Replace `src/features/moves/components/MoveBreakdown.test.tsx` entirely:
 
@@ -427,7 +427,7 @@ describe('MoveBreakdown', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
@@ -435,7 +435,7 @@ npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
 
 Expected: FAIL — `MoveBreakdown` does not accept `stepsData` or `onSeek` props.
 
-- [ ] **Step 3: Implement MoveBreakdown**
+- [x] **Step 3: Implement MoveBreakdown**
 
 Replace `src/features/moves/components/MoveBreakdown.tsx` entirely:
 
@@ -494,7 +494,7 @@ export default function MoveBreakdown({
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
@@ -502,7 +502,7 @@ npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
 
 Expected: PASS — 8 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveBreakdown.tsx src/features/moves/components/MoveBreakdown.test.tsx
@@ -518,7 +518,7 @@ git commit -m "feat: MoveBreakdown accepts stepsData with clickable timestamp ba
 - Modify: `src/features/moves/components/MoveTabs.tsx`
 - Modify: `src/features/moves/components/MoveTabs.test.tsx`
 
-- [ ] **Step 1: Update MoveTabs.test.tsx**
+- [x] **Step 1: Update MoveTabs.test.tsx**
 
 Replace `steps` with `stepsData` throughout. The `onSeek` prop can be a no-op in these tests since the tab-switching behaviour is what's being tested:
 
@@ -577,7 +577,7 @@ describe('MoveTabs', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveTabs.test.tsx
@@ -585,7 +585,7 @@ npx vitest run src/features/moves/components/MoveTabs.test.tsx
 
 Expected: FAIL — `MoveTabs` does not accept `stepsData` or `onSeek`.
 
-- [ ] **Step 3: Update MoveTabs.tsx**
+- [x] **Step 3: Update MoveTabs.tsx**
 
 Replace the component prop types and MoveBreakdown usage:
 
@@ -671,7 +671,7 @@ export default function MoveTabs({
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveTabs.test.tsx
@@ -679,7 +679,7 @@ npx vitest run src/features/moves/components/MoveTabs.test.tsx
 
 Expected: PASS — 5 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveTabs.tsx src/features/moves/components/MoveTabs.test.tsx
@@ -696,7 +696,7 @@ git commit -m "feat: MoveTabs accepts stepsData and onSeek, passes them to MoveB
 
 No new tests for MoveHero (integration is tested via MovePlayer in Task 7). This task is implement-only.
 
-- [ ] **Step 1: Update MoveHero.tsx**
+- [x] **Step 1: Update MoveHero.tsx**
 
 Add `seekTo?: number` prop, `startAt` state, `phaseRef`, and the seek `useEffect`:
 
@@ -833,7 +833,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekTo }: MoveHe
 }
 ```
 
-- [ ] **Step 2: Run existing tests to confirm no regressions**
+- [x] **Step 2: Run existing tests to confirm no regressions**
 
 ```bash
 npx vitest run src/features/moves
@@ -841,7 +841,7 @@ npx vitest run src/features/moves
 
 Expected: All existing moves tests still PASS.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/features/moves/components/MoveHero.tsx
@@ -857,7 +857,7 @@ git commit -m "feat: MoveHero accepts seekTo prop and reloads iframe at correct 
 - Create: `src/features/moves/components/MovePlayer.tsx`
 - Create: `src/features/moves/components/MovePlayer.test.tsx`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/features/moves/components/MovePlayer.test.tsx`:
 
@@ -922,7 +922,7 @@ describe('MovePlayer', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MovePlayer.test.tsx
@@ -930,7 +930,7 @@ npx vitest run src/features/moves/components/MovePlayer.test.tsx
 
 Expected: FAIL — `MovePlayer` does not exist.
 
-- [ ] **Step 3: Create MovePlayer.tsx**
+- [x] **Step 3: Create MovePlayer.tsx**
 
 ```tsx
 'use client';
@@ -975,7 +975,7 @@ export default function MovePlayer({
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MovePlayer.test.tsx
@@ -983,7 +983,7 @@ npx vitest run src/features/moves/components/MovePlayer.test.tsx
 
 Expected: PASS — 4 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MovePlayer.tsx src/features/moves/components/MovePlayer.test.tsx
@@ -999,7 +999,7 @@ git commit -m "feat: add MovePlayer client wrapper that manages seekTo state"
 - Modify: `src/features/moves/index.ts`
 - Modify: `src/app/(main)/moves/[id]/page.tsx`
 
-- [ ] **Step 1: Update index.ts**
+- [x] **Step 1: Update index.ts**
 
 Add `MovePlayer` export. Keep existing exports — `MoveHero` is still valid for future use:
 
@@ -1013,7 +1013,7 @@ export { default as MoveSpecs } from './components/MoveSpecs';
 export { default as MoveTabs } from './components/MoveTabs';
 ```
 
-- [ ] **Step 2: Update page.tsx**
+- [x] **Step 2: Update page.tsx**
 
 Replace `MoveHero` + `MoveTabs` usage with `MovePlayer`. The static content (title, badges, specs, description) becomes `children` of `MovePlayer`. The `max-w-4xl` container moves into `MovePlayer`:
 
@@ -1099,7 +1099,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 }
 ```
 
-- [ ] **Step 3: Run the full test suite**
+- [x] **Step 3: Run the full test suite**
 
 ```bash
 npx vitest run
@@ -1107,7 +1107,7 @@ npx vitest run
 
 Expected: PASS — all tests green.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/features/moves/index.ts src/app/(main)/moves/[id]/page.tsx
@@ -1122,7 +1122,7 @@ git commit -m "feat: wire MovePlayer into move detail page"
 
 - Modify: `prisma/seed-move-detail.ts`
 
-- [ ] **Step 1: Update seed-move-detail.ts**
+- [x] **Step 1: Update seed-move-detail.ts**
 
 Replace `steps: string[]` with `stepsData` using the `StepItem` format. Add realistic timestamps (in seconds) to a few steps in each move:
 
@@ -1330,14 +1330,14 @@ main()
   .finally(() => prisma.$disconnect());
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add prisma/seed-move-detail.ts
 git commit -m "chore: update seed to use stepsData with sample timestamps"
 ```
 
-- [ ] **Step 3: Run seed (optional — populates dev DB)**
+- [x] **Step 3: Run seed (optional — populates dev DB)**
 
 This command runs `seed-move-detail.ts` via `tsx`:
 

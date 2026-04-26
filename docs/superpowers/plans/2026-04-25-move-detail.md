@@ -1,6 +1,6 @@
 # Move Detail Page Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a full `/moves/[id]` detail page with cinematic video hero, specs grid, description, tabbed breakdown, and optimistic favourite toggle.
 
@@ -40,7 +40,7 @@
 
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Add fields to Move model**
+- [x] **Step 1: Add fields to Move model**
 
 In `prisma/schema.prisma`, replace the `Move` model with:
 
@@ -67,7 +67,7 @@ model Move {
 }
 ```
 
-- [ ] **Step 2: Run migration**
+- [x] **Step 2: Run migration**
 
 ```bash
 cd .worktrees/move-detail && npx prisma migrate dev --name add_move_detail_fields
@@ -75,7 +75,7 @@ cd .worktrees/move-detail && npx prisma migrate dev --name add_move_detail_field
 
 Expected output: `Your database is now in sync with your schema.`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations/
@@ -92,7 +92,7 @@ git commit -m "feat(db): add steps, gripType, entry, duration to Move"
 - Modify: `src/features/moves/actions.ts`
 - Create: `src/features/moves/actions.test.ts`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `src/features/moves/actions.test.ts`:
 
@@ -153,7 +153,7 @@ describe('getMoveByIdAction', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/actions.test.ts
@@ -161,7 +161,7 @@ npx vitest run src/features/moves/actions.test.ts
 
 Expected: FAIL — `getMoveByIdAction` doesn't match new behaviour yet.
 
-- [ ] **Step 3: Update MoveDetail type**
+- [x] **Step 3: Update MoveDetail type**
 
 Replace `src/features/moves/types.ts`:
 
@@ -171,7 +171,7 @@ import type { Move, Tag, UserFavourite } from '@prisma/client';
 export type MoveDetail = Move & { tags: Tag[]; favourites: UserFavourite[] };
 ```
 
-- [ ] **Step 4: Update getMoveByIdAction**
+- [x] **Step 4: Update getMoveByIdAction**
 
 Replace `src/features/moves/actions.ts`:
 
@@ -201,7 +201,7 @@ export async function getMoveByIdAction(id: string): Promise<MoveDetail | null> 
 }
 ```
 
-- [ ] **Step 5: Run tests — verify they pass**
+- [x] **Step 5: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/actions.test.ts
@@ -209,7 +209,7 @@ npx vitest run src/features/moves/actions.test.ts
 
 Expected: PASS (3 tests).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/features/moves/actions.ts src/features/moves/actions.test.ts src/features/moves/types.ts
@@ -225,7 +225,7 @@ git commit -m "feat(moves): update getMoveByIdAction with auth + favourites"
 - Modify: `src/features/profile/actions.ts`
 - Modify: `src/features/profile/actions.test.ts`
 
-- [ ] **Step 1: Add assertions to existing tests**
+- [x] **Step 1: Add assertions to existing tests**
 
 In `src/features/profile/actions.test.ts`, find the `addFavouriteAction` describe block and add one assertion:
 
@@ -241,7 +241,7 @@ And in the `removeFavouriteAction` describe block, in the 'deletes favourite and
 expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/profile/actions.test.ts
@@ -249,7 +249,7 @@ npx vitest run src/features/profile/actions.test.ts
 
 Expected: FAIL — `revalidatePath('/moves/move-1')` not called yet.
 
-- [ ] **Step 3: Add revalidatePath calls to profile/actions.ts**
+- [x] **Step 3: Add revalidatePath calls to profile/actions.ts**
 
 In `src/features/profile/actions.ts`, update `addFavouriteAction`:
 
@@ -283,7 +283,7 @@ export async function removeFavouriteAction(moveId: string) {
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/profile/actions.test.ts
@@ -291,7 +291,7 @@ npx vitest run src/features/profile/actions.test.ts
 
 Expected: PASS (all existing tests still green).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/profile/actions.ts src/features/profile/actions.test.ts
@@ -307,7 +307,7 @@ git commit -m "feat(profile): revalidate move detail path on favourite toggle"
 - Create: `src/features/moves/components/MoveBreakdown.tsx`
 - Create: `src/features/moves/components/MoveBreakdown.test.tsx`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `src/features/moves/components/MoveBreakdown.test.tsx`:
 
@@ -336,7 +336,7 @@ describe('MoveBreakdown', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
@@ -344,7 +344,7 @@ npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
 
 Expected: FAIL — component does not exist.
 
-- [ ] **Step 3: Create MoveBreakdown**
+- [x] **Step 3: Create MoveBreakdown**
 
 Create `src/features/moves/components/MoveBreakdown.tsx`:
 
@@ -373,7 +373,7 @@ export default function MoveBreakdown({ steps }: { steps: string[] }) {
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
@@ -381,7 +381,7 @@ npx vitest run src/features/moves/components/MoveBreakdown.test.tsx
 
 Expected: PASS (3 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveBreakdown.tsx src/features/moves/components/MoveBreakdown.test.tsx
@@ -397,7 +397,7 @@ git commit -m "feat(moves): add MoveBreakdown component"
 - Create: `src/features/moves/components/MoveSpecs.tsx`
 - Create: `src/features/moves/components/MoveSpecs.test.tsx`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `src/features/moves/components/MoveSpecs.test.tsx`:
 
@@ -429,7 +429,7 @@ describe('MoveSpecs', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveSpecs.test.tsx
@@ -437,7 +437,7 @@ npx vitest run src/features/moves/components/MoveSpecs.test.tsx
 
 Expected: FAIL — component does not exist.
 
-- [ ] **Step 3: Create MoveSpecs**
+- [x] **Step 3: Create MoveSpecs**
 
 Create `src/features/moves/components/MoveSpecs.tsx`:
 
@@ -483,7 +483,7 @@ export default function MoveSpecs({ gripType, entry, duration, poleType }: MoveS
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveSpecs.test.tsx
@@ -491,7 +491,7 @@ npx vitest run src/features/moves/components/MoveSpecs.test.tsx
 
 Expected: PASS (3 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveSpecs.tsx src/features/moves/components/MoveSpecs.test.tsx
@@ -507,7 +507,7 @@ git commit -m "feat(moves): add MoveSpecs component"
 - Create: `src/features/moves/components/MoveTabs.tsx`
 - Create: `src/features/moves/components/MoveTabs.test.tsx`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `src/features/moves/components/MoveTabs.test.tsx`:
 
@@ -546,7 +546,7 @@ describe('MoveTabs', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveTabs.test.tsx
@@ -554,7 +554,7 @@ npx vitest run src/features/moves/components/MoveTabs.test.tsx
 
 Expected: FAIL — component does not exist.
 
-- [ ] **Step 3: Create MoveTabs**
+- [x] **Step 3: Create MoveTabs**
 
 Create `src/features/moves/components/MoveTabs.tsx`:
 
@@ -612,7 +612,7 @@ export default function MoveTabs({ steps }: { steps: string[] }) {
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveTabs.test.tsx
@@ -620,7 +620,7 @@ npx vitest run src/features/moves/components/MoveTabs.test.tsx
 
 Expected: PASS (4 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveTabs.tsx src/features/moves/components/MoveTabs.test.tsx
@@ -637,7 +637,7 @@ git commit -m "feat(moves): add MoveTabs component with coming soon placeholders
 
 No unit tests — animation requires real timers and DOM transitions; visual testing is done manually.
 
-- [ ] **Step 1: Create MoveHero**
+- [x] **Step 1: Create MoveHero**
 
 Create `src/features/moves/components/MoveHero.tsx`:
 
@@ -743,7 +743,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl }: MoveHeroProps)
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/features/moves/components/MoveHero.tsx
@@ -759,7 +759,7 @@ git commit -m "feat(moves): add MoveHero with zoom+fade video animation"
 - Create: `src/features/moves/components/MoveFavouriteButton.tsx`
 - Create: `src/features/moves/components/MoveFavouriteButton.test.tsx`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create `src/features/moves/components/MoveFavouriteButton.test.tsx`:
 
@@ -821,7 +821,7 @@ describe('MoveFavouriteButton', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveFavouriteButton.test.tsx
@@ -829,7 +829,7 @@ npx vitest run src/features/moves/components/MoveFavouriteButton.test.tsx
 
 Expected: FAIL — component does not exist.
 
-- [ ] **Step 3: Create MoveFavouriteButton**
+- [x] **Step 3: Create MoveFavouriteButton**
 
 Create `src/features/moves/components/MoveFavouriteButton.tsx`:
 
@@ -897,7 +897,7 @@ export default function MoveFavouriteButton({
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveFavouriteButton.test.tsx
@@ -905,7 +905,7 @@ npx vitest run src/features/moves/components/MoveFavouriteButton.test.tsx
 
 Expected: PASS (5 tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveFavouriteButton.tsx src/features/moves/components/MoveFavouriteButton.test.tsx
@@ -921,7 +921,7 @@ git commit -m "feat(moves): add MoveFavouriteButton with optimistic toggle"
 - Modify: `src/app/(main)/moves/[id]/page.tsx`
 - Modify: `src/features/moves/index.ts`
 
-- [ ] **Step 1: Update index.ts**
+- [x] **Step 1: Update index.ts**
 
 Replace `src/features/moves/index.ts`:
 
@@ -934,7 +934,7 @@ export { default as MoveSpecs } from './components/MoveSpecs';
 export { default as MoveTabs } from './components/MoveTabs';
 ```
 
-- [ ] **Step 2: Replace page.tsx**
+- [x] **Step 2: Replace page.tsx**
 
 Replace `src/app/(main)/moves/[id]/page.tsx`:
 
@@ -1020,7 +1020,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 }
 ```
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 ```bash
 npx vitest run
@@ -1028,7 +1028,7 @@ npx vitest run
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Start dev server and manually test**
+- [x] **Step 4: Start dev server and manually test**
 
 ```bash
 npm run dev
@@ -1047,7 +1047,7 @@ Verify:
 - Tabs switch correctly; Muscles and Safety show "Coming soon"
 - `/moves/invalid-id` renders `not-found.tsx`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/(main)/moves/[id]/page.tsx src/features/moves/index.ts
