@@ -15,7 +15,12 @@ type MoveGridProps = {
   filters: MoveFilters;
 };
 
-export default function MoveGrid({ initialMoves, initialHasMore, totalCount, filters }: MoveGridProps) {
+export default function MoveGrid({
+  initialMoves,
+  initialHasMore,
+  totalCount,
+  filters,
+}: MoveGridProps) {
   const [moves, setMoves] = useState(initialMoves);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -64,15 +69,14 @@ export default function MoveGrid({ initialMoves, initialHasMore, totalCount, fil
   return (
     <div className="p-6">
       <div className="mb-8">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+        <p className="mb-3 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
           Catalog · {totalCount} moves
         </p>
         <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
-          Every move,{' '}
-          <em className="font-medium not-italic text-primary">indexed.</em>
+          Every move, <em className="font-medium text-primary not-italic">indexed.</em>
         </h1>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,360px))] gap-4">
         {moves.map((move) => (
           <MoveCard key={move.id} move={move} />
         ))}
