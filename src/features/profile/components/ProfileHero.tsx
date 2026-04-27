@@ -58,7 +58,7 @@ export default function ProfileHero({
             <BadgeCheck size={16} aria-hidden="true" />
             Elite Member
           </div>
-          <h1 className="font-display text-4xl font-bold tracking-tighter text-on-surface lowercase md:text-6xl">
+          <h1 className="font-display text-4xl font-bold tracking-tighter text-on-surface capitalize md:text-6xl">
             {displayName}
           </h1>
           <p className="text-lg text-on-surface-variant">{meta}</p>
