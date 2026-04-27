@@ -39,9 +39,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             A catalog of <em className="font-medium text-primary not-italic">every</em> move
             you&apos;ve ever wanted to learn.
           </h1>
-          <p className="max-w-sm text-base leading-relaxed text-on-surface-variant">
-            The world&rsquo;s most technical library of pole performance.
-          </p>
         </div>
 
         {/* Footer */}
