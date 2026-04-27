@@ -20,6 +20,45 @@
   --outline: #978e9b;
   --outline-variant: #4b4450;
 
+  /* Status */
+  --success:                       #84d099;
+
+  /* Difficulty semantic */
+  --difficulty-beginner-bg:        var(--secondary-container);
+  --difficulty-beginner-fg:        var(--on-secondary-container);
+  --difficulty-intermediate-bg:    var(--primary-container);
+  --difficulty-intermediate-fg:    var(--on-surface);
+  --difficulty-advanced-bg:        #92400e;
+  --difficulty-advanced-fg:        #fef3c7;
+
+  /* Aura / glow — replaces drop-shadows */
+  --aura-sm:        0 0 16px rgba(220, 184, 255, 0.20);
+  --aura:           0 0 32px rgba(220, 184, 255, 0.28);
+  --aura-cta:       0 4px 16px -2px rgba(132, 88, 179, 0.40);
+  --aura-cta-hover: 0 6px 20px -2px rgba(220, 184, 255, 0.50);
+
+  /* Motion */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration:      300ms;
+  --duration-slow: 500ms;
+
+  /* Glass / blur */
+  --glass-blur-sm: blur(12px);
+  --glass-blur:    blur(24px);
+  --glass-blur-lg: blur(40px);
+  --glass-tint:    rgba(19, 19, 19, 0.8);
+  --glass-violet:  rgba(132, 88, 179, 0.10);
+
+  /* Borders */
+  --hairline:      1px solid var(--outline-variant);
+  --hairline-soft: 1px solid rgba(151, 142, 155, 0.15);
+
+  /* Layout */
+  --section-gap:   128px;
+  --container-max: 1440px;
+
   /* shadcn compatibility layer — maps to Stitch tokens */
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -60,6 +99,7 @@
   --color-on-secondary-container: var(--on-secondary-container);
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
+  --color-surface-container-lowest: var(--surface-container-lowest);
   --font-sans: var(--font-manrope);
   --font-display: var(--font-space-grotesk);
 
@@ -158,6 +198,8 @@
     background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
     background-size: 200% 200%;
     background-position: left center;
+    color: var(--on-primary-container);
+    box-shadow: var(--aura-cta);
     transition:
       background-position 600ms ease,
       transform 300ms ease,
@@ -166,6 +208,14 @@
   }
   .kinetic-gradient:hover {
     background-position: right center;
+    box-shadow: var(--aura-cta-hover);
+  }
+
+  .glass {
+    background-color: var(--glass-tint);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--hairline-soft);
   }
 
   @media (prefers-reduced-motion: reduce) {
