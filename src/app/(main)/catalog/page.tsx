@@ -46,6 +46,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
         key={JSON.stringify(filters)}
         initialMoves={result.items}
         initialHasMore={initialHasMore}
+        totalCount={result.total}
         filters={filters}
       />
     </PageShell>
