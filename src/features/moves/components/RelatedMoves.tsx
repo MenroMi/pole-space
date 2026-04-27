@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import MoveCardImage from '@/features/catalog/components/MoveCardImage';
+
 type RelatedMove = {
   id: string;
   title: string;
@@ -46,37 +48,8 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
               className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
               {/* Image area */}
-              <div className="relative aspect-[4/3] overflow-hidden">
-                {thumb ? (
-                  <img
-                    src={thumb}
-                    alt=""
-                    aria-hidden
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                ) : (
-                  <div
-                    className="flex h-full w-full items-center justify-center"
-                    style={{
-                      background: 'linear-gradient(135deg, #0e0e0e 0%, #1f1f1f 50%, #2a2a2a 100%)',
-                    }}
-                  >
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          'radial-gradient(circle at 50% 50%, rgba(220,184,255,0.08), transparent 65%)',
-                      }}
-                    />
-                    <span
-                      className="relative font-display text-5xl font-light"
-                      style={{ color: 'rgba(220,184,255,0.3)' }}
-                      aria-hidden
-                    >
-                      ◇
-                    </span>
-                  </div>
-                )}
+              <div className="relative aspect-[4/3] overflow-hidden bg-accent">
+                {thumb && <MoveCardImage src={thumb} alt={move.title} />}
               </div>
 
               {/* Info */}
