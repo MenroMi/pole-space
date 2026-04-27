@@ -189,7 +189,7 @@ export default function FavouriteMovesGallery({
 
         {/* Grid */}
         {filtered.length > 0 && (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,360px))] gap-6">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">
             {filtered.map((fav) => {
               const badge = DIFFICULTY_BADGE[fav.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
               return (

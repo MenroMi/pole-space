@@ -76,7 +76,7 @@ export default function MoveGrid({
           Every move, <em className="font-medium text-primary not-italic">indexed.</em>
         </h1>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,360px))] gap-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
         {moves.map((move) => (
           <MoveCard key={move.id} move={move} />
         ))}
