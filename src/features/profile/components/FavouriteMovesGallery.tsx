@@ -196,7 +196,7 @@ export default function FavouriteMovesGallery({
                 <Link
                   key={fav.id}
                   href={`/moves/${fav.moveId}`}
-                  className="group bg-surface-container-low hover:bg-surface-container-highest relative block overflow-hidden rounded-xl transition-all duration-300 hover:-translate-y-1"
+                  className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-low transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
                 >
                   {/* Image */}
                   <div className="relative aspect-[4/5] overflow-hidden">

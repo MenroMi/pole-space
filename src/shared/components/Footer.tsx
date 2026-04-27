@@ -65,26 +65,28 @@ export default function Footer() {
   const pathname = usePathname();
 
   return (
-    <footer className="flex h-14 items-center justify-between bg-surface-lowest px-8">
-      <nav className="flex gap-6">
-        {NAV_ITEMS.map(({ label, href, icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`flex items-center gap-2 text-sm transition-colors ${
-              pathname === href || pathname.startsWith(href + '/')
-                ? 'text-primary'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            {icon}
-            <span>{label}</span>
-          </Link>
-        ))}
-      </nav>
-      <span className="font-sans text-xs tracking-widest text-on-surface-variant uppercase">
-        pole space v.0.1
-      </span>
+    <footer className="h-14 bg-surface-lowest">
+      <div className="mx-auto flex h-full w-full max-w-[1440px] items-center justify-between px-8">
+        <nav className="flex gap-6">
+          {NAV_ITEMS.map(({ label, href, icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`flex items-center gap-2 text-sm transition-colors ${
+                pathname === href || pathname.startsWith(href + '/')
+                  ? 'text-primary'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {icon}
+              <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
+        <span className="font-sans text-xs tracking-widest text-on-surface-variant uppercase">
+          pole space v.0.1
+        </span>
+      </div>
     </footer>
   );
 }
