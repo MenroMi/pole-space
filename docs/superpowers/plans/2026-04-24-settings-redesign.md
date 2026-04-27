@@ -12,25 +12,26 @@
 
 ## File Map
 
-| File | What changes |
-|------|-------------|
-| `prisma/schema.prisma` | Remove `name`, add `firstName`, `lastName`, `username @unique` |
-| `prisma/migrations/<ts>_split_name/migration.sql` | Data-preserving migration SQL |
-| `src/shared/lib/auth.config.ts` | JWT callback builds `token.name` from firstName + lastName |
-| `src/features/profile/actions.ts` | `updateProfileAction` new fields + P2002; `getProfileUserAction` new select |
-| `src/features/profile/actions.test.ts` | Rewrite updateProfileAction tests; new P2002 test; update getProfileUserAction mock |
-| `src/features/profile/components/ProfileHero.tsx` | `name` prop → `firstName` + `lastName` |
-| `src/features/profile/components/ProfileOverview.tsx` | Pass `firstName`/`lastName` to ProfileHero |
-| `src/app/(main)/profile/settings/page.tsx` | Fetch new fields, pass email from session |
-| `src/features/profile/components/SettingsForm.tsx` | Full redesign — bento layout, new fields, unified save |
-| `src/features/profile/components/SettingsForm.test.tsx` | Rewrite schema tests, add Discard + password-skip tests |
-| `docs/todos.md` | Add Preferences section tech debt |
+| File                                                    | What changes                                                                        |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                                  | Remove `name`, add `firstName`, `lastName`, `username @unique`                      |
+| `prisma/migrations/<ts>_split_name/migration.sql`       | Data-preserving migration SQL                                                       |
+| `src/shared/lib/auth.config.ts`                         | JWT callback builds `token.name` from firstName + lastName                          |
+| `src/features/profile/actions.ts`                       | `updateProfileAction` new fields + P2002; `getProfileUserAction` new select         |
+| `src/features/profile/actions.test.ts`                  | Rewrite updateProfileAction tests; new P2002 test; update getProfileUserAction mock |
+| `src/features/profile/components/ProfileHero.tsx`       | `name` prop → `firstName` + `lastName`                                              |
+| `src/features/profile/components/ProfileOverview.tsx`   | Pass `firstName`/`lastName` to ProfileHero                                          |
+| `src/app/(main)/profile/settings/page.tsx`              | Fetch new fields, pass email from session                                           |
+| `src/features/profile/components/SettingsForm.tsx`      | Full redesign — bento layout, new fields, unified save                              |
+| `src/features/profile/components/SettingsForm.test.tsx` | Rewrite schema tests, add Discard + password-skip tests                             |
+| `docs/todos.md`                                         | Add Preferences section tech debt                                                   |
 
 ---
 
 ### Task 1: DB migration — split `name` into `firstName`, `lastName`, `username`
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Create: `prisma/migrations/<timestamp>_split_name_fields/migration.sql`
 
@@ -115,6 +116,7 @@ git commit -m "feat(db): split name field into firstName, lastName, username"
 ### Task 2: Auth callback + getProfileUserAction + ProfileHero + ProfileOverview
 
 **Files:**
+
 - Modify: `src/shared/lib/auth.config.ts`
 - Modify: `src/features/profile/actions.ts`
 - Modify: `src/features/profile/components/ProfileHero.tsx`
@@ -189,7 +191,13 @@ type ProfileHeroProps = {
   createdAt: Date;
 };
 
-export default function ProfileHero({ firstName, lastName, image, location, createdAt }: ProfileHeroProps) {
+export default function ProfileHero({
+  firstName,
+  lastName,
+  image,
+  location,
+  createdAt,
+}: ProfileHeroProps) {
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'anonymous';
   const joinYear = createdAt.getFullYear();
   const meta = location ? `${location} • Joined ${joinYear}` : `Joined ${joinYear}`;
@@ -197,15 +205,10 @@ export default function ProfileHero({ firstName, lastName, image, location, crea
   return (
     <section className="flex flex-col items-start gap-8 pt-8 md:flex-row md:items-end">
       {/* Avatar */}
-      <div className="relative shrink-0 group">
+      <div className="group relative shrink-0">
         <div className="relative z-10 h-32 w-32 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-outline-variant/20 md:h-40 md:w-40">
           {image ? (
-            <Image
-              src={image}
-              alt={displayName}
-              fill
-              className="object-cover"
-            />
+            <Image src={image} alt={displayName} fill className="object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
               <User size={56} aria-hidden="true" />
@@ -217,11 +220,11 @@ export default function ProfileHero({ firstName, lastName, image, location, crea
 
       {/* Name + badge + meta */}
       <div className="flex-1 space-y-2">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1 text-xs uppercase tracking-widest text-on-secondary-container ring-1 ring-outline-variant/15">
+        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
           <BadgeCheck size={16} aria-hidden="true" />
           Elite Member
         </div>
-        <h1 className="font-display text-4xl font-bold lowercase tracking-tighter text-on-surface md:text-6xl">
+        <h1 className="font-display text-4xl font-bold tracking-tighter text-on-surface lowercase md:text-6xl">
           {displayName}
         </h1>
         <p className="text-lg text-on-surface-variant">{meta}</p>
@@ -238,7 +241,7 @@ export default function ProfileHero({ firstName, lastName, image, location, crea
         </button>
         <Link
           href="/profile/settings"
-          className="kinetic-gradient cursor-pointer rounded-lg px-8 py-4 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container transition-transform duration-150 active:scale-95"
+          className="kinetic-gradient cursor-pointer rounded-lg px-8 py-4 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95"
         >
           edit profile
         </Link>
@@ -261,7 +264,7 @@ export default async function ProfileOverview() {
   const [user, stats] = await Promise.all([getProfileUserAction(), getProfileStatsAction()]);
 
   return (
-    <div className="p-6 md:p-12 space-y-12">
+    <div className="space-y-12 p-6 md:p-12">
       <ProfileHero
         firstName={user?.firstName ?? null}
         lastName={user?.lastName ?? null}
@@ -269,10 +272,7 @@ export default async function ProfileOverview() {
         location={user?.location ?? null}
         createdAt={user?.createdAt ?? new Date()}
       />
-      <ProfileStats
-        masteredCount={stats.masteredCount}
-        favouritesCount={stats.favouritesCount}
-      />
+      <ProfileStats masteredCount={stats.masteredCount} favouritesCount={stats.favouritesCount} />
     </div>
   );
 }
@@ -298,6 +298,7 @@ git commit -m "feat(profile): replace name field with firstName/lastName in auth
 ### Task 3: updateProfileAction — new fields + P2002 handling + tests
 
 **Files:**
+
 - Modify: `src/features/profile/actions.ts`
 - Modify: `src/features/profile/actions.test.ts`
 
@@ -489,11 +490,7 @@ export async function updateProfileAction(data: {
     await prisma.user.update({ where: { id: userId }, data: updateData });
     return { success: true as const };
   } catch (error) {
-    if (
-      error instanceof Error &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
+    if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
       return { success: false as const, field: 'username', error: 'Username already taken' };
     }
     throw error;
@@ -529,6 +526,7 @@ git commit -m "feat(profile): updateProfileAction with firstName/lastName/userna
 ### Task 4: Redesign SettingsForm — bento layout, new fields, unified save
 
 **Files:**
+
 - Modify: `src/features/profile/components/SettingsForm.tsx`
 
 - [ ] **Step 1: Replace SettingsForm.tsx entirely**
@@ -553,7 +551,17 @@ import AvatarUpload from './AvatarUpload';
 
 function EyeIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M1 8s2.667-5 7-5 7 5 7 5-2.667 5-7 5-7-5-7-5z" />
       <circle cx="8" cy="8" r="2" />
     </svg>
@@ -562,7 +570,17 @@ function EyeIcon() {
 
 function EyeOffIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M2 2l12 12" />
       <path d="M6.5 6.5a2 2 0 002.83 2.83" />
       <path d="M4 4.3A8 8 0 001 8s2.667 5 7 5c1.1 0 2.1-.25 3-.7" />
@@ -585,9 +603,18 @@ const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
             ref={ref}
             type={show ? 'text' : 'password'}
             className="pr-10"
-            onKeyDown={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyDown?.(e); }}
-            onKeyUp={(e) => { setCapsLock(e.getModifierState('CapsLock')); onKeyUp?.(e); }}
-            onBlur={(e) => { setCapsLock(false); onBlur?.(e); }}
+            onKeyDown={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyDown?.(e);
+            }}
+            onKeyUp={(e) => {
+              setCapsLock(e.getModifierState('CapsLock'));
+              onKeyUp?.(e);
+            }}
+            onBlur={(e) => {
+              setCapsLock(false);
+              onBlur?.(e);
+            }}
             {...props}
           />
           <button
@@ -735,24 +762,24 @@ export default function SettingsForm({
   const displayName = [firstName, lastName].filter(Boolean).join(' ') || 'anonymous';
 
   return (
-    <div className="p-6 md:p-12 space-y-8">
+    <div className="space-y-8 p-6 md:p-12">
       <div className="space-y-2">
-        <h1 className="font-display text-4xl md:text-5xl lowercase tracking-tight text-primary">
+        <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
           settings
         </h1>
-        <p className="text-on-surface-variant text-lg">
+        <p className="text-lg text-on-surface-variant">
           Manage your athlete profile and preferences.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
         {/* Profile block */}
-        <section className="md:col-span-4 bg-surface-low rounded-2xl p-8 flex flex-col items-center text-center space-y-6">
+        <section className="flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center md:col-span-4">
           <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
           <div className="space-y-2">
             <p className="font-display text-xl text-on-surface">{displayName}</p>
             {email && <p className="text-sm text-on-surface-variant">{email}</p>}
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs uppercase tracking-widest text-on-secondary-container ring-1 ring-outline-variant/15">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
               <BadgeCheck size={14} aria-hidden="true" />
               Elite Member
             </div>
@@ -760,14 +787,14 @@ export default function SettingsForm({
         </section>
 
         {/* Personal Information */}
-        <section className="md:col-span-8 bg-surface-low rounded-2xl p-8 space-y-6">
+        <section className="space-y-6 rounded-2xl bg-surface-low p-8 md:col-span-8">
           <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
             <User size={20} className="text-primary" aria-hidden="true" />
             <h2 className="font-display text-lg text-on-surface">Personal Information</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 First Name
               </label>
               <Input {...profileForm.register('firstName')} placeholder="Your first name" />
@@ -778,7 +805,7 @@ export default function SettingsForm({
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Last Name
               </label>
               <Input {...profileForm.register('lastName')} placeholder="Your last name" />
@@ -788,8 +815,8 @@ export default function SettingsForm({
                 </p>
               )}
             </div>
-            <div className="md:col-span-2 flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Username
               </label>
               <Input {...profileForm.register('username')} placeholder="your_username" />
@@ -799,14 +826,11 @@ export default function SettingsForm({
                 </p>
               )}
             </div>
-            <div className="md:col-span-2 flex flex-col gap-1">
-              <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                 Location
               </label>
-              <Input
-                {...profileForm.register('location')}
-                placeholder="City, Country (optional)"
-              />
+              <Input {...profileForm.register('location')} placeholder="City, Country (optional)" />
               {profileForm.formState.errors.location && (
                 <p className="text-sm text-destructive">
                   {profileForm.formState.errors.location.message}
@@ -819,14 +843,14 @@ export default function SettingsForm({
 
         {/* Security */}
         {hasPassword && (
-          <section className="md:col-span-12 bg-surface-low rounded-2xl p-8 space-y-6">
+          <section className="space-y-6 rounded-2xl bg-surface-low p-8 md:col-span-12">
             <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
               <Lock size={20} className="text-primary" aria-hidden="true" />
               <h2 className="font-display text-lg text-on-surface">Security</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   Current Password
                 </label>
                 <PasswordField
@@ -835,7 +859,7 @@ export default function SettingsForm({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   New Password
                 </label>
                 <PasswordField
@@ -844,7 +868,7 @@ export default function SettingsForm({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-on-surface-variant">
+                <label className="text-xs tracking-widest text-on-surface-variant uppercase">
                   Confirm Password
                 </label>
                 <PasswordField
@@ -858,11 +882,11 @@ export default function SettingsForm({
         )}
 
         {/* Actions */}
-        <div className="md:col-span-12 flex justify-end gap-4">
+        <div className="flex justify-end gap-4 md:col-span-12">
           <button
             type="button"
             onClick={handleDiscard}
-            className="px-8 py-3 font-display font-bold lowercase text-primary border border-outline-variant/20 rounded-lg hover:bg-surface-container transition-colors"
+            className="rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-colors hover:bg-surface-container"
           >
             discard
           </button>
@@ -870,7 +894,7 @@ export default function SettingsForm({
             type="button"
             onClick={handleSave}
             disabled={isPending}
-            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold lowercase tracking-wide text-on-primary-container transition-transform duration-150 active:scale-95 disabled:opacity-50"
+            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
           >
             {isPending ? 'saving…' : 'save changes'}
           </button>
@@ -901,6 +925,7 @@ git commit -m "feat(profile): redesign SettingsForm with bento layout, firstName
 ### Task 5: Update settings/page.tsx — new fields + email from session
 
 **Files:**
+
 - Modify: `src/app/(main)/profile/settings/page.tsx`
 
 - [ ] **Step 1: Replace settings/page.tsx**
@@ -953,6 +978,7 @@ git commit -m "feat(profile): update settings page to pass firstName/lastName/us
 ### Task 6: Update SettingsForm.test.tsx — rewrite schema tests + new behavioural tests
 
 **Files:**
+
 - Modify: `src/features/profile/components/SettingsForm.test.tsx`
 
 - [ ] **Step 1: Replace SettingsForm.test.tsx**
@@ -1093,6 +1119,7 @@ git commit -m "test(profile): rewrite SettingsForm schema tests for new firstNam
 ### Task 7: Tech debt entry + manual e2e cases
 
 **Files:**
+
 - Modify: `docs/todos.md`
 
 - [ ] **Step 1: Add Preferences tech debt to docs/todos.md**
@@ -1128,6 +1155,7 @@ Expected: no errors.
 Present to user for verification before merge:
 
 **Positive:**
+
 1. `/profile` — Hero shows `firstName lastName` (or whichever is set), falls back to `anonymous`
 2. `/profile/settings` — Profile block shows displayName, email, Elite Member badge, AvatarUpload
 3. `/profile/settings` — Personal Information pre-filled with existing firstName, lastName, username, location
@@ -1138,12 +1166,7 @@ Present to user for verification before merge:
 8. Click Discard → both forms reset, redirected to `/profile`
 9. OAuth user (no password) → Security section not shown
 
-**Negative:**
-10. Username with spaces or uppercase → inline validation error, no save
-11. Duplicate username → "Username already taken" shown under username field
-12. Password fields partially filled (e.g. only currentPassword) → validation errors shown, no save
-13. New password + confirm don't match → "Passwords do not match" error
-14. firstName longer than 50 chars → "First name is too long" error
+**Negative:** 10. Username with spaces or uppercase → inline validation error, no save 11. Duplicate username → "Username already taken" shown under username field 12. Password fields partially filled (e.g. only currentPassword) → validation errors shown, no save 13. New password + confirm don't match → "Passwords do not match" error 14. firstName longer than 50 chars → "First name is too long" error
 
 - [ ] **Step 5: Commit**
 

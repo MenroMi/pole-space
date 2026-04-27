@@ -116,6 +116,7 @@ export async function addFavouriteAction(moveId: string) {
   });
   revalidatePath('/profile/favourite-moves');
   revalidatePath('/profile');
+  revalidatePath('/moves/' + moveId);
   return { success: true as const };
 }
 
@@ -126,6 +127,7 @@ export async function removeFavouriteAction(moveId: string) {
   });
   revalidatePath('/profile/favourite-moves');
   revalidatePath('/profile');
+  revalidatePath('/moves/' + moveId);
   return { success: true as const };
 }
 

@@ -13,11 +13,13 @@ Single `SettingsForm` client component with two RHF sub-forms (profile + passwor
 **Remove** `name String?` from User model.
 
 **Add:**
+
 - `firstName String?`
 - `lastName String?`
 - `username String? @unique`
 
 Migration (ordered to preserve data):
+
 1. `ALTER TABLE "User" ADD COLUMN "firstName" TEXT;`
 2. `ALTER TABLE "User" ADD COLUMN "lastName" TEXT;`
 3. `ALTER TABLE "User" ADD COLUMN "username" TEXT;`
@@ -42,6 +44,7 @@ Session callback propagates `token.name` to `session.user.name` unchanged (exist
 **Input:** `{ firstName?: string; lastName?: string; username?: string; location?: string }`
 
 **Validation (Zod):**
+
 - `firstName`: string, min 1, max 50, optional
 - `lastName`: string, min 1, max 50, optional
 - `username`: string, min 2, max 30, lowercase alphanumeric + underscore, optional
@@ -70,12 +73,14 @@ Bento grid: `grid grid-cols-1 md:grid-cols-12 gap-8`. Keeps existing `Input` com
 **Row 1:**
 
 Profile block (`md:col-span-4`, `bg-surface-low rounded-2xl p-8`):
+
 - `AvatarUpload` centered
 - Display name: `firstName lastName` (or whichever is set), falls back to `'anonymous'`
 - Email: `session.user.email` (read-only, `text-on-surface-variant`)
 - Elite Member badge (same stub as ProfileHero)
 
 Personal Information (`md:col-span-8`, `bg-surface-low rounded-2xl p-8`):
+
 - Section header: `<User />` icon + "Personal Information" + `border-b` separator
 - Sub-grid `grid-cols-2`: First Name + Last Name
 - Username (full width, `col-span-2`)
@@ -84,12 +89,14 @@ Personal Information (`md:col-span-8`, `bg-surface-low rounded-2xl p-8`):
 **Row 2:**
 
 Security (`md:col-span-12`, `bg-surface-low rounded-2xl p-8`):
+
 - Section header: `<Lock />` icon + "Security" + `border-b` separator
 - Current Password, New Password, Confirm Password (existing `PasswordField`)
 
 **Row 3:**
 
 Actions (`md:col-span-12`, right-aligned, `flex justify-end gap-4`):
+
 - **Discard** — outline button: `profileForm.reset()` + `passwordForm.reset()` + `router.push('/profile')`
 - **Save Changes** — kinetic-gradient button: submit handler
 
@@ -99,13 +106,17 @@ Actions (`md:col-span-12`, right-aligned, `flex justify-end gap-4`):
 async function handleSave() {
   // 1. Always save profile
   const profileResult = await updateProfileAction(profileValues);
-  if (!profileResult.success) { /* set field errors */ return; }
+  if (!profileResult.success) {
+    /* set field errors */ return;
+  }
 
   // 2. Save password only if any field is non-empty
   const anyPasswordField = currentPassword || newPassword || confirmPassword;
   if (anyPasswordField) {
     const passwordResult = await changePasswordAction(passwordValues);
-    if (!passwordResult.success) { /* set field errors */ return; }
+    if (!passwordResult.success) {
+      /* set field errors */ return;
+    }
   }
 
   router.push('/profile');
@@ -123,18 +134,18 @@ On full success: redirect to `/profile` (no separate success toast needed — th
 
 ## Affected Files
 
-| File | Change |
-|------|--------|
-| `prisma/schema.prisma` | Remove `name`, add `firstName`, `lastName`, `username` |
-| `prisma/migrations/…` | New migration SQL |
-| `src/shared/lib/auth.config.ts` | JWT callback builds `token.name` from firstName + lastName |
-| `src/features/profile/actions.ts` | `updateProfileAction` new fields + P2002, `getProfileUserAction` new select |
-| `src/features/profile/actions.test.ts` | New field tests, P2002 test, updated mocks |
-| `src/features/profile/components/ProfileHero.tsx` | `name` prop → `firstName` + `lastName` |
-| `src/features/profile/components/ProfileOverview.tsx` | Pass firstName + lastName to ProfileHero |
-| `src/app/(main)/profile/settings/page.tsx` | Fetch new fields, pass email |
-| `src/features/profile/components/SettingsForm.tsx` | Full redesign — bento layout, new fields |
-| `src/features/profile/components/SettingsForm.test.tsx` | New field tests, Discard redirect test |
+| File                                                    | Change                                                                      |
+| ------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                                  | Remove `name`, add `firstName`, `lastName`, `username`                      |
+| `prisma/migrations/…`                                   | New migration SQL                                                           |
+| `src/shared/lib/auth.config.ts`                         | JWT callback builds `token.name` from firstName + lastName                  |
+| `src/features/profile/actions.ts`                       | `updateProfileAction` new fields + P2002, `getProfileUserAction` new select |
+| `src/features/profile/actions.test.ts`                  | New field tests, P2002 test, updated mocks                                  |
+| `src/features/profile/components/ProfileHero.tsx`       | `name` prop → `firstName` + `lastName`                                      |
+| `src/features/profile/components/ProfileOverview.tsx`   | Pass firstName + lastName to ProfileHero                                    |
+| `src/app/(main)/profile/settings/page.tsx`              | Fetch new fields, pass email                                                |
+| `src/features/profile/components/SettingsForm.tsx`      | Full redesign — bento layout, new fields                                    |
+| `src/features/profile/components/SettingsForm.test.tsx` | New field tests, Discard redirect test                                      |
 
 ## Tech Debt
 

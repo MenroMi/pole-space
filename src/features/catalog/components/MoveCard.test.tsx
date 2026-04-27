@@ -21,6 +21,10 @@ const baseMove: MoveWithTags = {
   createdAt: new Date(),
   updatedAt: new Date(),
   tags: [],
+  stepsData: [],
+  gripType: null,
+  entry: null,
+  duration: null,
 };
 
 describe('MoveCard', () => {

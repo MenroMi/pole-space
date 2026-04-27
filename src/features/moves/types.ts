@@ -1,3 +1,8 @@
-import type { Move, Tag, UserProgress } from '@prisma/client';
+import type { Move, UserFavourite } from '@prisma/client';
 
-export type MoveDetail = Move & { tags: Tag[]; progress: UserProgress[] };
+export type StepItem = { text: string; timestamp?: number };
+
+export type MoveDetail = Omit<Move, 'stepsData'> & {
+  favourites: UserFavourite[];
+  stepsData: StepItem[];
+};
