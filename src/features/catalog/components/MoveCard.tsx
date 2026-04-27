@@ -31,9 +31,9 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
   return (
     <Link
       href={`/moves/${move.id}`}
-      className="block overflow-hidden rounded-xl bg-surface-container transition-colors hover:bg-surface-high"
+      className="group block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
     >
-      <div className="relative flex aspect-video items-center justify-center bg-accent">
+      <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-accent">
         {imageSrc ? (
           <MoveCardImage src={imageSrc} alt={move.title} />
         ) : (
@@ -42,10 +42,10 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
       </div>
       <div className="flex flex-col gap-2 p-4">
         <span
-          className={`self-start rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}
+          className={`self-start rounded-full px-2 py-0.5 text-xs font-semibold lowercase ${badge.className}`}
           style={badge.style}
         >
-          {move.difficulty}
+          {move.difficulty.toLowerCase()}
         </span>
         <h3 className="truncate font-display font-semibold text-on-surface">{move.title}</h3>
         {move.description && (
