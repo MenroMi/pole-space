@@ -1,4 +1,3 @@
-import { ImageOff } from 'lucide-react';
 import Link from 'next/link';
 
 type RelatedMove = {
@@ -32,33 +31,62 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
       <p className="mb-4 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
         Related moves
       </p>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {moves.map((move) => {
           const videoId = extractVideoId(move.youtubeUrl);
           const thumb =
-            move.imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/default.jpg` : null);
+            move.imageUrl ??
+            (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
           const levelColor = DIFFICULTY_COLOR[move.difficulty] ?? 'text-on-surface-variant';
 
           return (
             <Link
               key={move.id}
               href={`/moves/${move.id}`}
-              className="flex items-center gap-3 rounded-lg border border-outline-variant/15 bg-surface-container p-3 transition-colors hover:border-primary/30 hover:bg-surface-high"
+              className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-surface-high">
+              {/* Image area */}
+              <div className="relative aspect-[4/3] overflow-hidden">
                 {thumb ? (
-                  <img src={thumb} alt="" aria-hidden className="h-full w-full object-cover" />
+                  <img
+                    src={thumb}
+                    alt=""
+                    aria-hidden
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <ImageOff size={16} className="text-on-surface-variant" aria-hidden />
+                  <div
+                    className="flex h-full w-full items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #0e0e0e 0%, #1f1f1f 50%, #2a2a2a 100%)',
+                    }}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          'radial-gradient(circle at 50% 50%, rgba(220,184,255,0.08), transparent 65%)',
+                      }}
+                    />
+                    <span
+                      className="relative font-display text-5xl font-light"
+                      style={{ color: 'rgba(220,184,255,0.3)' }}
+                      aria-hidden
+                    >
+                      ◇
+                    </span>
                   </div>
                 )}
               </div>
-              <div className="min-w-0">
+
+              {/* Info */}
+              <div className="p-3">
                 <p className="truncate font-display text-sm font-semibold text-on-surface">
                   {move.title}
                 </p>
-                <p className={`text-[10px] font-semibold tracking-widest uppercase ${levelColor}`}>
+                <p
+                  className={`mt-1 text-[10px] font-semibold tracking-widest uppercase ${levelColor}`}
+                >
                   {move.difficulty}
                 </p>
               </div>
