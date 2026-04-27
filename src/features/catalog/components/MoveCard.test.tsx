@@ -38,9 +38,9 @@ describe('MoveCard', () => {
     expect(screen.getByText('A beautiful aerial move requiring flexibility.')).toBeInTheDocument();
   });
 
-  it('renders difficulty badge in lowercase', () => {
+  it('renders difficulty badge', () => {
     render(<MoveCard move={baseMove} />);
-    expect(screen.getByText('beginner')).toBeInTheDocument();
+    expect(screen.getByText('BEGINNER')).toBeInTheDocument();
   });
 
   it('falls back to YouTube thumbnail when imageUrl is null', () => {
@@ -104,7 +104,7 @@ describe('MoveCard', () => {
   it('renders INTERMEDIATE badge with primary-container styling', () => {
     const move = { ...baseMove, difficulty: 'INTERMEDIATE' as const };
     render(<MoveCard move={move} />);
-    const badge = screen.getByText('intermediate');
+    const badge = screen.getByText('INTERMEDIATE');
     expect(badge.className).toContain('bg-primary-container');
     expect(badge.className).toContain('text-on-surface');
   });
