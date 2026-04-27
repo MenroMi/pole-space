@@ -48,7 +48,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
               className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
               {/* Image area */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-accent">
+              <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-accent">
                 {thumb && <MoveCardImage src={thumb} alt={move.title} />}
               </div>
 
