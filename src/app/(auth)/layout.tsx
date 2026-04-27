@@ -40,8 +40,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             you&apos;ve ever wanted to learn.
           </h1>
           <p className="max-w-sm text-base leading-relaxed text-on-surface-variant">
-            Track your progress through 240+ moves, save your favourites, and find what to learn
-            next.
+            Transform movement into art. Access the world&rsquo;s most technical library of pole
+            performance.
           </p>
         </div>
 
