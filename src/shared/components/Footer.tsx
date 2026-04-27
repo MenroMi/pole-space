@@ -66,7 +66,7 @@ export default function Footer() {
 
   return (
     <footer className="h-14 bg-surface-lowest">
-      <div className="mx-auto flex h-full w-full max-w-[1440px] items-center justify-between px-8">
+      <div className="mx-auto flex h-full w-full max-w-[2560px] items-center justify-between px-8">
         <nav className="flex gap-6">
           {NAV_ITEMS.map(({ label, href, icon }) => (
             <Link

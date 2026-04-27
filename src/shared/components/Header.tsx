@@ -17,7 +17,7 @@ export default async function Header() {
       className="sticky top-0 z-50 h-[60px] border-b border-outline-variant/30 backdrop-blur-xl"
       style={{ backgroundColor: 'rgba(19, 19, 19, 0.85)' }}
     >
-      <div className="mx-auto grid h-full w-full max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-6">
+      <div className="mx-auto grid h-full w-full max-w-[2560px] grid-cols-[1fr_auto_1fr] items-center px-6">
         <div className="justify-self-start">
           <Link
             href="/"
