@@ -30,7 +30,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface font-display text-lg text-primary/50">
               {move.title.charAt(0).toUpperCase()}
             </div>
-            <div className="min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col">
               <p className="truncate font-display text-sm font-medium text-on-surface">
                 {move.title}
               </p>
