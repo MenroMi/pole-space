@@ -20,7 +20,7 @@ export default async function Header() {
       <div className="mx-auto grid h-full w-full max-w-[2560px] grid-cols-[1fr_auto_1fr] items-center px-6">
         <div className="justify-self-start">
           <Link
-            href="/catalog"
+            href={session ? '/catalog' : '/'}
             className="font-display text-[17px] font-semibold tracking-tight text-on-surface lowercase"
           >
             pole space<span className="text-primary">.</span>
