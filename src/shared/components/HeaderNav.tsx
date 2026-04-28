@@ -12,7 +12,7 @@ export default function HeaderNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="justify-self-center flex gap-1 rounded-full border border-outline-variant/40 bg-surface-container-lowest p-1">
+    <nav className="flex gap-1 justify-self-center rounded-full border border-outline-variant/40 bg-surface-container-lowest p-1">
       {NAV_LINKS.map(({ label, href }) => {
         const isActive = pathname === href || pathname.startsWith(href + '/');
         return (
