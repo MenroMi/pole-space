@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import MoveCardImage from '@/features/catalog/components/MoveCardImage';
 
+import { extractVideoId } from '../lib/youtube';
+
 type RelatedMove = {
   id: string;
   title: string;
@@ -13,11 +15,6 @@ type RelatedMove = {
 type RelatedMovesProps = {
   moves: RelatedMove[];
 };
-
-function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
 
 const DIFFICULTY_COLOR: Record<string, string> = {
   BEGINNER: 'text-on-secondary-container',

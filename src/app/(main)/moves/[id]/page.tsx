@@ -1,20 +1,22 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 
 import { getMoveByIdAction, getRelatedMovesAction, MovePlayer } from '@/features/moves';
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
+import { extractVideoId } from '@/features/moves/lib/youtube';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
 export async function generateStaticParams() {
-  const moves = await prisma.move.findMany({ select: { id: true } });
+  const moves = await prisma.move.findMany({ select: { id: true }, take: 1000 });
   return moves.map((m) => ({ id: m.id }));
 }
 
-function extractVideoId(url: string) {
-  return url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1] ?? null;
-}
+// cache() deduplicates this call within one request so generateMetadata
+// and the page component share the same DB result.
+const getMove = cache(getMoveByIdAction);
 
 export async function generateMetadata({
   params,
@@ -22,7 +24,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const move = await getMoveByIdAction(id, undefined);
+  const move = await getMove(id, undefined);
   if (!move) return {};
 
   const videoId = extractVideoId(move.youtubeUrl);

@@ -3,6 +3,8 @@ import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
+import { extractVideoId } from '../lib/youtube';
+
 type Phase = 'idle' | 'transitioning' | 'playing';
 
 type MoveHeroProps = {
@@ -11,11 +13,6 @@ type MoveHeroProps = {
   imageUrl: string | null;
   seekRequest?: { seconds: number };
 };
-
-function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
 
 // YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
 const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
