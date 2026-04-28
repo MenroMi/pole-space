@@ -19,10 +19,16 @@ const mockAuth = auth as ReturnType<typeof vi.fn>;
 beforeEach(() => vi.clearAllMocks());
 
 describe('Header', () => {
-  it('renders wordmark linking to /', async () => {
+  it('renders wordmark linking to / when unauthenticated', async () => {
     mockAuth.mockResolvedValue(null);
     render(await Header());
     expect(screen.getByRole('link', { name: /pole space/i })).toHaveAttribute('href', '/');
+  });
+
+  it('renders wordmark linking to /catalog when authenticated', async () => {
+    mockAuth.mockResolvedValue({ user: { id: '1', role: 'USER', name: 'Alice', image: null } });
+    render(await Header());
+    expect(screen.getByRole('link', { name: /pole space/i })).toHaveAttribute('href', '/catalog');
   });
 
   it('renders HeaderNav', async () => {
