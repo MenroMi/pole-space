@@ -84,7 +84,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
   const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1${startAt != null ? `&start=${startAt}` : ''}`;
 
   return (
-    <div className="relative h-[65vh] w-full overflow-hidden bg-black">
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-black">
       {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
