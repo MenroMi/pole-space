@@ -113,6 +113,32 @@
 - ~~Fix: add a test case for short/empty name before shipping to production~~
 - 3 tests added: 2 in `validation.test.ts` (min/max message strings), 1 in `SignupForm.test.tsx` (UI render)
 
+## Design System (feat/design-system — ready to merge, 2026-04-27)
+
+~~**Design system integration**~~ ✅ Done
+
+- CSS tokens, `.glass`, `.kinetic-gradient` fixes in `globals.css`
+- Header: 3-col grid, `FavouritesButton`, pill nav, search removed
+- MoveCard: hairline border, violet hover, Ken Burns image zoom
+- MoveGrid: editorial header + `minmax(240px, 1fr)` auto-fill grid
+- MoveBreadcrumb + RelatedMoves + Coach's Note in Move Detail
+- Auth layout: editorial left panel with animated blobs and pole silhouette
+- ProfileHero: dark gradient card with violet radial glow
+- Names: `capitalize` (was `lowercase`)
+- Layout: `max-w-[2560px]` on header/footer/main content
+- FavouriteMovesGallery: fixed invalid token (`bg-surface-container-low` → `bg-surface-low`), auto-fill grid
+- Fixed invalid tokens in MoveBreakdown: `surface-container-low` → `surface-low`, `surface-container-highest` → `surface-highest`
+
+**Coach's Note — hardcoded placeholder** (2026-04-27)
+
+- `src/features/moves/components/MoveBreakdown.tsx:46–52` renders a static quote for every move
+- Fix: add a `coachNote: String?` field to `Move` schema, render conditionally; or pull from `stepsData` metadata
+
+**`getRelatedMovesAction` — non-deterministic order** (2026-04-27)
+
+- `src/features/moves/actions.ts` — `prisma.move.findMany` has no `orderBy`
+- Fix: add `orderBy: { title: 'asc' }` for stable, predictable results
+
 ## Feature Gaps
 
 **Profile Settings — Preferences section not implemented** (2026-04-24)

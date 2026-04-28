@@ -211,7 +211,7 @@ export default function SettingsForm({
         <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center lg:col-span-4">
           <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
           <div className="space-y-2">
-            <p className="font-display text-xl text-on-surface">{displayName}</p>
+            <p className="font-display text-xl text-on-surface capitalize">{displayName}</p>
             {email && <p className="text-sm text-on-surface-variant">{email}</p>}
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
               <BadgeCheck size={14} aria-hidden="true" />

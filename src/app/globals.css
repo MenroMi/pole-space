@@ -20,6 +20,17 @@
   --outline: #978e9b;
   --outline-variant: #4b4450;
 
+  /* Aura / glow — used by .kinetic-gradient */
+  --aura-cta: 0 4px 16px -2px rgba(132, 88, 179, 0.4);
+  --aura-cta-hover: 0 6px 20px -2px rgba(220, 184, 255, 0.5);
+
+  /* Glass / blur — used by .glass utility */
+  --glass-blur: blur(24px);
+  --glass-tint: rgba(19, 19, 19, 0.8);
+
+  /* Borders — used by .glass utility */
+  --hairline-soft: 1px solid rgba(151, 142, 155, 0.15);
+
   /* shadcn compatibility layer — maps to Stitch tokens */
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -60,6 +71,7 @@
   --color-on-secondary-container: var(--on-secondary-container);
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
+  --color-surface-container-lowest: var(--surface-container-lowest);
   --font-sans: var(--font-manrope);
   --font-display: var(--font-space-grotesk);
 
@@ -158,6 +170,8 @@
     background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
     background-size: 200% 200%;
     background-position: left center;
+    color: var(--on-primary-container);
+    box-shadow: var(--aura-cta);
     transition:
       background-position 600ms ease,
       transform 300ms ease,
@@ -166,6 +180,14 @@
   }
   .kinetic-gradient:hover {
     background-position: right center;
+    box-shadow: var(--aura-cta-hover);
+  }
+
+  .glass {
+    background-color: var(--glass-tint);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--hairline-soft);
   }
 
   @media (prefers-reduced-motion: reduce) {

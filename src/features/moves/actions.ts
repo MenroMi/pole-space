@@ -1,4 +1,6 @@
 'use server';
+import type { Category } from '@prisma/client';
+
 import { prisma } from '@/shared/lib/prisma';
 
 import type { MoveDetail, StepItem } from './types';
@@ -26,4 +28,12 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
   );
 
   return { ...move, favourites, stepsData };
+}
+
+export async function getRelatedMovesAction(category: Category, excludeId: string) {
+  return prisma.move.findMany({
+    where: { category, id: { not: excludeId } },
+    select: { id: true, title: true, difficulty: true, imageUrl: true, youtubeUrl: true },
+    take: 4,
+  });
 }

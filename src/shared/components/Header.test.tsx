@@ -6,6 +6,7 @@ import { auth } from '@/shared/lib/auth';
 import Header from './Header';
 
 vi.mock('@/shared/lib/auth', () => ({ auth: vi.fn() }));
+vi.mock('./FavouritesButton', () => ({ default: () => <div data-testid="favourites-button" /> }));
 vi.mock('./HeaderNav', () => ({ default: () => <nav data-testid="header-nav" /> }));
 vi.mock('./UserMenu', () => ({
   default: (props: { user: { name: string | null; image: string | null } | null }) => (

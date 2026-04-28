@@ -54,18 +54,32 @@ beforeEach(() => {
 });
 
 describe('MoveGrid', () => {
+  it('renders editorial header with total count', () => {
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={242} filters={{}} />,
+    );
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+    expect(screen.getByText(/242 moves/i)).toBeInTheDocument();
+  });
+
   it('renders all initialMoves', () => {
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
     expect(screen.getAllByTestId('move-card')).toHaveLength(12);
   });
 
   it('observes sentinel when hasMore is true', () => {
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
     expect(observeMock).toHaveBeenCalled();
   });
 
   it('does not observe sentinel when initialHasMore is false', () => {
-    render(<MoveGrid initialMoves={makeMoves(5)} initialHasMore={false} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={makeMoves(5)} initialHasMore={false} totalCount={5} filters={{}} />,
+    );
     expect(observeMock).not.toHaveBeenCalled();
   });
 
@@ -73,7 +87,9 @@ describe('MoveGrid', () => {
     const newMoves = makeMoves(5, 12);
     mockGetMovesAction.mockResolvedValue({ items: newMoves, total: 17, page: 2, pageSize: 12 });
 
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
 
     await act(async () => {
       capturedObserverCallback(
@@ -91,7 +107,9 @@ describe('MoveGrid', () => {
     const newMoves = makeMoves(5, 12);
     mockGetMovesAction.mockResolvedValue({ items: newMoves, total: 17, page: 2, pageSize: 12 });
 
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
 
     await act(async () => {
       capturedObserverCallback(
@@ -113,6 +131,7 @@ describe('MoveGrid', () => {
       <MoveGrid
         initialMoves={initialMoves}
         initialHasMore={true}
+        totalCount={15}
         filters={{ difficulty: ['BEGINNER'] }}
       />,
     );
@@ -138,7 +157,9 @@ describe('MoveGrid', () => {
       pageSize: 12,
     });
 
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
 
     await act(async () => {
       capturedObserverCallback(
@@ -160,7 +181,9 @@ describe('MoveGrid', () => {
       }),
     );
 
-    render(<MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />);
+    render(
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={12} filters={{}} />,
+    );
 
     act(() => {
       capturedObserverCallback(
@@ -187,7 +210,7 @@ describe('MoveGrid', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { unmount } = render(
-      <MoveGrid initialMoves={initialMoves} initialHasMore={true} filters={{}} />,
+      <MoveGrid initialMoves={initialMoves} initialHasMore={true} totalCount={0} filters={{}} />,
     );
 
     act(() => {

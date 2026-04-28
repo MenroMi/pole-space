@@ -11,10 +11,16 @@ const PAGE_SIZE = 12;
 type MoveGridProps = {
   initialMoves: MoveWithTags[];
   initialHasMore: boolean;
+  totalCount: number;
   filters: MoveFilters;
 };
 
-export default function MoveGrid({ initialMoves, initialHasMore, filters }: MoveGridProps) {
+export default function MoveGrid({
+  initialMoves,
+  initialHasMore,
+  totalCount,
+  filters,
+}: MoveGridProps) {
   const [moves, setMoves] = useState(initialMoves);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -62,7 +68,15 @@ export default function MoveGrid({ initialMoves, initialHasMore, filters }: Move
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-8">
+        <p className="mb-3 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
+          Catalog · {totalCount} moves
+        </p>
+        <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
+          Every move, <em className="font-medium text-primary not-italic">indexed.</em>
+        </h1>
+      </div>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
         {moves.map((move) => (
           <MoveCard key={move.id} move={move} />
         ))}

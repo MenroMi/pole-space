@@ -1,4 +1,4 @@
-export { getMoveByIdAction } from './actions';
+export { getMoveByIdAction, getRelatedMovesAction } from './actions';
 export type { MoveDetail, StepItem } from './types';
 export { default as MoveHero } from './components/MoveHero';
 export { default as MovePlayer } from './components/MovePlayer';

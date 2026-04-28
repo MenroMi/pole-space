@@ -31,9 +31,9 @@ export default function MoveCard({ move }: { move: MoveWithTags }) {
   return (
     <Link
       href={`/moves/${move.id}`}
-      className="block overflow-hidden rounded-xl bg-surface-container transition-colors hover:bg-surface-high"
+      className="group block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
     >
-      <div className="relative flex aspect-video items-center justify-center bg-accent">
+      <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-accent">
         {imageSrc ? (
           <MoveCardImage src={imageSrc} alt={move.title} />
         ) : (

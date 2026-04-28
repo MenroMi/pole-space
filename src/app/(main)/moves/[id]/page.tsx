@@ -2,7 +2,15 @@ import type { Difficulty } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import type { CSSProperties } from 'react';
 
-import { getMoveByIdAction, MovePlayer, MoveFavouriteButton, MoveSpecs } from '@/features/moves';
+import {
+  getMoveByIdAction,
+  getRelatedMovesAction,
+  MovePlayer,
+  MoveFavouriteButton,
+  MoveSpecs,
+} from '@/features/moves';
+import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
+import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { auth } from '@/shared/lib/auth';
 
 const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSProperties }> = {
@@ -19,6 +27,8 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 
   if (!move) notFound();
 
+  const related = await getRelatedMovesAction(move.category, id);
+
   const isFavourited = move.favourites.length > 0;
   const isAuthenticated = !!userId;
   const badge = DIFFICULTY_BADGE[move.difficulty];
@@ -29,6 +39,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <main>
+      <MoveBreadcrumb category={move.category} moveName={move.title} />
       <MovePlayer
         title={move.title}
         youtubeUrl={move.youtubeUrl}
@@ -74,6 +85,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
           </p>
         )}
       </MovePlayer>
+      <RelatedMoves moves={related} />
     </main>
   );
 }

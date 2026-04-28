@@ -25,7 +25,7 @@ export default function MoveCardImage({ src, alt }: MoveCardImageProps) {
       src={src}
       alt={alt}
       fill
-      className="object-cover"
+      className="object-cover transition-transform duration-700 group-hover:scale-105"
       onLoad={(e) => {
         if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH) {
           setFailed(true);

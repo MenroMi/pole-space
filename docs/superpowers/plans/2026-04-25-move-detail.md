@@ -449,7 +449,7 @@ type SpecItem = { label: string; value: string };
 
 function SpecCard({ label, value }: SpecItem) {
   return (
-    <div className="bg-surface-container-lowest flex flex-col gap-2 rounded-lg border border-outline-variant/15 p-6">
+    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant/15 bg-surface-container-lowest p-6">
       <span className="font-sans text-[10px] tracking-widest text-on-surface-variant uppercase">
         {label}
       </span>

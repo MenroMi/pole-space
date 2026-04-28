@@ -4,38 +4,47 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Editorial side */}
-      <div className="relative hidden flex-col items-start justify-end overflow-hidden bg-surface-lowest p-20 pb-24 lg:flex lg:w-3/5 xl:w-2/3">
-        {/* Gradient glow decorations */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-surface-lowest p-12 pb-10 lg:flex lg:w-3/5 xl:w-2/3">
+        {/* Animated blobs */}
         <div className="absolute -top-40 -left-40 h-[600px] w-[600px] animate-blob-a rounded-full bg-primary-container/40 blur-3xl" />
         <div className="absolute top-1/3 left-1/4 h-[400px] w-[400px] animate-blob-b rounded-full bg-primary/25 blur-3xl" />
         <div className="absolute inset-0 bg-gradient-to-t from-surface-lowest via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-surface-lowest/60 via-transparent to-transparent" />
 
-        {/* Content */}
-        <div className="relative z-10 max-w-xl">
-          <h1 className="mb-6 font-display text-8xl leading-none font-black tracking-tighter text-on-surface lowercase">
-            pole
-            <br />
-            <span className="text-primary">space</span>
-          </h1>
-          <p className="max-w-sm text-lg leading-relaxed text-on-surface-variant">
-            transform movement into art. access the world&rsquo;s most technical library of pole
-            performance.
+        {/* Pole silhouette — thin vertical line centered */}
+        <div
+          aria-hidden
+          className="absolute top-0 left-1/2 h-full w-px -translate-x-1/2"
+          style={{
+            background:
+              'linear-gradient(180deg, transparent 0%, #978e9b 20%, #978e9b 80%, transparent 100%)',
+            opacity: 0.15,
+          }}
+        />
+
+        {/* Wordmark */}
+        <Link
+          href="/"
+          className="relative z-10 font-display text-xl font-semibold tracking-tight text-on-surface lowercase"
+        >
+          pole space<span className="text-primary">.</span>
+        </Link>
+
+        {/* Editorial body */}
+        <div className="relative z-10 max-w-xl space-y-5">
+          <p className="text-[10px] font-semibold tracking-[0.18em] text-outline uppercase">
+            v.0.1 — kinetic gallery
           </p>
-          <div className="mt-10 flex items-center gap-6">
-            <div className="h-px w-20 bg-primary-container/40" />
-            <span className="text-[10px] tracking-widest text-primary/50 uppercase">
-              curated technical excellence
-            </span>
-          </div>
+          <h1 className="font-display text-7xl leading-[0.95] font-bold tracking-tighter text-on-surface lowercase">
+            A catalog of <em className="font-medium text-primary not-italic">every</em> move
+            you&apos;ve ever wanted to learn.
+          </h1>
         </div>
 
-        {/* Decorative vertical bars */}
-        <div className="absolute top-8 right-8 flex gap-1.5 opacity-20 mix-blend-overlay">
-          <div className="h-8 w-0.5 bg-primary" />
-          <div className="h-4 w-0.5 bg-primary" />
-          <div className="h-12 w-0.5 bg-primary" />
-        </div>
+        {/* Footer */}
+        <p className="relative z-10 text-[10px] font-semibold tracking-[0.18em] text-outline-variant uppercase">
+          © 2026 pole space — for the kinetic gallery
+        </p>
       </div>
 
       {/* Form side */}
@@ -46,7 +55,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             href="/"
             className="font-display text-xl font-bold tracking-tight text-on-surface lowercase"
           >
-            pole space
+            pole space<span className="text-primary">.</span>
           </Link>
         </div>
         {children}

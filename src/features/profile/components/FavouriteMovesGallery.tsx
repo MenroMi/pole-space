@@ -189,14 +189,14 @@ export default function FavouriteMovesGallery({
 
         {/* Grid */}
         {filtered.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">
             {filtered.map((fav) => {
               const badge = DIFFICULTY_BADGE[fav.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
               return (
                 <Link
                   key={fav.id}
                   href={`/moves/${fav.moveId}`}
-                  className="group bg-surface-container-low hover:bg-surface-container-highest relative block overflow-hidden rounded-xl transition-all duration-300 hover:-translate-y-1"
+                  className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-low transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
                 >
                   {/* Image */}
                   <div className="relative aspect-[4/5] overflow-hidden">
