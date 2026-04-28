@@ -63,18 +63,12 @@ describe('RelatedMoves', () => {
     expect(img).toHaveAttribute('src', 'https://example.com/thumb.jpg');
   });
 
-  it('renders the first letter as fallback when no thumbnail is available', () => {
-    render(
+  it('renders no img when no thumbnail is available', () => {
+    const { container } = render(
       <RelatedMoves
-        moves={[
-          makeMove({
-            title: 'Fireman Spin',
-            imageUrl: null,
-            youtubeUrl: 'https://example.com/not-youtube',
-          }),
-        ]}
+        moves={[makeMove({ imageUrl: null, youtubeUrl: 'https://example.com/not-youtube' })]}
       />,
     );
-    expect(screen.getByText('F')).toBeInTheDocument();
+    expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 });

@@ -48,16 +48,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
               className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
               <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-accent">
-                {/* Letter always in bg — visible when there is no thumb or image fails */}
-                <span className="font-display text-4xl font-semibold text-primary/30">
-                  {move.title.charAt(0).toUpperCase()}
-                </span>
-                {/* Absolute wrapper keeps MoveCardImage (fill or fallback icon) in place */}
-                {thumb && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <MoveCardImage src={thumb} alt={move.title} />
-                  </div>
-                )}
+                {thumb && <MoveCardImage src={thumb} alt={move.title} />}
               </div>
               <div className="p-3">
                 <p className="truncate font-display text-sm font-semibold text-on-surface">
