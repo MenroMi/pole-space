@@ -1,5 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('next/image', () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
+}));
 
 import RelatedMoves from './RelatedMoves';
 
@@ -39,13 +43,38 @@ describe('RelatedMoves', () => {
     expect(screen.getAllByRole('link')).toHaveLength(4);
   });
 
-  it('renders the first letter of the title in the icon area', () => {
-    render(<RelatedMoves moves={[makeMove({ title: 'Fireman Spin' })]} />);
-    expect(screen.getByText('F')).toBeInTheDocument();
+  it('renders a thumbnail img when youtubeUrl is provided', () => {
+    const { container } = render(
+      <RelatedMoves
+        moves={[makeMove({ youtubeUrl: 'https://youtube.com/watch?v=abc1234abcd' })]}
+      />,
+    );
+    const img = container.querySelector('img');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', expect.stringContaining('abc1234abcd'));
   });
 
-  it('does not render an img element', () => {
-    const { container } = render(<RelatedMoves moves={[makeMove()]} />);
-    expect(container.querySelector('img')).not.toBeInTheDocument();
+  it('renders a thumbnail img when imageUrl is provided', () => {
+    const { container } = render(
+      <RelatedMoves moves={[makeMove({ imageUrl: 'https://example.com/thumb.jpg' })]} />,
+    );
+    const img = container.querySelector('img');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'https://example.com/thumb.jpg');
+  });
+
+  it('renders the first letter as fallback when no thumbnail is available', () => {
+    render(
+      <RelatedMoves
+        moves={[
+          makeMove({
+            title: 'Fireman Spin',
+            imageUrl: null,
+            youtubeUrl: 'https://example.com/not-youtube',
+          }),
+        ]}
+      />,
+    );
+    expect(screen.getByText('F')).toBeInTheDocument();
   });
 });

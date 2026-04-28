@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import MoveCardImage from '@/features/catalog/components/MoveCardImage';
+
 type RelatedMove = {
   id: string;
   title: string;
@@ -12,34 +14,61 @@ type RelatedMovesProps = {
   moves: RelatedMove[];
 };
 
+function extractVideoId(url: string): string | null {
+  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+const DIFFICULTY_COLOR: Record<string, string> = {
+  BEGINNER: 'text-on-secondary-container',
+  INTERMEDIATE: 'text-primary',
+  ADVANCED: 'text-amber-300',
+};
+
 export default function RelatedMoves({ moves }: RelatedMovesProps) {
   if (moves.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-[1280px] px-8 pb-16">
-      <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+      <p className="mb-4 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
         Related moves
       </p>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {moves.map((move) => (
-          <Link
-            key={move.id}
-            href={`/moves/${move.id}`}
-            className="flex items-center gap-3 rounded-lg border border-outline-variant/15 bg-surface-container p-3 transition-colors hover:border-primary/40"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface font-display text-lg text-primary/50">
-              {move.title.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex min-w-0 flex-col">
-              <p className="truncate font-display text-sm font-medium text-on-surface">
-                {move.title}
-              </p>
-              <p className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
-                {move.difficulty}
-              </p>
-            </div>
-          </Link>
-        ))}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {moves.map((move) => {
+          const videoId = extractVideoId(move.youtubeUrl);
+          const thumb =
+            move.imageUrl ??
+            (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+          const levelColor = DIFFICULTY_COLOR[move.difficulty] ?? 'text-on-surface-variant';
+
+          return (
+            <Link
+              key={move.id}
+              href={`/moves/${move.id}`}
+              className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
+            >
+              <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-surface-container">
+                {thumb ? (
+                  <MoveCardImage src={thumb} alt={move.title} />
+                ) : (
+                  <span className="font-display text-4xl font-semibold text-primary/30">
+                    {move.title.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="p-3">
+                <p className="truncate font-display text-sm font-semibold text-on-surface">
+                  {move.title}
+                </p>
+                <p
+                  className={`mt-1 text-[10px] font-semibold tracking-widest uppercase ${levelColor}`}
+                >
+                  {move.difficulty}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
