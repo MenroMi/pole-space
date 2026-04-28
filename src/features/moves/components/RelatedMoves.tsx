@@ -29,7 +29,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
   if (moves.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[1280px] px-8 pb-16">
+    <section className="mx-auto max-w-[1280px] px-4 pb-16 sm:px-8">
       <p className="mb-4 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
         Related moves
       </p>

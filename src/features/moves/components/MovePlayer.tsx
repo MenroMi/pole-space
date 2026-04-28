@@ -86,7 +86,7 @@ export default function MovePlayer({
   const difficultyLabel = formatLabel(difficulty);
 
   return (
-    <div className="mx-auto max-w-[1280px] px-8 py-8">
+    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-8">
       {/* Hero grid */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_1fr]">
         {/* Left: video player */}
@@ -108,7 +108,7 @@ export default function MovePlayer({
           </span>
 
           {/* Title */}
-          <h1 className="font-display text-[64px] leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase">
+          <h1 className="font-display text-[40px] leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:text-[52px] lg:text-[64px]">
             {title}
           </h1>
 
