@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 
-import { updateProgressAction } from '@/features/profile/actions';
+import { removeProgressAction, updateProgressAction } from '@/features/profile/actions';
 import ProgressStatusPicker from '@/features/profile/components/ProgressStatusPicker';
 import type { LearnStatus } from '@/shared/types';
 
@@ -12,15 +12,19 @@ export function MoveProgressPicker({
   moveId: string;
   initialStatus: LearnStatus | null;
 }) {
-  const [status, setStatus] = useState<LearnStatus>(initialStatus ?? 'WANT_TO_LEARN');
+  const [status, setStatus] = useState<LearnStatus | null>(initialStatus);
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(next: LearnStatus) {
+  function handleChange(next: LearnStatus | null) {
     const previous = status;
     setStatus(next);
     startTransition(async () => {
       try {
-        await updateProgressAction(moveId, next);
+        if (next === null) {
+          await removeProgressAction(moveId);
+        } else {
+          await updateProgressAction(moveId, next);
+        }
       } catch {
         setStatus(previous);
       }

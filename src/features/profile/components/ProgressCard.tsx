@@ -5,7 +5,7 @@ import { useTransition } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
-import { updateProgressAction } from '../actions';
+import { removeProgressAction, updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
 
 import ProgressStatusPicker from './ProgressStatusPicker';
@@ -20,9 +20,13 @@ export default function ProgressCard({ item }: { item: ProgressWithMove }) {
   const [isPending, startTransition] = useTransition();
   const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
-  function handleStatusChange(status: LearnStatus) {
+  function handleStatusChange(status: LearnStatus | null) {
     startTransition(async () => {
-      await updateProgressAction(item.move.id, status);
+      if (status === null) {
+        await removeProgressAction(item.move.id);
+      } else {
+        await updateProgressAction(item.move.id, status);
+      }
     });
   }
 

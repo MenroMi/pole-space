@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/features/profile/actions', () => ({
   updateProgressAction: vi.fn().mockResolvedValue(undefined),
+  removeProgressAction: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@/features/profile/components/ProgressStatusPicker', () => ({
@@ -13,8 +14,8 @@ vi.mock('@/features/profile/components/ProgressStatusPicker', () => ({
       onStatusChange,
       isPending,
     }: {
-      currentStatus: string;
-      onStatusChange: (s: string) => void;
+      currentStatus: string | null;
+      onStatusChange: (s: string | null) => void;
       isPending: boolean;
     }) => (
       <div>
@@ -32,9 +33,9 @@ import { MoveProgressPicker } from './MoveProgressPicker';
 beforeEach(() => vi.clearAllMocks());
 
 describe('MoveProgressPicker', () => {
-  it('renders with WANT_TO_LEARN when initialStatus is null', () => {
+  it('renders with null status when initialStatus is null', () => {
     render(<MoveProgressPicker moveId="m1" initialStatus={null} />);
-    expect(screen.getByTestId('status').textContent).toBe('WANT_TO_LEARN');
+    expect(screen.getByTestId('status').textContent).toBe('');
   });
 
   it('renders with provided initialStatus', () => {
@@ -61,6 +62,6 @@ describe('MoveProgressPicker', () => {
     const user = userEvent.setup();
     render(<MoveProgressPicker moveId="m1" initialStatus={null} />);
     await user.click(screen.getByRole('button', { name: 'set learned' }));
-    expect(screen.getByTestId('status').textContent).toBe('WANT_TO_LEARN');
+    expect(screen.getByTestId('status').textContent).toBe('');
   });
 });
