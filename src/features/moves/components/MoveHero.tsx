@@ -102,7 +102,9 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
             alt={title}
             fill
             priority
-            className="object-cover opacity-80"
+            className={`object-cover opacity-80 transition-[transform,filter] duration-500 ${
+              phase === 'transitioning' ? 'scale-110 blur-sm' : 'scale-100 blur-none'
+            }`}
             onLoad={(e) => {
               if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH)
                 setThumbnailFailed(true);
