@@ -63,7 +63,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
         setPhase('playing');
       } else {
         setPhase('transitioning');
-        timeoutRef.current = setTimeout(() => setPhase('playing'), 700);
+        timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
       }
     }
     // 'transitioning': ignore — animation already in progress
@@ -77,7 +77,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
       setPhase('playing');
     } else {
       setPhase('transitioning');
-      timeoutRef.current = setTimeout(() => setPhase('playing'), 700);
+      timeoutRef.current = setTimeout(() => setPhase('playing'), 500);
     }
   }
 
@@ -94,7 +94,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
         }}
       />
 
-      {/* Thumbnail — zooms through and fades out while video fades in on top */}
+      {/* Thumbnail — zooms, blurs and fades during transitioning */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
           <Image
@@ -102,11 +102,10 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
             alt={title}
             fill
             priority
-            style={{
-              transition: 'transform 500ms cubic-bezier(0.4,0,1,1), opacity 200ms ease 300ms',
-            }}
-            className={`object-cover ${
-              phase === 'transitioning' ? 'scale-[2.5] opacity-0' : 'scale-100 opacity-80'
+            className={`object-cover transition-all duration-500 ${
+              phase === 'transitioning'
+                ? 'scale-110 opacity-0 blur-sm'
+                : 'scale-100 opacity-80 blur-none'
             }`}
             onLoad={(e) => {
               if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH)
@@ -118,14 +117,13 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
           <div className="absolute inset-0 bg-surface-container" />
         ))}
 
-      {/* iframe — fades in while thumbnail zooms away */}
+      {/* iframe — mounts during transitioning (opacity-0), fades in, stays for playing */}
       {phase !== 'idle' && hasVideo && (
         <iframe
           key={iframeKey}
           src={iframeSrc}
           title={title}
-          style={{ transition: 'opacity 300ms ease 350ms' }}
-          className={`absolute inset-0 h-full w-full border-0 ${
+          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
             phase === 'transitioning' ? 'opacity-0' : 'opacity-100'
           }`}
           allow="autoplay; encrypted-media; fullscreen"
