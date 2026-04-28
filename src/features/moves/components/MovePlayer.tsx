@@ -124,7 +124,12 @@ export default function MovePlayer({
               {tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase"
+                  className={`rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase ${
+                    tag.color ? '' : 'border border-outline-variant/30 text-on-surface-variant'
+                  }`}
+                  style={
+                    tag.color ? { backgroundColor: `${tag.color}28`, color: tag.color } : undefined
+                  }
                 >
                   {tag.name}
                 </span>
