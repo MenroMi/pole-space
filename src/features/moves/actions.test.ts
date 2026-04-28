@@ -17,6 +17,7 @@ const mockProgressFindFirst = prisma.userProgress.findFirst as ReturnType<typeof
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockFavouriteFindMany.mockResolvedValue([]);
   mockProgressFindFirst.mockResolvedValue(null);
 });
 
@@ -73,8 +74,6 @@ describe('getMoveByIdAction', () => {
 
   it('returns currentProgress: null when no UserProgress record exists', async () => {
     mockFindUnique.mockResolvedValue(move);
-    mockFavouriteFindMany.mockResolvedValue([]);
-    mockProgressFindFirst.mockResolvedValue(null);
     const result = await getMoveByIdAction('move-1', 'user-1');
     expect(result?.currentProgress).toBeNull();
     expect(mockProgressFindFirst).toHaveBeenCalledWith({
