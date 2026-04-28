@@ -43,6 +43,8 @@ type MovePlayerProps = {
   gripType: string | null;
   entry: string | null;
   duration: string | null;
+  coachNote: string | null;
+  coachNoteAuthor: string | null;
 };
 
 export default function MovePlayer({
@@ -61,6 +63,8 @@ export default function MovePlayer({
   gripType,
   entry,
   duration,
+  coachNote,
+  coachNoteAuthor,
 }: MovePlayerProps) {
   const [seekRequest, setSeekRequest] = useState<{ seconds: number } | null>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -167,7 +171,12 @@ export default function MovePlayer({
 
       {/* Tabs — full width below specs */}
       <div className="mt-10">
-        <MoveTabs stepsData={stepsData} onSeek={handleSeek} />
+        <MoveTabs
+          stepsData={stepsData}
+          onSeek={handleSeek}
+          coachNote={coachNote}
+          coachNoteAuthor={coachNoteAuthor}
+        />
       </div>
     </div>
   );

@@ -40,6 +40,8 @@ const move = {
   favourites: [],
   currentProgress: null,
   tags: [],
+  coachNote: null,
+  coachNoteAuthor: null,
 };
 
 beforeEach(() => {

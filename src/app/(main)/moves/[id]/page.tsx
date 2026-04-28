@@ -78,6 +78,8 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
         gripType={move.gripType}
         entry={move.entry}
         duration={move.duration}
+        coachNote={move.coachNote}
+        coachNoteAuthor={move.coachNoteAuthor}
       />
       <RelatedMoves moves={related} />
     </main>

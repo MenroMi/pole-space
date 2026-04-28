@@ -16,9 +16,13 @@ const TABS: { id: Tab; label: string }[] = [
 export default function MoveTabs({
   stepsData,
   onSeek,
+  coachNote,
+  coachNoteAuthor,
 }: {
   stepsData: StepItem[];
   onSeek: (seconds: number) => void;
+  coachNote: string | null;
+  coachNoteAuthor: string | null;
 }) {
   const [active, setActive] = useState<Tab>('breakdown');
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -79,7 +83,14 @@ export default function MoveTabs({
 
       <div id="move-tabpanel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0}>
         <div key={active} className="animate-in duration-200 fade-in-0 slide-in-from-bottom-2">
-          {active === 'breakdown' && <MoveBreakdown stepsData={stepsData} onSeek={onSeek} />}
+          {active === 'breakdown' && (
+            <MoveBreakdown
+              stepsData={stepsData}
+              onSeek={onSeek}
+              coachNote={coachNote}
+              coachNoteAuthor={coachNoteAuthor}
+            />
+          )}
           {(active === 'muscles' || active === 'safety') && (
             <p className="py-12 text-center font-display text-xs font-bold tracking-[0.3em] text-on-surface-variant uppercase">
               Coming soon

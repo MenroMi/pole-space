@@ -73,9 +73,11 @@ model Move {
   youtubeUrl  String
   imageUrl    String?
   stepsData   Json       @default("[]")
-  gripType    String?
-  entry       String?
-  duration    String?
+  gripType         String?
+  entry            String?
+  duration         String?
+  coachNote        String?
+  coachNoteAuthor  String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 

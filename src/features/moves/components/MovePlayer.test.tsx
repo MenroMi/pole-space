@@ -50,6 +50,8 @@ const baseProps = {
   gripType: null,
   entry: null,
   duration: null,
+  coachNote: null,
+  coachNoteAuthor: null,
 };
 
 describe('MovePlayer', () => {

@@ -25,6 +25,8 @@ const baseMove: MoveWithTags = {
   gripType: null,
   entry: null,
   duration: null,
+  coachNote: null,
+  coachNoteAuthor: null,
 };
 
 describe('MoveCard', () => {
