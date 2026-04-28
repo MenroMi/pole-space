@@ -1,5 +1,6 @@
 'use client';
 import type { Difficulty, PoleType, Tag } from '@prisma/client';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
@@ -144,10 +145,17 @@ export default function MovePlayer({
               isFavourited={isFavourited}
               isAuthenticated={isAuthenticated}
             />
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <div className="flex-1">
                 <MoveProgressPicker moveId={moveId} initialStatus={currentProgress} />
               </div>
+            ) : (
+              <Link
+                href="/login"
+                className="h-full flex-1 rounded-lg border border-outline-variant/20 px-3 py-3 text-center font-sans text-xs font-semibold text-on-surface-variant transition-colors hover:border-outline-variant/40 hover:text-on-surface"
+              >
+                Log in to track progress
+              </Link>
             )}
           </div>
         </div>
