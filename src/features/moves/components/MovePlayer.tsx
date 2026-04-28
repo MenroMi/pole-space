@@ -101,6 +101,7 @@ export default function MovePlayer({
         <div className="flex flex-col gap-5">
           {/* Difficulty chip */}
           <span
+            aria-label={difficultyLabel}
             className={`w-fit rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase ${badge.className}`}
             style={badge.style}
           >

@@ -10,7 +10,7 @@ export default function MoveBreadcrumb({ category, moveName }: MoveBreadcrumbPro
   return (
     <nav
       aria-label="Breadcrumb"
-      className="mx-auto flex max-w-[1280px] items-center gap-1.5 px-6 pt-6 text-xs text-on-surface-variant md:px-12"
+      className="mx-auto flex max-w-[1280px] items-center gap-1.5 px-4 pt-6 text-xs text-on-surface-variant sm:px-8"
     >
       <Link href="/catalog" className="transition-colors hover:text-on-surface">
         Catalog
