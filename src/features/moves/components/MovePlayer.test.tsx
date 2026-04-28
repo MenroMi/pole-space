@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -11,12 +12,16 @@ vi.mock('./MoveHero', () => ({
   )),
 }));
 
-vi.mock('./MoveTabs', () => ({
+vi.mock('./MoveBreakdown', () => ({
   default: vi.fn(({ onSeek }: { onSeek: (s: number) => void }) => (
     <button type="button" onClick={() => onSeek(45)}>
       seek
     </button>
   )),
+}));
+
+vi.mock('./MoveTabs', () => ({
+  default: vi.fn(({ breakdown }: { breakdown: React.ReactNode }) => <>{breakdown}</>),
 }));
 
 vi.mock('./MoveFavouriteButton', () => ({

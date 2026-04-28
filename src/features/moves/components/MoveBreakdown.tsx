@@ -54,7 +54,10 @@ export default function MoveBreakdown({
 
         {coachNote && (
           <aside className="hidden self-start rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-6 lg:block">
-            <p className="mb-3 text-[10px] font-semibold tracking-[0.16em] text-primary uppercase">
+            <p
+              data-testid="coach-note-label"
+              className="mb-3 text-[10px] font-semibold tracking-[0.16em] text-primary uppercase"
+            >
               Coach&apos;s Note
             </p>
             <p className="text-sm leading-relaxed text-on-surface-variant">

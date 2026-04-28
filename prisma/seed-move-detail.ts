@@ -1,7 +1,6 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
-import 'dotenv/config';
 import { Pool } from 'pg';
 
 config({ path: '.env.local', override: true });

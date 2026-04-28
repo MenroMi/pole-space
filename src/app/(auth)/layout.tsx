@@ -36,7 +36,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             v.0.1 — kinetic gallery
           </p>
           <h1 className="font-display text-7xl leading-[0.95] font-bold tracking-tighter text-on-surface lowercase">
-            A catalog of <em className="font-medium text-primary not-italic">every</em> move
+            A catalog of <em className="font-medium text-primary not-italic">every</em>&nbsp;move
             you&apos;ve ever wanted to learn.
           </h1>
         </div>

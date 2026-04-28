@@ -92,7 +92,7 @@ describe('MoveBreakdown', () => {
         coachNoteAuthor={null}
       />,
     );
-    expect(screen.queryByText("Coach's Note")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('coach-note-label')).not.toBeInTheDocument();
   });
 
   it('renders coach note without author line when coachNoteAuthor is null', () => {

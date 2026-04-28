@@ -8,6 +8,7 @@ import type { LearnStatus } from '@/shared/types';
 
 import type { StepItem } from '../types';
 
+import MoveBreakdown from './MoveBreakdown';
 import MoveFavouriteButton from './MoveFavouriteButton';
 import MoveHero from './MoveHero';
 import { MoveProgressPicker } from './MoveProgressPicker';
@@ -172,10 +173,14 @@ export default function MovePlayer({
       {/* Tabs — full width below specs */}
       <div className="mt-10">
         <MoveTabs
-          stepsData={stepsData}
-          onSeek={handleSeek}
-          coachNote={coachNote}
-          coachNoteAuthor={coachNoteAuthor}
+          breakdown={
+            <MoveBreakdown
+              stepsData={stepsData}
+              onSeek={handleSeek}
+              coachNote={coachNote}
+              coachNoteAuthor={coachNoteAuthor}
+            />
+          }
         />
       </div>
     </div>
