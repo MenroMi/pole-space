@@ -36,4 +36,16 @@ describe('MoveSpecs', () => {
     expect(screen.getByText('Duration')).toBeInTheDocument();
     expect(screen.getByText('Pole Setting')).toBeInTheDocument();
   });
+
+  it('renders "Specs" section label when specs are present', () => {
+    render(<MoveSpecs gripType="Twisted" entry={null} duration={null} poleType={null} />);
+    expect(screen.getByText('Specs')).toBeInTheDocument();
+  });
+
+  it('does not render "Specs" label when no specs', () => {
+    const { container } = render(
+      <MoveSpecs gripType={null} entry={null} duration={null} poleType={null} />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
 });
