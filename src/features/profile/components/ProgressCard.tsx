@@ -1,7 +1,7 @@
 'use client';
 import { ImageOff } from 'lucide-react';
 import Image from 'next/image';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
@@ -18,14 +18,21 @@ const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSPro
 
 export default function ProgressCard({ item }: { item: ProgressWithMove }) {
   const [isPending, startTransition] = useTransition();
+  const [displayStatus, setDisplayStatus] = useState<LearnStatus>(item.status);
   const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
   function handleStatusChange(status: LearnStatus | null) {
+    const previous = displayStatus;
+    if (status !== null) setDisplayStatus(status);
     startTransition(async () => {
-      if (status === null) {
-        await removeProgressAction(item.move.id);
-      } else {
-        await updateProgressAction(item.move.id, status);
+      try {
+        if (status === null) {
+          await removeProgressAction(item.move.id);
+        } else {
+          await updateProgressAction(item.move.id, status);
+        }
+      } catch {
+        setDisplayStatus(previous);
       }
     });
   }
@@ -52,7 +59,7 @@ export default function ProgressCard({ item }: { item: ProgressWithMove }) {
           <h3 className="font-display font-semibold text-on-surface">{item.move.title}</h3>
         </div>
         <ProgressStatusPicker
-          currentStatus={item.status}
+          currentStatus={displayStatus}
           onStatusChange={handleStatusChange}
           isPending={isPending}
         />

@@ -22,12 +22,13 @@ vi.mock('@/features/profile/components/ProgressStatusPicker', () => ({
         <span data-testid="status">{currentStatus}</span>
         <span data-testid="pending">{String(isPending)}</span>
         <button onClick={() => onStatusChange('LEARNED')}>set learned</button>
+        <button onClick={() => onStatusChange(null)}>clear status</button>
       </div>
     ),
   ),
 }));
 
-import { updateProgressAction } from '@/features/profile/actions';
+import { updateProgressAction, removeProgressAction } from '@/features/profile/actions';
 import { MoveProgressPicker } from './MoveProgressPicker';
 
 beforeEach(() => vi.clearAllMocks());
@@ -57,11 +58,26 @@ describe('MoveProgressPicker', () => {
     expect(screen.getByTestId('status').textContent).toBe('LEARNED');
   });
 
-  it('rolls back status if action throws', async () => {
+  it('rolls back status if updateProgressAction throws', async () => {
     vi.mocked(updateProgressAction).mockRejectedValueOnce(new Error('Unauthorized'));
     const user = userEvent.setup();
     render(<MoveProgressPicker moveId="m1" initialStatus={null} />);
     await user.click(screen.getByRole('button', { name: 'set learned' }));
     expect(screen.getByTestId('status').textContent).toBe('');
+  });
+
+  it('calls removeProgressAction when status is set to null', async () => {
+    const user = userEvent.setup();
+    render(<MoveProgressPicker moveId="m1" initialStatus="IN_PROGRESS" />);
+    await user.click(screen.getByRole('button', { name: 'clear status' }));
+    expect(removeProgressAction).toHaveBeenCalledWith('m1');
+  });
+
+  it('rolls back status if removeProgressAction throws', async () => {
+    vi.mocked(removeProgressAction).mockRejectedValueOnce(new Error('Unauthorized'));
+    const user = userEvent.setup();
+    render(<MoveProgressPicker moveId="m1" initialStatus="IN_PROGRESS" />);
+    await user.click(screen.getByRole('button', { name: 'clear status' }));
+    expect(screen.getByTestId('status').textContent).toBe('IN_PROGRESS');
   });
 });
