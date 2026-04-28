@@ -94,7 +94,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
         }}
       />
 
-      {/* Thumbnail — visible in idle, fades out during transitioning */}
+      {/* Thumbnail — stays visible until video fully loads on top */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
           <Image
@@ -102,9 +102,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
             alt={title}
             fill
             priority
-            className={`object-cover transition-opacity duration-300 ${
-              phase === 'transitioning' ? 'opacity-0' : 'opacity-80'
-            }`}
+            className="object-cover opacity-80"
             onLoad={(e) => {
               if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH)
                 setThumbnailFailed(true);
