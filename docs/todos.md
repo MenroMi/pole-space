@@ -113,6 +113,20 @@
 - ~~Fix: add a test case for short/empty name before shipping to production~~
 - 3 tests added: 2 in `validation.test.ts` (min/max message strings), 1 in `SignupForm.test.tsx` (UI render)
 
+## Move Detail Redesign (feat/app-redesign — plan written, 2026-04-28)
+
+**Spec:** `docs/superpowers/specs/2026-04-28-move-detail-redesign.md`
+**Plan:** `docs/superpowers/plans/2026-04-28-move-detail-redesign.md`
+
+- [ ] Task 1: Data layer — `currentProgress: LearnStatus | null` в `MoveDetail` + `getMoveByIdAction`
+- [ ] Task 2: `MoveProgressPicker` — client wrapper над `ProgressStatusPicker`
+- [ ] Task 3: `MoveHero` — `h-[65vh]` → `aspect-[16/9]`
+- [ ] Task 4: `MovePlayer` — 2-col hero grid + info panel (title, difficulty chip, desc, tags, actions)
+- [ ] Task 5: `MoveSpecs` — добавить "SPECS" section label
+- [ ] Task 6: `MoveTabs` — gradient underline `from-primary to-[#8458b3]`
+- [ ] Task 7: `RelatedMoves` — горизонтальные карточки (letter icon + title + difficulty)
+- [ ] Task 8: `page.tsx` — подключить `currentProgress`, `MoveProgressPicker`, сдвинуть `MoveSpecs` за пределы `MovePlayer`
+
 ## Design System (feat/design-system — ready to merge, 2026-04-27)
 
 ~~**Design system integration**~~ ✅ Done
