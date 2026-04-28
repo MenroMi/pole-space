@@ -43,7 +43,10 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
 
   if (!move) return notFound();
 
-  const related = await getRelatedMovesAction(move.category, id);
+  const related = await getRelatedMovesAction(
+    move.tags.map((t) => t.id),
+    id,
+  );
 
   const isFavourited = move.favourites.length > 0;
   const isAuthenticated = !!userId;
