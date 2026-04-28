@@ -90,9 +90,26 @@ Defined in `src/app/landing.module.css`, imported in `page.tsx`.
 
 All colors are hardcoded per the design file (landing uses `#0d0e0f` bg, slightly outside the standard token range). Typography uses `var(--font-display)` and `var(--font-sans)` from the root layout's font variables.
 
+## Accessibility
+
+- Brand wordmark `<span>` gets `aria-label="pole space"` — screen readers announce the name cleanly without the decorative dot
+- Violet dot `<span>` gets `aria-hidden="true"` — purely decorative, excluded from the accessibility tree
+
+## Page Metadata
+
+Export a page-level `metadata` object from `page.tsx` to override the generic root layout title:
+
+```ts
+export const metadata: Metadata = {
+  title: 'pole space — a catalog of pole dance moves',
+  description:
+    'A small, careful catalog of pole moves — written by performers we know, photographed in studios we visit. No feed, no streaks. Just the moves and your notes.',
+};
+```
+
 ## Out of Scope
 
-- OG/social metadata (can be added later)
+- OG/social images
 - Analytics/tracking
 - Password reset flow
 - OAuth buttons

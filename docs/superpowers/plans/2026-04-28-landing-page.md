@@ -423,3 +423,53 @@ Expected: 346 passing (341 baseline + 5 new), 0 failures.
 git add src/app/page.tsx src/app/page.test.tsx
 git commit -m "feat: landing page — auth redirect + minimal design"
 ```
+
+---
+
+### Task 3: Accessibility + metadata
+
+**Files:**
+
+- Modify: `src/app/page.tsx`
+
+- [ ] **Step 1: Add aria attributes to brand wordmark**
+
+In `src/app/page.tsx`, update the topbar brand span:
+
+```tsx
+<span className={styles.brand} aria-label="pole space">
+  pole space
+  <span className={styles.dot} aria-hidden="true">
+    .
+  </span>
+</span>
+```
+
+- [ ] **Step 2: Add page-level metadata export**
+
+Add at the top of `src/app/page.tsx` (after imports, before the component):
+
+```ts
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'pole space — a catalog of pole dance moves',
+  description:
+    'A small, careful catalog of pole moves — written by performers we know, photographed in studios we visit. No feed, no streaks. Just the moves and your notes.',
+};
+```
+
+- [ ] **Step 3: Run full test suite**
+
+```bash
+npm test
+```
+
+Expected: 346 passing, 0 failures.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/app/page.tsx
+git commit -m "feat: landing page accessibility + page metadata"
+```

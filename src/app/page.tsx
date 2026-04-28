@@ -1,9 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/shared/lib/auth';
 
 import styles from './landing.module.css';
+
+export const metadata: Metadata = {
+  title: 'pole space — a catalog of pole dance moves',
+  description:
+    'A small, careful catalog of pole moves — written by performers we know, photographed in studios we visit. No feed, no streaks. Just the moves and your notes.',
+};
 
 export default async function HomePage() {
   const session = await auth();
@@ -12,8 +19,11 @@ export default async function HomePage() {
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <span className={styles.brand}>
-          pole space<span className={styles.dot}>.</span>
+        <span className={styles.brand} aria-label="pole space">
+          pole space
+          <span className={styles.dot} aria-hidden="true">
+            .
+          </span>
         </span>
         <span className={styles.meta}>— catalog · 2026</span>
       </header>
