@@ -5,6 +5,12 @@ import { getMoveByIdAction, getRelatedMovesAction, MovePlayer } from '@/features
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { auth } from '@/shared/lib/auth';
+import { prisma } from '@/shared/lib/prisma';
+
+export async function generateStaticParams() {
+  const moves = await prisma.move.findMany({ select: { id: true } });
+  return moves.map((m) => ({ id: m.id }));
+}
 
 function extractVideoId(url: string) {
   return url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1] ?? null;
