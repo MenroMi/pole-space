@@ -35,11 +35,13 @@ export async function getUserProgressAction(status?: LearnStatus): Promise<Progr
 
 export async function updateProgressAction(moveId: string, status: LearnStatus) {
   const userId = await requireAuth();
-  return prisma.userProgress.upsert({
+  const result = await prisma.userProgress.upsert({
     where: { userId_moveId: { userId, moveId } },
     create: { userId, moveId, status },
     update: { status },
   });
+  revalidatePath('/profile');
+  return result;
 }
 
 export async function removeProgressAction(moveId: string) {
