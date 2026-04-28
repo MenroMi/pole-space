@@ -38,4 +38,14 @@ describe('RelatedMoves', () => {
     render(<RelatedMoves moves={moves} />);
     expect(screen.getAllByRole('link')).toHaveLength(4);
   });
+
+  it('renders the first letter of the title in the icon area', () => {
+    render(<RelatedMoves moves={[makeMove({ title: 'Fireman Spin' })]} />);
+    expect(screen.getByText('F')).toBeInTheDocument();
+  });
+
+  it('does not render an img element', () => {
+    const { container } = render(<RelatedMoves moves={[makeMove()]} />);
+    expect(container.querySelector('img')).not.toBeInTheDocument();
+  });
 });
