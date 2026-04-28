@@ -42,16 +42,22 @@ export default function MoveFavouriteButton({
       disabled={isPending}
       aria-label={optimisticFav ? 'Remove from favourites' : 'Add to favourites'}
       aria-pressed={optimisticFav}
-      className={`kinetic-gradient flex min-w-[190px] cursor-pointer items-center gap-4 rounded-lg px-8 py-4 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50`}
+      className={`inline-flex h-10 shrink-0 cursor-pointer items-center overflow-hidden rounded-lg border border-outline-variant/15 bg-[#1f1f1f] pl-[11px] transition-[width] duration-300 ease-out active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 ${
+        optimisticFav ? 'w-10 text-primary' : 'w-[88px] text-on-surface-variant'
+      }`}
     >
       <Heart
-        size={20}
-        className="h-6 w-6"
+        size={18}
         fill={optimisticFav ? 'currentColor' : 'none'}
+        className="shrink-0"
         aria-hidden="true"
       />
-      <span className="flex-1 font-sans text-sm tracking-widest uppercase">
-        {optimisticFav ? 'Saved' : 'Favourite'}
+      <span
+        className={`overflow-hidden font-sans text-[11px] font-semibold tracking-[0.12em] whitespace-nowrap uppercase transition-[opacity,max-width] duration-200 ${
+          optimisticFav ? 'max-w-0 opacity-0' : 'ml-2 max-w-[60px] opacity-100'
+        }`}
+      >
+        Save
       </span>
     </button>
   );
