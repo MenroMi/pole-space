@@ -72,7 +72,7 @@ export default function MoveTabs({
         {/* sliding indicator */}
         <span
           aria-hidden="true"
-          className="absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-primary-container transition-all duration-300 ease-in-out"
+          className="absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-[#8458b3] transition-all duration-300 ease-in-out"
           style={{ left: indicator.left, width: indicator.width }}
         />
       </div>
