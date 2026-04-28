@@ -28,7 +28,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
         stepsData={move.stepsData}
         difficulty={move.difficulty}
         description={move.description}
-        category={move.category}
+        tags={move.tags}
         poleType={move.poleType}
         moveId={move.id}
         isFavourited={isFavourited}

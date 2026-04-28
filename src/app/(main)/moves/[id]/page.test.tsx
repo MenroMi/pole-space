@@ -39,6 +39,7 @@ const move = {
   stepsData: [],
   favourites: [],
   currentProgress: null,
+  tags: [],
 };
 
 beforeEach(() => {

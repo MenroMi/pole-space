@@ -41,7 +41,7 @@ const baseProps = {
   stepsData: [] as StepItem[],
   difficulty: 'BEGINNER' as const,
   description: 'A graceful spinning move.',
-  category: 'SPINS' as const,
+  tags: [] as { id: string; name: string; color: string | null }[],
   poleType: null,
   moveId: 'move-1',
   isFavourited: false,
@@ -80,20 +80,19 @@ describe('MovePlayer', () => {
     expect(screen.getByText('A graceful spinning move.')).toBeInTheDocument();
   });
 
-  it('renders the category as a tag', () => {
-    render(<MovePlayer {...baseProps} />);
-    expect(screen.getByText('Spins')).toBeInTheDocument();
+  it('renders tags when provided', () => {
+    const tags = [
+      { id: '1', name: 'Beginner Friendly', color: null },
+      { id: '2', name: 'Core', color: null },
+    ];
+    render(<MovePlayer {...baseProps} tags={tags} />);
+    expect(screen.getByText('Beginner Friendly')).toBeInTheDocument();
+    expect(screen.getByText('Core')).toBeInTheDocument();
   });
 
-  it('renders poleType as a tag when provided', () => {
-    render(<MovePlayer {...baseProps} poleType="STATIC" />);
-    expect(screen.getByText('Static')).toBeInTheDocument();
-  });
-
-  it('does not render poleType tag when null', () => {
-    render(<MovePlayer {...baseProps} poleType={null} />);
-    expect(screen.queryByText('Static')).not.toBeInTheDocument();
-    expect(screen.queryByText('Spin')).not.toBeInTheDocument();
+  it('renders no tags section when tags is empty', () => {
+    render(<MovePlayer {...baseProps} tags={[]} />);
+    expect(screen.queryByText('Spins')).not.toBeInTheDocument();
   });
 
   it('renders MoveProgressPicker when authenticated', () => {

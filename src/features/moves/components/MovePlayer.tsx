@@ -1,9 +1,9 @@
 'use client';
-import type { Difficulty, PoleType } from '@prisma/client';
+import type { Difficulty, PoleType, Tag } from '@prisma/client';
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import type { Category, LearnStatus } from '@/shared/types';
+import type { LearnStatus } from '@/shared/types';
 
 import type { StepItem } from '../types';
 
@@ -33,7 +33,7 @@ type MovePlayerProps = {
   stepsData: StepItem[];
   difficulty: Difficulty;
   description: string | null;
-  category: Category;
+  tags: Tag[];
   poleType: PoleType | null;
   moveId: string;
   isFavourited: boolean;
@@ -51,7 +51,7 @@ export default function MovePlayer({
   stepsData,
   difficulty,
   description,
-  category,
+  tags,
   poleType,
   moveId,
   isFavourited,
@@ -119,16 +119,18 @@ export default function MovePlayer({
           )}
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
-              {formatLabel(category)}
-            </span>
-            {poleType && (
-              <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
-                {formatLabel(poleType)}
-              </span>
-            )}
-          </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Actions */}
           <div className="mt-2 flex items-center gap-3">

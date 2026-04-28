@@ -8,14 +8,13 @@ import type { MoveDetail, StepItem } from './types';
 export async function getMoveByIdAction(id: string, userId?: string): Promise<MoveDetail | null> {
   const move = await prisma.move.findUnique({
     where: { id },
+    include: { tags: true },
   });
 
   if (!move) return null;
 
   const [favourites, progressRecord] = await Promise.all([
-    userId
-      ? prisma.userFavourite.findMany({ where: { userId, moveId: id } })
-      : Promise.resolve([]),
+    userId ? prisma.userFavourite.findMany({ where: { userId, moveId: id } }) : Promise.resolve([]),
     userId
       ? prisma.userProgress.findFirst({ where: { userId, moveId: id } })
       : Promise.resolve(null),
