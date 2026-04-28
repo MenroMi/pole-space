@@ -4,6 +4,7 @@ vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
     move: { findUnique: vi.fn() },
     userFavourite: { findMany: vi.fn() },
+    userProgress: { findFirst: vi.fn() },
   },
 }));
 
@@ -12,8 +13,12 @@ import { getMoveByIdAction } from './actions';
 
 const mockFindUnique = prisma.move.findUnique as ReturnType<typeof vi.fn>;
 const mockFavouriteFindMany = prisma.userFavourite.findMany as ReturnType<typeof vi.fn>;
+const mockProgressFindFirst = prisma.userProgress.findFirst as ReturnType<typeof vi.fn>;
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockProgressFindFirst.mockResolvedValue(null);
+});
 
 describe('getMoveByIdAction', () => {
   const move = {
@@ -57,6 +62,32 @@ describe('getMoveByIdAction', () => {
     mockFindUnique.mockResolvedValue({ ...move, stepsData: null });
     const result = await getMoveByIdAction('move-1');
     expect(result?.stepsData).toEqual([]);
+  });
+
+  it('returns currentProgress: null when no userId provided', async () => {
+    mockFindUnique.mockResolvedValue(move);
+    const result = await getMoveByIdAction('move-1');
+    expect(result?.currentProgress).toBeNull();
+    expect(mockProgressFindFirst).not.toHaveBeenCalled();
+  });
+
+  it('returns currentProgress: null when no UserProgress record exists', async () => {
+    mockFindUnique.mockResolvedValue(move);
+    mockFavouriteFindMany.mockResolvedValue([]);
+    mockProgressFindFirst.mockResolvedValue(null);
+    const result = await getMoveByIdAction('move-1', 'user-1');
+    expect(result?.currentProgress).toBeNull();
+    expect(mockProgressFindFirst).toHaveBeenCalledWith({
+      where: { userId: 'user-1', moveId: 'move-1' },
+    });
+  });
+
+  it('returns currentProgress from UserProgress record', async () => {
+    mockFindUnique.mockResolvedValue(move);
+    mockFavouriteFindMany.mockResolvedValue([]);
+    mockProgressFindFirst.mockResolvedValue({ status: 'IN_PROGRESS' });
+    const result = await getMoveByIdAction('move-1', 'user-1');
+    expect(result?.currentProgress).toBe('IN_PROGRESS');
   });
 
   it('filters out invalid entries from stepsData', async () => {

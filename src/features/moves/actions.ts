@@ -12,9 +12,14 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
 
   if (!move) return null;
 
-  const favourites = userId
-    ? await prisma.userFavourite.findMany({ where: { userId, moveId: id } })
-    : [];
+  const [favourites, progressRecord] = await Promise.all([
+    userId
+      ? prisma.userFavourite.findMany({ where: { userId, moveId: id } })
+      : Promise.resolve([]),
+    userId
+      ? prisma.userProgress.findFirst({ where: { userId, moveId: id } })
+      : Promise.resolve(null),
+  ]);
 
   const stepsData = (Array.isArray(move.stepsData) ? move.stepsData : []).filter(
     (s): s is StepItem => {
@@ -27,7 +32,12 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
     },
   );
 
-  return { ...move, favourites, stepsData };
+  return {
+    ...move,
+    favourites,
+    stepsData,
+    currentProgress: progressRecord?.status ?? null,
+  };
 }
 
 export async function getRelatedMovesAction(category: Category, excludeId: string) {
