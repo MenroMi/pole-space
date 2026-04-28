@@ -45,4 +45,16 @@ describe('HomePage', () => {
     render(await HomePage());
     expect(screen.getByText(/free\. no invite needed\./i)).toBeInTheDocument();
   });
+
+  it('brand span has aria-label "pole space"', async () => {
+    vi.mocked(auth).mockResolvedValue(null);
+    render(await HomePage());
+    expect(screen.getByLabelText('pole space')).toBeInTheDocument();
+  });
+
+  it('decorative dot is aria-hidden', async () => {
+    vi.mocked(auth).mockResolvedValue(null);
+    render(await HomePage());
+    expect(document.querySelector('[aria-hidden="true"]')).toBeInTheDocument();
+  });
 });
