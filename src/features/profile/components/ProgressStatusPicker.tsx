@@ -1,4 +1,6 @@
 'use client';
+import { useState } from 'react';
+
 import type { LearnStatus } from '@/shared/types';
 
 const STATUSES: { value: LearnStatus; label: string }[] = [
@@ -21,8 +23,16 @@ export default function ProgressStatusPicker({
   const activeIndex = STATUSES.findIndex((s) => s.value === currentStatus);
   const hasActive = activeIndex !== -1;
 
+  const [prevStatus, setPrevStatus] = useState(currentStatus);
+  const [pillIndex, setPillIndex] = useState(hasActive ? activeIndex : 0);
+
+  if (currentStatus !== prevStatus) {
+    setPrevStatus(currentStatus);
+    if (activeIndex !== -1) setPillIndex(activeIndex);
+  }
+
   return (
-    <div className="relative flex rounded-lg border border-outline-variant/30 bg-[#0e0e0e] p-1">
+    <div className="relative flex h-full rounded-lg border border-outline-variant/30 bg-[#0e0e0e] p-1">
       <div
         aria-hidden="true"
         className={`absolute top-1 bottom-1 left-1 rounded-md bg-gradient-to-br from-[#dcb8ff] via-[#8458b3] to-[#dcb8ff] transition-[transform,opacity] duration-300 ease-out ${
@@ -30,7 +40,7 @@ export default function ProgressStatusPicker({
         }`}
         style={{
           width: 'calc((100% - 8px) / 3)',
-          transform: `translateX(calc(${Math.max(0, activeIndex)} * 100%))`,
+          transform: `translateX(calc(${pillIndex} * 100%))`,
         }}
       />
       {STATUSES.map(({ value, label }) => {
