@@ -10,6 +10,7 @@ import type { StepItem } from '../types';
 import MoveFavouriteButton from './MoveFavouriteButton';
 import MoveHero from './MoveHero';
 import { MoveProgressPicker } from './MoveProgressPicker';
+import MoveSpecs from './MoveSpecs';
 import MoveTabs from './MoveTabs';
 
 const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSProperties }> = {
@@ -38,6 +39,9 @@ type MovePlayerProps = {
   isFavourited: boolean;
   isAuthenticated: boolean;
   currentProgress: LearnStatus | null;
+  gripType: string | null;
+  entry: string | null;
+  duration: string | null;
 };
 
 export default function MovePlayer({
@@ -53,6 +57,9 @@ export default function MovePlayer({
   isFavourited,
   isAuthenticated,
   currentProgress,
+  gripType,
+  entry,
+  duration,
 }: MovePlayerProps) {
   const [seekRequest, setSeekRequest] = useState<{ seconds: number } | null>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -139,7 +146,10 @@ export default function MovePlayer({
         </div>
       </div>
 
-      {/* Tabs — full width below the grid */}
+      {/* Specs — full width below the grid */}
+      <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleType={poleType} />
+
+      {/* Tabs — full width below specs */}
       <div className="mt-10">
         <MoveTabs stepsData={stepsData} onSeek={handleSeek} />
       </div>

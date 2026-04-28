@@ -27,6 +27,10 @@ vi.mock('./MoveProgressPicker', () => ({
   MoveProgressPicker: vi.fn(() => <div data-testid="progress-picker" />),
 }));
 
+vi.mock('./MoveSpecs', () => ({
+  default: vi.fn(() => <div data-testid="move-specs" />),
+}));
+
 import type { StepItem } from '../types';
 import MovePlayer from './MovePlayer';
 
@@ -43,6 +47,9 @@ const baseProps = {
   isFavourited: false,
   isAuthenticated: true,
   currentProgress: null,
+  gripType: null,
+  entry: null,
+  duration: null,
 };
 
 describe('MovePlayer', () => {

@@ -8,7 +8,6 @@ vi.mock('@/features/moves', () => ({
   getMoveByIdAction: vi.fn(),
   getRelatedMovesAction: vi.fn(),
   MovePlayer: vi.fn(({ title }: { title: string }) => <div data-testid="player">{title}</div>),
-  MoveSpecs: vi.fn(() => <div data-testid="specs" />),
 }));
 vi.mock('@/features/moves/components/MoveBreadcrumb', () => ({
   default: vi.fn(() => <nav data-testid="breadcrumb" />),
@@ -59,11 +58,6 @@ describe('MoveDetailPage', () => {
   it('renders MovePlayer with title', async () => {
     render(await MoveDetailPage({ params: Promise.resolve({ id: 'move-1' }) }));
     expect(screen.getByTestId('player')).toHaveTextContent('Fireman Spin');
-  });
-
-  it('renders MoveSpecs', async () => {
-    render(await MoveDetailPage({ params: Promise.resolve({ id: 'move-1' }) }));
-    expect(screen.getByTestId('specs')).toBeInTheDocument();
   });
 
   it('renders RelatedMoves', async () => {

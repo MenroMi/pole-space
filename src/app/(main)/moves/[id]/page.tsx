@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { getMoveByIdAction, getRelatedMovesAction, MovePlayer, MoveSpecs } from '@/features/moves';
+import { getMoveByIdAction, getRelatedMovesAction, MovePlayer } from '@/features/moves';
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { auth } from '@/shared/lib/auth';
@@ -34,12 +34,9 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
         isFavourited={isFavourited}
         isAuthenticated={isAuthenticated}
         currentProgress={move.currentProgress}
-      />
-      <MoveSpecs
         gripType={move.gripType}
         entry={move.entry}
         duration={move.duration}
-        poleType={move.poleType}
       />
       <RelatedMoves moves={related} />
     </main>

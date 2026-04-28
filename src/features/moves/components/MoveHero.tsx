@@ -84,7 +84,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
   const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1${startAt != null ? `&start=${startAt}` : ''}`;
 
   return (
-    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-black">
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-outline-variant/20 bg-black">
       {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
@@ -135,18 +135,6 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
           </div>
         </button>
       )}
-
-      {/* Top gradient */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background to-transparent"
-      />
-
-      {/* Bottom gradient */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background to-transparent"
-      />
     </div>
   );
 }
