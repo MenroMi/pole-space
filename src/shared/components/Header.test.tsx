@@ -19,10 +19,10 @@ const mockAuth = auth as ReturnType<typeof vi.fn>;
 beforeEach(() => vi.clearAllMocks());
 
 describe('Header', () => {
-  it('renders wordmark linking to /', async () => {
+  it('renders wordmark linking to /catalog', async () => {
     mockAuth.mockResolvedValue(null);
     render(await Header());
-    expect(screen.getByRole('link', { name: /pole space/i })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: /pole space/i })).toHaveAttribute('href', '/catalog');
   });
 
   it('renders HeaderNav', async () => {
