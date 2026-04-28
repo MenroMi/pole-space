@@ -66,7 +66,7 @@ describe('MoveHero', () => {
       vi.useRealTimers();
     });
 
-    it('sets startAt and transitions to transitioning then playing after 500ms', () => {
+    it('sets startAt and transitions to transitioning then playing after 700ms', () => {
       const { rerender } = render(<MoveHero {...baseProps} />);
 
       // Provide a seek request
@@ -77,8 +77,8 @@ describe('MoveHero', () => {
       expect(iframe).toBeInTheDocument();
       expect(iframe).toHaveAttribute('src', expect.stringContaining('start=42'));
 
-      // After 500ms timeout, phase becomes playing
-      act(() => vi.advanceTimersByTime(500));
+      // After 700ms timeout, phase becomes playing
+      act(() => vi.advanceTimersByTime(700));
 
       const iframeAfter = getIframe();
       expect(iframeAfter).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('MoveHero', () => {
       // During transitioning phase, class includes opacity-0
       expect(iframe?.className).toContain('opacity-0');
 
-      act(() => vi.advanceTimersByTime(500));
+      act(() => vi.advanceTimersByTime(700));
 
       // After playing phase, class includes opacity-100
       expect(getIframe()?.className).toContain('opacity-100');
@@ -144,7 +144,7 @@ describe('MoveHero', () => {
 
       // Transition to playing state
       rerender(<MoveHero {...baseProps} seekRequest={{ seconds: 10 }} />);
-      act(() => vi.advanceTimersByTime(500));
+      act(() => vi.advanceTimersByTime(700));
 
       const iframeBefore = getIframe();
       expect(iframeBefore).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe('MoveHero', () => {
 
       // Get to playing state
       rerender(<MoveHero {...baseProps} seekRequest={{ seconds: 30 }} />);
-      act(() => vi.advanceTimersByTime(500));
+      act(() => vi.advanceTimersByTime(700));
 
       const iframeBefore = getIframe();
       expect(iframeBefore).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe('MoveHero', () => {
       // Trigger first seek to enter transitioning
       rerender(<MoveHero {...baseProps} seekRequest={{ seconds: 15 }} />);
 
-      // Still in transitioning (500ms hasn't elapsed)
+      // Still in transitioning (700ms hasn't elapsed)
       const iframeBeforeSecondSeek = getIframe();
       expect(iframeBeforeSecondSeek).toHaveAttribute('src', expect.stringContaining('start=15'));
 
@@ -257,7 +257,7 @@ describe('MoveHero', () => {
       expect(iframe?.className).toContain('opacity-0');
 
       // After timeout, should be in playing phase
-      act(() => vi.advanceTimersByTime(500));
+      act(() => vi.advanceTimersByTime(700));
       expect(getIframe()?.className).toContain('opacity-100');
     });
 
@@ -267,7 +267,7 @@ describe('MoveHero', () => {
       act(() => {
         fireEvent.click(screen.getByRole('button', { name: /play fireman spin/i }));
       });
-      act(() => vi.advanceTimersByTime(500));
+      act(() => vi.advanceTimersByTime(700));
 
       const iframe = getIframe();
       expect(iframe).toBeInTheDocument();
