@@ -1,9 +1,39 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { getMoveByIdAction, getRelatedMovesAction, MovePlayer } from '@/features/moves';
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { auth } from '@/shared/lib/auth';
+
+function extractVideoId(url: string) {
+  return url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1] ?? null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const move = await getMoveByIdAction(id, undefined);
+  if (!move) return {};
+
+  const videoId = extractVideoId(move.youtubeUrl);
+  const image =
+    move.imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+  const description = move.description ?? `Learn the ${move.title} pole dance move.`;
+
+  return {
+    title: `${move.title} | Pole Dance Catalog`,
+    description,
+    openGraph: {
+      title: move.title,
+      description,
+      ...(image && { images: [{ url: image }] }),
+    },
+  };
+}
 
 export default async function MoveDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
