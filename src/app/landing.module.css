@@ -23,10 +23,10 @@
   background: radial-gradient(circle, rgba(220, 184, 255, 0.08), transparent 70%);
   filter: blur(40px);
   pointer-events: none;
-  animation: drift 18s ease-in-out infinite alternate;
+  animation: landingDrift 18s ease-in-out infinite alternate;
 }
 
-@keyframes drift {
+@keyframes landingDrift {
   from {
     transform: translate(-55%, -32%);
   }
