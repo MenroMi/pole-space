@@ -94,7 +94,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
         }}
       />
 
-      {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
+      {/* Thumbnail — visible in idle, fades out during transitioning */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
           <Image
@@ -102,10 +102,8 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
             alt={title}
             fill
             priority
-            className={`object-cover transition-all duration-500 ${
-              phase === 'transitioning'
-                ? 'scale-110 opacity-0 blur-sm'
-                : 'scale-100 opacity-80 blur-none'
+            className={`object-cover transition-opacity duration-300 ${
+              phase === 'transitioning' ? 'opacity-0' : 'opacity-80'
             }`}
             onLoad={(e) => {
               if (e.currentTarget.naturalWidth <= YOUTUBE_PLACEHOLDER_MAX_WIDTH)
@@ -123,7 +121,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
           key={iframeKey}
           src={iframeSrc}
           title={title}
-          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 ${
+          className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-300 ${
             phase === 'transitioning' ? 'opacity-0' : 'opacity-100'
           }`}
           allow="autoplay; encrypted-media; fullscreen"
