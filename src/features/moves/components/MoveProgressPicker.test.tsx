@@ -55,4 +55,12 @@ describe('MoveProgressPicker', () => {
     await user.click(screen.getByRole('button', { name: 'set learned' }));
     expect(screen.getByTestId('status').textContent).toBe('LEARNED');
   });
+
+  it('rolls back status if action throws', async () => {
+    vi.mocked(updateProgressAction).mockRejectedValueOnce(new Error('Unauthorized'));
+    const user = userEvent.setup();
+    render(<MoveProgressPicker moveId="m1" initialStatus={null} />);
+    await user.click(screen.getByRole('button', { name: 'set learned' }));
+    expect(screen.getByTestId('status').textContent).toBe('WANT_TO_LEARN');
+  });
 });

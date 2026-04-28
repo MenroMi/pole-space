@@ -16,9 +16,14 @@ export function MoveProgressPicker({
   const [isPending, startTransition] = useTransition();
 
   function handleChange(next: LearnStatus) {
+    const previous = status;
     setStatus(next);
-    startTransition(() => {
-      updateProgressAction(moveId, next);
+    startTransition(async () => {
+      try {
+        await updateProgressAction(moveId, next);
+      } catch {
+        setStatus(previous);
+      }
     });
   }
 
