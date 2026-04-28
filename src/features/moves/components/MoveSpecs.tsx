@@ -34,8 +34,8 @@ export default function MoveSpecs({ gripType, entry, duration, poleType }: MoveS
   if (specs.length === 0) return null;
 
   return (
-    <section aria-label="Move specs" className="mx-auto max-w-[1280px] px-8 pb-8">
-      <p className="mb-3 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+    <section aria-label="Move specs" className="mt-8 pb-4">
+      <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
         Specs
       </p>
       <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
