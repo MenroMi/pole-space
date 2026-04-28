@@ -28,7 +28,7 @@ export default async function HomePage() {
           studios we visit. No feed, no streaks. Just the moves and your notes.
         </p>
         <div className={styles.actions}>
-          <Link href="/sign-up" className={styles.btnPrimary}>
+          <Link href="/signup" className={styles.btnPrimary}>
             Create an account →
           </Link>
           <Link href="/catalog" className={styles.btnLink}>

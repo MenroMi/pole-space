@@ -26,11 +26,11 @@ describe('HomePage', () => {
     expect(screen.getByText(/quiet place/i)).toBeInTheDocument();
   });
 
-  it('shows "Create an account" link pointing to /sign-up', async () => {
+  it('shows "Create an account" link pointing to /signup', async () => {
     vi.mocked(auth).mockResolvedValue(null);
     render(await HomePage());
     const link = screen.getByRole('link', { name: /create an account/i });
-    expect(link).toHaveAttribute('href', '/sign-up');
+    expect(link).toHaveAttribute('href', '/signup');
   });
 
   it('shows "Browse the catalog" link pointing to /catalog', async () => {
