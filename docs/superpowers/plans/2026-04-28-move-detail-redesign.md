@@ -13,6 +13,7 @@
 ### Task 1: Data layer — add `currentProgress` to `MoveDetail`
 
 **Files:**
+
 - Modify: `src/features/moves/types.ts`
 - Modify: `src/features/moves/actions.ts`
 - Modify: `src/features/moves/actions.test.ts`
@@ -114,9 +115,7 @@ export async function getMoveByIdAction(id: string, userId?: string): Promise<Mo
   if (!move) return null;
 
   const [favourites, progressRecord] = await Promise.all([
-    userId
-      ? prisma.userFavourite.findMany({ where: { userId, moveId: id } })
-      : Promise.resolve([]),
+    userId ? prisma.userFavourite.findMany({ where: { userId, moveId: id } }) : Promise.resolve([]),
     userId
       ? prisma.userProgress.findFirst({ where: { userId, moveId: id } })
       : Promise.resolve(null),
@@ -170,6 +169,7 @@ git commit -m "feat(moves): add currentProgress to MoveDetail — parallel UserP
 ### Task 2: `MoveProgressPicker` client component
 
 **Files:**
+
 - Create: `src/features/moves/components/MoveProgressPicker.tsx`
 - Create: `src/features/moves/components/MoveProgressPicker.test.tsx`
 
@@ -305,6 +305,7 @@ git commit -m "feat(moves): MoveProgressPicker — wraps ProgressStatusPicker wi
 ### Task 3: `MoveHero` — change from `h-[65vh]` to `aspect-[16/9]`
 
 **Files:**
+
 - Modify: `src/features/moves/components/MoveHero.tsx`
 
 The existing tests don't assert on layout classes, so no test changes are needed.
@@ -343,6 +344,7 @@ git commit -m "style(MoveHero): aspect-[16/9] + rounded-xl — fits 2-col hero g
 ### Task 4: `MovePlayer` — 2-column hero grid + info panel
 
 **Files:**
+
 - Modify: `src/features/moves/components/MovePlayer.tsx`
 - Modify: `src/features/moves/components/MovePlayer.test.tsx`
 
@@ -595,7 +597,7 @@ export default function MovePlayer({
           </span>
 
           {/* Title */}
-          <h1 className="font-display text-[64px] font-semibold leading-[0.95] tracking-[-0.04em] text-on-surface lowercase">
+          <h1 className="font-display text-[64px] leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase">
             {title}
           </h1>
 
@@ -608,11 +610,11 @@ export default function MovePlayer({
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-on-surface-variant">
+            <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
               {formatLabel(category)}
             </span>
             {poleType && (
-              <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-on-surface-variant">
+              <span className="rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
                 {formatLabel(poleType)}
               </span>
             )}
@@ -663,6 +665,7 @@ git commit -m "feat(MovePlayer): 2-col hero grid — player left, info panel rig
 ### Task 5: `MoveSpecs` — add "Specs" section label
 
 **Files:**
+
 - Modify: `src/features/moves/components/MoveSpecs.tsx`
 - Modify: `src/features/moves/components/MoveSpecs.test.tsx`
 
@@ -699,7 +702,7 @@ Replace the return statement:
 ```tsx
 return (
   <section aria-label="Move specs" className="mx-auto max-w-[1280px] px-8 pb-8">
-    <p className="mb-3 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+    <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
       Specs
     </p>
     <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -731,6 +734,7 @@ git commit -m "style(MoveSpecs): add Specs section label, standalone padding"
 ### Task 6: `MoveTabs` — update gradient underline colour
 
 **Files:**
+
 - Modify: `src/features/moves/components/MoveTabs.tsx`
 
 No test changes needed — existing tests don't assert on gradient classes.
@@ -740,13 +744,15 @@ No test changes needed — existing tests don't assert on gradient classes.
 Find:
 
 ```tsx
-className="absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-primary-container transition-all duration-300 ease-in-out"
+className =
+  'absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-primary-container transition-all duration-300 ease-in-out';
 ```
 
 Replace with:
 
 ```tsx
-className="absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-[#8458b3] transition-all duration-300 ease-in-out"
+className =
+  'absolute -bottom-[1px] h-[2px] bg-gradient-to-r from-primary to-[#8458b3] transition-all duration-300 ease-in-out';
 ```
 
 - [ ] **Step 2: Run tests to verify nothing broke**
@@ -769,6 +775,7 @@ git commit -m "style(MoveTabs): update gradient underline to from-primary to-[#8
 ### Task 7: `RelatedMoves` — horizontal icon+text cards
 
 **Files:**
+
 - Modify: `src/features/moves/components/RelatedMoves.tsx`
 - Modify: `src/features/moves/components/RelatedMoves.test.tsx`
 
@@ -820,7 +827,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
 
   return (
     <section className="mx-auto max-w-[1280px] px-8 pb-16">
-      <p className="mb-3 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+      <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
         Related moves
       </p>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -837,7 +844,7 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
               <p className="truncate font-display text-sm font-medium text-on-surface">
                 {move.title}
               </p>
-              <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+              <p className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
                 {move.difficulty}
               </p>
             </div>
@@ -869,6 +876,7 @@ git commit -m "feat(RelatedMoves): horizontal icon+text cards — no image thumb
 ### Task 8: `page.tsx` — wire everything together
 
 **Files:**
+
 - Modify: `src/app/(main)/moves/[id]/page.tsx`
 
 Remove `DIFFICULTY_BADGE` (moved to `MovePlayer`), pass new props to `MovePlayer`, render `MoveSpecs` standalone below the hero, clean up unused imports.
@@ -967,12 +975,7 @@ Expected: FAIL — page does not pass new props to MovePlayer.
 ```tsx
 import { notFound } from 'next/navigation';
 
-import {
-  getMoveByIdAction,
-  getRelatedMovesAction,
-  MovePlayer,
-  MoveSpecs,
-} from '@/features/moves';
+import { getMoveByIdAction, getRelatedMovesAction, MovePlayer, MoveSpecs } from '@/features/moves';
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { auth } from '@/shared/lib/auth';

@@ -8,16 +8,16 @@ Redesign the Move Detail page to match the new design system: 2-column hero grid
 
 ## Files Touched
 
-| File | Change |
-|------|--------|
-| `src/app/(main)/moves/[id]/page.tsx` | Restructure layout, add currentProgress, pass to components |
-| `src/features/moves/actions.ts` | Add UserProgress fetch to `getMoveByIdAction` |
-| `src/features/moves/types.ts` | Add `currentProgress: LearnStatus \| null` to `MoveDetail` |
-| `src/features/moves/components/MovePlayer.tsx` | 2-column hero grid; info panel on right |
-| `src/features/moves/components/MoveHero.tsx` | `h-[65vh]` → `aspect-[16/9]` in grid column |
-| `src/features/moves/components/MoveSpecs.tsx` | Add "SPECS" section label |
-| `src/features/moves/components/MoveTabs.tsx` | Update gradient underline colours |
-| `src/features/moves/components/RelatedMoves.tsx` | Image cards → horizontal icon+text cards |
+| File                                             | Change                                                      |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| `src/app/(main)/moves/[id]/page.tsx`             | Restructure layout, add currentProgress, pass to components |
+| `src/features/moves/actions.ts`                  | Add UserProgress fetch to `getMoveByIdAction`               |
+| `src/features/moves/types.ts`                    | Add `currentProgress: LearnStatus \| null` to `MoveDetail`  |
+| `src/features/moves/components/MovePlayer.tsx`   | 2-column hero grid; info panel on right                     |
+| `src/features/moves/components/MoveHero.tsx`     | `h-[65vh]` → `aspect-[16/9]` in grid column                 |
+| `src/features/moves/components/MoveSpecs.tsx`    | Add "SPECS" section label                                   |
+| `src/features/moves/components/MoveTabs.tsx`     | Update gradient underline colours                           |
+| `src/features/moves/components/RelatedMoves.tsx` | Image cards → horizontal icon+text cards                    |
 
 `MoveBreakdown.tsx`, `MoveFavouriteButton.tsx`, `MoveBreadcrumb.tsx` — no changes.
 
@@ -41,10 +41,10 @@ Return: `{ ...move, favourites, stepsData, currentProgress: progressRecord?.stat
 
 ```ts
 type MoveDetail = Omit<Move, 'stepsData'> & {
-  favourites: UserFavourite[]
-  stepsData: StepItem[]
-  currentProgress: LearnStatus | null
-}
+  favourites: UserFavourite[];
+  stepsData: StepItem[];
+  currentProgress: LearnStatus | null;
+};
 ```
 
 ---
@@ -66,6 +66,7 @@ type MoveDetail = Omit<Move, 'stepsData'> & {
 `MoveSpecs` is moved outside `MovePlayer` so it renders below the hero grid at full width.
 
 `ProgressStatusPicker` receives:
+
 - `moveId: string`
 - `initialStatus: LearnStatus | null`
 - `isAuthenticated: boolean`
@@ -84,13 +85,13 @@ grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8
 
 **Right column:** flex column, `gap-5`, `justify-start`
 
-| Element | Spec |
-|---------|------|
-| Difficulty chip | `rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase` — existing DIFFICULTY_BADGE colours |
-| `<h1>` | `font-display text-[64px] font-semibold tracking-[-0.04em] leading-[0.95] text-on-surface lowercase` |
-| Description | `font-sans text-base leading-relaxed text-on-surface-variant` |
-| Tags | `flex flex-wrap gap-1.5` — each tag: `rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-on-surface-variant` |
-| Actions row | `flex items-center gap-3 mt-2` — `<MoveFavouriteButton />` (icon only, existing) + `<ProgressStatusPicker />` (flex-1) |
+| Element         | Spec                                                                                                                                                                                   |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Difficulty chip | `rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase` — existing DIFFICULTY_BADGE colours                                                           |
+| `<h1>`          | `font-display text-[64px] font-semibold tracking-[-0.04em] leading-[0.95] text-on-surface lowercase`                                                                                   |
+| Description     | `font-sans text-base leading-relaxed text-on-surface-variant`                                                                                                                          |
+| Tags            | `flex flex-wrap gap-1.5` — each tag: `rounded-full border border-outline-variant/30 px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase text-on-surface-variant` |
+| Actions row     | `flex items-center gap-3 mt-2` — `<MoveFavouriteButton />` (icon only, existing) + `<ProgressStatusPicker />` (flex-1)                                                                 |
 
 ---
 
@@ -106,7 +107,7 @@ Wrap the existing spec grid in a section container:
 
 ```tsx
 <section className="mx-auto max-w-[1280px] px-8 py-8">
-  <div className="mb-3 font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
+  <div className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
     Specs
   </div>
   {/* existing grid */}
@@ -130,6 +131,7 @@ grid grid-cols-2 lg:grid-cols-4 gap-3
 ```
 
 Each card:
+
 ```
 flex items-center gap-3 rounded-lg border border-outline-variant/15 bg-surface-container p-3
 cursor-pointer hover:border-primary/40 transition-colors
@@ -138,6 +140,7 @@ cursor-pointer hover:border-primary/40 transition-colors
 Left: `44×44px` rounded square, `bg-surface rounded-md flex items-center justify-center` — shows first letter of move title (`font-display text-lg text-primary/50`).
 
 Right:
+
 - move title: `font-display text-sm font-medium text-on-surface`
 - level label: `font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant`
 
@@ -150,22 +153,27 @@ Component already exists at `src/features/profile/components/ProgressStatusPicke
 Wrap it in a thin client component `MoveProgressPicker` in `src/features/moves/components/MoveProgressPicker.tsx`:
 
 ```tsx
-'use client'
-import { useState, useTransition } from 'react'
-import type { LearnStatus } from '@/shared/types'
-import { updateProgressAction } from '@/features/profile/actions'
-import ProgressStatusPicker from '@/features/profile/components/ProgressStatusPicker'
+'use client';
+import { useState, useTransition } from 'react';
+import type { LearnStatus } from '@/shared/types';
+import { updateProgressAction } from '@/features/profile/actions';
+import ProgressStatusPicker from '@/features/profile/components/ProgressStatusPicker';
 
-export function MoveProgressPicker({ moveId, initialStatus }: {
-  moveId: string
-  initialStatus: LearnStatus | null
+export function MoveProgressPicker({
+  moveId,
+  initialStatus,
+}: {
+  moveId: string;
+  initialStatus: LearnStatus | null;
 }) {
-  const [isPending, startTransition] = useTransition()
-  const [status, setStatus] = useState<LearnStatus>(initialStatus ?? 'WANT_TO_LEARN')
+  const [isPending, startTransition] = useTransition();
+  const [status, setStatus] = useState<LearnStatus>(initialStatus ?? 'WANT_TO_LEARN');
 
   function handleChange(next: LearnStatus) {
-    setStatus(next)
-    startTransition(() => { updateProgressAction(moveId, next) })
+    setStatus(next);
+    startTransition(() => {
+      updateProgressAction(moveId, next);
+    });
   }
 
   return (
@@ -174,7 +182,7 @@ export function MoveProgressPicker({ moveId, initialStatus }: {
       onStatusChange={handleChange}
       isPending={isPending}
     />
-  )
+  );
 }
 ```
 
