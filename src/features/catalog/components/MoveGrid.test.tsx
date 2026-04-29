@@ -31,6 +31,8 @@ function makeMoves(count: number, offset = 0): MoveWithTags[] {
     gripType: null,
     entry: null,
     duration: null,
+    coachNote: null,
+    coachNoteAuthor: null,
   }));
 }
 
@@ -241,6 +243,8 @@ describe('MoveGrid', () => {
             gripType: null,
             entry: null,
             duration: null,
+            coachNote: null,
+            coachNoteAuthor: null,
           },
         ],
         total: 13,
