@@ -33,9 +33,12 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
   const isAuthenticated = !!userId;
   const badge = DIFFICULTY_BADGE[move.difficulty];
   const difficultyLabel = move.difficulty.charAt(0) + move.difficulty.slice(1).toLowerCase();
-  const poleTypeLabel = move.poleType
-    ? move.poleType.charAt(0) + move.poleType.slice(1).toLowerCase()
-    : null;
+  const poleTypeLabel =
+    move.poleTypes.length === 0
+      ? null
+      : move.poleTypes.length >= 2
+        ? 'Static & Spin'
+        : move.poleTypes[0].charAt(0) + move.poleTypes[0].slice(1).toLowerCase();
 
   return (
     <main>
@@ -76,7 +79,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
           gripType={move.gripType}
           entry={move.entry}
           duration={move.duration}
-          poleType={move.poleType}
+          poleTypes={move.poleTypes}
         />
 
         {move.description && (
