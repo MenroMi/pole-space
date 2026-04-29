@@ -15,7 +15,7 @@ const baseMove: MoveWithTags = {
   description: 'A beautiful aerial move requiring flexibility.',
   difficulty: 'BEGINNER',
   category: 'SPINS',
-  poleType: null,
+  poleTypes: [],
   youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   imageUrl: null,
   createdAt: new Date(),
@@ -25,6 +25,8 @@ const baseMove: MoveWithTags = {
   gripType: null,
   entry: null,
   duration: null,
+  coachNote: null,
+  coachNoteAuthor: null,
 };
 
 describe('MoveCard', () => {

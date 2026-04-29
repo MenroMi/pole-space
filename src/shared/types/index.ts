@@ -15,7 +15,7 @@ export interface UserSession {
 }
 
 export interface MoveFilters {
-  poleType?: PoleType[];
+  poleTypes?: PoleType[];
   difficulty?: Difficulty[];
   search?: string;
   tags?: string[];

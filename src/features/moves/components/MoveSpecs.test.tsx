@@ -3,34 +3,43 @@ import { render, screen } from '@testing-library/react';
 import MoveSpecs from './MoveSpecs';
 
 describe('MoveSpecs', () => {
-  it('renders nothing when all fields are null', () => {
+  it('renders nothing when all fields are null and poleTypes is empty', () => {
     const { container } = render(
-      <MoveSpecs gripType={null} entry={null} duration={null} poleType={null} />,
+      <MoveSpecs gripType={null} entry={null} duration={null} poleTypes={[]} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('renders only non-null fields', () => {
-    render(<MoveSpecs gripType="Twisted" entry={null} duration="Short" poleType={null} />);
+    render(<MoveSpecs gripType="Twisted" entry={null} duration="Short" poleTypes={[]} />);
     expect(screen.getByText('Twisted')).toBeInTheDocument();
     expect(screen.getByText('Short')).toBeInTheDocument();
     expect(screen.queryByText('Entry')).not.toBeInTheDocument();
+    expect(screen.queryByText('Pole Setting')).not.toBeInTheDocument();
   });
 
-  it('renders poleType as capitalized label (SPIN → Spin)', () => {
-    render(<MoveSpecs gripType={null} entry={null} duration={null} poleType="SPIN" />);
+  it('renders SPIN as "Spin"', () => {
+    render(<MoveSpecs gripType={null} entry={null} duration={null} poleTypes={['SPIN']} />);
     expect(screen.getByText('Spin')).toBeInTheDocument();
     expect(screen.getByText('Pole Setting')).toBeInTheDocument();
   });
 
-  it('renders poleType as capitalized label (STATIC → Static)', () => {
-    render(<MoveSpecs gripType={null} entry={null} duration={null} poleType="STATIC" />);
+  it('renders STATIC as "Static"', () => {
+    render(<MoveSpecs gripType={null} entry={null} duration={null} poleTypes={['STATIC']} />);
     expect(screen.getByText('Static')).toBeInTheDocument();
     expect(screen.getByText('Pole Setting')).toBeInTheDocument();
   });
 
+  it('renders STATIC+SPIN as "Static & Spin"', () => {
+    render(
+      <MoveSpecs gripType={null} entry={null} duration={null} poleTypes={['STATIC', 'SPIN']} />,
+    );
+    expect(screen.getByText('Static & Spin')).toBeInTheDocument();
+    expect(screen.getByText('Pole Setting')).toBeInTheDocument();
+  });
+
   it('renders all four cards when all fields are provided', () => {
-    render(<MoveSpecs gripType="Twisted" entry="Standing" duration="Short" poleType="SPIN" />);
+    render(<MoveSpecs gripType="Twisted" entry="Standing" duration="Short" poleTypes={['SPIN']} />);
     expect(screen.getByText('Grip Type')).toBeInTheDocument();
     expect(screen.getByText('Entry')).toBeInTheDocument();
     expect(screen.getByText('Duration')).toBeInTheDocument();

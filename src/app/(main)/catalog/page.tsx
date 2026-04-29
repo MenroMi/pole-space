@@ -27,7 +27,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Sear
   const params = await searchParams;
 
   const filters: MoveFilters = {
-    poleType: parseEnumArray<PoleType>(params.poleType, validPoleTypes),
+    poleTypes: parseEnumArray<PoleType>(params.poleType, validPoleTypes),
     difficulty: parseEnumArray<Difficulty>(params.difficulty, validDifficulties),
     tags: parseTagNames(params.tags),
     search: params.search || undefined,

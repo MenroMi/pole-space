@@ -69,15 +69,17 @@ model Move {
   description String?
   difficulty  Difficulty
   category    Category
-  poleType    PoleType?
+  poleTypes   PoleType[]
   youtubeUrl  String
   imageUrl    String?
   stepsData   Json       @default("[]")
   gripType    String?
   entry       String?
-  duration    String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  duration          String?
+  coachNote         String?
+  coachNoteAuthor   String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   progress   UserProgress[]
   favourites UserFavourite[]

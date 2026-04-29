@@ -19,7 +19,7 @@ const updates: {
   gripType: string;
   entry: string;
   duration: string;
-  poleType: 'STATIC' | 'SPIN';
+  poleTypes: ('STATIC' | 'SPIN')[];
   stepsData: StepItem[];
 }[] = [
   {
@@ -27,7 +27,7 @@ const updates: {
     gripType: 'Baseball grip',
     entry: 'Standing, facing pole',
     duration: '2–4 counts',
-    poleType: 'SPIN',
+    poleTypes: ['SPIN'],
     stepsData: [
       {
         text: "Stand sideways to the pole at arm's length, inside shoulder facing it.",
@@ -67,7 +67,7 @@ const updates: {
     gripType: 'Split grip',
     entry: 'Standing, facing pole',
     duration: '2–4 counts',
-    poleType: 'SPIN',
+    poleTypes: ['SPIN'],
     stepsData: [
       { text: 'Stand facing the pole, feet together.', timestamp: 5 },
       {
@@ -86,7 +86,7 @@ const updates: {
     gripType: 'Split grip',
     entry: 'Standing, facing pole',
     duration: '4–6 counts',
-    poleType: 'SPIN',
+    poleTypes: ['SPIN'],
     stepsData: [
       {
         text: 'Stand facing the pole. Place your top hand high in split grip, bottom hand at hip height.',
@@ -108,7 +108,7 @@ const updates: {
     gripType: 'Outside elbow grip',
     entry: 'From climb or standing',
     duration: 'Hold 2–4 counts',
-    poleType: 'STATIC',
+    poleTypes: ['STATIC'],
     stepsData: [
       {
         text: 'Climb to a comfortable height — at least waist level above the floor.',
@@ -140,7 +140,7 @@ const updates: {
     gripType: 'Outside elbow grip',
     entry: 'From climb or Pole Sit',
     duration: 'Hold 2–4 counts',
-    poleType: 'STATIC',
+    poleTypes: ['STATIC'],
     stepsData: [
       {
         text: 'From a Pole Sit (thighs crossed around the pole), place one hand high and one hand low.',
@@ -169,7 +169,7 @@ const updates: {
     gripType: 'Standard grip',
     entry: 'Standing, facing pole',
     duration: '2–3 counts per step',
-    poleType: 'STATIC',
+    poleTypes: ['STATIC'],
     stepsData: [
       { text: 'Stand facing the pole, feet hip-width apart.', timestamp: 5 },
       { text: 'Place both hands on the pole above your head, thumbs down.', timestamp: 10 },
