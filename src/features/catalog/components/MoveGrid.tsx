@@ -1,8 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
-
-import { Button } from '@/shared/components/ui/button';
 
 import { getMovesAction } from '../actions';
 import type { MoveWithTags, MoveFilters } from '../types';
@@ -18,22 +15,12 @@ type MoveGridProps = {
   filters: MoveFilters;
 };
 
-function hasActiveFilters(filters: MoveFilters): boolean {
-  return !!(
-    filters.poleTypes?.length ||
-    filters.difficulty?.length ||
-    filters.tags?.length ||
-    filters.search
-  );
-}
-
 export default function MoveGrid({
   initialMoves,
   initialHasMore,
   totalCount,
   filters,
 }: MoveGridProps) {
-  const router = useRouter();
   const [moves, setMoves] = useState(initialMoves);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -92,15 +79,10 @@ export default function MoveGrid({
 
   if (moves.length === 0) {
     return (
-      <div className="p-6">
+      <div className="flex h-full flex-col p-6">
         {header}
-        <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <div className="flex flex-1 items-center justify-center">
           <p className="text-sm text-on-surface-variant">No moves match these filters.</p>
-          {hasActiveFilters(filters) && (
-            <Button variant="secondary" onClick={() => router.replace('/catalog')}>
-              Clear filters
-            </Button>
-          )}
         </div>
       </div>
     );

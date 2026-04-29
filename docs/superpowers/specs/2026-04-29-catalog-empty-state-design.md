@@ -1,7 +1,7 @@
 # Catalog Empty State Design
 
 **Date:** 2026-04-29
-**Branch:** feat/catalog-filter-logic (or new branch off main)
+**Branch:** feat/catalog-filter-logic
 
 ## Problem
 
@@ -9,71 +9,54 @@ When no moves match the active filters, the catalog shows a blank grid with no f
 
 ## Goal
 
-Show a clear, on-brand empty state inside `MoveGrid` when the filtered result set is empty, with an optional "Clear filters" button.
+Show a clear, on-brand empty state inside `MoveGrid` when the filtered result set is empty. No button — the aside panel already has a "Clear filters" button.
 
 ## Design Decisions
 
-- **Style:** Variant C — header stays in place ("Catalog · 0 moves" + "Every move, indexed."), empty state replaces only the grid area. No jarring layout shift.
-- **Implementation:** Logic lives inside `MoveGrid` (approach A). No new props or server-side changes needed — `filters` is already available.
-- **Button visibility:** "Clear filters" shown only when at least one filter is active. Hidden when catalog is genuinely empty with no filters applied.
+- **Style:** Variant C — header stays in place ("Catalog · 0 moves" + "Every move, indexed."), empty state fills the remaining height below the header. No jarring layout shift.
+- **Implementation:** Logic lives inside `MoveGrid` (approach A). No new props or server-side changes needed.
+- **No button:** The aside `CatalogFilters` already provides "Clear filters". Duplicating it in the empty state is redundant.
+- **Vertical centering:** Outer div uses `flex flex-col h-full`; empty state area uses `flex-1 flex items-center justify-center` so the message sits in the center of the remaining space.
 
 ## Component Changes
 
 ### `MoveGrid.tsx`
-
-Add a `hasActiveFilters` helper:
-
-```ts
-function hasActiveFilters(filters: MoveFilters): boolean {
-  return !!(
-    filters.poleTypes?.length ||
-    filters.difficulty?.length ||
-    filters.tags?.length ||
-    filters.search
-  );
-}
-```
 
 When `moves.length === 0`, render empty state instead of grid + sentinel:
 
 ```tsx
 if (moves.length === 0) {
   return (
-    <div className="p-6">
-      {/* same header block */}
-      <div className="flex flex-col items-center justify-center gap-4 py-24">
+    <div className="flex h-full flex-col p-6">
+      {header}
+      <div className="flex flex-1 items-center justify-center">
         <p className="text-sm text-on-surface-variant">No moves match these filters.</p>
-        {hasActiveFilters(filters) && (
-          <Button variant="secondary" onClick={() => router.replace('/catalog')}>
-            Clear filters
-          </Button>
-        )}
       </div>
     </div>
   );
 }
 ```
 
-`MoveGrid` already receives `filters` and has `router` — no new dependencies.
+No new imports or dependencies needed.
 
 ## UI Copy
 
-| Situation                 | Text                            | Button                       |
-| ------------------------- | ------------------------------- | ---------------------------- |
-| Filters active, 0 results | "No moves match these filters." | "Clear filters" → `/catalog` |
-| No filters, 0 results     | "No moves match these filters." | none                         |
+| Situation                    | Text                            |
+| ---------------------------- | ------------------------------- |
+| 0 results (any filter state) | "No moves match these filters." |
 
 ## Tests
 
-Two new cases in `MoveGrid.test.tsx`:
+Two cases in `MoveGrid.test.tsx`:
 
-1. `initialMoves=[]` + active filters → renders "No moves match these filters." + "Clear filters" button
-2. `initialMoves=[]` + no filters → renders "No moves match these filters.", no button
+1. `initialMoves=[]` → renders "No moves match these filters."
+2. `initialMoves=[]` → no move cards rendered
 
 Existing tests unaffected (all pass non-empty `initialMoves`).
 
 ## Out of Scope
 
-- Animated transitions into empty state
+- "Clear filters" button in empty state (handled by aside)
+- Animated transitions
 - Suggestions ("Try removing X filter")
 - Skeleton loaders

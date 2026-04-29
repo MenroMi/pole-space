@@ -12,10 +12,6 @@ vi.mock('./MoveCard', () => ({
   default: ({ move }: { move: MoveWithTags }) => <div data-testid="move-card">{move.title}</div>,
 }));
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ replace: vi.fn() }),
-}));
-
 const mockGetMovesAction = getMovesAction as ReturnType<typeof vi.fn>;
 
 function makeMoves(count: number, offset = 0): MoveWithTags[] {
@@ -210,21 +206,9 @@ describe('MoveGrid', () => {
     expect(screen.getByText('No moves match these filters.')).toBeInTheDocument();
   });
 
-  it('shows Clear filters button when initialMoves is empty and filters are active', () => {
-    render(
-      <MoveGrid
-        initialMoves={[]}
-        initialHasMore={false}
-        totalCount={0}
-        filters={{ poleTypes: ['STATIC'] }}
-      />,
-    );
-    expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
-  });
-
-  it('does not show Clear filters button when initialMoves is empty and no filters', () => {
+  it('does not render move cards when initialMoves is empty', () => {
     render(<MoveGrid initialMoves={[]} initialHasMore={false} totalCount={0} filters={{}} />);
-    expect(screen.queryByRole('button', { name: /clear filters/i })).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId('move-card')).toHaveLength(0);
   });
 
   it('does not setState after unmount during fetch', async () => {
