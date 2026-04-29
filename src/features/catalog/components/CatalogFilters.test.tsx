@@ -47,24 +47,24 @@ describe('CatalogFilters', () => {
   });
 
   it('clicking Static then Spin adds both to URL (multi-select)', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     fireEvent.click(screen.getByRole('button', { name: 'Spin' }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC,SPIN');
   });
 
   it('clicking active Static removes it from URL', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     fireEvent.click(screen.getByRole('button', { name: 'Static' }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog');
   });
 
   it('active pole type button has text-primary class', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     expect(screen.getByRole('button', { name: 'Static' }).className).toContain('text-primary');
   });
 
   it('inactive pole type button does not have text-primary class', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     expect(screen.getByRole('button', { name: 'Spin' }).className).not.toContain('text-primary');
   });
 
@@ -141,7 +141,7 @@ describe('CatalogFilters', () => {
   // --- Cross-filter: filters preserved across groups ---
 
   it('clicking difficulty preserves active poleType in URL', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     fireEvent.click(screen.getByRole('button', { name: 'Beginner' }));
     expect(mockReplace).toHaveBeenCalledWith('/catalog?poleType=STATIC&difficulty=BEGINNER');
   });
@@ -155,7 +155,7 @@ describe('CatalogFilters', () => {
   // --- Clear filters ---
 
   it('Clear filters button is visible when any filter is active', () => {
-    render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />);
+    render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
     expect(screen.getByRole('button', { name: /clear filters/i })).toBeInTheDocument();
   });
 
@@ -167,7 +167,7 @@ describe('CatalogFilters', () => {
   it('Clear filters resets all filters and navigates to /catalog', () => {
     render(
       <CatalogFilters
-        filters={{ poleType: ['STATIC'], difficulty: ['BEGINNER'], tags: ['aerial'] }}
+        filters={{ poleTypes: ['STATIC'], difficulty: ['BEGINNER'], tags: ['aerial'] }}
         availableTags={mockTags}
       />,
     );
@@ -197,7 +197,7 @@ describe('CatalogFilters', () => {
 
   it('search clear button clears input and removes search from URL, keeps other filters', () => {
     render(
-      <CatalogFilters filters={{ poleType: ['STATIC'], search: 'jade' }} availableTags={[]} />,
+      <CatalogFilters filters={{ poleTypes: ['STATIC'], search: 'jade' }} availableTags={[]} />,
     );
     const input = screen.getByRole('textbox', { name: /search/i }) as HTMLInputElement;
     expect(input.value).toBe('jade');

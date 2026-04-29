@@ -45,12 +45,12 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
   const [searchValue, setSearchValue] = useState(filters.search ?? '');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const selectedPoleTypes = filters.poleType ?? [];
+  const selectedPoleTypes = filters.poleTypes ?? [];
   const selectedDifficulties = filters.difficulty ?? [];
   const selectedTags = filters.tags ?? [];
 
   const navigate = (overrides: {
-    poleType?: PoleType[];
+    poleTypes?: PoleType[];
     difficulty?: Difficulty[];
     tags?: string[];
     resetSearch?: boolean;
@@ -60,7 +60,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
       debounceRef.current = null;
     }
 
-    const nextPoleType = 'poleType' in overrides ? overrides.poleType! : selectedPoleTypes;
+    const nextPoleType = 'poleTypes' in overrides ? overrides.poleTypes! : selectedPoleTypes;
     const nextDifficulty = 'difficulty' in overrides ? overrides.difficulty! : selectedDifficulties;
     const nextTags = 'tags' in overrides ? overrides.tags! : selectedTags;
     const nextSearch = overrides.resetSearch ? '' : searchValue;
@@ -75,7 +75,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     const next = selectedPoleTypes.includes(value)
       ? selectedPoleTypes.filter((v) => v !== value)
       : [...selectedPoleTypes, value];
-    navigate({ poleType: next });
+    navigate({ poleTypes: next });
   };
 
   const toggleDifficulty = (value: Difficulty) => {
@@ -268,7 +268,7 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
       {isActive && (
         <Button
           variant="secondary"
-          onClick={() => navigate({ poleType: [], difficulty: [], tags: [], resetSearch: true })}
+          onClick={() => navigate({ poleTypes: [], difficulty: [], tags: [], resetSearch: true })}
           className="w-full"
         >
           <X className="h-4 w-4" />
