@@ -1,6 +1,6 @@
 # Catalog Filter Logic Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Replace OR filter logic for pole types and tags with exact-category AND logic, and change the `poleType` schema field from a single nullable enum to an array.
 
@@ -18,7 +18,7 @@
 
 - Modify: `prisma/schema.prisma`
 
-- [ ] **Step 1: Update schema field**
+- [x] **Step 1: Update schema field**
 
 In `prisma/schema.prisma`, find the `Move` model and replace:
 
@@ -32,7 +32,7 @@ with:
   poleTypes   PoleType[]
 ```
 
-- [ ] **Step 2: Run migration**
+- [x] **Step 2: Run migration**
 
 ```bash
 cd .worktrees/feat/catalog-filter-logic
@@ -49,7 +49,7 @@ Expected: Prisma prompts to create migration, generates SQL that adds the new ar
 >
 > between the ADD COLUMN and DROP COLUMN statements.
 
-- [ ] **Step 3: Verify Prisma client updated**
+- [x] **Step 3: Verify Prisma client updated**
 
 ```bash
 grep -n "poleTypes" node_modules/.prisma/client/index.d.ts | head -5
@@ -65,7 +65,7 @@ Expected: lines showing `poleTypes: PoleType[]` in the `Move` type.
 
 - Modify: `src/shared/types/index.ts`
 
-- [ ] **Step 1: Rename the field**
+- [x] **Step 1: Rename the field**
 
 In `src/shared/types/index.ts`, change:
 
@@ -93,7 +93,7 @@ export interface MoveFilters {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add prisma/schema.prisma prisma/migrations src/shared/types/index.ts
@@ -109,7 +109,7 @@ git commit -m "feat: migrate poleType to poleTypes array + update MoveFilters ty
 - Modify: `src/features/catalog/actions.ts`
 - Modify: `src/features/catalog/actions.test.ts`
 
-- [ ] **Step 1: Replace `actions.test.ts` with new test suite**
+- [x] **Step 1: Replace `actions.test.ts` with new test suite**
 
 Replace the entire content of `src/features/catalog/actions.test.ts`:
 
@@ -335,7 +335,7 @@ describe('getTagsAction', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/catalog/actions.test.ts
@@ -343,7 +343,7 @@ npx vitest run src/features/catalog/actions.test.ts
 
 Expected: multiple failures on poleType/poleTypes-related tests (old implementation still in place).
 
-- [ ] **Step 3: Replace `actions.ts` with new implementation**
+- [x] **Step 3: Replace `actions.ts` with new implementation**
 
 Replace the entire content of `src/features/catalog/actions.ts`:
 
@@ -409,7 +409,7 @@ export async function getTagsAction(): Promise<
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/catalog/actions.test.ts
@@ -417,7 +417,7 @@ npx vitest run src/features/catalog/actions.test.ts
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/catalog/actions.ts src/features/catalog/actions.test.ts
@@ -433,7 +433,7 @@ git commit -m "feat: rewrite getMovesAction with AND filter logic for poleTypes 
 - Modify: `src/features/catalog/components/MoveGrid.test.tsx`
 - Modify: `src/features/catalog/components/MoveCard.test.tsx`
 
-- [ ] **Step 1: Fix `MoveGrid.test.tsx`**
+- [x] **Step 1: Fix `MoveGrid.test.tsx`**
 
 In `src/features/catalog/components/MoveGrid.test.tsx`, find the `makeMoves` factory function. Change:
 
@@ -459,7 +459,7 @@ and change to:
             poleTypes: [],
 ```
 
-- [ ] **Step 2: Fix `MoveCard.test.tsx`**
+- [x] **Step 2: Fix `MoveCard.test.tsx`**
 
 In `src/features/catalog/components/MoveCard.test.tsx`, find the mock move object. Change:
 
@@ -473,7 +473,7 @@ to:
   poleTypes: [],
 ```
 
-- [ ] **Step 3: Run tests**
+- [x] **Step 3: Run tests**
 
 ```bash
 npx vitest run src/features/catalog/components/MoveGrid.test.tsx src/features/catalog/components/MoveCard.test.tsx
@@ -481,7 +481,7 @@ npx vitest run src/features/catalog/components/MoveGrid.test.tsx src/features/ca
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/features/catalog/components/MoveGrid.test.tsx src/features/catalog/components/MoveCard.test.tsx
@@ -497,7 +497,7 @@ git commit -m "fix: update poleType → poleTypes in MoveGrid and MoveCard test 
 - Modify: `src/features/moves/components/MoveSpecs.tsx`
 - Modify: `src/features/moves/components/MoveSpecs.test.tsx`
 
-- [ ] **Step 1: Replace `MoveSpecs.test.tsx`**
+- [x] **Step 1: Replace `MoveSpecs.test.tsx`**
 
 Replace the entire content of `src/features/moves/components/MoveSpecs.test.tsx`:
 
@@ -554,7 +554,7 @@ describe('MoveSpecs', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests — verify they fail**
+- [x] **Step 2: Run tests — verify they fail**
 
 ```bash
 npx vitest run src/features/moves/components/MoveSpecs.test.tsx
@@ -562,7 +562,7 @@ npx vitest run src/features/moves/components/MoveSpecs.test.tsx
 
 Expected: failures because `MoveSpecs` still expects `poleType` prop.
 
-- [ ] **Step 3: Replace `MoveSpecs.tsx`**
+- [x] **Step 3: Replace `MoveSpecs.tsx`**
 
 Replace the entire content of `src/features/moves/components/MoveSpecs.tsx`:
 
@@ -612,7 +612,7 @@ export default function MoveSpecs({ gripType, entry, duration, poleTypes }: Move
 }
 ```
 
-- [ ] **Step 4: Run tests — verify they pass**
+- [x] **Step 4: Run tests — verify they pass**
 
 ```bash
 npx vitest run src/features/moves/components/MoveSpecs.test.tsx
@@ -620,7 +620,7 @@ npx vitest run src/features/moves/components/MoveSpecs.test.tsx
 
 Expected: all 6 tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/moves/components/MoveSpecs.tsx src/features/moves/components/MoveSpecs.test.tsx
@@ -636,7 +636,7 @@ git commit -m "feat: update MoveSpecs to accept poleTypes array, display 'Static
 - Modify: `src/features/catalog/components/CatalogFilters.tsx`
 - Modify: `src/features/catalog/components/CatalogFilters.test.tsx`
 
-- [ ] **Step 1: Update `CatalogFilters.tsx`**
+- [x] **Step 1: Update `CatalogFilters.tsx`**
 
 In `src/features/catalog/components/CatalogFilters.tsx`, make these four changes:
 
@@ -702,7 +702,7 @@ navigate({ poleTypes: next });
           onClick={() => navigate({ poleTypes: [], difficulty: [], tags: [], resetSearch: true })}
 ```
 
-- [ ] **Step 2: Update `CatalogFilters.test.tsx`**
+- [x] **Step 2: Update `CatalogFilters.test.tsx`**
 
 In `src/features/catalog/components/CatalogFilters.test.tsx`, replace all occurrences of `poleType:` prop on `<CatalogFilters` with `poleTypes:`. There are multiple places — use a global replace.
 
@@ -718,7 +718,7 @@ render(<CatalogFilters filters={{ poleType: ['STATIC'] }} availableTags={[]} />)
 render(<CatalogFilters filters={{ poleTypes: ['STATIC'] }} availableTags={[]} />);
 ```
 
-- [ ] **Step 3: Run tests**
+- [x] **Step 3: Run tests**
 
 ```bash
 npx vitest run src/features/catalog/components/CatalogFilters.test.tsx
@@ -726,7 +726,7 @@ npx vitest run src/features/catalog/components/CatalogFilters.test.tsx
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/features/catalog/components/CatalogFilters.tsx src/features/catalog/components/CatalogFilters.test.tsx
@@ -741,7 +741,7 @@ git commit -m "fix: rename poleType → poleTypes in CatalogFilters"
 
 - Modify: `src/app/(main)/catalog/page.tsx`
 
-- [ ] **Step 1: Update filters object**
+- [x] **Step 1: Update filters object**
 
 In `src/app/(main)/catalog/page.tsx`, change the `filters` object:
 
@@ -757,7 +757,7 @@ In `src/app/(main)/catalog/page.tsx`, change the `filters` object:
 
 Note: `params.poleType` stays — that's reading from the URL query string, not the DB field.
 
-- [ ] **Step 2: Verify TypeScript compiles**
+- [x] **Step 2: Verify TypeScript compiles**
 
 ```bash
 npx tsc --noEmit 2>&1 | grep "catalog/page"
@@ -765,7 +765,7 @@ npx tsc --noEmit 2>&1 | grep "catalog/page"
 
 Expected: no errors for this file.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/(main)/catalog/page.tsx
@@ -780,7 +780,7 @@ git commit -m "fix: rename poleType → poleTypes in catalog page filters"
 
 - Modify: `src/app/(main)/moves/[id]/page.tsx`
 
-- [ ] **Step 1: Update the page**
+- [x] **Step 1: Update the page**
 
 Replace the `poleTypeLabel` derivation and `MoveSpecs` usage. In `src/app/(main)/moves/[id]/page.tsx`:
 
@@ -821,7 +821,7 @@ const poleTypeLabel = getPoleTypesLabel(move.poleTypes);
         />
 ```
 
-- [ ] **Step 2: Run all tests**
+- [x] **Step 2: Run all tests**
 
 ```bash
 npx vitest run
@@ -829,7 +829,7 @@ npx vitest run
 
 Expected: all tests pass.
 
-- [ ] **Step 3: Verify no TypeScript errors**
+- [x] **Step 3: Verify no TypeScript errors**
 
 ```bash
 npx tsc --noEmit
@@ -837,7 +837,7 @@ npx tsc --noEmit
 
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/(main)/moves/[id]/page.tsx
@@ -853,7 +853,7 @@ git commit -m "fix: update moves detail page to use poleTypes array"
 - Modify: `prisma/seed-move-detail.ts`
 - Modify: `prisma/seed-progress.ts`
 
-- [ ] **Step 1: Update `seed-move-detail.ts`**
+- [x] **Step 1: Update `seed-move-detail.ts`**
 
 In `prisma/seed-move-detail.ts`, change the type in the `updates` array and all `poleType` values:
 
@@ -883,7 +883,7 @@ const updates: {
 
 **Change each move entry** — replace `poleType: 'SPIN'` with `poleTypes: ['SPIN']` and `poleType: 'STATIC'` with `poleTypes: ['STATIC']`. There are 6 entries in total (Fireman Spin, Chair Spin, Carousel Spin → `['SPIN']`; Inside Leg Hang, Superman, Basic Climb → `['STATIC']`).
 
-- [ ] **Step 2: Update `seed-progress.ts`**
+- [x] **Step 2: Update `seed-progress.ts`**
 
 In `prisma/seed-progress.ts`, make these changes:
 
@@ -965,7 +965,7 @@ for (const [title, poleTypes] of Object.entries(POLE_TYPES)) {
 console.log(`Updated poleTypes for ${poleTypeCount} moves.`);
 ```
 
-- [ ] **Step 3: Verify TypeScript in seed files**
+- [x] **Step 3: Verify TypeScript in seed files**
 
 ```bash
 npx tsc --noEmit --project tsconfig.json 2>&1 | grep "seed"
@@ -973,7 +973,7 @@ npx tsc --noEmit --project tsconfig.json 2>&1 | grep "seed"
 
 Expected: no errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add prisma/seed-move-detail.ts prisma/seed-progress.ts
@@ -984,7 +984,7 @@ git commit -m "fix: update seed files to use poleTypes array"
 
 ### Task 10: Final verification
 
-- [ ] **Step 1: Run full test suite**
+- [x] **Step 1: Run full test suite**
 
 ```bash
 npx vitest run
@@ -992,7 +992,7 @@ npx vitest run
 
 Expected: all tests pass (previously 349; may be slightly more due to new test cases).
 
-- [ ] **Step 2: TypeScript full check**
+- [x] **Step 2: TypeScript full check**
 
 ```bash
 npx tsc --noEmit
@@ -1000,7 +1000,7 @@ npx tsc --noEmit
 
 Expected: 0 errors.
 
-- [ ] **Step 3: Final commit if any stray changes remain**
+- [x] **Step 3: Final commit if any stray changes remain**
 
 ```bash
 git status
