@@ -28,6 +28,7 @@ function buildQuery(
   search: string,
 ): string {
   const parts: string[] = [];
+  // URL param stays `poleType` (without 's') for stable public URLs; server reads it the same way
   if (poleType.length) parts.push(`poleType=${poleType.join(',')}`);
   if (difficulty.length) parts.push(`difficulty=${difficulty.join(',')}`);
   if (tags.length) parts.push(`tags=${tags.map(encodeURIComponent).join(',')}`);

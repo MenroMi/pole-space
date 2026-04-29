@@ -11,6 +11,7 @@ import {
 } from '@/features/moves';
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
+import { formatPoleTypes } from '@/features/moves/utils';
 import { auth } from '@/shared/lib/auth';
 
 const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSProperties }> = {
@@ -33,12 +34,7 @@ export default async function MoveDetailPage({ params }: { params: Promise<{ id:
   const isAuthenticated = !!userId;
   const badge = DIFFICULTY_BADGE[move.difficulty];
   const difficultyLabel = move.difficulty.charAt(0) + move.difficulty.slice(1).toLowerCase();
-  const poleTypeLabel =
-    move.poleTypes.length === 0
-      ? null
-      : move.poleTypes.length >= 2
-        ? 'Static & Spin'
-        : move.poleTypes[0].charAt(0) + move.poleTypes[0].slice(1).toLowerCase();
+  const poleTypeLabel = formatPoleTypes(move.poleTypes);
 
   return (
     <main>

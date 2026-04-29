@@ -23,8 +23,24 @@ const mockCount = prisma.move.count as ReturnType<typeof vi.fn>;
 const mockTagFindMany = prisma.tag.findMany as ReturnType<typeof vi.fn>;
 
 const mockMoves = [
-  { id: 'm1', title: 'Jade', difficulty: 'BEGINNER', poleTypes: ['STATIC'], tags: [] },
-  { id: 'm2', title: 'Iguana', difficulty: 'INTERMEDIATE', poleTypes: ['SPIN'], tags: [] },
+  {
+    id: 'm1',
+    title: 'Jade',
+    difficulty: 'BEGINNER',
+    poleTypes: ['STATIC'],
+    tags: [],
+    coachNote: null,
+    coachNoteAuthor: null,
+  },
+  {
+    id: 'm2',
+    title: 'Iguana',
+    difficulty: 'INTERMEDIATE',
+    poleTypes: ['SPIN'],
+    tags: [],
+    coachNote: null,
+    coachNoteAuthor: null,
+  },
 ];
 
 beforeEach(() => vi.clearAllMocks());
@@ -155,6 +171,14 @@ describe('getMovesAction', () => {
         where: expect.not.objectContaining({ AND: expect.anything() }),
       }),
     );
+  });
+
+  it('includes poleType AND conditions when poleTypes non-empty but tags empty', async () => {
+    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    await getMovesAction({ poleTypes: ['STATIC'], tags: [] });
+    const call = mockFindMany.mock.calls[0][0] as { where: { AND: object[] } };
+    expect(call.where.AND).toContainEqual({ poleTypes: { hasEvery: ['STATIC'] } });
+    expect(call.where.AND).not.toContainEqual(expect.objectContaining({ tags: expect.anything() }));
   });
 
   it('merges poleTypes and tags into a single AND array', async () => {

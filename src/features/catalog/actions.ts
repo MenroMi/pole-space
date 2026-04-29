@@ -1,12 +1,15 @@
 'use server';
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/shared/lib/prisma';
-import type { MoveFilters, PaginatedResult, PoleType } from '@/shared/types';
+import type { MoveFilters, PaginatedResult } from '@/shared/types';
+import { PoleType } from '@/shared/types/enums';
 
 import type { MoveWithTags } from './types';
 
-const ALL_POLE_TYPES = ['STATIC', 'SPIN'] as const;
+const ALL_POLE_TYPES = Object.values(PoleType);
 
-function buildPoleTypeConditions(selected: PoleType[]): object[] {
+function buildPoleTypeConditions(selected: PoleType[]): Prisma.MoveWhereInput[] {
   if (!selected.length) return [];
   const excluded = ALL_POLE_TYPES.filter((t) => !selected.includes(t));
   return [
@@ -15,7 +18,7 @@ function buildPoleTypeConditions(selected: PoleType[]): object[] {
   ];
 }
 
-function buildTagConditions(tags: string[]): object[] {
+function buildTagConditions(tags: string[]): Prisma.MoveWhereInput[] {
   return tags.map((tag) => ({ tags: { some: { name: tag } } }));
 }
 
