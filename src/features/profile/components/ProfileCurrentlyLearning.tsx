@@ -29,8 +29,8 @@ function DifficultyChip({ difficulty }: { difficulty: string }) {
 
 export default function ProfileCurrentlyLearning({ moves }: ProfileCurrentlyLearningProps) {
   return (
-    <div className="rounded-xl border border-outline-variant/20 bg-surface-container p-6">
-      <div className="mb-[18px] flex items-baseline justify-between">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container p-6">
+      <div className="mb-[18px] flex shrink-0 items-baseline justify-between">
         <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
           Currently learning
         </span>
@@ -47,7 +47,7 @@ export default function ProfileCurrentlyLearning({ moves }: ProfileCurrentlyLear
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col gap-1">
+        <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
           {moves.map((p) => {
             const tagLine = p.move.tags
               .slice(0, 2)
