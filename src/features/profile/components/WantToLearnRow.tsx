@@ -44,24 +44,26 @@ export default function WantToLearnRow({ item, onStatusChange, isPending }: Want
         )}
       </Link>
 
-      <Link href={`/moves/${item.moveId}`} className="min-w-0 flex-1">
-        <p className="truncate font-display text-sm font-medium text-on-surface transition-colors hover:text-primary">
-          {item.move.title}
-        </p>
-        <span
-          className="mt-0.5 inline-block rounded-full px-2 py-0.5 font-sans text-[9px] font-bold tracking-[0.14em] uppercase"
-          style={{ background: `${color}18`, color }}
-        >
-          {item.move.difficulty.charAt(0) + item.move.difficulty.slice(1).toLowerCase()}
-        </span>
-      </Link>
+      <div className="min-w-0 flex-1">
+        <Link href={`/moves/${item.moveId}`} className="block">
+          <p className="truncate font-display text-sm font-medium text-on-surface transition-colors hover:text-primary">
+            {item.move.title}
+          </p>
+          <span
+            className="mt-0.5 inline-block rounded-full px-2 py-0.5 font-sans text-[9px] font-bold tracking-[0.14em] uppercase"
+            style={{ background: `${color}18`, color }}
+          >
+            {item.move.difficulty.charAt(0) + item.move.difficulty.slice(1).toLowerCase()}
+          </span>
+        </Link>
 
-      <div className="w-[300px] shrink-0">
-        <ProgressStatusPicker
-          currentStatus={item.status}
-          onStatusChange={(status) => onStatusChange(item.moveId, status)}
-          isPending={isPending}
-        />
+        <div className="mt-2">
+          <ProgressStatusPicker
+            currentStatus={item.status}
+            onStatusChange={(status) => onStatusChange(item.moveId, status)}
+            isPending={isPending}
+          />
+        </div>
       </div>
     </div>
   );
