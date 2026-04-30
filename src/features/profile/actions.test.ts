@@ -144,6 +144,7 @@ describe('updateProgressAction', () => {
     await updateProgressAction('move-1', 'IN_PROGRESS');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/progress');
   });
 });
 
@@ -167,6 +168,7 @@ describe('removeProgressAction', () => {
     await removeProgressAction('move-1');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile/progress');
   });
 });
 
