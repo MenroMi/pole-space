@@ -252,74 +252,35 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
               </div>
             )}
 
-            {filtered.length > 0 && tab === 'in_progress' && (
-              <div className="flex flex-col gap-3">
-                <AnimatePresence initial={false}>
-                  {filtered.map((item) => (
-                    <motion.div
-                      key={item.moveId}
-                      layout
-                      variants={cardVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
+            {/* List container stays mounted so AnimatePresence can exit the last item */}
+            <div className={tab === 'in_progress' ? 'flex flex-col gap-3' : 'flex flex-col gap-2'}>
+              <AnimatePresence initial={false}>
+                {filtered.map((item) => (
+                  <motion.div
+                    key={item.moveId}
+                    layout
+                    variants={cardVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                  >
+                    {tab === 'in_progress' ? (
                       <ProgressCard
                         item={item}
                         onStatusChange={handleStatusChange}
                         isPending={isPending}
                       />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-
-            {filtered.length > 0 && tab === 'want_to_learn' && (
-              <div className="flex flex-col gap-2">
-                <AnimatePresence initial={false}>
-                  {filtered.map((item) => (
-                    <motion.div
-                      key={item.moveId}
-                      layout
-                      variants={cardVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
+                    ) : (
                       <WantToLearnRow
                         item={item}
                         onStatusChange={handleStatusChange}
                         isPending={isPending}
                       />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-
-            {filtered.length > 0 && tab === 'learned' && (
-              <div className="flex flex-col gap-2">
-                <AnimatePresence initial={false}>
-                  {filtered.map((item) => (
-                    <motion.div
-                      key={item.moveId}
-                      layout
-                      variants={cardVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
-                      <WantToLearnRow
-                        item={item}
-                        onStatusChange={handleStatusChange}
-                        isPending={isPending}
-                      />
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
