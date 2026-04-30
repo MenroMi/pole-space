@@ -26,3 +26,4 @@ export const geocodeRatelimit = makeRatelimit(20, '1 m', 'rl:geocode');
 export const signinRatelimit = makeRatelimit(10, '15 m', 'rl:signin');
 export const signupRatelimit = makeRatelimit(5, '1 h', 'rl:signup');
 export const resendRatelimit = makeRatelimit(5, '1 h', 'rl:resend');
+export const forgotPasswordRatelimit = makeRatelimit(5, '1 h', 'rl:forgotpw');

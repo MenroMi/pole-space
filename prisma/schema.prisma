@@ -69,6 +69,8 @@ model PasswordResetToken {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@index([email])
 }
 
 model Move {

@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
-import { signupRatelimit, resendRatelimit } from '@/shared/lib/ratelimit';
+import { signupRatelimit, resendRatelimit, forgotPasswordRatelimit } from '@/shared/lib/ratelimit';
 
 import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
@@ -126,6 +126,10 @@ const resetPasswordSchema = z
 export async function forgotPasswordAction(
   email: string,
 ): Promise<{ sent: true } | { error: string }> {
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
+  const { success: withinLimit } = await forgotPasswordRatelimit.limit(ip);
+  if (!withinLimit) return { sent: true };
+
   const parsed = forgotPasswordSchema.safeParse({ email });
   if (!parsed.success) return { error: 'Invalid email' };
 

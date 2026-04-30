@@ -39,6 +39,7 @@ vi.mock('next/headers', () => ({
 vi.mock('@/shared/lib/ratelimit', () => ({
   signupRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
   resendRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+  forgotPasswordRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
 }));
 vi.mock('@/features/auth/lib/reset-tokens', () => ({
   generateResetToken: vi.fn().mockResolvedValue('reset-token-uuid'),
@@ -67,7 +68,7 @@ vi.mock('next-auth', async () => {
   return { AuthError };
 });
 
-import { signupRatelimit, resendRatelimit } from '@/shared/lib/ratelimit';
+import { signupRatelimit, resendRatelimit, forgotPasswordRatelimit } from '@/shared/lib/ratelimit';
 import { sendVerificationEmail } from '@/features/auth/lib/email';
 import {
   generateResetToken,
@@ -100,6 +101,7 @@ const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
 const mockSignupLimit = signupRatelimit.limit as ReturnType<typeof vi.fn>;
 const mockResendLimit = resendRatelimit.limit as ReturnType<typeof vi.fn>;
+const mockForgotPasswordLimit = forgotPasswordRatelimit.limit as ReturnType<typeof vi.fn>;
 const mockGenResetToken = generateResetToken as ReturnType<typeof vi.fn>;
 const mockDeleteResetTokensByEmail = deleteResetTokensByEmail as ReturnType<typeof vi.fn>;
 const mockFindResetToken = findResetToken as ReturnType<typeof vi.fn>;
@@ -117,6 +119,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockSignupLimit.mockResolvedValue({ success: true });
   mockResendLimit.mockResolvedValue({ success: true });
+  mockForgotPasswordLimit.mockResolvedValue({ success: true });
 });
 
 describe('signupAction', () => {
@@ -350,6 +353,15 @@ describe('checkEmailVerifiedAction', () => {
 });
 
 describe('forgotPasswordAction', () => {
+  it('returns { sent: true } silently when rate limit is exceeded', async () => {
+    mockForgotPasswordLimit.mockResolvedValue({ success: false });
+
+    const result = await forgotPasswordAction('user@example.com');
+
+    expect(result).toEqual({ sent: true });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('returns { sent: true } and does nothing when email not found', async () => {
     mockFindUnique.mockResolvedValue(null);
 
