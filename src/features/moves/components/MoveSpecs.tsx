@@ -1,12 +1,9 @@
-import type { Move, PoleType } from '@prisma/client';
+import type { Move } from '@prisma/client';
 
-type MoveSpecsProps = Pick<Move, 'gripType' | 'entry' | 'duration' | 'poleType'>;
+import { formatPoleTypes } from '../utils';
+
+type MoveSpecsProps = Pick<Move, 'gripType' | 'entry' | 'duration' | 'poleTypes'>;
 type SpecItem = { label: string; value: string };
-
-const POLE_TYPE_LABEL: Record<PoleType, string> = {
-  STATIC: 'Static',
-  SPIN: 'Spin',
-};
 
 function SpecCard({ label, value }: SpecItem) {
   return (
@@ -19,15 +16,12 @@ function SpecCard({ label, value }: SpecItem) {
   );
 }
 
-export default function MoveSpecs({ gripType, entry, duration, poleType }: MoveSpecsProps) {
+export default function MoveSpecs({ gripType, entry, duration, poleTypes }: MoveSpecsProps) {
   const raw: { label: string; value: string | null | undefined }[] = [
     { label: 'Grip Type', value: gripType },
     { label: 'Entry', value: entry },
     { label: 'Duration', value: duration },
-    {
-      label: 'Pole Setting',
-      value: poleType ? POLE_TYPE_LABEL[poleType] : null,
-    },
+    { label: 'Pole Setting', value: formatPoleTypes(poleTypes) },
   ];
   const specs: SpecItem[] = raw.filter((s): s is SpecItem => s.value != null);
 

@@ -116,10 +116,10 @@ async function main() {
       console.warn(`Move not found: ${title}`);
       continue;
     }
-    await prisma.move.update({ where: { id: moveId }, data: { poleType } });
+    await prisma.move.update({ where: { id: moveId }, data: { poleTypes: [poleType] } });
     poleTypeCount++;
   }
-  console.log(`Updated poleType for ${poleTypeCount} moves.`);
+  console.log(`Updated poleTypes for ${poleTypeCount} moves.`);
 }
 
 main()

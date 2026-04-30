@@ -21,7 +21,7 @@ function makeMoves(count: number, offset = 0): MoveWithTags[] {
     description: null,
     difficulty: 'BEGINNER' as const,
     category: 'SPINS' as const,
-    poleType: null,
+    poleTypes: [],
     youtubeUrl: '',
     imageUrl: null,
     createdAt: new Date(),
@@ -201,6 +201,16 @@ describe('MoveGrid', () => {
     });
   });
 
+  it('shows empty state text when initialMoves is empty', () => {
+    render(<MoveGrid initialMoves={[]} initialHasMore={false} totalCount={0} filters={{}} />);
+    expect(screen.getByText('No moves match these filters.')).toBeInTheDocument();
+  });
+
+  it('does not render move cards when initialMoves is empty', () => {
+    render(<MoveGrid initialMoves={[]} initialHasMore={false} totalCount={0} filters={{}} />);
+    expect(screen.queryAllByTestId('move-card')).toHaveLength(0);
+  });
+
   it('does not setState after unmount during fetch', async () => {
     let resolveLoad!: (value: unknown) => void;
     mockGetMovesAction.mockReturnValue(
@@ -233,7 +243,7 @@ describe('MoveGrid', () => {
             description: null,
             difficulty: 'BEGINNER',
             category: 'SPINS',
-            poleType: null,
+            poleTypes: [],
             youtubeUrl: '',
             imageUrl: null,
             createdAt: new Date(),

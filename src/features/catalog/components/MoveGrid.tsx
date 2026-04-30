@@ -66,16 +66,31 @@ export default function MoveGrid({
     // filters is stable for this component's lifetime — parent remounts via `key` prop when filters change
   }, [hasMore]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const header = (
+    <div className="mb-8">
+      <p className="mb-3 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
+        Catalog · {totalCount} moves
+      </p>
+      <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
+        Every move, <em className="font-medium text-primary not-italic">indexed.</em>
+      </h1>
+    </div>
+  );
+
+  if (moves.length === 0) {
+    return (
+      <div className="flex h-full flex-col p-6">
+        {header}
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-sm text-on-surface-variant">No moves match these filters.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
-      <div className="mb-8">
-        <p className="mb-3 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
-          Catalog · {totalCount} moves
-        </p>
-        <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
-          Every move, <em className="font-medium text-primary not-italic">indexed.</em>
-        </h1>
-      </div>
+      {header}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
         {moves.map((move) => (
           <MoveCard key={move.id} move={move} />
