@@ -1,4 +1,5 @@
 'use client';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { ChevronRight, Heart, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -29,6 +30,12 @@ const DIFFICULTY_ORDER: Record<string, number> = {
   BEGINNER: 0,
   INTERMEDIATE: 1,
   ADVANCED: 2,
+};
+
+const cardVariants: Variants = {
+  initial: { opacity: 0, y: -8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
+  exit: { opacity: 0, x: -16, transition: { duration: 0.15, ease: 'easeIn' } },
 };
 
 type SortKey = 'recent' | 'name' | 'level';
@@ -353,42 +360,70 @@ export default function FavouriteMovesGallery({
 
         {/* Empty / no-match / grid */}
         <div className="mt-9">
-          {optimisticFavs.length === 0 && (
-            <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant/40 px-6 py-20 text-center">
-              <Heart className="mb-4 h-9 w-9 text-primary/40" />
-              <p
-                className="font-display text-[22px] text-on-surface"
-                style={{ letterSpacing: '-0.01em' }}
+          <AnimatePresence>
+            {optimisticFavs.length === 0 && (
+              <motion.div
+                key="global-empty"
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
               >
-                No favourites yet.
-              </p>
-              <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant">
-                Open any move in the catalog and tap the heart to save it here.
-              </p>
-            </div>
-          )}
+                <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant/40 px-6 py-20 text-center">
+                  <Heart className="mb-4 h-9 w-9 text-primary/40" />
+                  <p
+                    className="font-display text-[22px] text-on-surface"
+                    style={{ letterSpacing: '-0.01em' }}
+                  >
+                    No favourites yet.
+                  </p>
+                  <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant">
+                    Open any move in the catalog and tap the heart to save it here.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+            {optimisticFavs.length > 0 && filtered.length === 0 && (
+              <motion.div
+                key="no-match"
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <div className="py-20 text-center font-sans text-sm text-on-surface-variant">
+                  No favourites match &ldquo;{query}&rdquo;.
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {optimisticFavs.length > 0 && filtered.length === 0 && (
-            <div className="py-20 text-center font-sans text-sm text-on-surface-variant">
-              No favourites match &ldquo;{query}&rdquo;.
-            </div>
-          )}
-
-          {filtered.length > 0 && (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-[18px]">
+          {/* Grid stays mounted so AnimatePresence can exit the last card */}
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-[18px]">
+            <AnimatePresence initial={false}>
               {filtered.map((fav) => (
-                <FavouriteCard
+                <motion.div
                   key={fav.id}
-                  fav={fav}
-                  onRemove={(f) => {
-                    setConfirmFav(f);
-                    setDialogOpen(true);
-                  }}
-                  isPending={isPending}
-                />
+                  layout="position"
+                  variants={cardVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit={
+                    filtered.length === 1 ? { opacity: 0, transition: { duration: 0 } } : 'exit'
+                  }
+                >
+                  <FavouriteCard
+                    fav={fav}
+                    onRemove={(f) => {
+                      setConfirmFav(f);
+                      setDialogOpen(true);
+                    }}
+                    isPending={isPending}
+                  />
+                </motion.div>
               ))}
-            </div>
-          )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </>

@@ -1,4 +1,5 @@
 'use client';
+import { motion, type Variants } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 
 import { getMovesAction } from '../actions';
@@ -7,6 +8,11 @@ import type { MoveWithTags, MoveFilters } from '../types';
 import MoveCard from './MoveCard';
 
 const PAGE_SIZE = 12;
+
+const cardVariants: Variants = {
+  initial: { opacity: 0, y: -8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
+};
 
 type MoveGridProps = {
   initialMoves: MoveWithTags[];
@@ -93,7 +99,9 @@ export default function MoveGrid({
       {header}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
         {moves.map((move) => (
-          <MoveCard key={move.id} move={move} />
+          <motion.div key={move.id} variants={cardVariants} initial="initial" animate="animate">
+            <MoveCard move={move} />
+          </motion.div>
         ))}
       </div>
       {loading && (
