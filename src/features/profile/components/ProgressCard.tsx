@@ -1,11 +1,9 @@
 'use client';
 import { ImageOff } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useTransition } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
-import { removeProgressAction, updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
 
 import ProgressStatusPicker from './ProgressStatusPicker';
@@ -16,26 +14,14 @@ const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSPro
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
 };
 
-export default function ProgressCard({ item }: { item: ProgressWithMove }) {
-  const [isPending, startTransition] = useTransition();
-  const [displayStatus, setDisplayStatus] = useState<LearnStatus>(item.status);
-  const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
+type ProgressCardProps = {
+  item: ProgressWithMove;
+  onStatusChange: (moveId: string, status: LearnStatus | null) => void;
+  isPending: boolean;
+};
 
-  function handleStatusChange(status: LearnStatus | null) {
-    const previous = displayStatus;
-    if (status !== null) setDisplayStatus(status);
-    startTransition(async () => {
-      try {
-        if (status === null) {
-          await removeProgressAction(item.move.id);
-        } else {
-          await updateProgressAction(item.move.id, status);
-        }
-      } catch {
-        setDisplayStatus(previous);
-      }
-    });
-  }
+export default function ProgressCard({ item, onStatusChange, isPending }: ProgressCardProps) {
+  const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
   return (
     <div className="flex gap-4 rounded-xl bg-surface-container p-4">
@@ -59,8 +45,8 @@ export default function ProgressCard({ item }: { item: ProgressWithMove }) {
           <h3 className="font-display font-semibold text-on-surface">{item.move.title}</h3>
         </div>
         <ProgressStatusPicker
-          currentStatus={displayStatus}
-          onStatusChange={handleStatusChange}
+          currentStatus={item.status}
+          onStatusChange={(status) => onStatusChange(item.moveId, status)}
           isPending={isPending}
         />
       </div>

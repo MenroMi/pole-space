@@ -138,7 +138,7 @@ describe('updateProgressAction', () => {
     expect(result).toEqual({ id: 'progress-1' });
   });
 
-  it('revalidates both /profile and /moves/[id]', async () => {
+  it('revalidates /profile, /profile/progress, and /moves/[id]', async () => {
     mockAuth.mockResolvedValue(session);
     mockUpsert.mockResolvedValue({ id: 'progress-1' });
     await updateProgressAction('move-1', 'IN_PROGRESS');
@@ -163,7 +163,7 @@ describe('removeProgressAction', () => {
     });
   });
 
-  it('revalidates both /profile and /moves/[id]', async () => {
+  it('revalidates /profile, /profile/progress, and /moves/[id]', async () => {
     mockAuth.mockResolvedValue(session);
     await removeProgressAction('move-1');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
