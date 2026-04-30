@@ -56,7 +56,7 @@ export default function WantToLearnRow({ item, onStatusChange, isPending }: Want
         </span>
       </Link>
 
-      <div className="w-[260px] shrink-0">
+      <div className="w-[300px] shrink-0">
         <ProgressStatusPicker
           currentStatus={item.status}
           onStatusChange={(status) => onStatusChange(item.moveId, status)}

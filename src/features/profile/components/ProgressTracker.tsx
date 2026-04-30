@@ -261,7 +261,12 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
         {filtered.length > 0 && tab === 'learned' && (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-[18px]">
             {filtered.map((item) => (
-              <LearnedCard key={item.id} item={item} />
+              <LearnedCard
+                key={item.id}
+                item={item}
+                onStatusChange={handleStatusChange}
+                isPending={isPending}
+              />
             ))}
           </div>
         )}
