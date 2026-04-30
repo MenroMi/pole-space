@@ -12,9 +12,13 @@ function formatTimestamp(seconds: number): string {
 export default function MoveBreakdown({
   stepsData,
   onSeek,
+  coachNote,
+  coachNoteAuthor,
 }: {
   stepsData: StepItem[];
   onSeek: (seconds: number) => void;
+  coachNote: string | null;
+  coachNoteAuthor: string | null;
 }) {
   if (stepsData.length === 0) return null;
 
@@ -48,16 +52,22 @@ export default function MoveBreakdown({
           ))}
         </div>
 
-        <aside className="hidden self-start rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-6 lg:block">
-          <p className="mb-3 text-[10px] font-semibold tracking-[0.16em] text-primary uppercase">
-            Coach&apos;s Note
-          </p>
-          <p className="text-sm leading-relaxed text-on-surface-variant">
-            &ldquo;Keep your eyes high — drop them and your shoulders follow. The line you finish on
-            is the one your head leads to.&rdquo;
-          </p>
-          <p className="mt-3 text-[11px] text-outline">— Studio instruction</p>
-        </aside>
+        {coachNote && (
+          <aside className="hidden self-start rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-6 lg:block">
+            <p
+              data-testid="coach-note-label"
+              className="mb-3 text-[10px] font-semibold tracking-[0.16em] text-primary uppercase"
+            >
+              Coach&apos;s Note
+            </p>
+            <p className="text-sm leading-relaxed text-on-surface-variant">
+              &ldquo;{coachNote}&rdquo;
+            </p>
+            {coachNoteAuthor && (
+              <p className="mt-3 text-[11px] text-outline">— {coachNoteAuthor}</p>
+            )}
+          </aside>
+        )}
       </div>
     </div>
   );

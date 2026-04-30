@@ -113,6 +113,27 @@
 - ~~Fix: add a test case for short/empty name before shipping to production~~
 - 3 tests added: 2 in `validation.test.ts` (min/max message strings), 1 in `SignupForm.test.tsx` (UI render)
 
+~~**Move Detail Redesign**~~ ✅ Done (2026-04-28)
+
+**Spec:** `docs/superpowers/specs/2026-04-28-move-detail-redesign.md`
+**Plan:** `docs/superpowers/plans/2026-04-28-move-detail-redesign.md`
+
+- [x] Task 1: Data layer — `currentProgress: LearnStatus | null` в `MoveDetail` + `getMoveByIdAction`
+- [x] Task 2: `MoveProgressPicker` — client wrapper над `ProgressStatusPicker`; toggle-to-null (повторный клик снимает статус); pill fade-in-place анимация
+- [x] Task 3: `MoveHero` — `h-[65vh]` → `aspect-[16/9]`
+- [x] Task 4: `MovePlayer` — 2-col hero grid + info panel (title, difficulty chip, desc, tags, actions)
+- [x] Task 5: `MoveSpecs` — добавить "SPECS" section label
+- [x] Task 6: `MoveTabs` — gradient underline `from-primary to-[#8458b3]`
+- [x] Task 7: `RelatedMoves` — горизонтальные карточки (letter icon + title + difficulty)
+- [x] Task 8: `page.tsx` — подключить `currentProgress`, `MoveProgressPicker`; SEO `generateMetadata`; `generateStaticParams` (take: 1000); `React.cache()` для дедупликации DB-запроса
+
+**Дополнительно (в рамках той же серии):**
+
+- Related moves теперь подбираются по тегам (не по категории); `revalidatePath('/profile')` после обновления прогресса
+- `removeProgressAction` — удаление прогресса + revalidate
+- `ProgressCard`: optimistic update + rollback при ошибке
+- `extractVideoId` вынесен в `src/features/moves/lib/youtube.ts`
+
 ## Design System (feat/design-system — ready to merge, 2026-04-27)
 
 ~~**Design system integration**~~ ✅ Done
@@ -129,10 +150,11 @@
 - FavouriteMovesGallery: fixed invalid token (`bg-surface-container-low` → `bg-surface-low`), auto-fill grid
 - Fixed invalid tokens in MoveBreakdown: `surface-container-low` → `surface-low`, `surface-container-highest` → `surface-highest`
 
-**Coach's Note — hardcoded placeholder** (2026-04-27)
+~~**Coach's Note — hardcoded placeholder**~~ ✅ Resolved (2026-04-28)
 
-- `src/features/moves/components/MoveBreakdown.tsx:46–52` renders a static quote for every move
-- Fix: add a `coachNote: String?` field to `Move` schema, render conditionally; or pull from `stepsData` metadata
+- `coachNote: String?` и `coachNoteAuthor: String?` добавлены в Prisma `Move` (migration `20260428203347_add_coach_note`)
+- `MoveBreakdown` рендерит aside условно; `MoveTabs` принимает `breakdown: ReactNode` вместо пробрасывания 4 пропсов
+- `prisma/seed-coach-notes.ts` — 6 движений засеяны с реальными нотами тренеров
 
 **`getRelatedMovesAction` — non-deterministic order** (2026-04-27)
 
@@ -297,3 +319,35 @@
 - Should be derived from `user.role` or a separate membership tier field
 - Fix: conditionalise on role/tier, or remove until the feature is properly designed
 - Priority: low — cosmetic stub, no functional impact
+
+~~**App Redesign — Progress page + animations + layout**~~ ✅ Done (2026-04-30)
+
+**Spec/Plan:** `docs/superpowers/plans/2026-04-30-progress-page.md`
+
+**Progress page (Tasks 1–6):**
+
+- `revalidatePath('/profile/progress')` added to `updateProgressAction` + `removeProgressAction`
+- `ProgressCard` refactored to accept `onStatusChange` + `isPending` callbacks (no internal server calls)
+- `WantToLearnRow` — compact horizontal row with status picker for Want to Learn tab
+- `LearnedCard` — portrait achievement card (4:5 ratio, YouTube thumb fallback, naturalWidth guard)
+- `ProgressTracker` — client component with 3-tab layout, `useOptimistic`, search, empty states, 7 unit tests
+- Progress page RSC wired up; ProfileAside nav link unlocked
+
+**framer-motion animations (post-plan):**
+
+- `src/shared/lib/motion.ts` — shared `cardVariants` + `tabContentVariants` extracted (DRY)
+- `ProgressTracker`: `AnimatePresence` + `motion.div layout="position"` on cards; `tabContentVariants` on tab panels; `pointerEvents: 'none'` on exit to prevent click-blocking; instant exit guard for last card
+- `FavouriteMovesGallery`: same `AnimatePresence initial={false}` pattern; `useCallback` on `handleOpenRemoveDialog` to prevent new function per render during FLIP
+- `MoveGrid`: `motion.div` entrance animation on each card
+- `src/test-setup.ts`: framer-motion mock extended to strip `variants`, `layout`, `whileHover`, `whileTap`, `onAnimationStart`, `onAnimationComplete`
+- `ProgressStatusPicker`: null-status pill comment restored
+
+**Profile overview layout fixes (post-plan):**
+
+- `getProfileOverviewAction`: removed `take` limit on `currentlyLearning` (was truncating list silently)
+- `ProfileCurrentlyLearning`: `min-h-0 flex-col overflow-hidden` on root + `shrink-0` on header + `flex min-h-0 flex-1 overflow-y-auto` on list — scrollable within card without inflating grid row height
+- `ProfileFavouritesPreview`: `flex-1` on root — fills right column height when grid row is stretched
+
+**Sticky sidebar:**
+
+- `PageShell`: `aside` gets `self-start sticky top-[60px] h-[calc(100vh-120px)] overflow-y-auto` — `self-start` prevents CSS grid stretch so sticky has room to scroll

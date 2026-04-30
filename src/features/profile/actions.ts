@@ -35,11 +35,23 @@ export async function getUserProgressAction(status?: LearnStatus): Promise<Progr
 
 export async function updateProgressAction(moveId: string, status: LearnStatus) {
   const userId = await requireAuth();
-  return prisma.userProgress.upsert({
+  const result = await prisma.userProgress.upsert({
     where: { userId_moveId: { userId, moveId } },
     create: { userId, moveId, status },
     update: { status },
   });
+  revalidatePath('/profile');
+  revalidatePath('/profile/progress');
+  revalidatePath('/moves/' + moveId);
+  return result;
+}
+
+export async function removeProgressAction(moveId: string) {
+  const userId = await requireAuth();
+  await prisma.userProgress.deleteMany({ where: { userId, moveId } });
+  revalidatePath('/profile');
+  revalidatePath('/profile/progress');
+  revalidatePath('/moves/' + moveId);
 }
 
 export async function updateProfileAction(data: {
@@ -135,7 +147,7 @@ export async function getUserFavouritesAction(): Promise<FavouriteWithMove[]> {
   const userId = await requireAuth();
   return prisma.userFavourite.findMany({
     where: { userId },
-    include: { move: true },
+    include: { move: { include: { tags: true } } },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -173,4 +185,56 @@ export async function getProfileStatsAction() {
     prisma.userFavourite.count({ where: { userId } }),
   ]);
   return { masteredCount, favouritesCount };
+}
+
+export async function getProfileOverviewAction() {
+  const userId = await requireAuth();
+  const [progressGroups, currentlyLearning, favouritesPreview, favouritesCount, user] =
+    await Promise.all([
+      prisma.userProgress.groupBy({ by: ['status'], where: { userId }, _count: true }),
+      prisma.userProgress.findMany({
+        where: { userId, status: 'IN_PROGRESS' },
+        include: { move: { include: { tags: true } } },
+        orderBy: { id: 'desc' },
+      }),
+      prisma.userFavourite.findMany({
+        where: { userId },
+        include: { move: { include: { tags: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+      }),
+      prisma.userFavourite.count({ where: { userId } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          firstName: true,
+          lastName: true,
+          username: true,
+          image: true,
+          location: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+  const breakdown = { learned: 0, inProgress: 0, wantToLearn: 0 };
+  for (const g of progressGroups) {
+    if (g.status === 'LEARNED') breakdown.learned = g._count;
+    if (g.status === 'IN_PROGRESS') breakdown.inProgress = g._count;
+    if (g.status === 'WANT_TO_LEARN') breakdown.wantToLearn = g._count;
+  }
+
+  return {
+    user,
+    stats: {
+      masteredCount: breakdown.learned,
+      inProgressCount: breakdown.inProgress,
+      favouritesCount,
+    },
+    breakdown,
+    currentlyLearning: currentlyLearning as (ProgressWithMove & {
+      move: { tags: { id: string; name: string }[] };
+    })[],
+    favouritesPreview: favouritesPreview as FavouriteWithMove[],
+  };
 }

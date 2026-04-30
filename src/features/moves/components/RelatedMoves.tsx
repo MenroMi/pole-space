@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import MoveCardImage from '@/features/catalog/components/MoveCardImage';
 
+import { extractVideoId } from '../lib/youtube';
+
 type RelatedMove = {
   id: string;
   title: string;
@@ -14,11 +16,6 @@ type RelatedMovesProps = {
   moves: RelatedMove[];
 };
 
-function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
-
 const DIFFICULTY_COLOR: Record<string, string> = {
   BEGINNER: 'text-on-secondary-container',
   INTERMEDIATE: 'text-primary',
@@ -29,8 +26,8 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
   if (moves.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pb-16 md:px-12">
-      <p className="mb-4 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
+    <section className="mx-auto max-w-[1280px] px-4 pb-16 sm:px-8">
+      <p className="mb-4 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
         Related moves
       </p>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -47,12 +44,9 @@ export default function RelatedMoves({ moves }: RelatedMovesProps) {
               href={`/moves/${move.id}`}
               className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
-              {/* Image area */}
               <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-accent">
                 {thumb && <MoveCardImage src={thumb} alt={move.title} />}
               </div>
-
-              {/* Info */}
               <div className="p-3">
                 <p className="truncate font-display text-sm font-semibold text-on-surface">
                   {move.title}

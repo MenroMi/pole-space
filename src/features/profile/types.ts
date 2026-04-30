@@ -1,14 +1,14 @@
-import type { UserProgress, UserFavourite, Move } from '@prisma/client';
+import type { UserProgress, UserFavourite, Move, Tag } from '@prisma/client';
 
 export type ProgressWithMove = UserProgress & { move: Move };
-export type FavouriteWithMove = UserFavourite & { move: Move };
+export type FavouriteWithMove = UserFavourite & { move: Move & { tags: Tag[] } };
 
-export interface ProfileFormValues {
+export type ProfileFormValues = {
   name: string;
-}
+};
 
-export interface ChangePasswordValues {
+export type ChangePasswordValues = {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
-}
+};

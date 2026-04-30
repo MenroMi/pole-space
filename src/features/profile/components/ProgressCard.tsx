@@ -1,11 +1,9 @@
 'use client';
 import { ImageOff } from 'lucide-react';
 import Image from 'next/image';
-import { useTransition } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
-import { updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
 
 import ProgressStatusPicker from './ProgressStatusPicker';
@@ -16,15 +14,14 @@ const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSPro
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
 };
 
-export default function ProgressCard({ item }: { item: ProgressWithMove }) {
-  const [isPending, startTransition] = useTransition();
-  const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
+type ProgressCardProps = {
+  item: ProgressWithMove;
+  onStatusChange: (moveId: string, status: LearnStatus | null) => void;
+  isPending: boolean;
+};
 
-  function handleStatusChange(status: LearnStatus) {
-    startTransition(async () => {
-      await updateProgressAction(item.move.id, status);
-    });
-  }
+export default function ProgressCard({ item, onStatusChange, isPending }: ProgressCardProps) {
+  const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
   return (
     <div className="flex gap-4 rounded-xl bg-surface-container p-4">
@@ -49,7 +46,7 @@ export default function ProgressCard({ item }: { item: ProgressWithMove }) {
         </div>
         <ProgressStatusPicker
           currentStatus={item.status}
-          onStatusChange={handleStatusChange}
+          onStatusChange={(status) => onStatusChange(item.moveId, status)}
           isPending={isPending}
         />
       </div>

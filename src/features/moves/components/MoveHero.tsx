@@ -3,6 +3,8 @@ import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
+import { extractVideoId } from '../lib/youtube';
+
 type Phase = 'idle' | 'transitioning' | 'playing';
 
 type MoveHeroProps = {
@@ -11,11 +13,6 @@ type MoveHeroProps = {
   imageUrl: string | null;
   seekRequest?: { seconds: number };
 };
-
-function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
 
 // YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
 const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
@@ -84,8 +81,17 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
   const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1${startAt != null ? `&start=${startAt}` : ''}`;
 
   return (
-    <div className="relative h-[65vh] w-full overflow-hidden bg-black">
-      {/* Thumbnail — visible in idle, zooms+blurs+fades during transitioning */}
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-outline-variant/20 bg-gradient-to-br from-[#0a0a0a] via-[#1f1f1f] to-[#2b1545]">
+      {/* Radial violet glow — visible through thumbnail and on fallback */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at 50% 45%, rgba(220,184,255,0.18), transparent 55%)',
+        }}
+      />
+
+      {/* Thumbnail — zooms, blurs and fades during transitioning */}
       {phase !== 'playing' &&
         (thumbnail && !thumbnailFailed ? (
           <Image
@@ -135,18 +141,6 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
           </div>
         </button>
       )}
-
-      {/* Top gradient */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-background to-transparent"
-      />
-
-      {/* Bottom gradient */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background to-transparent"
-      />
     </div>
   );
 }
