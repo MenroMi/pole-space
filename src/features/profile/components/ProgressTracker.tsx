@@ -27,9 +27,9 @@ type ProgressTrackerProps = {
 };
 
 const cardVariants: Variants = {
-  initial: { opacity: 0, y: -6 },
+  initial: { opacity: 0, y: -8 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -6, transition: { duration: 0.18, ease: 'easeOut' } },
+  exit: { opacity: 0, x: -16, transition: { duration: 0.15, ease: 'easeIn' } },
 };
 
 const tabContentVariants: Variants = {
@@ -281,7 +281,9 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
                     variants={cardVariants}
                     initial="initial"
                     animate="animate"
-                    exit="exit"
+                    exit={
+                      filtered.length === 1 ? { opacity: 0, transition: { duration: 0 } } : 'exit'
+                    }
                   >
                     {tab === 'in_progress' ? (
                       <ProgressCard
