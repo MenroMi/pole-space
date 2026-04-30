@@ -244,13 +244,32 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
             animate="animate"
             exit="exit"
           >
-            {filtered.length === 0 && !query && <EmptyTab tab={tab} />}
-
-            {filtered.length === 0 && query && (
-              <div className="py-20 text-center font-sans text-sm text-on-surface-variant">
-                No moves match &ldquo;{query}&rdquo;.
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {filtered.length === 0 && !query && (
+                <motion.div
+                  key="empty"
+                  variants={cardVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <EmptyTab tab={tab} />
+                </motion.div>
+              )}
+              {filtered.length === 0 && query && (
+                <motion.div
+                  key="no-match"
+                  variants={cardVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <div className="py-20 text-center font-sans text-sm text-on-surface-variant">
+                    No moves match &ldquo;{query}&rdquo;.
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* List container stays mounted so AnimatePresence can exit the last item */}
             <div className={tab === 'in_progress' ? 'flex flex-col gap-3' : 'flex flex-col gap-2'}>
