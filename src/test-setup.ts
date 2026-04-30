@@ -19,6 +19,10 @@ vi.mock('framer-motion', () => ({
             exit: _e,
             variants: _v,
             layout: _l,
+            whileHover: _wh,
+            whileTap: _wt,
+            onAnimationStart: _oas,
+            onAnimationComplete: _oac,
             ...rest
           } = props as Record<string, unknown>;
           return createElement(tag, rest as React.HTMLAttributes<HTMLElement>, children);

@@ -1,10 +1,11 @@
 'use client';
-import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useOptimistic, useState, useTransition } from 'react';
 
+import { cardVariants, tabContentVariants } from '@/shared/lib/motion';
 import type { LearnStatus } from '@/shared/types';
 
 import { removeProgressAction, updateProgressAction } from '../actions';
@@ -24,23 +25,6 @@ type Tab = 'in_progress' | 'want_to_learn' | 'learned';
 type ProgressTrackerProps = {
   initialProgress: ProgressWithMove[];
   userName: string | null;
-};
-
-const cardVariants: Variants = {
-  initial: { opacity: 0, y: -8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
-  exit: { opacity: 0, x: -16, transition: { duration: 0.15, ease: 'easeIn' } },
-};
-
-const tabContentVariants: Variants = {
-  initial: { opacity: 0, y: 6 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
-  exit: {
-    opacity: 0,
-    y: -6,
-    pointerEvents: 'none',
-    transition: { duration: 0.15, ease: 'easeIn' },
-  },
 };
 
 function EmptyTab({ tab }: { tab: Tab }) {

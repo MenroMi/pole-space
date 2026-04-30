@@ -1,9 +1,9 @@
 'use client';
-import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, Heart, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useOptimistic, useState, useTransition } from 'react';
+import { useCallback, useMemo, useOptimistic, useState, useTransition } from 'react';
 
 import { extractVideoId } from '@/features/moves/lib/youtube';
 import {
@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
+import { cardVariants } from '@/shared/lib/motion';
 
 import { removeFavouriteAction } from '../actions';
 import type { FavouriteWithMove } from '../types';
@@ -30,12 +31,6 @@ const DIFFICULTY_ORDER: Record<string, number> = {
   BEGINNER: 0,
   INTERMEDIATE: 1,
   ADVANCED: 2,
-};
-
-const cardVariants: Variants = {
-  initial: { opacity: 0, y: -8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
-  exit: { opacity: 0, x: -16, transition: { duration: 0.15, ease: 'easeIn' } },
 };
 
 type SortKey = 'recent' | 'name' | 'level';
@@ -257,6 +252,11 @@ export default function FavouriteMovesGallery({
     });
   }
 
+  const handleOpenRemoveDialog = useCallback((fav: FavouriteWithMove) => {
+    setConfirmFav(fav);
+    setDialogOpen(true);
+  }, []);
+
   return (
     <>
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -360,7 +360,7 @@ export default function FavouriteMovesGallery({
 
         {/* Empty / no-match / grid */}
         <div className="mt-9">
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {optimisticFavs.length === 0 && (
               <motion.div
                 key="global-empty"
@@ -414,10 +414,7 @@ export default function FavouriteMovesGallery({
                 >
                   <FavouriteCard
                     fav={fav}
-                    onRemove={(f) => {
-                      setConfirmFav(f);
-                      setDialogOpen(true);
-                    }}
+                    onRemove={handleOpenRemoveDialog}
                     isPending={isPending}
                   />
                 </motion.div>

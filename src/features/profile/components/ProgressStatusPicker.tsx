@@ -28,6 +28,7 @@ export default function ProgressStatusPicker({
 
   if (currentStatus !== prevStatus) {
     setPrevStatus(currentStatus);
+    // When status is null, activeIndex is -1 so pillIndex stays put — pill fades out in place.
     if (activeIndex !== -1) setPillIndex(activeIndex);
   }
 

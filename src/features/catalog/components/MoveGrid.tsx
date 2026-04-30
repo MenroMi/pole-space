@@ -1,6 +1,8 @@
 'use client';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
+
+import { cardVariants } from '@/shared/lib/motion';
 
 import { getMovesAction } from '../actions';
 import type { MoveWithTags, MoveFilters } from '../types';
@@ -8,11 +10,6 @@ import type { MoveWithTags, MoveFilters } from '../types';
 import MoveCard from './MoveCard';
 
 const PAGE_SIZE = 12;
-
-const cardVariants: Variants = {
-  initial: { opacity: 0, y: -8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } },
-};
 
 type MoveGridProps = {
   initialMoves: MoveWithTags[];
