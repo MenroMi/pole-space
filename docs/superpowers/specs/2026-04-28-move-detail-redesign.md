@@ -17,7 +17,7 @@ Redesign the Move Detail page to match the new design system: 2-column hero grid
 | `src/features/moves/components/MoveHero.tsx`     | `h-[65vh]` → `aspect-[16/9]` in grid column                 |
 | `src/features/moves/components/MoveSpecs.tsx`    | Add "SPECS" section label                                   |
 | `src/features/moves/components/MoveTabs.tsx`     | Update gradient underline colours                           |
-| `src/features/moves/components/RelatedMoves.tsx` | Image cards → horizontal icon+text cards                    |
+| `src/features/moves/components/RelatedMoves.tsx` | Image-thumbnail cards with difficulty colour label          |
 
 `MoveBreakdown.tsx`, `MoveFavouriteButton.tsx`, `MoveBreadcrumb.tsx` — no changes.
 
@@ -103,13 +103,13 @@ Remove `h-[65vh]` wrapper. The component should fill its container with `aspect-
 
 ## Specs Section (`MoveSpecs.tsx`)
 
-Wrap the existing spec grid in a section container:
+Rendered below the hero grid inside `MovePlayer`'s `max-w-[1280px]` container (no extra wrapper needed):
 
 ```tsx
-<section className="mx-auto max-w-[1280px] px-8 py-8">
-  <div className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+<section aria-label="Move specs" className="mt-8 pb-4">
+  <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
     Specs
-  </div>
+  </p>
   {/* existing grid */}
 </section>
 ```
@@ -124,25 +124,25 @@ Gradient underline: change from current to `bg-gradient-to-r from-primary to-[#8
 
 ## Related Moves (`RelatedMoves.tsx`)
 
-Replace image-based cards with horizontal cards:
+Image-thumbnail cards arranged in a responsive grid:
 
 ```
-grid grid-cols-2 lg:grid-cols-4 gap-3
+grid grid-cols-2 sm:grid-cols-4 gap-4
 ```
 
-Each card:
+Each card is a `<Link>` with:
 
 ```
-flex items-center gap-3 rounded-lg border border-outline-variant/15 bg-surface-container p-3
-cursor-pointer hover:border-primary/40 transition-colors
+group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container
+transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40
 ```
 
-Left: `44×44px` rounded square, `bg-surface rounded-md flex items-center justify-center` — shows first letter of move title (`font-display text-lg text-primary/50`).
+Top: `aspect-[4/3]` image area — `MoveCardImage` (YouTube thumbnail fallback to `imageUrl`).
 
-Right:
+Bottom (`p-3`):
 
-- move title: `font-display text-sm font-medium text-on-surface`
-- level label: `font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant`
+- move title: `font-display text-sm font-semibold text-on-surface truncate`
+- difficulty label: `text-[10px] font-semibold tracking-widest uppercase mt-1` with `DIFFICULTY_COLOR` mapping (`BEGINNER` → `text-on-secondary-container`, `INTERMEDIATE` → `text-primary`, `ADVANCED` → `text-amber-300`)
 
 ---
 

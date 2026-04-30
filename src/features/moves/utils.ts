@@ -1,4 +1,4 @@
-import type { PoleType } from '@/shared/types';
+import type { PoleType } from '@prisma/client';
 
 export function formatPoleTypes(types: PoleType[]): string | null {
   if (types.length === 0) return null;

@@ -41,6 +41,7 @@ export async function updateProgressAction(moveId: string, status: LearnStatus) 
     update: { status },
   });
   revalidatePath('/profile');
+  revalidatePath('/moves/' + moveId);
   return result;
 }
 
@@ -48,6 +49,7 @@ export async function removeProgressAction(moveId: string) {
   const userId = await requireAuth();
   await prisma.userProgress.deleteMany({ where: { userId, moveId } });
   revalidatePath('/profile');
+  revalidatePath('/moves/' + moveId);
 }
 
 export async function updateProfileAction(data: {

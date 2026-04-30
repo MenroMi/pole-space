@@ -7,6 +7,7 @@ vi.mock('@/shared/lib/prisma', () => ({
     userProgress: {
       findMany: vi.fn(),
       upsert: vi.fn(),
+      deleteMany: vi.fn(),
       count: vi.fn(),
     },
     userFavourite: {
@@ -52,6 +53,7 @@ const mockRevalidatePath = revalidatePath as ReturnType<typeof vi.fn>;
 import {
   getUserProgressAction,
   updateProgressAction,
+  removeProgressAction,
   updateProfileAction,
   changePasswordAction,
   uploadAvatarAction,
@@ -66,6 +68,7 @@ import {
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockFindMany = prisma.userProgress.findMany as ReturnType<typeof vi.fn>;
 const mockUpsert = prisma.userProgress.upsert as ReturnType<typeof vi.fn>;
+const mockProgressDeleteMany = prisma.userProgress.deleteMany as ReturnType<typeof vi.fn>;
 const mockUserFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockUserUpdate = prisma.user.update as ReturnType<typeof vi.fn>;
 const mockFavouriteUpsert = prisma.userFavourite.upsert as ReturnType<typeof vi.fn>;
@@ -130,6 +133,37 @@ describe('updateProgressAction', () => {
       }),
     );
     expect(result).toEqual({ id: 'progress-1' });
+  });
+
+  it('revalidates both /profile and /moves/[id]', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockUpsert.mockResolvedValue({ id: 'progress-1' });
+    await updateProgressAction('move-1', 'IN_PROGRESS');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
+  });
+});
+
+describe('removeProgressAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(removeProgressAction('move-1')).rejects.toThrow('Unauthorized');
+    expect(mockProgressDeleteMany).not.toHaveBeenCalled();
+  });
+
+  it('deletes progress record for the authenticated user', async () => {
+    mockAuth.mockResolvedValue(session);
+    await removeProgressAction('move-1');
+    expect(mockProgressDeleteMany).toHaveBeenCalledWith({
+      where: { userId: 'user-123', moveId: 'move-1' },
+    });
+  });
+
+  it('revalidates both /profile and /moves/[id]', async () => {
+    mockAuth.mockResolvedValue(session);
+    await removeProgressAction('move-1');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/profile');
+    expect(mockRevalidatePath).toHaveBeenCalledWith('/moves/move-1');
   });
 });
 
