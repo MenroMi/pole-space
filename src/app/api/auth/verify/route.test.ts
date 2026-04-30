@@ -18,20 +18,37 @@ vi.mock('@/features/auth/lib/tokens', () => ({
   deleteVerificationToken: vi.fn(),
 }));
 
+vi.mock('@/shared/lib/ratelimit', () => ({
+  verifyRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+}));
+
 import { deleteVerificationToken } from '@/features/auth/lib/tokens';
 import { prisma } from '@/shared/lib/prisma';
+import { verifyRatelimit } from '@/shared/lib/ratelimit';
 
 import { GET } from './route';
 
 const mockFindUnique = prisma.verificationToken.findUnique as ReturnType<typeof vi.fn>;
 const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
 const mockDeleteVerToken = deleteVerificationToken as ReturnType<typeof vi.fn>;
+const mockVerifyLimit = verifyRatelimit.limit as ReturnType<typeof vi.fn>;
 
 const makeReq = (search: string) => new NextRequest(`http://localhost/api/auth/verify${search}`);
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockVerifyLimit.mockResolvedValue({ success: true });
+});
 
 describe('GET /api/auth/verify', () => {
+  it('redirects to /verify-email?error=invalid when rate limit is exceeded', async () => {
+    mockVerifyLimit.mockResolvedValue({ success: false });
+    const res = await GET(makeReq('?token=any'));
+    expect(res.status).toBe(307);
+    expect(res.headers.get('location')).toContain('/verify-email?error=invalid');
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('redirects to /verify-email?error=invalid when token query param is missing', async () => {
     const res = await GET(makeReq(''));
     expect(res.status).toBe(307);

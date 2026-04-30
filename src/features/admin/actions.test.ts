@@ -30,7 +30,7 @@ const validInput = {
   description: 'desc',
   difficulty: 'BEGINNER' as const,
   category: 'SPINS' as const,
-  youtubeUrl: '',
+  youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
   imageUrl: undefined,
   tags: [],
 };
@@ -38,6 +38,22 @@ const validInput = {
 beforeEach(() => vi.clearAllMocks());
 
 describe('createMoveAction', () => {
+  it('throws Invalid input when youtubeUrl is not a valid URL', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    await expect(createMoveAction({ ...validInput, youtubeUrl: 'not-a-url' })).rejects.toThrow(
+      'Invalid input',
+    );
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it('throws Invalid input when imageUrl is not a valid URL', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    await expect(createMoveAction({ ...validInput, imageUrl: 'not-a-url' })).rejects.toThrow(
+      'Invalid input',
+    );
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it('throws Unauthorized when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     await expect(createMoveAction(validInput)).rejects.toThrow('Unauthorized');

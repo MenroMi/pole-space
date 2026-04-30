@@ -1,9 +1,19 @@
 'use server';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
 
 import { prisma } from '@/shared/lib/prisma';
 import type { MoveFilters, PaginatedResult } from '@/shared/types';
-import { PoleType } from '@/shared/types/enums';
+import { Difficulty, PoleType } from '@/shared/types/enums';
+
+const moveFiltersSchema = z.object({
+  poleTypes: z.array(z.nativeEnum(PoleType)).optional(),
+  difficulty: z.array(z.nativeEnum(Difficulty)).optional(),
+  search: z.string().max(100).optional(),
+  tags: z.array(z.string().max(50)).optional(),
+  page: z.number().int().positive().optional(),
+  pageSize: z.number().int().positive().max(100).optional(),
+});
 
 import type { MoveWithTags } from './types';
 
@@ -25,18 +35,20 @@ function buildTagConditions(tags: string[]): Prisma.MoveWhereInput[] {
 export async function getMovesAction(
   filters: MoveFilters = {},
 ): Promise<PaginatedResult<MoveWithTags>> {
-  const page = filters.page ?? 1;
-  const pageSize = filters.pageSize ?? 12;
+  const parsed = moveFiltersSchema.safeParse(filters);
+  if (!parsed.success) throw new Error('Invalid filters');
+  const page = parsed.data.page ?? 1;
+  const pageSize = parsed.data.pageSize ?? 12;
 
   const andConditions = [
-    ...buildPoleTypeConditions(filters.poleTypes ?? []),
-    ...buildTagConditions(filters.tags ?? []),
+    ...buildPoleTypeConditions(parsed.data.poleTypes ?? []),
+    ...buildTagConditions(parsed.data.tags ?? []),
   ];
 
   const where = {
-    ...(filters.difficulty?.length && { difficulty: { in: filters.difficulty } }),
-    ...(filters.search && {
-      title: { contains: filters.search, mode: 'insensitive' as const },
+    ...(parsed.data.difficulty?.length && { difficulty: { in: parsed.data.difficulty } }),
+    ...(parsed.data.search && {
+      title: { contains: parsed.data.search, mode: 'insensitive' as const },
     }),
     ...(andConditions.length && { AND: andConditions }),
   };

@@ -1,18 +1,32 @@
 'use server';
 import bcrypt from 'bcryptjs';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
+import { z } from 'zod';
 
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
+import { signupRatelimit, resendRatelimit, forgotPasswordRatelimit } from '@/shared/lib/ratelimit';
 
 import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
+import { sendPasswordResetEmail } from './lib/reset-email';
+import {
+  generateResetToken,
+  deleteResetTokensByEmail,
+  findResetToken,
+  deleteResetToken,
+} from './lib/reset-tokens';
 import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
-import { signupSchema } from './lib/validation';
+import { applyPasswordComplexity, signupSchema } from './lib/validation';
 import type { SignupFormData, LoginFormData } from './lib/validation';
 
 export async function signupAction(data: SignupFormData) {
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
+  const { success: withinLimit } = await signupRatelimit.limit(ip);
+  if (!withinLimit) return { error: 'Too many requests' };
+
   const parsed = signupSchema.safeParse(data);
   if (!parsed.success) return { error: 'Invalid input' };
 
@@ -65,6 +79,9 @@ export async function loginAction(data: LoginFormData) {
 }
 
 export async function resendVerificationAction(email: string) {
+  const { success: withinLimit } = await resendRatelimit.limit(email);
+  if (!withinLimit) redirect(`/verify-email?error=rate-limited`);
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) redirect('/verify-email?error=invalid');
@@ -96,4 +113,61 @@ export async function checkEmailVerifiedAction(email: string): Promise<boolean> 
     select: { emailVerified: true },
   });
   return user !== null && user.emailVerified !== null;
+}
+
+const forgotPasswordSchema = z.object({ email: z.string().email() });
+
+const resetPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(100)
+  .superRefine(applyPasswordComplexity);
+
+export async function forgotPasswordAction(
+  email: string,
+): Promise<{ sent: true } | { error: string }> {
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
+  const { success: withinLimit } = await forgotPasswordRatelimit.limit(ip);
+  if (!withinLimit) return { sent: true };
+
+  const parsed = forgotPasswordSchema.safeParse({ email });
+  if (!parsed.success) return { error: 'Invalid email' };
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, password: true },
+  });
+
+  if (!user || user.password === null) return { sent: true };
+
+  await deleteResetTokensByEmail(email);
+  const token = await generateResetToken(email);
+
+  try {
+    await sendPasswordResetEmail(email, token);
+  } catch (err) {
+    console.error('[forgotPasswordAction] email send failed:', err);
+    await deleteResetToken(token);
+    // intentional: return { sent: true } to prevent user enumeration
+  }
+
+  return { sent: true };
+}
+
+export async function resetPasswordAction(
+  token: string,
+  newPassword: string,
+): Promise<{ success: true } | { error: string }> {
+  const passwordResult = resetPasswordSchema.safeParse(newPassword);
+  if (!passwordResult.success) return { error: 'Invalid password' };
+
+  const record = await findResetToken(token);
+  if (!record) return { error: 'invalid' };
+  if (record.expiresAt < new Date()) return { error: 'expired' };
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({ where: { email: record.email }, data: { password: hashed } });
+  await deleteResetToken(token);
+
+  return { success: true };
 }

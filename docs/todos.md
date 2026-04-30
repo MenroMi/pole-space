@@ -32,6 +32,20 @@
 - `resendVerificationAction` has a 60s server-side cooldown (token-based) + client-side countdown, but can be bypassed by a script calling the server action directly
 - Fix: add Upstash Ratelimit to `/api/auth/signin`, `signupAction`, and `resendVerificationAction` — covers all three atomically via Redis TTL
 
+### CAA DNS records (suggestion, low priority)
+
+- No CAA records on the domain — any Certificate Authority can issue a certificate for it
+- Fix: add via Vercel Domains → DNS Records:
+  - `CAA @ 0 issue "letsencrypt.org"` — only Let's Encrypt can issue certs (Vercel uses it)
+  - `CAA @ 0 issuewild ";"` — block wildcard certs from any CA
+  - `CAA @ 0 iodef "mailto:owner@email.com"` — notify on unauthorized issuance attempts
+
+### SSL Labs validation (suggestion, low priority)
+
+- One-time check: run `ssllabs.com/ssltest/` on the production domain after first deploy
+- Expected result: A+ (Vercel handles TLS config automatically)
+- Confirms: TLS 1.2/1.3 only, correct cipher suites, HSTS, no known vulnerabilities
+
 ### Auth edge cases
 
 - OAuth user tries to login via credentials (no password set) — returns generic error, no helpful message

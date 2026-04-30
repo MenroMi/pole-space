@@ -1,13 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+vi.mock('@/shared/lib/ratelimit', () => ({
+  geocodeRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+}));
+
+import { geocodeRatelimit } from '@/shared/lib/ratelimit';
 import { GET } from './route';
+
+const mockLimit = geocodeRatelimit.limit as ReturnType<typeof vi.fn>;
 
 const originalEnv = process.env;
 
 beforeEach(() => {
   process.env = { ...originalEnv, NOMINATIM_USER_AGENT: 'test-agent/1.0' };
   global.fetch = vi.fn();
+  mockLimit.mockResolvedValue({ success: true });
 });
 
 afterEach(() => {
@@ -15,13 +23,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function makeRequest(params: Record<string, string>) {
+function makeRequest(params: Record<string, string>, headers?: Record<string, string>) {
   const url = new URL('http://localhost/api/geocode');
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  return new NextRequest(url.toString());
+  return new NextRequest(url.toString(), { headers });
 }
 
 describe('GET /api/geocode', () => {
+  it('returns 429 when rate limit is exceeded', async () => {
+    mockLimit.mockResolvedValue({ success: false });
+    const res = await GET(makeRequest({ lat: '52.23', lon: '21.01' }));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ error: 'Too many requests' });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it('returns 400 when lat is missing', async () => {
     const res = await GET(makeRequest({ lon: '21.01' }));
     expect(res.status).toBe(400);

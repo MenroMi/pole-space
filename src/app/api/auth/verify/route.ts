@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { deleteVerificationToken } from '@/features/auth/lib/tokens';
 import { prisma } from '@/shared/lib/prisma';
+import { verifyRatelimit } from '@/shared/lib/ratelimit';
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
+  const { success } = await verifyRatelimit.limit(ip);
+  if (!success) {
+    return NextResponse.redirect(new URL('/verify-email?error=invalid', req.url));
+  }
+
   const token = req.nextUrl.searchParams.get('token');
 
   if (!token) {

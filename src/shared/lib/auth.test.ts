@@ -1,6 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('@/shared/lib/ratelimit', () => ({
+  signinRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+}));
+
 vi.mock('next-auth', () => ({
   default: (_config: unknown) => ({
     handlers: {},
@@ -24,13 +28,19 @@ vi.mock('bcryptjs', () => ({
 }));
 
 import { prisma } from '@/shared/lib/prisma';
+import { signinRatelimit } from '@/shared/lib/ratelimit';
 
 import { authConfig } from './auth';
+
+const mockRatelimit = signinRatelimit.limit as ReturnType<typeof vi.fn>;
 
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockCompare = bcrypt.compare as ReturnType<typeof vi.fn>;
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockRatelimit.mockResolvedValue({ success: true });
+});
 
 describe('authConfig', () => {
   it('includes google, facebook, and credentials providers', () => {
@@ -105,6 +115,15 @@ describe('authorize', () => {
     const authorize = getAuthorize();
     const result = await authorize({});
     expect(result).toBeNull();
+  });
+
+  it('throws rate limit error when signin limit is exceeded', async () => {
+    mockRatelimit.mockResolvedValue({ success: false });
+    const authorize = getAuthorize();
+    await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
+      'Too many login attempts',
+    );
+    expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
   it('throws if user not found', async () => {

@@ -46,6 +46,20 @@ const mockMoves = [
 beforeEach(() => vi.clearAllMocks());
 
 describe('getMovesAction', () => {
+  it('throws when search exceeds 100 characters', async () => {
+    await expect(getMovesAction({ search: 'a'.repeat(101) })).rejects.toThrow('Invalid filters');
+  });
+
+  it('throws when difficulty contains invalid enum value', async () => {
+    await expect(getMovesAction({ difficulty: ['INVALID' as 'BEGINNER'] })).rejects.toThrow(
+      'Invalid filters',
+    );
+  });
+
+  it('throws when pageSize exceeds 100', async () => {
+    await expect(getMovesAction({ pageSize: 101 })).rejects.toThrow('Invalid filters');
+  });
+
   it('returns PaginatedResult shape with defaults page=1 pageSize=12', async () => {
     mockTransaction.mockResolvedValue([mockMoves, 2]);
     const result = await getMovesAction();
