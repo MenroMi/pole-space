@@ -319,3 +319,35 @@
 - Should be derived from `user.role` or a separate membership tier field
 - Fix: conditionalise on role/tier, or remove until the feature is properly designed
 - Priority: low — cosmetic stub, no functional impact
+
+~~**App Redesign — Progress page + animations + layout**~~ ✅ Done (2026-04-30)
+
+**Spec/Plan:** `docs/superpowers/plans/2026-04-30-progress-page.md`
+
+**Progress page (Tasks 1–6):**
+
+- `revalidatePath('/profile/progress')` added to `updateProgressAction` + `removeProgressAction`
+- `ProgressCard` refactored to accept `onStatusChange` + `isPending` callbacks (no internal server calls)
+- `WantToLearnRow` — compact horizontal row with status picker for Want to Learn tab
+- `LearnedCard` — portrait achievement card (4:5 ratio, YouTube thumb fallback, naturalWidth guard)
+- `ProgressTracker` — client component with 3-tab layout, `useOptimistic`, search, empty states, 7 unit tests
+- Progress page RSC wired up; ProfileAside nav link unlocked
+
+**framer-motion animations (post-plan):**
+
+- `src/shared/lib/motion.ts` — shared `cardVariants` + `tabContentVariants` extracted (DRY)
+- `ProgressTracker`: `AnimatePresence` + `motion.div layout="position"` on cards; `tabContentVariants` on tab panels; `pointerEvents: 'none'` on exit to prevent click-blocking; instant exit guard for last card
+- `FavouriteMovesGallery`: same `AnimatePresence initial={false}` pattern; `useCallback` on `handleOpenRemoveDialog` to prevent new function per render during FLIP
+- `MoveGrid`: `motion.div` entrance animation on each card
+- `src/test-setup.ts`: framer-motion mock extended to strip `variants`, `layout`, `whileHover`, `whileTap`, `onAnimationStart`, `onAnimationComplete`
+- `ProgressStatusPicker`: null-status pill comment restored
+
+**Profile overview layout fixes (post-plan):**
+
+- `getProfileOverviewAction`: removed `take` limit on `currentlyLearning` (was truncating list silently)
+- `ProfileCurrentlyLearning`: `min-h-0 flex-col overflow-hidden` on root + `shrink-0` on header + `flex min-h-0 flex-1 overflow-y-auto` on list — scrollable within card without inflating grid row height
+- `ProfileFavouritesPreview`: `flex-1` on root — fills right column height when grid row is stretched
+
+**Sticky sidebar:**
+
+- `PageShell`: `aside` gets `self-start sticky top-[60px] h-[calc(100vh-120px)] overflow-y-auto` — `self-start` prevents CSS grid stretch so sticky has room to scroll
