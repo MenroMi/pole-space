@@ -24,8 +24,10 @@ export default function ForgotPasswordForm({ sent, expired }: ForgotPasswordForm
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
-    await forgotPasswordAction(data.email);
-    router.push('/forgot-password?sent=true');
+    const result = await forgotPasswordAction(data.email);
+    if ('sent' in result) {
+      router.push('/forgot-password?sent=true');
+    }
   };
 
   if (sent) {

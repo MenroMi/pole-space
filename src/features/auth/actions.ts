@@ -132,8 +132,10 @@ export async function forgotPasswordAction(
 
   try {
     await sendPasswordResetEmail(email, token);
-  } catch {
-    // fire-and-forget: don't surface email failures to prevent user enumeration
+  } catch (err) {
+    console.error('[forgotPasswordAction] email send failed:', err);
+    await deleteResetToken(token);
+    // intentional: return { sent: true } to prevent user enumeration
   }
 
   return { sent: true };

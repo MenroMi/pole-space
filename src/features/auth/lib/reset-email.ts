@@ -5,7 +5,7 @@ const FROM = process.env.RESEND_FROM ?? 'onboarding@resend.dev';
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
   const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
-  const resetUrl = `${base}/reset-password?token=${token}`;
+  const resetUrl = `${base}/reset-password?token=${encodeURIComponent(token)}`;
 
   const { error } = await resend.emails.send({
     from: FROM,

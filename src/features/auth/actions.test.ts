@@ -351,12 +351,13 @@ describe('forgotPasswordAction', () => {
     expect(result).toEqual({ sent: true });
   });
 
-  it('returns { sent: true } even when email sending fails', async () => {
+  it('deletes token and returns { sent: true } even when email sending fails', async () => {
     mockFindUnique.mockResolvedValue({ id: 'u1', password: 'hashed' });
     mockSendResetEmail.mockRejectedValue(new Error('Resend down'));
 
     const result = await forgotPasswordAction('user@example.com');
 
+    expect(mockDeleteResetToken).toHaveBeenCalledWith('reset-token-uuid');
     expect(result).toEqual({ sent: true });
   });
 

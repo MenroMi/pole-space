@@ -55,7 +55,7 @@ describe('generateResetToken', () => {
 });
 
 describe('findResetToken', () => {
-  it('returns token record when found and not expired', async () => {
+  it('returns token record when found', async () => {
     const record = {
       id: '1',
       email: 'user@example.com',

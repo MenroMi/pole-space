@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { resetPasswordAction } from '@/features/auth/actions';
+import { applyPasswordComplexity } from '@/features/auth/lib/validation';
 import { PasswordInput } from '@/shared/components/PasswordInput';
 
 const schema = z
@@ -15,10 +16,7 @@ const schema = z
       .string()
       .min(8, 'Password must be at least 8 characters')
       .max(100)
-      .regex(/[A-Z]/, 'Must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Must contain at least one number')
-      .regex(/[^A-Za-z0-9]/, 'Must contain at least one special character'),
+      .superRefine(applyPasswordComplexity),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
