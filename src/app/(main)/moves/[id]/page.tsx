@@ -10,8 +10,12 @@ import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
 export async function generateStaticParams() {
-  const moves = await prisma.move.findMany({ select: { id: true }, take: 1000 });
-  return moves.map((m) => ({ id: m.id }));
+  try {
+    const moves = await prisma.move.findMany({ select: { id: true }, take: 1000 });
+    return moves.map((m) => ({ id: m.id }));
+  } catch {
+    return [];
+  }
 }
 
 // cache() deduplicates this call within one request so generateMetadata
