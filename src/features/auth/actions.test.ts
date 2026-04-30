@@ -20,11 +20,25 @@ vi.mock('@/shared/lib/prisma', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       delete: vi.fn(),
+      update: vi.fn(),
     },
     verificationToken: {
       findFirst: vi.fn(),
     },
+    passwordResetToken: {
+      findUnique: vi.fn(),
+      delete: vi.fn(),
+    },
   },
+}));
+vi.mock('@/features/auth/lib/reset-tokens', () => ({
+  generateResetToken: vi.fn().mockResolvedValue('reset-token-uuid'),
+  deleteResetTokensByEmail: vi.fn(),
+  findResetToken: vi.fn(),
+  deleteResetToken: vi.fn(),
+}));
+vi.mock('@/features/auth/lib/reset-email', () => ({
+  sendPasswordResetEmail: vi.fn(),
 }));
 vi.mock('@/features/auth/lib/tokens', () => ({
   generateVerificationToken: vi.fn().mockResolvedValue('mock-token'),
@@ -45,6 +59,13 @@ vi.mock('next-auth', async () => {
 });
 
 import { sendVerificationEmail } from '@/features/auth/lib/email';
+import {
+  generateResetToken,
+  deleteResetTokensByEmail,
+  findResetToken,
+  deleteResetToken,
+} from '@/features/auth/lib/reset-tokens';
+import { sendPasswordResetEmail } from '@/features/auth/lib/reset-email';
 import { generateVerificationToken, deleteUserTokens } from '@/features/auth/lib/tokens';
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
@@ -54,16 +75,24 @@ import {
   loginAction,
   resendVerificationAction,
   checkEmailVerifiedAction,
+  forgotPasswordAction,
+  resetPasswordAction,
 } from './actions';
 
 const mockFindUnique = prisma.user.findUnique as ReturnType<typeof vi.fn>;
 const mockCreate = prisma.user.create as ReturnType<typeof vi.fn>;
 const mockDelete = prisma.user.delete as ReturnType<typeof vi.fn>;
+const mockUserUpdate = prisma.user.update as ReturnType<typeof vi.fn>;
 const mockFindFirstToken = prisma.verificationToken.findFirst as ReturnType<typeof vi.fn>;
 const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>;
 const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
+const mockGenResetToken = generateResetToken as ReturnType<typeof vi.fn>;
+const mockDeleteResetTokensByEmail = deleteResetTokensByEmail as ReturnType<typeof vi.fn>;
+const mockFindResetToken = findResetToken as ReturnType<typeof vi.fn>;
+const mockDeleteResetToken = deleteResetToken as ReturnType<typeof vi.fn>;
+const mockSendResetEmail = sendPasswordResetEmail as ReturnType<typeof vi.fn>;
 
 const validData = {
   firstName: 'Alice',
@@ -287,5 +316,111 @@ describe('checkEmailVerifiedAction', () => {
     const result = await checkEmailVerifiedAction('nobody@example.com');
 
     expect(result).toBe(false);
+  });
+});
+
+describe('forgotPasswordAction', () => {
+  it('returns { sent: true } and does nothing when email not found', async () => {
+    mockFindUnique.mockResolvedValue(null);
+
+    const result = await forgotPasswordAction('nobody@example.com');
+
+    expect(result).toEqual({ sent: true });
+    expect(mockGenResetToken).not.toHaveBeenCalled();
+    expect(mockSendResetEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns { sent: true } and does nothing for OAuth user (no password)', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'u1', password: null });
+
+    const result = await forgotPasswordAction('oauth@example.com');
+
+    expect(result).toEqual({ sent: true });
+    expect(mockGenResetToken).not.toHaveBeenCalled();
+  });
+
+  it('deletes old tokens, generates new token, sends email, returns { sent: true }', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'u1', password: 'hashed' });
+    mockSendResetEmail.mockResolvedValue(undefined);
+
+    const result = await forgotPasswordAction('user@example.com');
+
+    expect(mockDeleteResetTokensByEmail).toHaveBeenCalledWith('user@example.com');
+    expect(mockGenResetToken).toHaveBeenCalledWith('user@example.com');
+    expect(mockSendResetEmail).toHaveBeenCalledWith('user@example.com', 'reset-token-uuid');
+    expect(result).toEqual({ sent: true });
+  });
+
+  it('returns { sent: true } even when email sending fails', async () => {
+    mockFindUnique.mockResolvedValue({ id: 'u1', password: 'hashed' });
+    mockSendResetEmail.mockRejectedValue(new Error('Resend down'));
+
+    const result = await forgotPasswordAction('user@example.com');
+
+    expect(result).toEqual({ sent: true });
+  });
+
+  it('returns error for invalid email format', async () => {
+    const result = await forgotPasswordAction('not-an-email');
+    expect(result).toEqual({ error: 'Invalid email' });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+});
+
+describe('resetPasswordAction', () => {
+  it('returns { error: "invalid" } when token not found', async () => {
+    mockFindResetToken.mockResolvedValue(null);
+
+    const result = await resetPasswordAction('missing-token', 'NewPass1!');
+
+    expect(result).toEqual({ error: 'invalid' });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('returns { error: "expired" } when token is expired', async () => {
+    mockFindResetToken.mockResolvedValue({
+      id: '1',
+      email: 'user@example.com',
+      token: 'old-token',
+      expiresAt: new Date(Date.now() - 1000),
+    });
+
+    const result = await resetPasswordAction('old-token', 'NewPass1!');
+
+    expect(result).toEqual({ error: 'expired' });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('returns error for invalid password (fails complexity)', async () => {
+    mockFindResetToken.mockResolvedValue({
+      id: '1',
+      email: 'user@example.com',
+      token: 'valid-token',
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    const result = await resetPasswordAction('valid-token', 'weakpassword');
+
+    expect(result).toEqual({ error: 'Invalid password' });
+    expect(mockUserUpdate).not.toHaveBeenCalled();
+  });
+
+  it('updates password, deletes token, returns { success: true } on valid input', async () => {
+    mockFindResetToken.mockResolvedValue({
+      id: '1',
+      email: 'user@example.com',
+      token: 'valid-token',
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    mockUserUpdate.mockResolvedValue({});
+
+    const result = await resetPasswordAction('valid-token', 'NewPass1!');
+
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { email: 'user@example.com' },
+      data: { password: 'hashed_pw' },
+    });
+    expect(mockDeleteResetToken).toHaveBeenCalledWith('valid-token');
+    expect(result).toEqual({ success: true });
   });
 });

@@ -2,14 +2,22 @@
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
+import { z } from 'zod';
 
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
 
 import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
+import { sendPasswordResetEmail } from './lib/reset-email';
+import {
+  generateResetToken,
+  deleteResetTokensByEmail,
+  findResetToken,
+  deleteResetToken,
+} from './lib/reset-tokens';
 import { generateVerificationToken, deleteUserTokens } from './lib/tokens';
-import { signupSchema } from './lib/validation';
+import { applyPasswordComplexity, signupSchema } from './lib/validation';
 import type { SignupFormData, LoginFormData } from './lib/validation';
 
 export async function signupAction(data: SignupFormData) {
@@ -96,4 +104,55 @@ export async function checkEmailVerifiedAction(email: string): Promise<boolean> 
     select: { emailVerified: true },
   });
   return user !== null && user.emailVerified !== null;
+}
+
+const forgotPasswordSchema = z.object({ email: z.string().email() });
+
+const resetPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(100)
+  .superRefine(applyPasswordComplexity);
+
+export async function forgotPasswordAction(
+  email: string,
+): Promise<{ sent: true } | { error: string }> {
+  const parsed = forgotPasswordSchema.safeParse({ email });
+  if (!parsed.success) return { error: 'Invalid email' };
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, password: true },
+  });
+
+  if (!user || user.password === null) return { sent: true };
+
+  await deleteResetTokensByEmail(email);
+  const token = await generateResetToken(email);
+
+  try {
+    await sendPasswordResetEmail(email, token);
+  } catch {
+    // fire-and-forget: don't surface email failures to prevent user enumeration
+  }
+
+  return { sent: true };
+}
+
+export async function resetPasswordAction(
+  token: string,
+  newPassword: string,
+): Promise<{ success: true } | { error: string }> {
+  const passwordResult = resetPasswordSchema.safeParse(newPassword);
+  if (!passwordResult.success) return { error: 'Invalid password' };
+
+  const record = await findResetToken(token);
+  if (!record) return { error: 'invalid' };
+  if (record.expiresAt < new Date()) return { error: 'expired' };
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({ where: { email: record.email }, data: { password: hashed } });
+  await deleteResetToken(token);
+
+  return { success: true };
 }
