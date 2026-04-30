@@ -35,7 +35,12 @@ const cardVariants: Variants = {
 const tabContentVariants: Variants = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
-  exit: { opacity: 0, y: -6, transition: { duration: 0.15, ease: 'easeIn' } },
+  exit: {
+    opacity: 0,
+    y: -6,
+    pointerEvents: 'none',
+    transition: { duration: 0.15, ease: 'easeIn' },
+  },
 };
 
 function EmptyTab({ tab }: { tab: Tab }) {
@@ -106,9 +111,12 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
   function handleStatusChange(moveId: string, status: LearnStatus | null) {
     startTransition(async () => {
       updateOptimistic({ moveId, status });
-      if (status === null) await removeProgressAction(moveId);
-      else await updateProgressAction(moveId, status);
-      router.refresh();
+      try {
+        if (status === null) await removeProgressAction(moveId);
+        else await updateProgressAction(moveId, status);
+      } finally {
+        router.refresh();
+      }
     });
   }
 
@@ -277,7 +285,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
                 {filtered.map((item) => (
                   <motion.div
                     key={item.moveId}
-                    layout
+                    layout="position"
                     variants={cardVariants}
                     initial="initial"
                     animate="animate"

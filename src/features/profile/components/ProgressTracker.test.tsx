@@ -161,4 +161,13 @@ describe('ProgressTracker', () => {
     render(<ProgressTracker initialProgress={mockProgress} userName="Mira" />);
     expect(screen.getByText(/3 tracked/i)).toBeInTheDocument();
   });
+
+  it('tab remains clickable after status change (regression: exiting layer blocking clicks)', async () => {
+    const user = userEvent.setup();
+    render(<ProgressTracker initialProgress={mockProgress} userName={null} />);
+    const wantToLearnTab = screen.getByRole('tab', { name: /want to learn/i });
+    await user.click(screen.getByRole('tab', { name: /in progress/i }));
+    await user.click(wantToLearnTab);
+    expect(screen.getByText('Butterfly')).toBeInTheDocument();
+  });
 });
