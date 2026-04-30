@@ -1,0 +1,164 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { ProgressWithMove } from '../types';
+import ProgressTracker from './ProgressTracker';
+
+vi.mock('../actions', () => ({
+  updateProgressAction: vi.fn().mockResolvedValue({ success: true }),
+  removeProgressAction: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
+vi.mock('next/image', () => ({
+  default: ({ alt }: { alt: string }) => <img alt={alt} />,
+}));
+
+vi.mock('next/link', () => ({
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
+function makeMove(id: string, title: string, difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED') {
+  return {
+    id,
+    title,
+    difficulty,
+    imageUrl: null,
+    youtubeUrl: 'https://youtube.com/watch?v=abc',
+    description: null,
+    category: 'SPINS' as const,
+    poleTypes: [],
+    stepsData: [],
+    gripType: null,
+    entry: null,
+    duration: null,
+    coachNote: null,
+    coachNoteAuthor: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+const mockProgress: ProgressWithMove[] = [
+  {
+    id: 'p1',
+    userId: 'u1',
+    moveId: 'm1',
+    status: 'IN_PROGRESS',
+    move: makeMove('m1', 'Fireman Spin', 'BEGINNER'),
+  },
+  {
+    id: 'p2',
+    userId: 'u1',
+    moveId: 'm2',
+    status: 'WANT_TO_LEARN',
+    move: makeMove('m2', 'Butterfly', 'INTERMEDIATE'),
+  },
+  {
+    id: 'p3',
+    userId: 'u1',
+    moveId: 'm3',
+    status: 'LEARNED',
+    move: makeMove('m3', 'Crucifix', 'BEGINNER'),
+  },
+];
+
+beforeEach(() => vi.clearAllMocks());
+
+describe('ProgressTracker', () => {
+  it('shows "In Progress" tab active by default and renders its moves', () => {
+    render(<ProgressTracker initialProgress={mockProgress} userName="Mira" />);
+    expect(screen.getByText('Fireman Spin')).toBeInTheDocument();
+    expect(screen.queryByText('Butterfly')).not.toBeInTheDocument();
+    expect(screen.queryByText('Crucifix')).not.toBeInTheDocument();
+  });
+
+  it('displays correct counts on tab buttons', () => {
+    render(<ProgressTracker initialProgress={mockProgress} userName={null} />);
+    expect(screen.getByRole('tab', { name: /in progress/i })).toHaveTextContent('1');
+    expect(screen.getByRole('tab', { name: /want to learn/i })).toHaveTextContent('1');
+    expect(screen.getByRole('tab', { name: /learned/i })).toHaveTextContent('1');
+  });
+
+  it('shows Want to Learn moves after clicking that tab', async () => {
+    const user = userEvent.setup();
+    render(<ProgressTracker initialProgress={mockProgress} userName={null} />);
+    await user.click(screen.getByRole('tab', { name: /want to learn/i }));
+    expect(screen.getByText('Butterfly')).toBeInTheDocument();
+    expect(screen.queryByText('Fireman Spin')).not.toBeInTheDocument();
+  });
+
+  it('shows Learned moves after clicking that tab', async () => {
+    const user = userEvent.setup();
+    render(<ProgressTracker initialProgress={mockProgress} userName={null} />);
+    await user.click(screen.getByRole('tab', { name: /learned/i }));
+    expect(screen.getByText(/crucifix/i)).toBeInTheDocument();
+    expect(screen.queryByText(/fireman spin/i)).not.toBeInTheDocument();
+  });
+
+  it('filters moves by search query within the active tab', async () => {
+    const user = userEvent.setup();
+    const progress: ProgressWithMove[] = [
+      {
+        id: 'p1',
+        userId: 'u1',
+        moveId: 'm1',
+        status: 'IN_PROGRESS',
+        move: makeMove('m1', 'Fireman Spin', 'BEGINNER'),
+      },
+      {
+        id: 'p4',
+        userId: 'u1',
+        moveId: 'm4',
+        status: 'IN_PROGRESS',
+        move: makeMove('m4', 'Pole Sit', 'BEGINNER'),
+      },
+    ];
+    render(<ProgressTracker initialProgress={progress} userName={null} />);
+    await user.type(screen.getByPlaceholderText(/search moves/i), 'fire');
+    expect(screen.getByText('Fireman Spin')).toBeInTheDocument();
+    expect(screen.queryByText('Pole Sit')).not.toBeInTheDocument();
+  });
+
+  it('shows empty state when In Progress tab has no moves', () => {
+    const progress: ProgressWithMove[] = [
+      {
+        id: 'p2',
+        userId: 'u1',
+        moveId: 'm2',
+        status: 'WANT_TO_LEARN',
+        move: makeMove('m2', 'Butterfly', 'INTERMEDIATE'),
+      },
+    ];
+    render(<ProgressTracker initialProgress={progress} userName={null} />);
+    expect(screen.getByText(/nothing in progress yet/i)).toBeInTheDocument();
+  });
+
+  it('shows no-match message when search has no results', async () => {
+    const user = userEvent.setup();
+    render(<ProgressTracker initialProgress={mockProgress} userName={null} />);
+    await user.type(screen.getByPlaceholderText(/search moves/i), 'xyznotamove');
+    expect(screen.getByText(/no moves match/i)).toBeInTheDocument();
+  });
+
+  it('shows total tracked count in header', () => {
+    render(<ProgressTracker initialProgress={mockProgress} userName="Mira" />);
+    expect(screen.getByText(/3 tracked/i)).toBeInTheDocument();
+  });
+});
