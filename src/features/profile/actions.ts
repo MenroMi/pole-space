@@ -145,7 +145,7 @@ export async function getUserFavouritesAction(): Promise<FavouriteWithMove[]> {
   const userId = await requireAuth();
   return prisma.userFavourite.findMany({
     where: { userId },
-    include: { move: true },
+    include: { move: { include: { tags: true } } },
     orderBy: { createdAt: 'desc' },
   });
 }

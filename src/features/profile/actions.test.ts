@@ -363,7 +363,8 @@ describe('getUserFavouritesAction', () => {
     expect(mockFavouriteFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { userId: 'user-123' },
-        include: { move: true },
+        include: { move: { include: { tags: true } } },
+        orderBy: { createdAt: 'desc' },
       }),
     );
     expect(result).toEqual([{ id: 'fav-1', move: { title: 'Spin' } }]);

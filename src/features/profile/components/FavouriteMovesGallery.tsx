@@ -1,9 +1,10 @@
 'use client';
-import { Heart, Search, X } from 'lucide-react';
+import { ChevronRight, Heart, Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useOptimistic, useTransition, useState } from 'react';
+import { useMemo, useOptimistic, useState, useTransition } from 'react';
 
+import { extractVideoId } from '@/features/moves/lib/youtube';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,25 +15,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog';
-import { Input } from '@/shared/components/ui/input';
 
 import { removeFavouriteAction } from '../actions';
 import type { FavouriteWithMove } from '../types';
 
-// Matches MoveCard / ProgressCard mapping
 const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {
   BEGINNER: { className: 'bg-secondary-container text-on-secondary-container' },
   INTERMEDIATE: { className: 'bg-primary-container text-on-surface' },
   ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
 };
 
+const DIFFICULTY_ORDER: Record<string, number> = {
+  BEGINNER: 0,
+  INTERMEDIATE: 1,
+  ADVANCED: 2,
+};
+
+type SortKey = 'recent' | 'name' | 'level';
+
 function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function extractVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
 }
 
 function MovePlaceholder() {
@@ -43,14 +45,11 @@ function MovePlaceholder() {
   );
 }
 
-// YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
 const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
 
 function FavouriteCardImage({ src, alt }: { src: string; alt: string }) {
   const [failed, setFailed] = useState(false);
-
   if (failed) return <MovePlaceholder />;
-
   return (
     <Image
       src={src}
@@ -65,14 +64,155 @@ function FavouriteCardImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
+function RemoveButton({
+  onClick,
+  label,
+  disabled,
+}: {
+  onClick: (e: React.MouseEvent) => void;
+  label: string;
+  disabled: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      disabled={disabled}
+      aria-label={label}
+      className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border border-primary/25 bg-surface/50 backdrop-blur-md transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50"
+      style={
+        hovered
+          ? {
+              background: 'rgba(255,143,143,0.18)',
+              borderColor: 'rgba(255,159,159,0.35)',
+              color: '#ff9f9f',
+            }
+          : { color: '#dcb8ff' }
+      }
+    >
+      <Heart className="h-[15px] w-[15px]" fill="currentColor" strokeWidth={0} />
+    </button>
+  );
+}
+
+function FavouriteCard({
+  fav,
+  onRemove,
+  isPending,
+}: {
+  fav: FavouriteWithMove;
+  onRemove: (fav: FavouriteWithMove) => void;
+  isPending: boolean;
+}) {
+  const badge = DIFFICULTY_BADGE[fav.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
+  const videoId = extractVideoId(fav.move.youtubeUrl);
+  const thumb =
+    fav.move.imageUrl ?? (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
+
+  const poleLabel =
+    fav.move.poleTypes.length === 2
+      ? 'Static & Spin'
+      : fav.move.poleTypes[0]
+        ? fav.move.poleTypes[0].charAt(0) + fav.move.poleTypes[0].slice(1).toLowerCase()
+        : null;
+  const firstTag = fav.move.tags[0]?.name ?? null;
+  const techStrip = [poleLabel, firstTag].filter(Boolean).join(' · ');
+
+  return (
+    <Link
+      href={`/moves/${fav.moveId}`}
+      className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-240 hover:-translate-y-[3px] hover:border-primary/35"
+    >
+      {/* 4:5 portrait image */}
+      <div className="relative aspect-[4/5] overflow-hidden">
+        {thumb ? <FavouriteCardImage src={thumb} alt={fav.move.title} /> : <MovePlaceholder />}
+
+        {/* Top overlay: difficulty chip + remove button */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-linear-to-b from-surface/70 to-transparent p-3.5">
+          <span
+            className={`pointer-events-auto rounded-full px-3 py-1 font-sans text-[10px] font-bold tracking-[0.16em] uppercase ${badge.className}`}
+            style={badge.style}
+          >
+            {fav.move.difficulty.charAt(0) + fav.move.difficulty.slice(1).toLowerCase()}
+          </span>
+          <div className="pointer-events-auto">
+            <RemoveButton
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemove(fav);
+              }}
+              label={`Remove ${fav.move.title} from favourites`}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+
+        {/* Bottom technical strip */}
+        {techStrip && (
+          <div className="absolute bottom-3 left-3.5 font-sans text-[9px] font-semibold tracking-[0.18em] text-primary/70 uppercase">
+            {techStrip}
+          </div>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div className="flex flex-col gap-1.5 p-4">
+        <h3 className="font-display text-xl font-semibold tracking-tight text-on-surface lowercase">
+          {fav.move.title.toLowerCase()}
+        </h3>
+        {fav.move.description && (
+          <p className="line-clamp-2 font-sans text-[13px] leading-[1.45] text-on-surface-variant">
+            {fav.move.description}
+          </p>
+        )}
+        <span className="mt-1.5 font-sans text-[10px] font-semibold tracking-[0.18em] text-primary uppercase">
+          Added {formatDate(fav.createdAt)}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function SortPicker({ value, onChange }: { value: SortKey; onChange: (v: SortKey) => void }) {
+  const opts: { id: SortKey; label: string }[] = [
+    { id: 'recent', label: 'Recent' },
+    { id: 'name', label: 'A–Z' },
+    { id: 'level', label: 'Level' },
+  ];
+  return (
+    <div className="inline-flex gap-0 rounded-lg border border-outline-variant/60 p-[3px]">
+      {opts.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          onClick={() => onChange(o.id)}
+          className={`cursor-pointer rounded-md border-0 px-3 py-1.5 font-sans text-[11px] font-semibold tracking-[0.12em] uppercase transition-all duration-200 ${
+            value === o.id
+              ? 'bg-primary/14 text-primary'
+              : 'bg-transparent text-on-surface-variant hover:text-on-surface'
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function FavouriteMovesGallery({
   initialFavourites,
+  userName,
 }: {
   initialFavourites: FavouriteWithMove[];
+  userName: string | null;
 }) {
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<SortKey>('recent');
   const [dialogOpen, setDialogOpen] = useState(false);
-  // confirmFav is cleared only after the close animation finishes (via onCloseAutoFocus)
   const [confirmFav, setConfirmFav] = useState<FavouriteWithMove | null>(null);
   const [removeError, setRemoveError] = useState(false);
   const [optimisticFavs, removeOptimistic] = useOptimistic(
@@ -81,9 +221,22 @@ export default function FavouriteMovesGallery({
   );
   const [isPending, startTransition] = useTransition();
 
-  const filtered = query
-    ? optimisticFavs.filter((f) => f.move.title.toLowerCase().includes(query.toLowerCase()))
-    : optimisticFavs;
+  const filtered = useMemo(() => {
+    const list = query
+      ? optimisticFavs.filter((f) => f.move.title.toLowerCase().includes(query.toLowerCase()))
+      : [...optimisticFavs];
+
+    if (sort === 'name') {
+      list.sort((a, b) => a.move.title.localeCompare(b.move.title));
+    } else if (sort === 'level') {
+      list.sort(
+        (a, b) =>
+          (DIFFICULTY_ORDER[a.move.difficulty] ?? 0) - (DIFFICULTY_ORDER[b.move.difficulty] ?? 0),
+      );
+    }
+    // 'recent' is already ordered by createdAt desc from the server
+    return list;
+  }, [optimisticFavs, query, sort]);
 
   function handleRemove(moveId: string) {
     setRemoveError(false);
@@ -109,7 +262,8 @@ export default function FavouriteMovesGallery({
           <AlertDialogHeader>
             <AlertDialogTitle>Remove from favourites?</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmFav?.move.title} will be removed from your saved performances.
+              <strong className="text-on-surface">{confirmFav?.move.title}</strong> will be removed
+              from your saved performances. You can add it back any time.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -117,7 +271,6 @@ export default function FavouriteMovesGallery({
             <AlertDialogAction
               onClick={() => {
                 if (confirmFav) handleRemove(confirmFav.moveId);
-                // don't clear confirmFav here — onCloseAutoFocus handles it after animation
               }}
             >
               Remove
@@ -136,126 +289,107 @@ export default function FavouriteMovesGallery({
           </p>
         )}
 
-        {/* Header */}
-        <div className="flex flex-col justify-between gap-6 py-10 md:flex-row md:items-end">
-          <div>
-            <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
-              saved performances
-            </h1>
-            <p className="mt-3 font-sans text-lg text-on-surface-variant">
-              Your curated gallery of mastered techniques.
-            </p>
+        {/* Breadcrumb */}
+        <div className="mt-8 flex items-center gap-1.5 font-sans text-xs text-on-surface-variant">
+          <Link
+            href="/profile"
+            className="text-on-surface-variant/80 transition-colors hover:text-on-surface"
+          >
+            Profile
+          </Link>
+          <ChevronRight className="h-3 w-3 opacity-50" />
+          <span className="font-semibold tracking-[0.1em] text-primary uppercase">Saved</span>
+        </div>
+
+        {/* Page header */}
+        <div className="mt-5 flex flex-col gap-8 pb-0">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+                {optimisticFavs.length} saved{userName ? ` · ${userName}` : ''}
+              </p>
+              <h1 className="font-display text-5xl leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase md:text-[64px]">
+                saved <em className="font-medium text-primary italic not-italic">performances</em>
+              </h1>
+              <p className="mt-3.5 max-w-[460px] font-sans text-base leading-relaxed text-on-surface-variant">
+                Your curated gallery — moves you keep coming back to.
+              </p>
+            </div>
           </div>
 
-          {/* Search */}
-          <div className="relative w-56">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              aria-label="Search moves"
-              placeholder="Search moves..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pr-9 pl-9"
-            />
-            {query && (
-              <button
-                type="button"
-                aria-label="Clear search"
-                onClick={() => setQuery('')}
-                className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-outline-variant/30 pt-5">
+            {/* Search */}
+            <div className="relative w-[280px]">
+              <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
+              <input
+                aria-label="Search favourites"
+                placeholder="Search favourites..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full rounded-lg border border-outline-variant/60 bg-transparent px-9 py-2.5 font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40 focus:border-primary/50"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="absolute top-1/2 right-2 flex h-[22px] w-[22px] -translate-y-1/2 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-on-surface-variant/60 hover:text-on-surface"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Sort */}
+            <div className="flex items-center gap-3.5">
+              <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+                Sort
+              </span>
+              <SortPicker value={sort} onChange={setSort} />
+            </div>
           </div>
         </div>
 
-        {/* Empty states */}
-        {optimisticFavs.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Heart size={40} className="mb-4 text-outline" />
-            <p className="text-on-surface-variant">No favourites yet.</p>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              Open any move and tap the heart to save it here.
-            </p>
-          </div>
-        )}
+        {/* Empty / no-match / grid */}
+        <div className="mt-9">
+          {optimisticFavs.length === 0 && (
+            <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant/40 px-6 py-20 text-center">
+              <Heart className="mb-4 h-9 w-9 text-primary/40" />
+              <p
+                className="font-display text-[22px] text-on-surface"
+                style={{ letterSpacing: '-0.01em' }}
+              >
+                No favourites yet.
+              </p>
+              <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant">
+                Open any move in the catalog and tap the heart to save it here.
+              </p>
+            </div>
+          )}
 
-        {optimisticFavs.length > 0 && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <p className="text-on-surface-variant">No moves match &ldquo;{query}&rdquo;.</p>
-          </div>
-        )}
+          {optimisticFavs.length > 0 && filtered.length === 0 && (
+            <div className="py-20 text-center font-sans text-sm text-on-surface-variant">
+              No favourites match &ldquo;{query}&rdquo;.
+            </div>
+          )}
 
-        {/* Grid */}
-        {filtered.length > 0 && (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-6">
-            {filtered.map((fav) => {
-              const badge = DIFFICULTY_BADGE[fav.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
-              return (
-                <Link
+          {filtered.length > 0 && (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-[18px]">
+              {filtered.map((fav) => (
+                <FavouriteCard
                   key={fav.id}
-                  href={`/moves/${fav.moveId}`}
-                  className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-low transition-all duration-300 hover:-translate-y-1 hover:border-primary/40"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    {(() => {
-                      const videoId = extractVideoId(fav.move.youtubeUrl);
-                      const src =
-                        fav.move.imageUrl ??
-                        (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null);
-                      return src ? (
-                        <FavouriteCardImage src={src} alt={fav.move.title} />
-                      ) : (
-                        <MovePlaceholder />
-                      );
-                    })()}
-
-                    {/* Top overlay */}
-                    <div className="absolute inset-x-0 top-0 flex items-start justify-between bg-linear-to-b from-surface/80 to-transparent p-4">
-                      <span
-                        className={`rounded-full border border-outline-variant/20 px-3 py-1 font-sans text-xs font-bold tracking-widest uppercase ${badge.className}`}
-                        style={badge.style}
-                      >
-                        {fav.move.difficulty.charAt(0) + fav.move.difficulty.slice(1).toLowerCase()}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setConfirmFav(fav);
-                          setDialogOpen(true);
-                        }}
-                        disabled={isPending}
-                        aria-label={`Remove ${fav.move.title} from favourites`}
-                        className="text-error hover:bg-error/20 cursor-pointer rounded-full bg-surface/40 p-2 backdrop-blur-md transition-all duration-150 hover:scale-110 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Heart size={18} fill="currentColor" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Card body */}
-                  <div className="p-5">
-                    <h3 className="mb-1.5 font-display text-xl font-bold tracking-tight text-on-surface lowercase">
-                      {fav.move.title.toLowerCase()}
-                    </h3>
-                    {fav.move.description && (
-                      <p className="mb-3 line-clamp-2 font-sans text-sm text-on-surface-variant">
-                        {fav.move.description}
-                      </p>
-                    )}
-                    <span className="font-sans text-xs tracking-widest text-primary uppercase">
-                      Added {formatDate(fav.createdAt)}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                  fav={fav}
+                  onRemove={(f) => {
+                    setConfirmFav(f);
+                    setDialogOpen(true);
+                  }}
+                  isPending={isPending}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
