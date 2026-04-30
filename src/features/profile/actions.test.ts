@@ -9,6 +9,7 @@ vi.mock('@/shared/lib/prisma', () => ({
       upsert: vi.fn(),
       deleteMany: vi.fn(),
       count: vi.fn(),
+      groupBy: vi.fn(),
     },
     userFavourite: {
       upsert: vi.fn(),
@@ -63,6 +64,7 @@ import {
   getProfileUserAction,
   getProfileSettingsAction,
   getProfileStatsAction,
+  getProfileOverviewAction,
 } from './actions';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
@@ -75,6 +77,7 @@ const mockFavouriteUpsert = prisma.userFavourite.upsert as ReturnType<typeof vi.
 const mockFavouriteDeleteMany = prisma.userFavourite.deleteMany as ReturnType<typeof vi.fn>;
 const mockFavouriteFindMany = prisma.userFavourite.findMany as ReturnType<typeof vi.fn>;
 const mockProgressCount = prisma.userProgress.count as ReturnType<typeof vi.fn>;
+const mockProgressGroupBy = prisma.userProgress.groupBy as ReturnType<typeof vi.fn>;
 const mockFavouriteCount = prisma.userFavourite.count as ReturnType<typeof vi.fn>;
 const mockBcryptCompare = bcrypt.compare as ReturnType<typeof vi.fn>;
 const mockBcryptHash = bcrypt.hash as ReturnType<typeof vi.fn>;
@@ -473,5 +476,54 @@ describe('getProfileSettingsAction', () => {
       hasPassword: false,
     });
     expect(result).not.toHaveProperty('password');
+  });
+});
+
+describe('getProfileOverviewAction', () => {
+  it('throws Unauthorized when not authenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(getProfileOverviewAction()).rejects.toThrow('Unauthorized');
+  });
+
+  it('returns aggregated overview data for authenticated user', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockProgressGroupBy.mockResolvedValue([
+      { status: 'LEARNED', _count: 5 },
+      { status: 'IN_PROGRESS', _count: 3 },
+      { status: 'WANT_TO_LEARN', _count: 2 },
+    ]);
+    mockFindMany.mockResolvedValue([{ id: 'p1', move: { title: 'Spin', tags: [] } }]);
+    mockFavouriteFindMany.mockResolvedValue([{ id: 'f1', move: { title: 'Butterfly', tags: [] } }]);
+    mockFavouriteCount.mockResolvedValue(12);
+    mockUserFindUnique.mockResolvedValue({
+      firstName: 'Alice',
+      lastName: 'Pole',
+      username: 'alice',
+      image: null,
+      location: 'Warsaw',
+      createdAt: new Date('2024-01-01'),
+    });
+
+    const result = await getProfileOverviewAction();
+
+    expect(result.stats).toEqual({ masteredCount: 5, inProgressCount: 3, favouritesCount: 12 });
+    expect(result.breakdown).toEqual({ learned: 5, inProgress: 3, wantToLearn: 2 });
+    expect(result.currentlyLearning).toHaveLength(1);
+    expect(result.favouritesPreview).toHaveLength(1);
+    expect(result.user?.firstName).toBe('Alice');
+  });
+
+  it('handles missing progress groups gracefully', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockProgressGroupBy.mockResolvedValue([]);
+    mockFindMany.mockResolvedValue([]);
+    mockFavouriteFindMany.mockResolvedValue([]);
+    mockFavouriteCount.mockResolvedValue(0);
+    mockUserFindUnique.mockResolvedValue(null);
+
+    const result = await getProfileOverviewAction();
+
+    expect(result.stats).toEqual({ masteredCount: 0, inProgressCount: 0, favouritesCount: 0 });
+    expect(result.breakdown).toEqual({ learned: 0, inProgress: 0, wantToLearn: 0 });
   });
 });
