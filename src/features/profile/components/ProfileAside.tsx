@@ -23,7 +23,7 @@ const NAV_LINKS = [
     label: 'Progress',
     icon: TrendingUp,
     matches: ['/profile/progress'],
-    disabled: true,
+    disabled: false,
   },
 ];
 
