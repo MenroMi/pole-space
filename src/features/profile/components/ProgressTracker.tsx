@@ -9,7 +9,6 @@ import type { LearnStatus } from '@/shared/types';
 import { removeProgressAction, updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
 
-import LearnedCard from './LearnedCard';
 import ProgressCard from './ProgressCard';
 import WantToLearnRow from './WantToLearnRow';
 
@@ -259,9 +258,9 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
         )}
 
         {filtered.length > 0 && tab === 'learned' && (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-[18px]">
+          <div className="flex flex-col gap-2">
             {filtered.map((item) => (
-              <LearnedCard
+              <WantToLearnRow
                 key={item.id}
                 item={item}
                 onStatusChange={handleStatusChange}
