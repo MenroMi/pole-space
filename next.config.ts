@@ -26,7 +26,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
+    const noStore = [{ key: 'Cache-Control', value: 'no-store' }];
+    return [
+      { source: '/(.*)', headers: securityHeaders },
+      { source: '/profile/(.*)', headers: noStore },
+      { source: '/settings(.*)', headers: noStore },
+      { source: '/reset-password(.*)', headers: noStore },
+      { source: '/admin(.*)', headers: noStore },
+    ];
   },
   experimental: {
     serverActions: {
