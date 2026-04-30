@@ -196,7 +196,7 @@ export async function getProfileOverviewAction() {
         where: { userId, status: 'IN_PROGRESS' },
         include: { move: { include: { tags: true } } },
         orderBy: { id: 'desc' },
-        take: 6,
+        take: 9,
       }),
       prisma.userFavourite.findMany({
         where: { userId },
