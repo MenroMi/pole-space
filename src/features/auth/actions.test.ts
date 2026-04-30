@@ -31,6 +31,15 @@ vi.mock('@/shared/lib/prisma', () => ({
     },
   },
 }));
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue({
+    get: vi.fn((key: string) => (key === 'x-forwarded-for' ? '1.2.3.4' : null)),
+  }),
+}));
+vi.mock('@/shared/lib/ratelimit', () => ({
+  signupRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+  resendRatelimit: { limit: vi.fn().mockResolvedValue({ success: true }) },
+}));
 vi.mock('@/features/auth/lib/reset-tokens', () => ({
   generateResetToken: vi.fn().mockResolvedValue('reset-token-uuid'),
   deleteResetTokensByEmail: vi.fn(),
@@ -58,6 +67,7 @@ vi.mock('next-auth', async () => {
   return { AuthError };
 });
 
+import { signupRatelimit, resendRatelimit } from '@/shared/lib/ratelimit';
 import { sendVerificationEmail } from '@/features/auth/lib/email';
 import {
   generateResetToken,
@@ -88,6 +98,8 @@ const mockGenToken = generateVerificationToken as ReturnType<typeof vi.fn>;
 const mockDeleteTokens = deleteUserTokens as ReturnType<typeof vi.fn>;
 const mockSendEmail = sendVerificationEmail as ReturnType<typeof vi.fn>;
 const mockRedirect = redirect as unknown as ReturnType<typeof vi.fn>;
+const mockSignupLimit = signupRatelimit.limit as ReturnType<typeof vi.fn>;
+const mockResendLimit = resendRatelimit.limit as ReturnType<typeof vi.fn>;
 const mockGenResetToken = generateResetToken as ReturnType<typeof vi.fn>;
 const mockDeleteResetTokensByEmail = deleteResetTokensByEmail as ReturnType<typeof vi.fn>;
 const mockFindResetToken = findResetToken as ReturnType<typeof vi.fn>;
@@ -101,9 +113,20 @@ const validData = {
   password: 'Password1!',
 };
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockSignupLimit.mockResolvedValue({ success: true });
+  mockResendLimit.mockResolvedValue({ success: true });
+});
 
 describe('signupAction', () => {
+  it('returns { error: "Too many requests" } when rate limit is exceeded', async () => {
+    mockSignupLimit.mockResolvedValue({ success: false });
+    const result = await signupAction(validData);
+    expect(result).toEqual({ error: 'Too many requests' });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('returns error if email is already in use', async () => {
     mockFindUnique.mockResolvedValue({ id: 'existing-user' });
 
@@ -212,6 +235,13 @@ describe('loginAction', () => {
 });
 
 describe('resendVerificationAction', () => {
+  it('redirects to rate-limited when rate limit is exceeded', async () => {
+    mockResendLimit.mockResolvedValue({ success: false });
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+    expect(mockRedirect).toHaveBeenCalledWith('/verify-email?error=rate-limited');
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('deletes old tokens, generates new token, sends email, then redirects', async () => {
     mockFindUnique.mockResolvedValue({ id: 'user-id', emailVerified: null });
     mockFindFirstToken.mockResolvedValue(null);

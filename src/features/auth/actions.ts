@@ -1,11 +1,13 @@
 'use server';
 import bcrypt from 'bcryptjs';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
 import { z } from 'zod';
 
 import { signIn } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
+import { signupRatelimit, resendRatelimit } from '@/shared/lib/ratelimit';
 
 import { RESEND_COOLDOWN_MS } from './lib/cooldown-config';
 import { sendVerificationEmail } from './lib/email';
@@ -21,6 +23,10 @@ import { applyPasswordComplexity, signupSchema } from './lib/validation';
 import type { SignupFormData, LoginFormData } from './lib/validation';
 
 export async function signupAction(data: SignupFormData) {
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ?? '127.0.0.1';
+  const { success: withinLimit } = await signupRatelimit.limit(ip);
+  if (!withinLimit) return { error: 'Too many requests' };
+
   const parsed = signupSchema.safeParse(data);
   if (!parsed.success) return { error: 'Invalid input' };
 
@@ -73,6 +79,9 @@ export async function loginAction(data: LoginFormData) {
 }
 
 export async function resendVerificationAction(email: string) {
+  const { success: withinLimit } = await resendRatelimit.limit(email);
+  if (!withinLimit) redirect(`/verify-email?error=rate-limited`);
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) redirect('/verify-email?error=invalid');
