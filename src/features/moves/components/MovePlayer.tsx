@@ -36,7 +36,7 @@ type MovePlayerProps = {
   difficulty: Difficulty;
   description: string | null;
   tags: Tag[];
-  poleType: PoleType | null;
+  poleTypes: PoleType[];
   moveId: string;
   isFavourited: boolean;
   isAuthenticated: boolean;
@@ -56,7 +56,7 @@ export default function MovePlayer({
   difficulty,
   description,
   tags,
-  poleType,
+  poleTypes,
   moveId,
   isFavourited,
   isAuthenticated,
@@ -168,7 +168,7 @@ export default function MovePlayer({
       </div>
 
       {/* Specs — full width below the grid */}
-      <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleType={poleType} />
+      <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleTypes={poleTypes} />
 
       {/* Tabs — full width below specs */}
       <div className="mt-10">

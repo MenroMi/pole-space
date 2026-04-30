@@ -47,7 +47,7 @@ const baseProps = {
   difficulty: 'BEGINNER' as const,
   description: 'A graceful spinning move.',
   tags: [] as { id: string; name: string; color: string | null }[],
-  poleType: null,
+  poleTypes: [] as import('@prisma/client').PoleType[],
   moveId: 'move-1',
   isFavourited: false,
   isAuthenticated: true,

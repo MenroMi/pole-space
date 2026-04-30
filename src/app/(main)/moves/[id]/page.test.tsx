@@ -8,8 +8,6 @@ vi.mock('@/features/moves', () => ({
   getMoveByIdAction: vi.fn(),
   getRelatedMovesAction: vi.fn(),
   MovePlayer: vi.fn(({ title }: { title: string }) => <div data-testid="player">{title}</div>),
-  MoveFavouriteButton: vi.fn(() => null),
-  MoveSpecs: vi.fn(() => null),
 }));
 vi.mock('@/features/moves/components/MoveBreadcrumb', () => ({
   default: vi.fn(() => <nav data-testid="breadcrumb" />),
