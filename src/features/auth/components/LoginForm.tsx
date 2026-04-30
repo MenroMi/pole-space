@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -13,6 +14,9 @@ import type { LoginFormData } from '../lib/validation';
 import { FacebookIcon, GoogleIcon } from './SocialIcons';
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const showResetBanner = searchParams.get('reset') === 'true';
+
   const {
     register,
     handleSubmit,
@@ -38,6 +42,15 @@ export function LoginForm() {
         </h2>
         <p className="text-sm text-on-surface-variant">sign in to continue your practice.</p>
       </div>
+
+      {showResetBanner && (
+        <p
+          role="status"
+          className="rounded-lg border border-green-500/20 bg-green-500/8 px-3.5 py-3 text-sm text-green-400"
+        >
+          Password updated — please sign in.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-6">

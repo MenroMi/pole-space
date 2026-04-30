@@ -7,9 +7,14 @@ import { LoginForm } from './LoginForm';
 vi.mock('@/features/auth/actions', () => ({
   loginAction: vi.fn(),
 }));
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+}));
 
 import { loginAction } from '@/features/auth/actions';
+import { useSearchParams } from 'next/navigation';
 const mockLoginAction = loginAction as ReturnType<typeof vi.fn>;
+const mockUseSearchParams = useSearchParams as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -46,6 +51,12 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(mockLoginAction).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password123' });
+  });
+
+  it('shows reset success banner when ?reset=true is in URL', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('reset=true'));
+    render(<LoginForm />);
+    expect(screen.getByText(/password updated/i)).toBeInTheDocument();
   });
 
   it('displays server error returned from loginAction', async () => {
