@@ -28,8 +28,7 @@ export async function GET(req: NextRequest) {
 
     if (verificationToken.expires < new Date()) {
       await deleteVerificationToken(token);
-      const email = encodeURIComponent(verificationToken.identifier);
-      return NextResponse.redirect(new URL(`/verify-email?error=expired&email=${email}`, req.url));
+      return NextResponse.redirect(new URL('/verify-email?error=expired', req.url));
     }
 
     await prisma.$transaction([

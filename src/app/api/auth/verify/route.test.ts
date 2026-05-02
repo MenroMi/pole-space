@@ -72,7 +72,7 @@ describe('GET /api/auth/verify', () => {
     expect(mockDeleteVerToken).toHaveBeenCalledWith('expired-token');
     expect(res.status).toBe(307);
     expect(res.headers.get('location')).toContain('/verify-email?error=expired');
-    expect(res.headers.get('location')).toContain('email=');
+    expect(res.headers.get('location')).not.toContain('email=');
   });
 
   it('runs transaction and redirects to /login?verified=true on valid token', async () => {
