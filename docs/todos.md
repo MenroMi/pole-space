@@ -7,7 +7,7 @@ Worktree: `.worktrees/error-boundaries`
 - [x] `src/app/global-error.tsx` — root error boundary (`'use client'`, включает `<html><body>`, заменяет root layout при краше; импортирует globals.css для CSS vars)
 - [x] `src/app/(main)/error.tsx` — error boundary для main route group (каталог, профиль и т.д.); пропы: `error`, `unstable_retry` (Next.js 16 API)
 - [x] `src/app/(auth)/error.tsx` — error boundary для auth route group; минималистичная карточка внутри split-panel layout
-- [ ] **Email в URL** (`route.ts` + `verify-email/page.tsx` + `ResendForm.tsx`) — убрать email из `?error=expired&email=...`, добавить email input на expired-экране
+- [x] **Email в URL** (`route.ts` + `verify-email/page.tsx` + `ExpiredEmailForm.tsx`) — убрать email из `?error=expired&email=...`, добавить email input на expired-экране
 
 ## Security
 
@@ -76,11 +76,10 @@ Worktree: `.worktrees/error-boundaries`
 - In practice: network jitter (50–200ms) dwarfs the single DB delete latency; information gained is low-value
 - Fix (if desired): fire-and-forget the delete (`void deleteVerificationToken(token)`) — note that in serverless the operation may not complete before the runtime terminates
 
-### Email in verification URL
+### ~~Email in verification URL~~ ✅ Resolved (2026-05-02) — `feat/error-boundaries`
 
-- `src/app/api/auth/verify/route.ts` passes `email` as a plain query param (`?error=expired&email=...`)
-- Email appears in server logs, referrer headers, and analytics tools
-- Fix: remove email from URL, prompt user to re-enter it on the expired page
+- `route.ts` no longer includes email in `?error=expired` redirect
+- `ExpiredEmailForm` prompts user to re-enter email on the expired page
 
 ### E2e / browser tests (Playwright)
 
