@@ -5,6 +5,7 @@ import { resendVerificationAction } from '@/features/auth';
 import { getResendCooldownRemaining } from '@/features/auth/lib/cooldown';
 import { prisma } from '@/shared/lib/prisma';
 
+import { ExpiredEmailForm } from './ExpiredEmailForm';
 import { ResendForm } from './ResendForm';
 
 type Props = {
@@ -69,7 +70,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
       orderBy: { createdAt: 'desc' },
     });
     if (!token || token.expires < new Date()) {
-      redirect(`/verify-email?error=expired&email=${encodeURIComponent(validEmail)}`);
+      redirect('/verify-email?error=expired');
     }
 
     const initialRemaining = await getResendCooldownRemaining(validEmail);
@@ -115,10 +116,6 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   }
 
   if (error === 'expired') {
-    await requireUnverifiedUser(email);
-
-    const resendWithEmail = resendVerificationAction.bind(null, email!);
-    const initialRemaining = await getResendCooldownRemaining(email!);
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">
         <div className="flex flex-col items-start gap-6">
@@ -130,13 +127,12 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
               link expired.
             </h2>
             <p className="text-sm leading-relaxed text-on-surface-variant">
-              your verification link has expired. request a new one and we&apos;ll send it right
-              away.
+              your verification link has expired. enter your email to get a new one.
             </p>
           </div>
         </div>
 
-        <ResendForm action={resendWithEmail} initialRemaining={initialRemaining} email={email!} />
+        <ExpiredEmailForm />
 
         <Link
           href="/login"
