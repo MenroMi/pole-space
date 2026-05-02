@@ -7,7 +7,7 @@ type Props = {
   unstable_retry: () => void;
 };
 
-export default function GlobalError({ unstable_retry }: Props) {
+export default function GlobalError({ error, unstable_retry }: Props) {
   return (
     <html lang="en">
       <body
@@ -36,6 +36,7 @@ export default function GlobalError({ unstable_retry }: Props) {
             critical error
           </p>
           <h1
+            className="font-display"
             style={{
               fontSize: '2.5rem',
               fontWeight: 300,
@@ -52,11 +53,23 @@ export default function GlobalError({ unstable_retry }: Props) {
               fontSize: '0.875rem',
               lineHeight: 1.625,
               color: 'var(--color-on-surface-variant)',
-              marginBottom: '2.5rem',
+              marginBottom: error.digest ? '0.5rem' : '2.5rem',
             }}
           >
             an unexpected error occurred. try refreshing the page.
           </p>
+          {error.digest && (
+            <p
+              style={{
+                fontSize: '0.75rem',
+                fontFamily: 'monospace',
+                color: 'var(--color-outline)',
+                marginBottom: '2.5rem',
+              }}
+            >
+              ref: {error.digest}
+            </p>
+          )}
           <button
             onClick={unstable_retry}
             className="kinetic-gradient"

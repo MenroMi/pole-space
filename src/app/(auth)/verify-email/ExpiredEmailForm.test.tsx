@@ -45,7 +45,7 @@ describe('ExpiredEmailForm', () => {
       target: { value: 'test@example.com' },
     });
 
-    act(() => {
+    await act(async () => {
       fireEvent.submit(container.querySelector('form')!);
     });
 
