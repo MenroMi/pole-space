@@ -27,19 +27,13 @@ Worktree: `.worktrees/error-boundaries`
 
 > Implement after core feature set is complete, before public launch.
 
-### `/api/geocode` unauthenticated — Nominatim rate-limit abuse ⚠️ pre-launch blocker
+### ~~`/api/geocode` unauthenticated~~ ✅ Resolved (PR #29)
 
-- `src/app/api/geocode/route.ts` has no auth check — any unauthenticated client can call it freely
-- Nominatim ToS: max 1 req/sec per IP; abuse can get the server IP banned
-- Cannot simply require a session because `SignupForm` calls it before the user has an account
-- Fix options: (a) lightweight CSRF-style token (signed with `NEXTAUTH_SECRET`, short TTL, issued from a pre-signup endpoint), (b) IP-level rate-limit at Next.js middleware layer via Upstash Ratelimit, (c) move geocoding fully client-side via a third-party geocoding SaaS that issues per-origin keys
+- `geocodeRatelimit`: 20 req/1min per IP via Upstash. Graceful degradation when env vars absent.
 
-### Rate limiting on auth endpoints ⚠️ pre-launch blocker
+### ~~Rate limiting on auth endpoints~~ ✅ Resolved (PR #29)
 
-- No rate limiting on `/api/auth/signin` — brute force possible
-- No rate limiting on signup — email bombing possible
-- `resendVerificationAction` has a 60s server-side cooldown (token-based) + client-side countdown, but can be bypassed by a script calling the server action directly
-- Fix: add Upstash Ratelimit to `/api/auth/signin`, `signupAction`, and `resendVerificationAction` — covers all three atomically via Redis TTL
+- `signinRatelimit` (10/15m), `signupRatelimit` (5/1h), `resendRatelimit` (5/1h), `forgotPasswordRatelimit` (5/1h), `verifyRatelimit` (10/15m) — all in `src/shared/lib/ratelimit.ts`
 
 ### CAA DNS records (suggestion, low priority)
 
@@ -224,12 +218,9 @@ Worktree: `.worktrees/error-boundaries`
 - Needs: criteria definition (e.g. moves mastered ≥ N, account age, admin-granted flag), conditional rendering
 - Until criteria are defined, badge is hardcoded and misleading for new users
 
-**Password reset (`/forgot-password`)** (2026-04-22)
+~~**Password reset (`/forgot-password`)**~~ ✅ Resolved (PR #29)
 
-- `LoginForm` links to `/forgot-password` but the route doesn't exist (shows 404 page)
-- Implement in a separate worktree after `auth-redesign` is merged
-- Needs: `PasswordResetToken` Prisma model, `forgotPasswordAction`, `resetPasswordAction`, `sendPasswordResetEmail`, `/forgot-password` page + form, `/reset-password?token=` page + form
-- Flow: email form → create token (1h TTL) → send email → token verification → new password form → redirect to `/login?reset=true`
+- `PasswordResetToken` Prisma model, `forgotPasswordAction`, `resetPasswordAction`, `/forgot-password` + `/reset-password` pages — смёржено в pre-launch blockers
 
 **OAuth login buttons (Google / Facebook)** (2026-04-22)
 
