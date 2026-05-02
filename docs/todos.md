@@ -1,5 +1,14 @@
 # Project TODOs
 
+## Error Boundaries (feat/error-boundaries — в работе)
+
+Worktree: `.worktrees/error-boundaries`
+
+- [x] `src/app/global-error.tsx` — root error boundary (`'use client'`, включает `<html><body>`, заменяет root layout при краше; импортирует globals.css для CSS vars)
+- [x] `src/app/(main)/error.tsx` — error boundary для main route group (каталог, профиль и т.д.); пропы: `error`, `unstable_retry` (Next.js 16 API)
+- [x] `src/app/(auth)/error.tsx` — error boundary для auth route group; минималистичная карточка внутри split-panel layout
+- [ ] **Email в URL** (`route.ts` + `verify-email/page.tsx` + `ResendForm.tsx`) — убрать email из `?error=expired&email=...`, добавить email input на expired-экране
+
 ## Security
 
 ### ~~Auth guards in Server Actions~~ ✅ Resolved (2026-04-19)
@@ -60,11 +69,12 @@
 - Risk: very low — `token.sub` is always set by NextAuth JWT strategy. But the type lies slightly.
 - Fix (post-MVP): augment `id` as `string | undefined` in a full `User` interface redeclaration and update all call sites to handle undefined
 
-### Timing oracle in email verification
+### Timing oracle in email verification (suggestion, low priority)
 
 - `src/app/api/auth/verify/route.ts` — expired token branch does an extra DB delete before redirecting; missing token returns immediately
-- An attacker can distinguish "token never existed" from "token existed but expired" by response time
-- Fix: consolidate both error cases to the same response path (skip delete, redirect immediately)
+- An attacker can theoretically distinguish "token never existed" from "token existed but expired" by response time
+- In practice: network jitter (50–200ms) dwarfs the single DB delete latency; information gained is low-value
+- Fix (if desired): fire-and-forget the delete (`void deleteVerificationToken(token)`) — note that in serverless the operation may not complete before the runtime terminates
 
 ### Email in verification URL
 
