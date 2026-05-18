@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
@@ -23,33 +25,59 @@ export default async function Header() {
     }
   }
 
+  const initials = user?.name?.[0]?.toUpperCase() ?? (session ? '?' : null);
+
   return (
     <header
-      className="sticky top-0 z-50 h-[60px] border-b border-outline-variant/30 backdrop-blur-xl"
-      style={{ backgroundColor: 'rgba(19, 19, 19, 0.85)' }}
+      className="sticky top-0 z-50 h-14 border-b border-outline-variant/30 backdrop-blur-xl sm:h-[60px]"
+      style={{ backgroundColor: 'rgba(19, 19, 19, 0.92)' }}
     >
-      <div className="mx-auto grid h-full w-full max-w-[2560px] grid-cols-[1fr_auto_1fr] items-center px-6">
-        <div className="justify-self-start">
-          <Link
-            href={session ? '/catalog' : '/'}
-            className="font-display text-[17px] font-semibold tracking-tight text-on-surface lowercase"
-          >
-            pole space<span className="text-primary">.</span>
-          </Link>
+      <div className="relative mx-auto flex h-full w-full max-w-[2560px] items-center justify-between px-5 sm:px-6">
+        {/* Left: brand */}
+        <Link
+          href={session ? '/catalog' : '/'}
+          className="font-display text-[16px] font-semibold tracking-tight text-on-surface lowercase sm:text-[17px]"
+        >
+          pole space<span className="text-primary">.</span>
+        </Link>
+
+        {/* Center: pill nav — desktop only, truly centered via absolute */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center sm:flex">
+          <div className="pointer-events-auto">
+            <HeaderNav />
+          </div>
         </div>
 
-        <div className="hidden sm:block">
-          <HeaderNav />
-        </div>
-
-        <div className="flex items-center gap-1 justify-self-end">
-          <div className="hidden sm:flex">
+        {/* Right: actions */}
+        <div className="flex items-center gap-1">
+          {/* Desktop-only */}
+          <div className="hidden items-center gap-1 sm:flex">
             <FavouritesButton />
+            <UserMenu user={user} role={role} />
           </div>
-          <UserMenu user={user} role={role} />
-          <div className="hidden sm:flex">
-            <LocaleSwitcher />
-          </div>
+          {/* Mobile-only: avatar circle */}
+          {session && initials && (
+            <Link
+              href="/profile"
+              aria-label="Profile"
+              className="relative mr-1 flex h-[30px] w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-full font-display text-[11px] font-bold text-[#1b1b1b] sm:hidden"
+              style={{ background: 'linear-gradient(135deg, #52416c, #dcb8ff)' }}
+            >
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name ?? 'avatar'}
+                  fill
+                  sizes="30px"
+                  className="object-cover"
+                />
+              ) : (
+                initials
+              )}
+            </Link>
+          )}
+          {/* Always: locale switcher */}
+          <LocaleSwitcher />
         </div>
       </div>
     </header>

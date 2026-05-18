@@ -40,46 +40,46 @@ export default async function ProfileHero({
         }}
       />
 
-      <div className="relative flex flex-col items-center gap-6 text-center sm:items-start sm:gap-8 sm:text-left md:flex-row md:items-end">
-        {/* Avatar — keep as-is */}
+      <div className="relative flex flex-row items-end gap-4 sm:flex-row sm:gap-8 md:items-end">
+        {/* Avatar */}
         <div className="group relative shrink-0">
-          <div className="relative z-10 h-24 w-24 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-outline-variant/20 sm:h-32 sm:w-32 md:h-40 md:w-40">
+          <div className="relative z-10 h-[70px] w-[70px] overflow-hidden rounded-[13px] bg-surface-container ring-1 ring-outline-variant/20 sm:h-32 sm:w-32 md:h-40 md:w-40">
             {image ? (
               <Image src={image} alt={displayName} fill className="object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
-                <User size={56} aria-hidden="true" />
+                <User className="h-8 w-8 sm:h-14 sm:w-14" aria-hidden="true" />
               </div>
             )}
           </div>
           <div className="absolute inset-0 -z-10 scale-110 rounded-2xl bg-primary/20 opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-80" />
         </div>
 
-        {/* Name + meta */}
-        <div className="flex-1 space-y-2">
+        {/* Name + meta + settings */}
+        <div className="flex flex-1 flex-col gap-1">
           {location && (
             <p className="font-sans text-[10px] font-semibold tracking-[0.18em] text-primary uppercase">
               {location}
             </p>
           )}
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-on-surface lowercase sm:text-4xl md:text-[56px] md:leading-none">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-on-surface lowercase sm:text-4xl md:text-[56px] md:leading-none">
             {displayName}
           </h1>
-          <p className="font-sans text-sm text-on-surface-variant">
+          <p className="font-sans text-[11px] text-on-surface-variant sm:text-sm">
             {username ? `@${username} · ` : ''}
             {t('joinedYear', { year: joinYear })}
           </p>
+          <div className="mt-2 flex justify-end sm:justify-start">
+            <Link
+              href="/profile/settings"
+              aria-label={t('heroSettingsLabel')}
+              className="flex items-center gap-1.5 rounded-lg border border-outline-variant/60 bg-transparent px-3 py-1.5 font-sans text-[12px] font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
+            >
+              <Settings size={12} aria-hidden="true" />
+              {t('settings')}
+            </Link>
+          </div>
         </div>
-
-        {/* Settings link */}
-        <Link
-          href="/profile/settings"
-          aria-label={t('heroSettingsLabel')}
-          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-outline-variant/60 bg-transparent px-4 py-2.5 font-sans text-[13px] font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface sm:min-h-0 sm:w-auto sm:justify-start"
-        >
-          <Settings size={14} aria-hidden="true" />
-          {t('settings')}
-        </Link>
       </div>
     </section>
   );

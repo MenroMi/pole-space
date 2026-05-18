@@ -79,11 +79,11 @@ export default function MoveGrid({
   }, [hasMore]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const header = (
-    <div className="mb-8">
+    <div className="mb-4 sm:mb-8">
       <p className="mb-3 text-[11px] font-semibold tracking-[0.16em] text-on-surface-variant uppercase">
         {t('moveCount', { count: totalCount })}
       </p>
-      <h1 className="font-display text-4xl font-bold tracking-tight text-on-surface lowercase md:text-5xl">
+      <h1 className="font-display text-2xl font-bold tracking-tight text-on-surface lowercase sm:text-4xl md:text-5xl">
         {t('tagline')}{' '}
         <em className="font-medium text-primary not-italic">{t('taglineHighlight')}</em>
       </h1>
@@ -92,21 +92,25 @@ export default function MoveGrid({
 
   if (moves.length === 0) {
     return (
-      <div className="flex h-full flex-col p-6">
+      <div className="px-3.5 pt-3 pb-4 sm:p-6">
         {header}
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-on-surface-variant">{t('empty')}</p>
-        </div>
+        <p className="py-12 text-center text-sm text-on-surface-variant">{t('empty')}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="px-3.5 pt-3 pb-4 sm:p-6">
       {header}
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
+      <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] sm:gap-4">
         {moves.map((move) => (
-          <motion.div key={move.id} variants={cardVariants} initial="initial" animate="animate">
+          <motion.div
+            key={move.id}
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+            className="h-full"
+          >
             <MoveCard move={move} />
           </motion.div>
         ))}

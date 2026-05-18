@@ -139,7 +139,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
   }, [optimisticProgress, tab, query]);
 
   return (
-    <div className="px-6 pb-24 md:px-12">
+    <div className="px-4 pb-24 sm:px-6 md:px-12">
       {/* Breadcrumb */}
       <div className="mt-8 flex items-center gap-1.5 font-sans text-xs text-on-surface-variant">
         <Link

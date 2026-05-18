@@ -8,7 +8,7 @@ type SpecItem = { label: string; value: string };
 
 function SpecCard({ label, value }: SpecItem) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant/15 bg-surface-lowest p-6">
+    <div className="flex flex-col gap-1.5 rounded-lg border border-outline-variant/15 bg-surface-lowest p-4 sm:gap-2 sm:p-6">
       <dt className="font-sans text-[10px] tracking-widest text-on-surface-variant uppercase">
         {label}
       </dt>

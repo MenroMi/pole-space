@@ -166,16 +166,16 @@ function FavouriteCard({
       </div>
 
       {/* Card body */}
-      <div className="flex flex-col gap-1.5 p-4">
-        <h3 className="font-display text-xl font-semibold tracking-tight text-on-surface lowercase">
+      <div className="flex flex-col gap-1 p-2.5 sm:gap-1.5 sm:p-4">
+        <h3 className="font-display text-sm font-semibold tracking-tight text-on-surface lowercase sm:text-xl">
           {fav.move.title.toLowerCase()}
         </h3>
         {fav.move.description && (
-          <p className="line-clamp-2 font-sans text-[13px] leading-[1.45] text-on-surface-variant">
+          <p className="line-clamp-2 hidden font-sans text-[13px] leading-[1.45] text-on-surface-variant sm:block">
             {fav.move.description}
           </p>
         )}
-        <span className="mt-1.5 font-sans text-[10px] font-semibold tracking-[0.18em] text-primary uppercase">
+        <span className="font-sans text-[9px] font-semibold tracking-[0.18em] text-primary uppercase sm:mt-1.5 sm:text-[10px]">
           {t('addedDate', { date: formatDate(fav.createdAt, locale) })}
         </span>
       </div>
@@ -292,7 +292,7 @@ export default function FavouriteMovesGallery({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="px-6 pb-24 md:px-12">
+      <div className="px-4 pb-24 sm:px-6 md:px-12">
         {removeError && (
           <p
             role="alert"
@@ -411,7 +411,7 @@ export default function FavouriteMovesGallery({
           </AnimatePresence>
 
           {/* Grid stays mounted so AnimatePresence can exit the last card */}
-          <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] sm:gap-[18px]">
             <AnimatePresence initial={false}>
               {filtered.map((fav) => (
                 <motion.div

@@ -22,6 +22,7 @@
     "logOutError": "Something went wrong. Please try again.",
     "changeLanguage": "Change language",
     "favouriteMovesLabel": "Favourite moves",
+    "favourites": "Favourites",
     "admin": "Admin Panel"
   },
   "auth": {
@@ -137,7 +138,10 @@
       "search": "search moves...",
       "searchLabel": "Search",
       "clearSearch": "Clear search",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "applyFilters": "Apply filters",
+      "all": "All",
+      "sheetTitle": "Filters"
     }
   },
   "moves": {

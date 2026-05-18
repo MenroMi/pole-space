@@ -22,6 +22,7 @@
     "logOutError": "Coś poszło nie tak. Spróbuj ponownie.",
     "changeLanguage": "Zmień język",
     "favouriteMovesLabel": "Ulubione ruchy",
+    "favourites": "Ulubione",
     "admin": "Panel Admina"
   },
   "auth": {
@@ -138,7 +139,9 @@
       "searchLabel": "Szukaj",
       "clearSearch": "Wyczyść wyszukiwanie",
       "clearFilters": "Wyczyść filtry",
-      "applyFilters": "Zastosuj filtry"
+      "applyFilters": "Zastosuj filtry",
+      "all": "Wszystkie",
+      "sheetTitle": "Filtry"
     }
   },
   "moves": {

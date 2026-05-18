@@ -23,6 +23,7 @@ export default async function HomePage({ params: _params }: Props) {
 
   return (
     <div className={styles.page}>
+      <div className={styles.blob} aria-hidden="true" />
       <header className={styles.topbar}>
         <span className={styles.brand} aria-label="pole space">
           pole space
@@ -30,7 +31,7 @@ export default async function HomePage({ params: _params }: Props) {
             .
           </span>
         </span>
-        <span className={styles.meta}>— catalog · 2026</span>
+        <span className={styles.meta}>catalog · 2026</span>
       </header>
 
       <main className={styles.center}>

@@ -49,7 +49,10 @@ export default async function CatalogPage({ params, searchParams }: Props) {
 
   return (
     <PageShell aside={<CatalogFilters filters={filters} availableTags={availableTags} />}>
-      <div className="px-4 pt-4 pb-2 lg:hidden">
+      <div
+        className="sticky top-14 z-10 border-b border-outline-variant/20 px-3.5 py-[10px] lg:hidden"
+        style={{ backgroundColor: '#131313' }}
+      >
         <CatalogFilters filters={filters} availableTags={availableTags} mode="trigger" />
       </div>
       <MoveGrid

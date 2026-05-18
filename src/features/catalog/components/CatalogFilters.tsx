@@ -2,6 +2,7 @@
 import { Check, Gauge, RotateCw, Search, SlidersHorizontal, Tag, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useRouter } from '@/i18n/navigation';
 import {
@@ -118,29 +119,31 @@ export default function CatalogFilters({
 
   const activeCount = selectedPoleTypes.length + selectedDifficulties.length + selectedTags.length;
 
-  const filterContent = (
-    <>
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          aria-label={t('searchLabel')}
-          placeholder={t('search')}
-          value={searchValue}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="pr-9 pl-9"
-        />
-        {searchValue && (
-          <button
-            type="button"
-            aria-label={t('clearSearch')}
-            onClick={() => navigate({ resetSearch: true })}
-            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+  const searchInput = (
+    <div className="relative">
+      <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        aria-label={t('searchLabel')}
+        placeholder={t('search')}
+        value={searchValue}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className="pr-9 pl-9"
+      />
+      {searchValue && (
+        <button
+          type="button"
+          aria-label={t('clearSearch')}
+          onClick={() => navigate({ resetSearch: true })}
+          className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
 
+  const filterBody = (
+    <>
       <Accordion
         type="multiple"
         defaultValue={['pole-state', 'difficulty', 'tags']}
@@ -290,74 +293,138 @@ export default function CatalogFilters({
     </>
   );
 
+  const filterContent = (
+    <>
+      {searchInput}
+      {filterBody}
+    </>
+  );
+
   if (mode === 'trigger') {
     return (
       <>
-        <button
-          type="button"
-          onClick={() => setSheetOpen(true)}
-          className="flex min-h-[44px] items-center gap-2 rounded-lg border border-outline-variant/40 bg-surface-container px-4 py-2.5 font-sans text-sm font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          <span className="text-[11px] font-bold tracking-widest uppercase">{t('label')}</span>
-          {activeCount > 0 && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
-              {activeCount}
-            </span>
-          )}
-        </button>
-
-        {sheetOpen && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
-              onClick={() => setSheetOpen(false)}
+        {/* Search + filter button row — always visible on mobile */}
+        <div className="flex gap-2">
+          <div className="flex flex-1 items-center gap-[9px] rounded-[10px] border border-outline-variant/20 bg-surface-container px-[13px] py-[9px]">
+            <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <input
+              type="text"
+              aria-label={t('searchLabel')}
+              placeholder={t('search')}
+              value={searchValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent font-sans text-[13px] text-on-surface outline-none placeholder:text-muted-foreground"
             />
-            {/* Sheet */}
-            <div
-              className="fixed inset-x-0 bottom-0 z-[61] max-h-[85dvh] overflow-y-auto rounded-t-[20px] border border-b-0 border-outline-variant/40"
-              style={{
-                background: '#171717',
-                animation: 'slideUp 280ms cubic-bezier(0.16,1,0.3,1) both',
-              }}
-            >
-              {/* Handle */}
-              <div className="mx-auto mt-3 mb-1 h-1 w-9 rounded-full bg-outline-variant/50" />
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="font-sans text-[11px] font-bold tracking-widest text-on-surface-variant uppercase">
-                    {t('label')}
-                  </span>
-                  {activeCount > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
-                      {activeCount}
-                    </span>
-                  )}
+            {searchValue && (
+              <button
+                type="button"
+                aria-label={t('clearSearch')}
+                onClick={() => navigate({ resetSearch: true })}
+                className="shrink-0 cursor-pointer text-muted-foreground transition-colors hover:text-on-surface"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-label={t('label')}
+            className="relative flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-outline-variant/20 bg-surface-container text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
+            style={{
+              width: 42,
+              height: 42,
+              ...(activeCount > 0
+                ? { borderColor: 'rgba(220,184,255,0.4)', color: '#dcb8ff' }
+                : {}),
+            }}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary">
+                {activeCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {sheetOpen &&
+          createPortal(
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 z-[60] bg-black/60"
+                onClick={() => setSheetOpen(false)}
+              />
+              {/* Sheet */}
+              <div
+                className="fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-[20px] border border-b-0 border-outline-variant/40"
+                style={{
+                  background: '#171717',
+                  animation: 'slideUp 280ms cubic-bezier(0.16,1,0.3,1) both',
+                }}
+              >
+                {/* Handle + sticky header */}
+                <div
+                  className="sticky top-0 z-10 shrink-0 rounded-t-[20px]"
+                  style={{ background: '#171717' }}
+                >
+                  <div className="flex justify-center pt-3 pb-[14px]">
+                    <div
+                      style={{
+                        width: 40,
+                        height: 4,
+                        borderRadius: 2,
+                        background: 'rgba(75,68,80,0.5)',
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between px-5 pb-[18px]">
+                    <div className="flex items-center gap-3">
+                      <span className="font-display text-[18px] font-semibold text-on-surface">
+                        {t('sheetTitle')}
+                      </span>
+                      {activeCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
+                          {activeCount}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSheetOpen(false)}
+                      aria-label="Close filters"
+                      className="cursor-pointer border-0 bg-transparent text-on-surface-variant transition-colors hover:text-on-surface"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setSheetOpen(false)}
-                  aria-label="Close filters"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border-0 bg-surface-container text-on-surface-variant hover:text-on-surface"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+
+                {/* Scrollable filter content */}
+                <div className="flex-1 overflow-y-auto px-5 pb-2">{filterBody}</div>
+
+                {/* Fixed bottom — apply button */}
+                <div className="shrink-0 px-5 pt-3 pb-6" style={{ background: '#171717' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSheetOpen(false)}
+                    className="w-full cursor-pointer rounded-lg border-0 font-sans text-[12px] font-bold tracking-[0.1em] uppercase"
+                    style={{
+                      padding: '14px 20px',
+                      background:
+                        'linear-gradient(135deg, #dcb8ff, #8458b3, #dcb8ff) 0% 0% / 200% 200%',
+                      color: '#ffffff',
+                      boxShadow: 'rgba(132,88,179,0.4) 0px 4px 16px -2px',
+                    }}
+                  >
+                    {t('applyFilters')}
+                  </button>
+                </div>
               </div>
-              {/* Content */}
-              <div className="flex flex-col gap-4 p-5 pb-8">
-                {filterContent}
-                <Button
-                  onClick={() => setSheetOpen(false)}
-                  className="kinetic-gradient mt-2 w-full"
-                >
-                  {t('applyFilters')}
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
+            </>,
+            document.body,
+          )}
       </>
     );
   }
