@@ -137,7 +137,8 @@
       "search": "szukaj ruchów...",
       "searchLabel": "Szukaj",
       "clearSearch": "Wyczyść wyszukiwanie",
-      "clearFilters": "Wyczyść filtry"
+      "clearFilters": "Wyczyść filtry",
+      "applyFilters": "Zastosuj filtry"
     }
   },
   "moves": {

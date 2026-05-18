@@ -43,12 +43,14 @@ function UserRow({
   isLast,
   isSelf,
   isPending,
+  isMobile,
   onAction,
 }: {
   user: AdminUserRow;
   isLast: boolean;
   isSelf: boolean;
   isPending: boolean;
+  isMobile?: boolean;
   onAction: (type: ConfirmState['type'], user: AdminUserRow, newRole?: 'USER' | 'ADMIN') => void;
 }) {
   const t = useTranslations('admin');
@@ -62,6 +64,175 @@ function UserRow({
       .join('') || user.email[0].toUpperCase();
   const rs = ROLE_STYLES[user.role as 'ADMIN' | 'USER'] ?? ROLE_STYLES.USER;
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || null;
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          padding: '14px 16px',
+          borderBottom: isLast ? 'none' : '1px solid rgba(75,68,80,0.12)',
+          opacity: isPending ? 0.4 : isBlocked ? 0.65 : 1,
+          pointerEvents: isPending ? 'none' : 'auto',
+        }}
+      >
+        {/* Top row: avatar + info + actions */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          {user.image ? (
+            <Image
+              src={user.image}
+              alt=""
+              width={36}
+              height={36}
+              style={{
+                borderRadius: '50%',
+                flexShrink: 0,
+                objectFit: 'cover',
+                opacity: isBlocked ? 0.5 : 1,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                flexShrink: 0,
+                background: 'linear-gradient(135deg,#52416c,#dcb8ff)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'var(--font-space-grotesk)',
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#1b1b1b',
+                opacity: isBlocked ? 0.5 : 1,
+              }}
+            >
+              {initials}
+            </div>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-manrope)',
+                fontSize: 14,
+                color: isBlocked ? '#6b6270' : '#e2e2e2',
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {user.email}
+            </div>
+            {fullName && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: '#6b6270',
+                  fontFamily: 'var(--font-manrope)',
+                  marginTop: 1,
+                }}
+              >
+                {fullName}
+              </div>
+            )}
+          </div>
+          {isPending && (
+            <Loader2
+              size={16}
+              style={{ color: '#dcb8ff', animation: 'spin 1s linear infinite', flexShrink: 0 }}
+            />
+          )}
+          {!isPending && !isSelf && (
+            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => onAction('role', user, user.role === 'ADMIN' ? 'USER' : 'ADMIN')}
+                title={user.role === 'ADMIN' ? t('users.revokeAdmin') : t('users.makeAdmin')}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(75,68,80,0.4)',
+                  borderRadius: 6,
+                  padding: 7,
+                  color: '#978e9b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                }}
+              >
+                <NavIcon name="Shield" size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onAction(isBlocked ? 'unblock' : 'block', user)}
+                title={isBlocked ? t('users.unblock') : t('users.block')}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(75,68,80,0.4)',
+                  borderRadius: 6,
+                  padding: 7,
+                  color: '#978e9b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                }}
+              >
+                <NavIcon name={isBlocked ? 'RefreshCw' : 'Ban'} size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onAction('delete', user)}
+                title={t('users.deleteUser')}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(75,68,80,0.4)',
+                  borderRadius: 6,
+                  padding: 7,
+                  color: '#978e9b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                }}
+              >
+                <NavIcon name="Trash" size={13} />
+              </button>
+            </div>
+          )}
+        </div>
+        {/* Bottom row: chips */}
+        <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '3px 9px',
+              borderRadius: 9999,
+              fontFamily: 'var(--font-manrope)',
+              background: rs.bg,
+              color: rs.fg,
+            }}
+          >
+            {user.role === 'ADMIN' ? t('users.admin') : t('users.userRole')}
+          </span>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '3px 9px',
+              borderRadius: 9999,
+              fontFamily: 'var(--font-manrope)',
+              background: isBlocked ? 'rgba(179,38,30,0.15)' : 'rgba(132,209,153,0.15)',
+              color: isBlocked ? '#ef4444' : '#84d099',
+            }}
+          >
+            {isBlocked ? t('users.blocked') : t('users.active')}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -337,6 +508,13 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
   useEffect(() => {
     tRef.current = t;
   }, [t]);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Only pre-fill from cache when the cached data matches the default view (page 1, no filters).
   // This prevents stale filter/page data from flashing on locale-change remounts.
@@ -555,7 +733,13 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
       }}
     >
       {/* Header */}
-      <div style={{ padding: '32px 40px 0', flexShrink: 0, marginBottom: 28 }}>
+      <div
+        style={{
+          padding: isMobile ? '20px 16px 0' : '32px 40px 0',
+          flexShrink: 0,
+          marginBottom: 28,
+        }}
+      >
         <div
           style={{
             fontSize: 11,
@@ -588,17 +772,18 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
       <div
         style={{
           display: 'flex',
-          gap: 12,
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 8,
           marginBottom: 16,
-          alignItems: 'center',
-          padding: '0 40px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          padding: isMobile ? '0 16px' : '0 40px',
           flexShrink: 0,
         }}
       >
         <div
           style={{
             flex: 1,
-            maxWidth: 360,
+            maxWidth: isMobile ? '100%' : 360,
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -626,7 +811,14 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
             }}
           />
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 6,
+            overflowX: isMobile ? 'auto' : undefined,
+            flexShrink: 0,
+          }}
+        >
           {(['ALL', 'USER', 'ADMIN', 'BLOCKED'] as RoleFilter[]).map((r) => {
             const active = roleFilter === r;
             const isBlocked = r === 'BLOCKED';
@@ -689,7 +881,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
       {error && (
         <div
           style={{
-            margin: '0 40px 12px',
+            margin: isMobile ? '0 16px 12px' : '0 40px 12px',
             background: 'rgba(248,113,113,0.1)',
             border: '1px solid rgba(248,113,113,0.3)',
             borderRadius: 12,
@@ -729,7 +921,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
         style={{
           flex: 1,
           minHeight: 0,
-          padding: '0 40px',
+          padding: isMobile ? '0 16px' : '0 40px',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -746,10 +938,10 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
             overflow: 'hidden',
           }}
         >
-          {/* Header row */}
+          {/* Header row — hidden on mobile */}
           <div
             style={{
-              display: 'grid',
+              display: isMobile ? 'none' : 'grid',
               gridTemplateColumns: GRID,
               padding: '10px 20px',
               borderBottom: '1px solid rgba(75,68,80,0.2)',
@@ -811,6 +1003,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
                     isLast={i === users.length - 1}
                     isSelf={user.id === currentUserId}
                     isPending={user.id === actingUserId}
+                    isMobile={isMobile}
                     onAction={handleAction}
                   />
                 ))}
@@ -826,7 +1019,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
           alignItems: 'center',
           justifyContent: 'center',
           gap: 16,
-          padding: '12px 40px',
+          padding: isMobile ? '12px 16px' : '12px 40px',
           flexShrink: 0,
         }}
       >
