@@ -199,6 +199,15 @@
   animation: blob-drift-b 31s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .kinetic-gradient {
   background: linear-gradient(135deg, var(--primary), var(--primary-container), var(--primary));
   background-size: 200% 200%;

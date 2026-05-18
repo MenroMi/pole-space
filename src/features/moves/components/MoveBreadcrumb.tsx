@@ -1,5 +1,6 @@
-import { getTranslations } from 'next-intl/server';
 import { ChevronRight } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+
 import { Link } from '@/i18n/navigation';
 
 type MoveBreadcrumbProps = {
@@ -21,7 +22,7 @@ export default async function MoveBreadcrumb({ category, moveName }: MoveBreadcr
       <ChevronRight size={12} aria-hidden="true" />
       <span className="tracking-widest text-primary uppercase">{category}</span>
       <ChevronRight size={12} aria-hidden="true" />
-      <span className="text-on-surface">{moveName}</span>
+      <span className="min-w-0 truncate text-on-surface">{moveName}</span>
     </nav>
   );
 }

@@ -23,7 +23,7 @@ export default function MoveTabs({ breakdown }: { breakdown: ReactNode }) {
     <div>
       <div
         role="tablist"
-        className="relative mb-8 flex gap-8 border-b border-outline-variant/15 pb-4"
+        className="scrollbar-none relative mb-8 flex gap-8 overflow-x-auto border-b border-outline-variant/15 pb-4"
       >
         {TAB_IDS.map((id, i) => (
           <button
@@ -50,7 +50,7 @@ export default function MoveTabs({ breakdown }: { breakdown: ReactNode }) {
                 tabRefs.current[prevIndex]?.focus();
               }
             }}
-            className={`font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
+            className={`shrink-0 py-3 font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
               active === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >

@@ -38,12 +38,18 @@ export default async function Header() {
           </Link>
         </div>
 
-        <HeaderNav />
+        <div className="hidden sm:block">
+          <HeaderNav />
+        </div>
 
         <div className="flex items-center gap-1 justify-self-end">
-          <FavouritesButton />
+          <div className="hidden sm:flex">
+            <FavouritesButton />
+          </div>
           <UserMenu user={user} role={role} />
-          <LocaleSwitcher />
+          <div className="hidden sm:flex">
+            <LocaleSwitcher />
+          </div>
         </div>
       </div>
     </header>

@@ -27,7 +27,7 @@ export default async function ProfileHero({
 
   return (
     <section
-      className="relative overflow-hidden rounded-2xl border border-outline-variant/40 p-10 md:p-12"
+      className="relative overflow-hidden rounded-2xl border border-outline-variant/40 p-6 sm:p-10 md:p-12"
       style={{
         background: 'linear-gradient(135deg, #0a0a0a 0%, #16101e 50%, #2b1545 100%)',
       }}
@@ -40,10 +40,10 @@ export default async function ProfileHero({
         }}
       />
 
-      <div className="relative flex flex-col items-start gap-8 md:flex-row md:items-end">
+      <div className="relative flex flex-col items-center gap-6 text-center sm:items-start sm:gap-8 sm:text-left md:flex-row md:items-end">
         {/* Avatar — keep as-is */}
         <div className="group relative shrink-0">
-          <div className="relative z-10 h-32 w-32 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-outline-variant/20 md:h-40 md:w-40">
+          <div className="relative z-10 h-24 w-24 overflow-hidden rounded-2xl bg-surface-container ring-1 ring-outline-variant/20 sm:h-32 sm:w-32 md:h-40 md:w-40">
             {image ? (
               <Image src={image} alt={displayName} fill className="object-cover" />
             ) : (
@@ -62,7 +62,7 @@ export default async function ProfileHero({
               {location}
             </p>
           )}
-          <h1 className="font-display text-4xl font-semibold tracking-tight text-on-surface lowercase md:text-[56px] md:leading-none">
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-on-surface lowercase sm:text-4xl md:text-[56px] md:leading-none">
             {displayName}
           </h1>
           <p className="font-sans text-sm text-on-surface-variant">
@@ -75,7 +75,7 @@ export default async function ProfileHero({
         <Link
           href="/profile/settings"
           aria-label={t('heroSettingsLabel')}
-          className="flex items-center gap-2 rounded-lg border border-outline-variant/60 bg-transparent px-4 py-2.5 font-sans text-[13px] font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
+          className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-outline-variant/60 bg-transparent px-4 py-2.5 font-sans text-[13px] font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface sm:min-h-0 sm:w-auto sm:justify-start"
         >
           <Settings size={14} aria-hidden="true" />
           {t('settings')}

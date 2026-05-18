@@ -1,8 +1,8 @@
 import { getMovesAction, getTagsAction, CatalogFilters, MoveGrid } from '@/features/catalog';
+import type { Locale } from '@/i18n/routing';
 import PageShell from '@/shared/components/PageShell';
 import type { MoveFilters } from '@/shared/types';
 import { PoleType, Difficulty } from '@/shared/types/enums';
-import type { Locale } from '@/i18n/routing';
 
 type SearchParams = Promise<{
   poleType?: string;
@@ -49,6 +49,9 @@ export default async function CatalogPage({ params, searchParams }: Props) {
 
   return (
     <PageShell aside={<CatalogFilters filters={filters} availableTags={availableTags} />}>
+      <div className="px-4 pt-4 pb-2 lg:hidden">
+        <CatalogFilters filters={filters} availableTags={availableTags} mode="trigger" />
+      </div>
       <MoveGrid
         key={JSON.stringify(filters)}
         initialMoves={result.items}

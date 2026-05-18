@@ -1,9 +1,9 @@
 'use client';
-import { Check, Gauge, RotateCw, Search, Tag, X } from 'lucide-react';
-import { useRouter } from '@/i18n/navigation';
+import { Check, Gauge, RotateCw, Search, SlidersHorizontal, Tag, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 
+import { useRouter } from '@/i18n/navigation';
 import {
   Accordion,
   AccordionContent,
@@ -12,11 +12,10 @@ import {
 } from '@/shared/components/ui/accordion';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/utils';
-import { Difficulty, PoleType } from '@/shared/types/enums';
-
-import type { MoveFilters } from '@/shared/types';
 import type { LocalizedTag } from '@/shared/lib/localize';
+import { cn } from '@/shared/lib/utils';
+import type { MoveFilters } from '@/shared/types';
+import { Difficulty, PoleType } from '@/shared/types/enums';
 
 const POLE_TYPES = Object.values(PoleType);
 const DIFFICULTIES = Object.values(Difficulty);
@@ -39,13 +38,19 @@ function buildQuery(
 type CatalogFiltersProps = {
   filters: MoveFilters;
   availableTags: LocalizedTag[];
+  mode?: 'sidebar' | 'trigger';
 };
 
-export default function CatalogFilters({ filters, availableTags }: CatalogFiltersProps) {
+export default function CatalogFilters({
+  filters,
+  availableTags,
+  mode = 'sidebar',
+}: CatalogFiltersProps) {
   const t = useTranslations('catalog.filters');
   const te = useTranslations('enums');
   const router = useRouter();
   const [searchValue, setSearchValue] = useState(filters.search ?? '');
+  const [sheetOpen, setSheetOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedPoleTypes = filters.poleTypes ?? [];
@@ -111,8 +116,10 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     selectedTags.length > 0 ||
     !!filters.search;
 
-  return (
-    <div className="flex flex-col gap-4 p-4">
+  const activeCount = selectedPoleTypes.length + selectedDifficulties.length + selectedTags.length;
+
+  const filterContent = (
+    <>
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -280,6 +287,80 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
           {t('clearFilters')}
         </Button>
       )}
-    </div>
+    </>
   );
+
+  if (mode === 'trigger') {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="flex min-h-[44px] items-center gap-2 rounded-lg border border-outline-variant/40 bg-surface-container px-4 py-2.5 font-sans text-sm font-semibold text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          <span className="text-[11px] font-bold tracking-widest uppercase">{t('label')}</span>
+          {activeCount > 0 && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
+              {activeCount}
+            </span>
+          )}
+        </button>
+
+        {sheetOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+              onClick={() => setSheetOpen(false)}
+            />
+            {/* Sheet */}
+            <div
+              className="fixed inset-x-0 bottom-0 z-[61] max-h-[85dvh] overflow-y-auto rounded-t-[20px] border border-b-0 border-outline-variant/40"
+              style={{
+                background: '#171717',
+                animation: 'slideUp 280ms cubic-bezier(0.16,1,0.3,1) both',
+              }}
+            >
+              {/* Handle */}
+              <div className="mx-auto mt-3 mb-1 h-1 w-9 rounded-full bg-outline-variant/50" />
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-outline-variant/20 px-5 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-sans text-[11px] font-bold tracking-widest text-on-surface-variant uppercase">
+                    {t('label')}
+                  </span>
+                  {activeCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
+                      {activeCount}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSheetOpen(false)}
+                  aria-label="Close filters"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border-0 bg-surface-container text-on-surface-variant hover:text-on-surface"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {/* Content */}
+              <div className="flex flex-col gap-4 p-5 pb-8">
+                {filterContent}
+                <Button
+                  onClick={() => setSheetOpen(false)}
+                  className="kinetic-gradient mt-2 w-full"
+                >
+                  {t('applyFilters')}
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </>
+    );
+  }
+
+  return <div className="flex flex-col gap-4 p-4">{filterContent}</div>;
 }

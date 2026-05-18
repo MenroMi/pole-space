@@ -787,14 +787,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Row 1: 4 stat cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4,1fr)',
-          gap: 14,
-          marginBottom: 14,
-        }}
-      >
+      <div className="mb-[14px] grid grid-cols-2 gap-[14px] lg:grid-cols-4">
         <StatCard label={t('dashboard.totalUsers')} value={stats.totalUsers} icon="Users" />
         <StatCard
           label={t('dashboard.totalMoves')}
@@ -818,14 +811,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Row 2: 3 stat cards */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3,1fr)',
-          gap: 14,
-          marginBottom: 32,
-        }}
-      >
+      <div className="mb-[32px] grid grid-cols-2 gap-[14px] lg:grid-cols-3">
         <StatCard
           label={t('dashboard.totalTags')}
           value={stats.totalTags}
@@ -854,7 +840,7 @@ export function AdminDashboard() {
       <CatalogHealth stats={stats} />
 
       {/* Row 4: Activity chart + Top favourited */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 18, marginBottom: 18 }}>
+      <div className="mb-[18px] grid grid-cols-1 gap-[18px] lg:grid-cols-[1fr_1.2fr]">
         <ActivityChart data={stats.activityData} />
         <TopFavourited moves={stats.topFavouritedMoves} />
       </div>

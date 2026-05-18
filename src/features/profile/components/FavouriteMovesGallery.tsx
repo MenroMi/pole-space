@@ -324,7 +324,7 @@ export default function FavouriteMovesGallery({
                 {t('countSaved', { count: optimisticFavs.length })}
                 {userName ? ` · ${userName}` : ''}
               </p>
-              <h1 className="font-display text-5xl leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase md:text-[64px]">
+              <h1 className="font-display text-3xl leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:text-5xl md:text-[64px]">
                 {t('savedLabel')}{' '}
                 <em className="font-medium text-primary italic not-italic">
                   {t('savedHighlight')}
@@ -337,9 +337,9 @@ export default function FavouriteMovesGallery({
           </div>
 
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-outline-variant/30 pt-5">
+          <div className="flex flex-col gap-4 border-t border-outline-variant/30 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             {/* Search */}
-            <div className="relative w-[280px]">
+            <div className="relative w-full sm:w-[280px]">
               <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
               <input
                 aria-label={t('searchFavouritesLabel')}
@@ -411,7 +411,7 @@ export default function FavouriteMovesGallery({
           </AnimatePresence>
 
           {/* Grid stays mounted so AnimatePresence can exit the last card */}
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-[18px]">
+          <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
             <AnimatePresence initial={false}>
               {filtered.map((fav) => (
                 <motion.div

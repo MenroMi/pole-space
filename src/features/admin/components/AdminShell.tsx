@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 import { Link } from '@/i18n/navigation';
 import LocaleSwitcher from '@/shared/components/LocaleSwitcher';
@@ -35,7 +35,15 @@ export function AdminShell({
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === 'true',
   );
+  const [isMobile, setIsMobile] = useState(false);
   const t = useTranslations('admin');
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   function toggleCollapsed() {
     setCollapsed((c) => {
@@ -64,9 +72,11 @@ export function AdminShell({
         width: '100%',
       }}
     >
-      {/* Sidebar */}
+      {/* Sidebar — hidden on mobile */}
       <aside
         style={{
+          display: isMobile ? 'none' : 'flex',
+          flexDirection: 'column',
           width: collapsed ? 64 : 240,
           minWidth: collapsed ? 64 : 240,
           height: '100vh',
@@ -74,8 +84,6 @@ export function AdminShell({
           top: 0,
           background: '#0e0e0e',
           borderRight: '1px solid rgba(75,68,80,0.3)',
-          display: 'flex',
-          flexDirection: 'column',
           transition:
             'width 280ms cubic-bezier(0.16,1,0.3,1), min-width 280ms cubic-bezier(0.16,1,0.3,1)',
           overflow: 'hidden',
@@ -311,6 +319,7 @@ export function AdminShell({
           flexDirection: 'column',
           minWidth: 0,
           overflow: 'hidden',
+          paddingBottom: isMobile ? 56 : 0,
         }}
       >
         {/* Topbar */}
@@ -374,6 +383,62 @@ export function AdminShell({
         </header>
         <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
       </div>
+
+      {/* Mobile bottom tab bar */}
+      {isMobile && (
+        <nav
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 56,
+            zIndex: 100,
+            display: 'flex',
+            background: 'rgba(13,13,13,0.94)',
+            backdropFilter: 'blur(24px)',
+            borderTop: '1px solid rgba(75,68,80,0.2)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}
+        >
+          {NAV_ITEMS.map(({ key, icon }) => {
+            const active = activeSection === key;
+            return (
+              <button
+                key={key}
+                onClick={() => onSectionChange(key)}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 3,
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: active ? '#dcb8ff' : '#978e9b',
+                  transition: 'color 150ms',
+                }}
+              >
+                <NavIcon name={icon} size={20} />
+                <span
+                  style={{
+                    fontFamily: 'var(--font-manrope)',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {t(`nav.${key}`)}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 }

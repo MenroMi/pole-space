@@ -26,7 +26,7 @@ export default function MoveBreakdown({
   if (stepsData.length === 0) return null;
 
   return (
-    <div className="rounded-xl bg-surface-low p-8">
+    <div className="rounded-xl bg-surface-low p-4 sm:p-8">
       <div className={`grid gap-10 ${coachNote ? 'lg:grid-cols-[2fr_1fr]' : ''}`}>
         <div className="space-y-6">
           {stepsData.map((step, index) => (
