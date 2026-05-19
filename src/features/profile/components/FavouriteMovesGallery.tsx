@@ -132,14 +132,14 @@ function FavouriteCard({
       href={`/moves/${fav.moveId}`}
       className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-240 hover:-translate-y-[3px] hover:border-primary/35"
     >
-      {/* 4:5 portrait image */}
-      <div className="relative aspect-[4/5] overflow-hidden">
+      {/* 16:9 mobile / 4:5 desktop */}
+      <div className="relative aspect-[16/9] overflow-hidden sm:aspect-[4/5]">
         {thumb ? <FavouriteCardImage src={thumb} alt={fav.move.title} /> : <MovePlaceholder />}
 
-        {/* Top overlay: difficulty chip + remove button */}
+        {/* Top overlay: difficulty chip (desktop only) + remove button */}
         <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-linear-to-b from-surface/70 to-transparent p-3.5">
           <span
-            className={`pointer-events-auto rounded-full px-3 py-1 font-sans text-[10px] font-bold tracking-[0.16em] uppercase ${badge.className}`}
+            className={`pointer-events-auto hidden rounded-full px-3 py-1 font-sans text-[10px] font-bold tracking-[0.16em] uppercase sm:inline-block ${badge.className}`}
             style={badge.style}
           >
             {te(`difficulty.${fav.move.difficulty}`)}
@@ -157,21 +157,39 @@ function FavouriteCard({
           </div>
         </div>
 
-        {/* Bottom technical strip */}
+        {/* Bottom technical strip — desktop only */}
         {techStrip && (
-          <div className="absolute bottom-3 left-3.5 font-sans text-[9px] font-semibold tracking-[0.18em] text-primary/70 uppercase">
+          <div className="absolute bottom-3 left-3.5 hidden font-sans text-[9px] font-semibold tracking-[0.18em] text-primary/70 uppercase sm:block">
             {techStrip}
           </div>
         )}
       </div>
 
-      {/* Card body */}
-      <div className="flex flex-col gap-1 p-2.5 sm:gap-1.5 sm:p-4">
+      {/* Mobile card body */}
+      <div className="p-[8px_10px] sm:hidden">
+        <h3 className="mb-1 truncate font-display text-[12px] font-semibold text-on-surface">
+          {fav.move.title}
+        </h3>
+        <div className="flex items-center justify-between">
+          <span
+            className={`rounded-full px-2 py-0.5 font-sans text-[9px] font-bold uppercase ${badge.className}`}
+            style={badge.style}
+          >
+            {te(`difficulty.${fav.move.difficulty}`)}
+          </span>
+          <span className="font-sans text-[9px]" style={{ color: '#6b6270' }}>
+            {fav.move.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Desktop card body */}
+      <div className="hidden flex-col gap-1 sm:flex sm:gap-1.5 sm:p-4">
         <h3 className="font-display text-sm font-semibold tracking-tight text-on-surface lowercase sm:text-xl">
           {fav.move.title.toLowerCase()}
         </h3>
         {fav.move.description && (
-          <p className="line-clamp-2 hidden font-sans text-[13px] leading-[1.45] text-on-surface-variant sm:block">
+          <p className="line-clamp-2 font-sans text-[13px] leading-[1.45] text-on-surface-variant">
             {fav.move.description}
           </p>
         )}
@@ -302,8 +320,8 @@ export default function FavouriteMovesGallery({
           </p>
         )}
 
-        {/* Breadcrumb */}
-        <div className="mt-8 flex items-center gap-1.5 font-sans text-xs text-on-surface-variant">
+        {/* Breadcrumb — desktop only */}
+        <div className="mt-8 hidden items-center gap-1.5 font-sans text-xs text-on-surface-variant sm:flex">
           <Link
             href="/profile"
             className="text-on-surface-variant/80 transition-colors hover:text-on-surface"
@@ -316,8 +334,23 @@ export default function FavouriteMovesGallery({
           </span>
         </div>
 
-        {/* Page header */}
-        <div className="mt-5 flex flex-col gap-8 pb-0">
+        {/* Mobile header */}
+        <div className="mt-4 sm:hidden">
+          <div className="mb-1 flex items-center gap-2.5">
+            <div className="h-px w-6 bg-primary" aria-hidden="true" />
+            <span className="font-sans text-[9px] font-bold tracking-[0.18em] text-primary uppercase">
+              {optimisticFavs.length} {t('savedLabel')}
+            </span>
+          </div>
+          <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em] text-on-surface">
+            {t('savedLabel')}{' '}
+            <em className="font-medium text-primary not-italic">{t('savedHighlight')}</em>
+          </h1>
+          <p className="mt-1 font-sans text-[13px] text-on-surface-variant">{t('savedSubtitle')}</p>
+        </div>
+
+        {/* Desktop header + toolbar */}
+        <div className="mt-5 hidden sm:flex sm:flex-col sm:gap-8 sm:pb-0">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
@@ -336,9 +369,8 @@ export default function FavouriteMovesGallery({
             </div>
           </div>
 
-          {/* Toolbar */}
+          {/* Desktop toolbar */}
           <div className="flex flex-col gap-4 border-t border-outline-variant/30 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            {/* Search */}
             <div className="relative w-full sm:w-[280px]">
               <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
               <input
@@ -359,14 +391,36 @@ export default function FavouriteMovesGallery({
                 </button>
               )}
             </div>
-
-            {/* Sort */}
             <div className="flex items-center gap-3.5">
               <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
                 {t('sortBy')}
               </span>
               <SortPicker value={sort} onChange={setSort} />
             </div>
+          </div>
+        </div>
+
+        {/* Mobile search */}
+        <div className="mt-3 sm:hidden">
+          <div className="flex items-center gap-2 rounded-[10px] border border-outline-variant/20 bg-surface-container px-[13px] py-[9px]">
+            <Search className="h-3.5 w-3.5 shrink-0 text-on-surface-variant/60" />
+            <input
+              aria-label={t('searchFavouritesLabel')}
+              placeholder={t('searchFavouritesPlaceholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="min-w-0 flex-1 border-0 bg-transparent font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                aria-label={t('clearSearch')}
+                className="flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-on-surface-variant/60"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
