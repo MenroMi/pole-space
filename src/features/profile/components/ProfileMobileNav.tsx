@@ -5,20 +5,10 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 
 const NAV_ITEMS = [
-  { href: '/profile', label: 'overview', icon: LayoutDashboard, matches: ['/profile'] },
-  {
-    href: '/profile/progress',
-    label: 'progress',
-    icon: TrendingUp,
-    matches: ['/profile/progress'],
-  },
-  {
-    href: '/profile/favourite-moves',
-    label: 'favourites',
-    icon: Heart,
-    matches: ['/profile/favourite-moves'],
-  },
-  { href: '/profile/settings', label: 'settings', icon: Settings, matches: ['/profile/settings'] },
+  { href: '/profile', label: 'overview', icon: LayoutDashboard },
+  { href: '/profile/progress', label: 'progress', icon: TrendingUp },
+  { href: '/profile/favourite-moves', label: 'favourites', icon: Heart },
+  { href: '/profile/settings', label: 'settings', icon: Settings },
 ] as const;
 
 export default function ProfileMobileNav() {
@@ -27,15 +17,16 @@ export default function ProfileMobileNav() {
 
   return (
     <nav
-      className="sticky top-[60px] z-10 flex gap-1.5 overflow-x-auto border-b border-outline-variant/20 bg-surface/80 px-3.5 py-2.5 backdrop-blur-md lg:hidden"
-      style={{ scrollbarWidth: 'none' }}
+      aria-label={t('profileNavLabel')}
+      className="scrollbar-none sticky top-14 z-10 flex gap-1.5 overflow-x-auto border-b border-outline-variant/20 bg-surface/80 px-3.5 py-2.5 backdrop-blur-md sm:top-[60px] lg:hidden"
     >
-      {NAV_ITEMS.map(({ href, label, icon: Icon, matches }) => {
-        const isActive = (matches as readonly string[]).includes(pathname);
+      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        const isActive = pathname === href;
         return (
           <Link
             key={href}
             href={href}
+            aria-current={isActive ? 'page' : undefined}
             className={[
               'flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 font-sans text-[11px] font-semibold transition-colors',
               isActive
