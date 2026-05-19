@@ -482,3 +482,47 @@ _Negative:_
 **Sticky sidebar:**
 
 - `PageShell`: `aside` gets `self-start sticky top-[60px] h-[calc(100vh-120px)] overflow-y-auto` — `self-start` prevents CSS grid stretch so sticky has room to scroll
+
+## Mobile Design (feat/mobile-design — in progress, 2026-05-19)
+
+### ~~Full responsive redesign~~ ✅ Done (commits a5d9746, 3cddeab, 8b67f4b)
+
+- Nav, catalog, profile, admin shell responsive pass
+- Admin tables as cards on mobile; MoveModal as bottom sheet
+- Catalog `CatalogFilters` `mode="trigger"`: search row flex-row layout (icon in flow, not absolute), filter button 42×42px
+- Filter sheet: `createPortal` z-[61] > bottom nav z-50; sticky header (`sticky top-0 shrink-0`); scrollable body (`flex-1 overflow-y-auto`); fixed apply button (`shrink-0` footer, gradient bg, white text)
+- `MoveCard`: `h-full flex-col` on Link + `flex-1` on card body → equal-height rows via CSS Grid `align-items: stretch`; works on both mobile (2-col) and desktop (auto-fill)
+- `MoveGrid`: `motion.div className="h-full"` wrapper so framer-motion doesn't break height propagation
+- i18n: `applyFilters`, `all`, `sheetTitle` added to `en.json` and `pl.json`
+
+### ~~Auth layout mobile brand overlap~~ ✅ Done (2026-05-18)
+
+- `src/app/[locale]/(auth)/layout.tsx`: mobile brand was `absolute top-10 left-8` — overlapped form when `justify-center` vertically centered tall forms
+- Fix: brand moved to normal flow (`shrink-0 pt-10 pb-6 lg:hidden`); centering wrapper `flex flex-1 flex-col items-center justify-center py-8 lg:py-16` wraps `{children}`
+
+### ~~Profile — navigation, hero, header~~ ✅ Done (2026-05-18, commits 28e0fb3 → 772907d)
+
+- `ProfileMobileNav`: sticky pill-tab nav (`lg:hidden`, `top-14 sm:top-[60px]`), `aria-current`, gradient active state; `profileNavLabel` i18n key added
+- `ProfileHero`: mobile vertical stack, desktop enhancements (second glow, dot-grid texture, `md:ring-2` avatar, `md:text-[60px]` name); name `capitalize`
+- `Header`: removed mobile avatar circle (ProfileMobileNav covers profile access on mobile)
+- `ProfileAside`: Settings tab removed (hero button is sufficient), tab order aligned with mobile nav
+
+### ~~Profile — Progress page mobile redesign~~ ✅ Done (2026-05-19, commits 6ac6c01, 6991faf)
+
+- `ProgressCard`: 46×46 thumbnail + Play fallback; title+DiffBadge inline (`justify-between`); category italic below; bottom 3-button status strip (WANT_TO_LEARN / IN_PROGRESS / LEARNED) with 1px dividers and `rgba(220,184,255,0.06)` active bg
+- `ProgressTracker`: mobile header (`sm:hidden`) = overline + h1; tab picker always visible — neutral active state (`bg-[#2a2a2a]`), no count badges; search desktop-only (`hidden sm:block`); all tabs use `ProgressCard` (removed `WantToLearnRow` conditional)
+
+### ~~Profile — Favourites page mobile redesign~~ ✅ Done (2026-05-19, commit 528be76)
+
+- `FavouriteMovesGallery`: mobile header (accent line + count overline + h1 + subtitle); mobile search with `bg-surface-container` container; breadcrumb/desktop-header/sort wrapped in `hidden sm:*`
+- `FavouriteCard`: `aspect-[16/9] sm:aspect-[4/5]`; mobile body = compact (title + DiffBadge + category); desktop body = full (description, addedDate); difficulty chip hidden on mobile (moves to card body)
+
+### Pending
+
+- [ ] Profile Overview page — review if mobile polish needed (bento cards, stats)
+- [ ] Profile Settings page — no pixel-perfect mobile pass yet
+- [ ] Profile: 2-col tablet layout (768–1279px) for bento cards
+- [ ] `username` always NULL — no UI to set it
+- [ ] Elite Member badge — hardcoded stub, no membership logic
+- [ ] Facebook OAuth JWT callback — `src/shared/lib/auth.config.ts:13`, `profile.picture` shape fix before enabling
+- [ ] Playwright e2e tests
