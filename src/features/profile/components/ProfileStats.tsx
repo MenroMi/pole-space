@@ -16,17 +16,17 @@ type StatCardProps = {
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <div className="group flex flex-col justify-between bg-surface-low p-4 transition-colors hover:bg-surface-container sm:p-6 md:p-8">
+    <div className="group flex flex-col justify-between bg-surface-low p-[18px_16px] transition-colors hover:bg-surface-container sm:p-6 md:p-8">
       <div className="mb-3 text-primary/50 transition-colors group-hover:text-primary sm:mb-6">
         <span className="inline-block transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-125">
           {icon}
         </span>
       </div>
       <div>
-        <p className="mb-1 font-display text-3xl font-bold text-on-surface sm:text-4xl md:text-5xl">
+        <p className="mb-1 font-display text-[28px] font-bold text-on-surface sm:text-4xl md:text-5xl">
           {value}
         </p>
-        <p className="text-[10px] tracking-widest text-on-surface-variant uppercase sm:text-xs">
+        <p className="mt-1 text-[9px] tracking-[0.12em] text-on-surface-variant uppercase sm:text-xs">
           {label}
         </p>
       </div>
@@ -43,7 +43,7 @@ export default async function ProfileStats({
   const te = await getTranslations('enums');
 
   return (
-    <div className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-6">
+    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-outline-variant/30 bg-outline-variant/30 xl:grid-cols-4">
       <StatCard
         icon={<CheckCircle2 size={32} aria-hidden="true" />}
         value={masteredCount}

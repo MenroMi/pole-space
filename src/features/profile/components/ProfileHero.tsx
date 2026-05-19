@@ -27,7 +27,7 @@ export default async function ProfileHero({
 
   return (
     <section
-      className="relative overflow-hidden rounded-2xl border border-outline-variant/40 p-6 sm:p-10 md:p-12"
+      className="relative overflow-hidden rounded-2xl border border-outline-variant/40 p-5 sm:p-10 md:p-12"
       style={{
         background: 'linear-gradient(135deg, #0a0a0a 0%, #16101e 50%, #2b1545 100%)',
       }}
@@ -40,7 +40,7 @@ export default async function ProfileHero({
         }}
       />
 
-      <div className="relative flex flex-row items-end gap-4 sm:flex-row sm:gap-8 md:items-end">
+      <div className="relative flex flex-row gap-4 sm:flex-row sm:gap-8 md:items-end">
         {/* Avatar */}
         <div className="group relative shrink-0">
           <div className="relative z-10 h-[70px] w-[70px] overflow-hidden rounded-[13px] bg-surface-container ring-1 ring-outline-variant/20 sm:h-32 sm:w-32 md:h-40 md:w-40">
