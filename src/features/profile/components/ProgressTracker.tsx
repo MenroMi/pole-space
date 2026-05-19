@@ -12,7 +12,6 @@ import { removeProgressAction, updateProgressAction } from '../actions';
 import type { ProgressWithMove } from '../types';
 
 import ProgressCard from './ProgressCard';
-import WantToLearnRow from './WantToLearnRow';
 
 const DIFFICULTY_ORDER: Record<string, number> = {
   BEGINNER: 0,
@@ -154,80 +153,79 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
         </span>
       </div>
 
-      {/* Page header */}
-      <div className="mt-5 flex flex-col gap-8">
-        <div>
-          <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
-            {optimisticProgress.length} {t('tracked')}
-            {userName ? ` · ${userName}` : ''}
-          </p>
-          <h1 className="font-display text-3xl leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:text-5xl md:text-[64px]">
-            {t('journeyHeading')}{' '}
-            <em className="font-medium text-primary italic not-italic">{t('journeyHighlight')}</em>
-          </h1>
-          <p className="mt-3.5 max-w-[460px] font-sans text-base leading-relaxed text-on-surface-variant">
-            {t('journeySubtitle')}
-          </p>
+      {/* Mobile header — prototype style */}
+      <div className="mt-4 sm:hidden">
+        <p className="mb-1 font-sans text-[9px] font-bold tracking-[0.18em] text-on-surface-variant/50 uppercase">
+          {t('journeyHeading')} {t('journeyHighlight')}
+        </p>
+        <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em] text-on-surface">
+          {t('progress')}
+        </h1>
+      </div>
+
+      {/* Desktop header */}
+      <div className="mt-5 hidden sm:block">
+        <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+          {optimisticProgress.length} {t('tracked')}
+          {userName ? ` · ${userName}` : ''}
+        </p>
+        <h1 className="font-display text-3xl leading-[0.95] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:text-5xl md:text-[64px]">
+          {t('journeyHeading')}{' '}
+          <em className="font-medium text-primary italic not-italic">{t('journeyHighlight')}</em>
+        </h1>
+        <p className="mt-3.5 max-w-[460px] font-sans text-base leading-relaxed text-on-surface-variant">
+          {t('journeySubtitle')}
+        </p>
+      </div>
+
+      {/* Toolbar — search (desktop only) + tab picker (always) */}
+      <div className="mt-4 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:border-t sm:border-outline-variant/30 sm:pt-5">
+        {/* Search — desktop only */}
+        <div className="relative hidden w-full sm:block sm:w-[280px]">
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
+          <input
+            aria-label={t('searchMovesLabel')}
+            placeholder={t('searchMovesPlaceholder')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full rounded-lg border border-outline-variant/60 bg-transparent px-9 py-2.5 font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40 focus:border-primary/50"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label={t('clearSearch')}
+              className="absolute top-1/2 right-2 flex h-[22px] w-[22px] -translate-y-1/2 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-on-surface-variant/60 hover:text-on-surface"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
 
-        {/* Toolbar */}
-        <div className="flex flex-col gap-4 border-t border-outline-variant/30 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          {/* Search */}
-          <div className="relative w-full sm:w-[280px]">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
-            <input
-              aria-label={t('searchMovesLabel')}
-              placeholder={t('searchMovesPlaceholder')}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-lg border border-outline-variant/60 bg-transparent px-9 py-2.5 font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40 focus:border-primary/50"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery('')}
-                aria-label={t('clearSearch')}
-                className="absolute top-1/2 right-2 flex h-[22px] w-[22px] -translate-y-1/2 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-on-surface-variant/60 hover:text-on-surface"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Tab picker */}
-          <div
-            role="tablist"
-            className="flex w-full rounded-lg border border-outline-variant/60 p-[3px] sm:inline-flex sm:w-auto"
-          >
-            {TAB_IDS.map((id) => (
-              <button
-                key={id}
-                role="tab"
-                type="button"
-                aria-selected={tab === id}
-                onClick={() => {
-                  setTab(id);
-                  setQuery('');
-                }}
-                className={`flex-1 cursor-pointer rounded-md border-0 px-2 py-1.5 font-sans text-[10px] font-semibold transition-all duration-200 sm:flex-none sm:px-3 sm:text-[11px] sm:tracking-[0.08em] sm:uppercase ${
-                  tab === id
-                    ? 'bg-primary/14 text-primary'
-                    : 'bg-transparent text-on-surface-variant hover:text-on-surface'
-                }`}
-              >
-                {te(`learnStatus.${TAB_STATUS[id]}`)}{' '}
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[9px] ${
-                    tab === id
-                      ? 'bg-primary/20 text-primary'
-                      : 'bg-surface-container-highest text-on-surface-variant/60'
-                  }`}
-                >
-                  {counts[id]}
-                </span>
-              </button>
-            ))}
-          </div>
+        {/* Tab picker — always visible */}
+        <div
+          role="tablist"
+          className="flex w-full rounded-[10px] border border-outline-variant/20 bg-surface-container p-[3px] sm:inline-flex sm:w-auto"
+        >
+          {TAB_IDS.map((id) => (
+            <button
+              key={id}
+              role="tab"
+              type="button"
+              aria-selected={tab === id}
+              onClick={() => {
+                setTab(id);
+                setQuery('');
+              }}
+              className={`flex-1 cursor-pointer rounded-lg border-0 px-3 py-[7px] text-center font-sans text-[10px] transition-all duration-200 sm:flex-none ${
+                tab === id
+                  ? 'bg-[#2a2a2a] font-bold text-on-surface'
+                  : 'bg-transparent font-medium text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {te(`learnStatus.${TAB_STATUS[id]}`)}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -269,7 +267,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
             </AnimatePresence>
 
             {/* List container stays mounted so AnimatePresence can exit the last item */}
-            <div className={tab === 'in_progress' ? 'flex flex-col gap-3' : 'flex flex-col gap-2'}>
+            <div className="flex flex-col gap-2">
               <AnimatePresence initial={false}>
                 {filtered.map((item) => (
                   <motion.div
@@ -282,19 +280,11 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
                       filtered.length === 1 ? { opacity: 0, transition: { duration: 0 } } : 'exit'
                     }
                   >
-                    {tab === 'in_progress' ? (
-                      <ProgressCard
-                        item={item}
-                        onStatusChange={handleStatusChange}
-                        isPending={isPending}
-                      />
-                    ) : (
-                      <WantToLearnRow
-                        item={item}
-                        onStatusChange={handleStatusChange}
-                        isPending={isPending}
-                      />
-                    )}
+                    <ProgressCard
+                      item={item}
+                      onStatusChange={handleStatusChange}
+                      isPending={isPending}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>

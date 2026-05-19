@@ -1,5 +1,5 @@
 'use client';
-import { ImageOff } from 'lucide-react';
+import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
@@ -7,12 +7,12 @@ import type { LearnStatus } from '@/shared/types';
 
 import type { ProgressWithMove } from '../types';
 
-import ProgressStatusPicker from './ProgressStatusPicker';
+const STATUS_STRIP: LearnStatus[] = ['WANT_TO_LEARN', 'IN_PROGRESS', 'LEARNED'];
 
-const DIFFICULTY_BADGE: Record<string, { className: string; style?: React.CSSProperties }> = {
-  BEGINNER: { className: 'bg-secondary-container text-on-secondary-container' },
-  INTERMEDIATE: { className: 'bg-primary-container text-on-surface' },
-  ADVANCED: { className: '', style: { backgroundColor: '#92400e', color: '#fef3c7' } },
+const DIFF_COLORS: Record<string, { bg: string; fg: string }> = {
+  BEGINNER: { bg: 'rgba(132,88,179,0.15)', fg: '#c5afe2' },
+  INTERMEDIATE: { bg: 'rgba(220,184,255,0.15)', fg: '#dcb8ff' },
+  ADVANCED: { bg: 'rgba(146,64,14,0.22)', fg: '#fcd9a0' },
 };
 
 type ProgressCardProps = {
@@ -23,34 +23,64 @@ type ProgressCardProps = {
 
 export default function ProgressCard({ item, onStatusChange, isPending }: ProgressCardProps) {
   const te = useTranslations('enums');
-  const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
+  const diff = DIFF_COLORS[item.move.difficulty] ?? DIFF_COLORS.BEGINNER;
 
   return (
-    <div className="flex gap-3 rounded-xl bg-surface-container p-3.5 sm:gap-4 sm:p-4">
-      <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-accent sm:h-20 sm:w-32">
-        {item.move.imageUrl ? (
-          <Image src={item.move.imageUrl} alt={item.move.title} fill className="object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <ImageOff className="h-6 w-6 text-on-surface-variant" />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.className}`}
-            style={badge.style}
-          >
-            {te(`difficulty.${item.move.difficulty}`)}
-          </span>
-          <h3 className="font-display font-semibold text-on-surface">{item.move.title}</h3>
+    <div className="overflow-hidden rounded-xl border border-outline-variant/[0.18] bg-surface-container">
+      {/* Top row */}
+      <div className="flex gap-[11px] p-[13px]">
+        {/* Thumbnail */}
+        <div className="relative flex h-[46px] w-[46px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-outline-variant/20 bg-surface-low">
+          {item.move.imageUrl ? (
+            <Image src={item.move.imageUrl} alt={item.move.title} fill className="object-cover" />
+          ) : (
+            <Play size={16} style={{ color: 'rgba(220,184,255,0.4)' }} aria-hidden="true" />
+          )}
         </div>
-        <ProgressStatusPicker
-          currentStatus={item.status}
-          onStatusChange={(status) => onStatusChange(item.moveId, status)}
-          isPending={isPending}
-        />
+
+        {/* Info */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="mb-[3px] flex items-center justify-between gap-2">
+            <h3 className="truncate font-display text-[13px] font-semibold text-on-surface">
+              {item.move.title}
+            </h3>
+            <span
+              className="shrink-0 rounded-full px-2 py-0.5 font-sans text-[9px] font-bold"
+              style={{ background: diff.bg, color: diff.fg }}
+            >
+              {te(`difficulty.${item.move.difficulty}`)}
+            </span>
+          </div>
+          <p className="font-sans text-[11px] text-on-surface-variant/70 italic">
+            {item.move.category}
+          </p>
+        </div>
+      </div>
+
+      {/* Status strip */}
+      <div className="flex" style={{ borderTop: '1px solid rgba(75,68,80,0.12)' }}>
+        {STATUS_STRIP.map((value, i) => {
+          const active = item.status === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              disabled={isPending}
+              onClick={() => onStatusChange(item.moveId, active ? null : value)}
+              aria-pressed={active}
+              className="flex-1 cursor-pointer border-0 py-[7px] text-center font-sans text-[9px] transition-colors disabled:cursor-default"
+              style={{
+                background: active ? 'rgba(220,184,255,0.06)' : 'transparent',
+                color: active ? '#dcb8ff' : '#6b6270',
+                fontWeight: active ? 700 : 400,
+                borderRight:
+                  i < STATUS_STRIP.length - 1 ? '1px solid rgba(75,68,80,0.12)' : undefined,
+              }}
+            >
+              {te(`learnStatus.${value}`)}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
