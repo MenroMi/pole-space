@@ -80,7 +80,7 @@ export default async function ProfileHero({
               {location}
             </p>
           )}
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-on-surface lowercase sm:text-4xl md:text-[60px] md:leading-none md:tracking-[-0.03em]">
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-on-surface capitalize sm:text-4xl md:text-[60px] md:leading-none md:tracking-[-0.03em]">
             {displayName}
           </h1>
           <p className="font-sans text-[11px] text-on-surface-variant sm:text-sm md:mt-1">
