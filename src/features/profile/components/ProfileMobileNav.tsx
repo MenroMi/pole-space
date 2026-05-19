@@ -1,5 +1,5 @@
 'use client';
-import { Heart, LayoutDashboard, Settings, TrendingUp } from 'lucide-react';
+import { Heart, LayoutDashboard, TrendingUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Link, usePathname } from '@/i18n/navigation';
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { href: '/profile', label: 'overview', icon: LayoutDashboard },
   { href: '/profile/progress', label: 'progress', icon: TrendingUp },
   { href: '/profile/favourite-moves', label: 'favourites', icon: Heart },
-  { href: '/profile/settings', label: 'settings', icon: Settings },
 ] as const;
 
 export default function ProfileMobileNav() {

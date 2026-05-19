@@ -1,5 +1,5 @@
 'use client';
-import { Heart, LayoutDashboard, Settings, TrendingUp } from 'lucide-react';
+import { Heart, LayoutDashboard, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -7,7 +7,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 
 type NavItem = {
   href: string;
-  labelKey: 'overview' | 'favourites' | 'progress' | 'settings';
+  labelKey: 'overview' | 'favourites' | 'progress';
   icon: LucideIcon;
   matches: string[];
   disabled: boolean;
@@ -33,13 +33,6 @@ const NAV_ITEMS: NavItem[] = [
     labelKey: 'progress',
     icon: TrendingUp,
     matches: ['/profile/progress'],
-    disabled: false,
-  },
-  {
-    href: '/profile/settings',
-    labelKey: 'settings',
-    icon: Settings,
-    matches: ['/profile/settings'],
     disabled: false,
   },
 ];
