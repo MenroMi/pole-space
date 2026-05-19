@@ -1,5 +1,3 @@
-import Image from 'next/image';
-
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
@@ -24,8 +22,6 @@ export default async function Header() {
       role = dbUser.role;
     }
   }
-
-  const initials = user?.name?.[0]?.toUpperCase() ?? (session ? '?' : null);
 
   return (
     <header
@@ -55,27 +51,6 @@ export default async function Header() {
             <FavouritesButton />
             <UserMenu user={user} role={role} />
           </div>
-          {/* Mobile-only: avatar circle */}
-          {session && initials && (
-            <Link
-              href="/profile"
-              aria-label="Profile"
-              className="relative mr-1 flex h-[30px] w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-full font-display text-[11px] font-bold text-[#1b1b1b] sm:hidden"
-              style={{ background: 'linear-gradient(135deg, #52416c, #dcb8ff)' }}
-            >
-              {user?.image ? (
-                <Image
-                  src={user.image}
-                  alt={user.name ?? 'avatar'}
-                  fill
-                  sizes="30px"
-                  className="object-cover"
-                />
-              ) : (
-                initials
-              )}
-            </Link>
-          )}
           {/* Always: locale switcher */}
           <LocaleSwitcher />
         </div>
