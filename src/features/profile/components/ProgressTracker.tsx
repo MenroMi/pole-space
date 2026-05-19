@@ -140,8 +140,8 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
 
   return (
     <div className="px-4 pb-24 sm:px-6 md:px-12">
-      {/* Breadcrumb */}
-      <div className="mt-8 flex items-center gap-1.5 font-sans text-xs text-on-surface-variant">
+      {/* Breadcrumb — desktop only, mobile nav handles context */}
+      <div className="mt-8 hidden items-center gap-1.5 font-sans text-xs text-on-surface-variant sm:flex">
         <Link
           href="/profile"
           className="text-on-surface-variant/80 transition-colors hover:text-on-surface"
@@ -197,7 +197,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
           {/* Tab picker */}
           <div
             role="tablist"
-            className="inline-flex gap-0 rounded-lg border border-outline-variant/60 p-[3px]"
+            className="flex w-full rounded-lg border border-outline-variant/60 p-[3px] sm:inline-flex sm:w-auto"
           >
             {TAB_IDS.map((id) => (
               <button
@@ -209,7 +209,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
                   setTab(id);
                   setQuery('');
                 }}
-                className={`cursor-pointer rounded-md border-0 px-3 py-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] uppercase transition-all duration-200 ${
+                className={`flex-1 cursor-pointer rounded-md border-0 px-2 py-1.5 font-sans text-[10px] font-semibold transition-all duration-200 sm:flex-none sm:px-3 sm:text-[11px] sm:tracking-[0.08em] sm:uppercase ${
                   tab === id
                     ? 'bg-primary/14 text-primary'
                     : 'bg-transparent text-on-surface-variant hover:text-on-surface'

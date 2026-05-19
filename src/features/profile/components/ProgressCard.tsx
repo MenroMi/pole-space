@@ -26,8 +26,8 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
   const badge = DIFFICULTY_BADGE[item.move.difficulty] ?? DIFFICULTY_BADGE.BEGINNER;
 
   return (
-    <div className="flex gap-4 rounded-xl bg-surface-container p-4">
-      <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg bg-accent">
+    <div className="flex gap-3 rounded-xl bg-surface-container p-3.5 sm:gap-4 sm:p-4">
+      <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-accent sm:h-20 sm:w-32">
         {item.move.imageUrl ? (
           <Image src={item.move.imageUrl} alt={item.move.title} fill className="object-cover" />
         ) : (
