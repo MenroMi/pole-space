@@ -130,7 +130,7 @@ function FavouriteCard({
   return (
     <Link
       href={`/moves/${fav.moveId}`}
-      className="group relative block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-240 hover:-translate-y-[3px] hover:border-primary/35"
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-240 hover:-translate-y-[3px] hover:border-primary/35"
     >
       {/* 16:9 mobile / 4:5 desktop */}
       <div className="relative aspect-[16/9] overflow-hidden sm:aspect-[4/5]">
@@ -166,7 +166,7 @@ function FavouriteCard({
       </div>
 
       {/* Mobile card body */}
-      <div className="p-[8px_10px] sm:hidden">
+      <div className="flex flex-1 flex-col justify-between p-[8px_10px] sm:hidden">
         <h3 className="mb-1 truncate font-display text-[12px] font-semibold text-on-surface">
           {fav.move.title}
         </h3>
@@ -184,7 +184,7 @@ function FavouriteCard({
       </div>
 
       {/* Desktop card body */}
-      <div className="hidden flex-col gap-1 sm:flex sm:gap-1.5 sm:p-4">
+      <div className="hidden flex-1 flex-col gap-1 sm:flex sm:gap-1.5 sm:p-4">
         <h3 className="font-display text-sm font-semibold tracking-tight text-on-surface lowercase sm:text-xl">
           {fav.move.title.toLowerCase()}
         </h3>
