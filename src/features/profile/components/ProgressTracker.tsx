@@ -178,17 +178,17 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
         </p>
       </div>
 
-      {/* Toolbar — search (desktop only) + tab picker (always) */}
+      {/* Toolbar — search + tab picker */}
       <div className="mt-4 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:border-t sm:border-outline-variant/30 sm:pt-5">
-        {/* Search — desktop only */}
-        <div className="relative hidden w-full sm:block sm:w-[280px]">
+        {/* Search */}
+        <div className="relative w-full sm:w-[280px]">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/60" />
           <input
             aria-label={t('searchMovesLabel')}
             placeholder={t('searchMovesPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-lg border border-outline-variant/60 bg-transparent px-9 py-2.5 font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40 focus:border-primary/50"
+            className="w-full rounded-lg border border-outline-variant/60 bg-surface-container px-9 py-2.5 font-sans text-[13px] text-on-surface outline-none placeholder:text-on-surface-variant/40 focus:border-primary/50 sm:bg-transparent"
           />
           {query && (
             <button
