@@ -3,6 +3,7 @@ import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
+import { Link } from '@/i18n/navigation';
 import type { LearnStatus } from '@/shared/types';
 
 import type { ProgressWithMove } from '../types';
@@ -24,13 +25,17 @@ type ProgressCardProps = {
 export default function ProgressCard({ item, onStatusChange, isPending }: ProgressCardProps) {
   const te = useTranslations('enums');
   const diff = DIFF_COLORS[item.move.difficulty] ?? DIFF_COLORS.BEGINNER;
+  const gripEntry = [item.move.gripType, item.move.entry].filter(Boolean).join(' · ');
 
   return (
     <div className="overflow-hidden rounded-xl border border-outline-variant/[0.18] bg-surface-container">
-      {/* Top row */}
-      <div className="flex gap-[11px] p-[13px]">
+      {/* Clickable top section */}
+      <Link
+        href={`/moves/${item.move.id}`}
+        className="hover:bg-surface-container-high flex items-start gap-[11px] p-[13px] transition-colors"
+      >
         {/* Thumbnail */}
-        <div className="relative flex h-[46px] w-[46px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-outline-variant/20 bg-surface-low">
+        <div className="relative flex h-[46px] w-[46px] shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-outline-variant/20 bg-surface-low sm:h-[56px] sm:w-[56px]">
           {item.move.imageUrl ? (
             <Image src={item.move.imageUrl} alt={item.move.title} fill className="object-cover" />
           ) : (
@@ -39,8 +44,9 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
         </div>
 
         {/* Info */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="mb-[3px] flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          {/* Row 1: title + difficulty */}
+          <div className="flex items-center justify-between gap-2">
             <h3 className="truncate font-display text-[13px] font-semibold text-on-surface sm:text-sm md:text-base">
               {item.move.title}
             </h3>
@@ -51,11 +57,43 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
               {te(`difficulty.${item.move.difficulty}`)}
             </span>
           </div>
-          <p className="font-sans text-[11px] text-on-surface-variant/70 italic sm:text-xs md:text-sm">
-            {item.move.category}
-          </p>
+
+          {/* Row 2: category · poleTypes · duration */}
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+            <p className="font-sans text-[11px] text-on-surface-variant/70 italic sm:text-xs md:text-sm">
+              {item.move.category}
+            </p>
+            {item.move.poleTypes.length > 0 && (
+              <>
+                <span className="text-[9px] text-on-surface-variant/30">·</span>
+                {item.move.poleTypes.map((pt) => (
+                  <span
+                    key={pt}
+                    className="rounded-sm bg-surface px-1.5 py-px font-sans text-[9px] font-medium text-on-surface-variant/60 sm:text-[11px]"
+                  >
+                    {te(`poleType.${pt}`)}
+                  </span>
+                ))}
+              </>
+            )}
+            {item.move.duration && (
+              <>
+                <span className="text-[9px] text-on-surface-variant/30">·</span>
+                <span className="font-sans text-[9px] text-on-surface-variant/50 sm:text-[11px]">
+                  {item.move.duration}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Row 3: gripType / entry (if present) */}
+          {gripEntry && (
+            <p className="truncate font-sans text-[9px] text-on-surface-variant/40 sm:text-[11px]">
+              {gripEntry}
+            </p>
+          )}
         </div>
-      </div>
+      </Link>
 
       {/* Status strip */}
       <div className="flex" style={{ borderTop: '1px solid rgba(75,68,80,0.12)' }}>
