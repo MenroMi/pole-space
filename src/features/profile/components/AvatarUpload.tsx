@@ -89,8 +89,21 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
         {displayImage ? (
           <Image src={displayImage} alt={t('avatarAlt')} fill className="object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-on-surface-variant">
-            {t('noPhoto')}
+          <div className="flex h-full w-full items-center justify-center text-on-surface-variant/30">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
           </div>
         )}
       </div>
