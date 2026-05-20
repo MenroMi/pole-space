@@ -1,3 +1,6 @@
+import { Shield } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
@@ -8,7 +11,7 @@ import LocaleSwitcher from './LocaleSwitcher';
 import UserMenu from './UserMenu';
 
 export default async function Header() {
-  const session = await auth();
+  const [session, t] = await Promise.all([auth(), getTranslations('nav')]);
   let user: { name: string | null; image: string | null } | null = null;
   let role: string | null = null;
   if (session?.user?.id) {
@@ -51,6 +54,16 @@ export default async function Header() {
             <FavouritesButton />
             <UserMenu user={user} role={role} />
           </div>
+          {/* Admin shortcut — mobile only, admin role only */}
+          {role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              aria-label={t('admin')}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors hover:border-primary/20 hover:bg-primary/[0.06] sm:hidden"
+            >
+              <Shield size={18} aria-hidden="true" />
+            </Link>
+          )}
           {/* Always: locale switcher */}
           <LocaleSwitcher />
         </div>
