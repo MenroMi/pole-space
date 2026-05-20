@@ -195,17 +195,17 @@ export default function SettingsForm({
     [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || t('anonymous');
 
   return (
-    <form onSubmit={handleSave} className="space-y-8 p-6 md:p-12">
+    <form onSubmit={handleSave} className="space-y-6 px-4 pt-4 pb-28 sm:space-y-8 sm:p-6 md:p-12">
       <div className="space-y-2">
-        <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
+        <h1 className="font-display text-3xl tracking-tight text-primary lowercase sm:text-4xl md:text-5xl">
           {t('settingsHeading')}
         </h1>
-        <p className="text-lg text-on-surface-variant">{t('settingsSubtitle')}</p>
+        <p className="text-base text-on-surface-variant sm:text-lg">{t('settingsSubtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-12">
         {/* Profile block */}
-        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center lg:col-span-4">
+        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-5 text-center sm:p-8 lg:col-span-4">
           <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
           <div className="space-y-2">
             <p className="font-display text-xl text-on-surface capitalize">{displayName}</p>
@@ -218,7 +218,7 @@ export default function SettingsForm({
         </section>
 
         {/* Personal Information */}
-        <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8 lg:col-span-8">
+        <section className="col-span-12 space-y-4 rounded-2xl bg-surface-low p-5 sm:space-y-6 sm:p-8 lg:col-span-8">
           <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
             <User size={20} className="text-primary" aria-hidden="true" />
             <h2 className="font-display text-lg text-on-surface">{t('personalInfo')}</h2>
@@ -299,7 +299,7 @@ export default function SettingsForm({
 
         {/* Security */}
         {hasPassword && (
-          <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8">
+          <section className="col-span-12 space-y-4 rounded-2xl bg-surface-low p-5 sm:space-y-6 sm:p-8">
             <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
               <Lock size={20} className="text-primary" aria-hidden="true" />
               <h2 className="font-display text-lg text-on-surface">{t('securitySection')}</h2>
