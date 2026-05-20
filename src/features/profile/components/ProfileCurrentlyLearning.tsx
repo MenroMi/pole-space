@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+
 import { Link } from '@/i18n/navigation';
 
 import type { ProgressWithMove } from '../types';
@@ -33,8 +34,8 @@ export default async function ProfileCurrentlyLearning({ moves }: ProfileCurrent
   const te = await getTranslations('enums');
 
   return (
-    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container p-6">
-      <div className="mb-[18px] flex shrink-0 items-baseline justify-between">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container p-4 sm:p-6">
+      <div className="mb-3 flex shrink-0 items-baseline justify-between sm:mb-[18px]">
         <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
           {t('currentlyLearning')}
         </span>

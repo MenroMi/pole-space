@@ -18,7 +18,7 @@ function StatCard({ icon, value, label }: StatCardProps) {
   return (
     <div className="group flex flex-col justify-between bg-surface-low p-[18px_16px] transition-colors hover:bg-surface-container sm:p-6 md:p-8">
       <div className="mb-3 text-primary/50 transition-colors group-hover:text-primary sm:mb-6">
-        <span className="inline-block transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-125">
+        <span className="inline-block transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-125 [&>svg]:h-[22px] [&>svg]:w-[22px] sm:[&>svg]:h-8 sm:[&>svg]:w-8">
           {icon}
         </span>
       </div>

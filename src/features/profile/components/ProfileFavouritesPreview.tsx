@@ -44,8 +44,8 @@ function ThumbPlaceholder({ title }: { title: string }) {
 export default function ProfileFavouritesPreview({ favourites }: ProfileFavouritesPreviewProps) {
   const t = useTranslations('profile');
   return (
-    <div className="flex-1 rounded-xl border border-outline-variant/20 bg-surface-container p-6">
-      <div className="mb-[18px] flex items-baseline justify-between">
+    <div className="flex-1 rounded-xl border border-outline-variant/20 bg-surface-container p-4 sm:p-6">
+      <div className="mb-3 flex items-baseline justify-between sm:mb-[18px]">
         <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
           {t('favourites')}
         </span>
