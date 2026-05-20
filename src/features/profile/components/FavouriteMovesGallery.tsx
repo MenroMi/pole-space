@@ -170,7 +170,7 @@ function FavouriteCard({
         <h3 className="mb-1 truncate font-display text-[12px] font-semibold text-on-surface">
           {fav.move.title}
         </h3>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span
             className={`rounded-full px-2 py-0.5 font-sans text-[9px] font-bold uppercase ${badge.className}`}
             style={badge.style}
