@@ -40,15 +40,18 @@ function EmptyTab({ tab }: { tab: Tab }) {
     return (
       <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant/40 px-6 py-20 text-center">
         <p
-          className="font-display text-[22px] text-on-surface"
+          className="font-display text-[22px] text-on-surface sm:text-[28px] md:text-4xl"
           style={{ letterSpacing: '-0.01em' }}
         >
           {t('emptyInProgress')}
         </p>
-        <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant">
+        <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant sm:text-base">
           {t('emptyInProgressHint')}
         </p>
-        <Link href="/catalog" className="mt-4 font-sans text-sm text-primary hover:underline">
+        <Link
+          href="/catalog"
+          className="mt-4 font-sans text-sm text-primary hover:underline sm:text-base"
+        >
           {t('browseCatalog')}
         </Link>
       </div>
@@ -58,15 +61,18 @@ function EmptyTab({ tab }: { tab: Tab }) {
     return (
       <div className="flex flex-col items-center rounded-xl border border-dashed border-outline-variant/40 px-6 py-20 text-center">
         <p
-          className="font-display text-[22px] text-on-surface"
+          className="font-display text-[22px] text-on-surface sm:text-[28px] md:text-4xl"
           style={{ letterSpacing: '-0.01em' }}
         >
           {t('emptyWantToLearn')}
         </p>
-        <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant">
+        <p className="mt-1.5 max-w-xs font-sans text-sm text-on-surface-variant sm:text-base">
           {t('emptyWantToLearnHint')}
         </p>
-        <Link href="/catalog" className="mt-4 font-sans text-sm text-primary hover:underline">
+        <Link
+          href="/catalog"
+          className="mt-4 font-sans text-sm text-primary hover:underline sm:text-base"
+        >
           {t('browseCatalog')}
         </Link>
       </div>
