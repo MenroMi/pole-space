@@ -41,17 +41,17 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
         {/* Info */}
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="mb-[3px] flex items-center justify-between gap-2">
-            <h3 className="truncate font-display text-[13px] font-semibold text-on-surface">
+            <h3 className="truncate font-display text-[13px] font-semibold text-on-surface sm:text-sm md:text-base">
               {item.move.title}
             </h3>
             <span
-              className="shrink-0 rounded-full px-2 py-0.5 font-sans text-[9px] font-bold"
+              className="shrink-0 rounded-full px-2 py-0.5 font-sans text-[9px] font-bold sm:text-[11px]"
               style={{ background: diff.bg, color: diff.fg }}
             >
               {te(`difficulty.${item.move.difficulty}`)}
             </span>
           </div>
-          <p className="font-sans text-[11px] text-on-surface-variant/70 italic">
+          <p className="font-sans text-[11px] text-on-surface-variant/70 italic sm:text-xs md:text-sm">
             {item.move.category}
           </p>
         </div>
@@ -68,7 +68,7 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
               disabled={isPending}
               onClick={() => onStatusChange(item.moveId, active ? null : value)}
               aria-pressed={active}
-              className="flex-1 cursor-pointer border-0 py-[7px] text-center font-sans text-[9px] transition-colors disabled:cursor-default"
+              className="flex-1 cursor-pointer border-0 py-[7px] text-center font-sans text-[9px] transition-colors disabled:cursor-default sm:text-[11px] md:text-xs"
               style={{
                 background: active ? 'rgba(220,184,255,0.06)' : 'transparent',
                 color: active ? '#dcb8ff' : '#6b6270',

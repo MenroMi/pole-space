@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
@@ -50,7 +50,7 @@ export default function ProgressStatusPicker({
             onClick={() => onStatusChange(active ? null : value)}
             disabled={isPending}
             aria-pressed={active}
-            className={`relative z-10 flex-1 cursor-pointer rounded-md px-3 py-2 font-sans text-xs font-semibold transition-colors duration-200 disabled:cursor-default ${
+            className={`relative z-10 flex-1 cursor-pointer rounded-md px-3 py-2 font-sans text-xs font-semibold transition-colors duration-200 disabled:cursor-default sm:text-sm ${
               active ? 'text-[#f8ebff]' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >

@@ -21,7 +21,7 @@ const DIFFICULTY_ORDER: Record<string, number> = {
 
 type Tab = 'in_progress' | 'want_to_learn' | 'learned';
 
-const TAB_IDS: Tab[] = ['in_progress', 'want_to_learn', 'learned'];
+const TAB_IDS: Tab[] = ['want_to_learn', 'in_progress', 'learned'];
 const TAB_STATUS: Record<Tab, LearnStatus> = {
   in_progress: 'IN_PROGRESS',
   want_to_learn: 'WANT_TO_LEARN',
@@ -88,7 +88,7 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
   const t = useTranslations('profile');
   const te = useTranslations('enums');
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('in_progress');
+  const [tab, setTab] = useState<Tab>('want_to_learn');
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
 
@@ -217,13 +217,14 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
                 setTab(id);
                 setQuery('');
               }}
-              className={`flex-1 cursor-pointer rounded-lg border-0 px-3 py-[7px] text-center font-sans text-[10px] transition-all duration-200 sm:flex-none ${
+              className={`flex-1 cursor-pointer rounded-lg border-0 px-3 py-[7px] text-center font-sans text-[10px] transition-all duration-200 sm:flex-none sm:text-xs ${
                 tab === id
                   ? 'bg-[#2a2a2a] font-bold text-on-surface'
                   : 'bg-transparent font-medium text-on-surface-variant hover:text-on-surface'
               }`}
             >
               {te(`learnStatus.${TAB_STATUS[id]}`)}
+              <span className="ml-1 opacity-50">({counts[id]})</span>
             </button>
           ))}
         </div>
