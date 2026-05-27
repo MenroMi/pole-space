@@ -155,12 +155,17 @@ export default function ProgressTracker({ initialProgress, userName }: ProgressT
 
       {/* Mobile header — prototype style */}
       <div className="mt-4 sm:hidden">
-        <p className="mb-1 font-sans text-[9px] font-bold tracking-[0.18em] text-on-surface-variant/50 uppercase">
-          {t('journeyHeading')} {t('journeyHighlight')}
-        </p>
+        <div className="mb-1 flex items-center gap-2.5">
+          <div className="h-px w-6 bg-primary" aria-hidden="true" />
+          <span className="font-sans text-[9px] font-bold tracking-[0.18em] text-primary uppercase">
+            {optimisticProgress.length} {t('tracked')}
+          </span>
+        </div>
         <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em] text-on-surface">
-          {t('progress')}
+          {t('journeyHeading')}{' '}
+          <em className="font-medium text-primary not-italic">{t('journeyHighlight')}</em>
         </h1>
+        <p className="mt-1 font-sans text-[13px] text-on-surface-variant">{t('journeySubtitle')}</p>
       </div>
 
       {/* Desktop header */}

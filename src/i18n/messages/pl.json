@@ -162,7 +162,8 @@
     "playMove": "Odtwórz {title}",
     "saveFavourite": "Zapisz",
     "addToFavourites": "Dodaj do ulubionych",
-    "removeFromFavourites": "Usuń z ulubionych"
+    "removeFromFavourites": "Usuń z ulubionych",
+    "backToCatalog": "wróć do katalogu"
   },
   "profile": {
     "overview": "Przegląd",

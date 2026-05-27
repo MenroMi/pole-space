@@ -1,5 +1,6 @@
 'use client';
 import type { Difficulty, PoleType } from '@prisma/client';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
@@ -25,6 +26,7 @@ const DIFFICULTY_BADGE: Record<Difficulty, { className: string; style?: CSSPrope
 
 type MovePlayerProps = {
   title: string;
+  category: string;
   youtubeUrl: string;
   imageUrl: string | null;
   stepsData: StepItem[];
@@ -45,6 +47,7 @@ type MovePlayerProps = {
 
 export default function MovePlayer({
   title,
+  category,
   youtubeUrl,
   imageUrl,
   stepsData,
@@ -79,16 +82,36 @@ export default function MovePlayer({
       setSeekRequest(request);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // 400ms matches the browser's smooth-scroll animation duration
       scrollTimerRef.current = setTimeout(() => setSeekRequest(request), 400);
     }
   }
 
   const badge = DIFFICULTY_BADGE[difficulty];
   const difficultyLabel = te(`difficulty.${difficulty}`);
+  const categoryLabel = te(`category.${category}`);
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 pt-4 pb-8 sm:px-8 sm:py-8">
+    <div className="mx-auto max-w-[1280px] px-4 pt-3 pb-8 sm:px-8 sm:py-8">
+      {/* Mobile page header: ← title ♡ */}
+      <div className="mb-3 flex items-center gap-2 sm:hidden">
+        <Link
+          href="/catalog"
+          aria-label={t('backToCatalog')}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:text-on-surface"
+        >
+          <ArrowLeft size={20} aria-hidden="true" />
+        </Link>
+        <p className="flex-1 truncate font-display text-[17px] font-semibold tracking-[-0.02em] text-on-surface lowercase">
+          {title}
+        </p>
+        <MoveFavouriteButton
+          moveId={moveId}
+          isFavourited={isFavourited}
+          isAuthenticated={isAuthenticated}
+          iconOnly
+        />
+      </div>
+
       {/* Hero grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
         {/* Left: video player */}
@@ -101,17 +124,17 @@ export default function MovePlayer({
 
         {/* Right: info panel */}
         <div className="flex flex-col gap-5">
-          {/* Difficulty chip */}
+          {/* Difficulty chip — desktop only */}
           <span
             aria-label={difficultyLabel}
-            className={`w-fit rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase ${badge.className}`}
+            className={`hidden w-fit rounded-full px-3 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase sm:inline-flex ${badge.className}`}
             style={badge.style}
           >
             {difficultyLabel}
           </span>
 
-          {/* Title */}
-          <h1 className="font-display text-[28px] leading-[1.05] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:text-[40px] sm:leading-[0.95] lg:text-[52px]">
+          {/* Title — desktop only (mobile header has it) */}
+          <h1 className="hidden font-display text-[28px] leading-[1.05] font-semibold tracking-[-0.04em] text-on-surface lowercase sm:block sm:text-[40px] sm:leading-[0.95] lg:text-[52px]">
             {title}
           </h1>
 
@@ -122,9 +145,23 @@ export default function MovePlayer({
             </p>
           )}
 
-          {/* Tags */}
+          {/* Mobile meta row: difficulty badge · first tag */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <span
+              className={`rounded-full px-2.5 py-1 font-sans text-[10px] font-semibold tracking-[0.18em] uppercase ${badge.className}`}
+              style={badge.style}
+            >
+              {difficultyLabel}
+            </span>
+            <span className="text-on-surface-variant/40" aria-hidden="true">
+              ·
+            </span>
+            <span className="font-sans text-xs text-on-surface-variant">{categoryLabel}</span>
+          </div>
+
+          {/* Tags — desktop only */}
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="hidden flex-wrap gap-1.5 sm:flex">
               {tags.map((tag) => (
                 <span
                   key={tag.id}
@@ -143,6 +180,7 @@ export default function MovePlayer({
 
           {/* Actions */}
           <div className="mt-2 flex items-center gap-3">
+            {/* Favourite button — desktop only (mobile header has icon-only version) */}
             <MoveFavouriteButton
               moveId={moveId}
               isFavourited={isFavourited}
@@ -164,11 +202,13 @@ export default function MovePlayer({
         </div>
       </div>
 
-      {/* Specs — full width below the grid */}
-      <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleTypes={poleTypes} />
+      {/* Specs — desktop only (design omits on mobile) */}
+      <div className="hidden sm:block">
+        <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleTypes={poleTypes} />
+      </div>
 
-      {/* Tabs — full width below specs */}
-      <div className="mt-10">
+      {/* Tabs */}
+      <div className="mt-6 sm:mt-10">
         <MoveTabs
           breakdown={
             <MoveBreakdown

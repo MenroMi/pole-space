@@ -1,6 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
@@ -12,47 +12,60 @@ type ProgressStatusPickerProps = {
   isPending: boolean;
 };
 
+type PillGeometry = { left: number; width: number };
+
 export default function ProgressStatusPicker({
   currentStatus,
   onStatusChange,
   isPending,
 }: ProgressStatusPickerProps) {
   const te = useTranslations('enums');
+  const containerRef = useRef<HTMLDivElement>(null);
   const activeIndex = STATUS_VALUES.indexOf(currentStatus as LearnStatus);
   const hasActive = activeIndex !== -1;
+  const [pill, setPill] = useState<PillGeometry | null>(null);
 
-  const [prevStatus, setPrevStatus] = useState(currentStatus);
-  const [pillIndex, setPillIndex] = useState(hasActive ? activeIndex : 0);
+  // Sync pill position when status changes externally (e.g. from ProgressCard strip)
+  useEffect(() => {
+    if (!containerRef.current || !hasActive) {
+      setPill(null);
+      return;
+    }
+    const buttons = containerRef.current.querySelectorAll<HTMLButtonElement>('button');
+    const btn = buttons[activeIndex];
+    if (btn) setPill({ left: btn.offsetLeft, width: btn.offsetWidth });
+  }, [hasActive, activeIndex]);
 
-  if (currentStatus !== prevStatus) {
-    setPrevStatus(currentStatus);
-    if (activeIndex !== -1) setPillIndex(activeIndex);
+  function handleChange(status: LearnStatus | null, el: HTMLButtonElement) {
+    if (status !== null) setPill({ left: el.offsetLeft, width: el.offsetWidth });
+    onStatusChange(status);
   }
 
   return (
-    <div className="relative flex h-full rounded-lg border border-outline-variant/30 bg-[#0e0e0e] p-1">
+    <div
+      ref={containerRef}
+      className="relative flex h-full rounded-lg border border-outline-variant/30 bg-[#0e0e0e] p-1"
+    >
       <div
         aria-hidden="true"
-        className={`absolute top-1 bottom-1 left-1 rounded-md bg-gradient-to-br from-[#dcb8ff] via-[#8458b3] to-[#dcb8ff] transition-[transform,opacity] duration-300 ease-out ${
+        className={`absolute top-1 bottom-1 rounded-md bg-gradient-to-br from-[#dcb8ff] via-[#8458b3] to-[#dcb8ff] transition-[left,width,opacity] duration-300 ease-out ${
           hasActive ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{
-          width: 'calc((100% - 8px) / 3)',
-          transform: `translateX(calc(${pillIndex} * 100%))`,
-        }}
+        style={{ left: pill?.left, width: pill?.width }}
       />
-      {STATUS_VALUES.map((value) => {
+      {STATUS_VALUES.map((value, i) => {
         const active = currentStatus === value;
         return (
           <button
+            data-index={`progress-pill-${i}`}
             key={value}
             type="button"
-            onClick={() => onStatusChange(active ? null : value)}
+            onClick={(e) => handleChange(active ? null : value, e.currentTarget)}
             disabled={isPending}
             aria-pressed={active}
-            className={`relative z-10 flex-1 cursor-pointer rounded-md px-3 py-2 font-sans text-xs font-semibold transition-colors duration-200 disabled:cursor-default sm:text-sm ${
+            className={`relative z-10 cursor-pointer rounded-md px-3 py-2 font-sans text-xs font-semibold transition-colors duration-200 disabled:cursor-default sm:text-sm ${
               active ? 'text-[#f8ebff]' : 'text-on-surface-variant hover:text-on-surface'
-            }`}
+            } ${i === 0 ? 'flex-2' : 'flex-1'}`}
           >
             {te(`learnStatus.${value}`)}
           </button>

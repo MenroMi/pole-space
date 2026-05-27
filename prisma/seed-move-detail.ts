@@ -281,6 +281,320 @@ const updates: {
       { text: 'Aby zejść, odwróć ruch powoli — nigdy nie zsuwaj się bez kontroli.', timestamp: 55 },
     ],
   },
+  {
+    title_en: 'Back Hook Spin',
+    gripType_pl: 'Chwyt krzyżowy',
+    gripType_en: 'Cross grip',
+    entry_pl: 'Stojąc bokiem do słupa',
+    entry_en: 'Standing, sideways to pole',
+    duration: '2–3 counts',
+    poleTypes: ['SPIN'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      { text: 'Stand sideways to the pole, inside shoulder facing it, feet hip-width apart.' },
+      {
+        text: 'Place your inside hand high in a cross grip, outside hand just below at chest level.',
+      },
+      {
+        text: 'Swing your back leg forward to generate momentum and push off the floor.',
+        timestamp: 10,
+      },
+      {
+        text: 'As you lift, hook the back (outside) leg firmly around the pole behind you.',
+        timestamp: 18,
+      },
+      { text: 'Tuck the inside leg in close — both legs create a compact shape.', timestamp: 25 },
+      { text: 'Let the spin carry you; keep arms slightly bent, never locked.', timestamp: 32 },
+      { text: 'As the spin slows, unhook the back leg and step down with control.', timestamp: 42 },
+    ],
+    stepsData_pl: [
+      { text: 'Stań bokiem do słupa, wewnętrznym barkiem do niego, stopy na szerokość bioder.' },
+      {
+        text: 'Umieść wewnętrzną rękę wysoko w chwycie krzyżowym, zewnętrzną rękę niżej na wysokości klatki piersiowej.',
+      },
+      {
+        text: 'Wahnij tylną nogą do przodu, by zbudować impuls i odepchnij się od podłogi.',
+        timestamp: 10,
+      },
+      {
+        text: 'Unosząc się, zahookuj tylną (zewnętrzną) nogę mocno wokół słupa za sobą.',
+        timestamp: 18,
+      },
+      {
+        text: 'Przyciągnij wewnętrzną nogę blisko — obie nogi tworzą zwarty kształt.',
+        timestamp: 25,
+      },
+      {
+        text: 'Pozwól spinowi cię nieść; trzymaj ręce lekko zgięte, nigdy zablokowane.',
+        timestamp: 32,
+      },
+      { text: 'Gdy spin zwalnia, odhookuj tylną nogę i zejdź kontrolowanie.', timestamp: 42 },
+    ],
+  },
+  {
+    title_en: 'Attitude Spin',
+    gripType_pl: 'Split grip',
+    gripType_en: 'Split grip',
+    entry_pl: 'Stojąc, twarzą do słupa',
+    entry_en: 'Standing, facing pole',
+    duration: '3–5 counts',
+    poleTypes: ['STATIC', 'SPIN'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      {
+        text: 'Stand facing the pole. Place your dominant hand high in split grip, secondary hand lower palm-out.',
+        timestamp: 5,
+      },
+      {
+        text: 'Swing your outer leg forward to generate momentum and jump off the floor.',
+        timestamp: 14,
+      },
+      {
+        text: 'As you lift, bend the front knee upward to hip height — this is attitude position.',
+        timestamp: 22,
+      },
+      {
+        text: 'Flex the foot of the attitude leg behind you; keep the knee rotated outward.',
+        timestamp: 28,
+      },
+      { text: 'Extend your trailing leg long and pointed to counterbalance.', timestamp: 34 },
+      {
+        text: 'Open the chest and keep your gaze forward — resist the urge to hunch.',
+        timestamp: 40,
+      },
+      {
+        text: 'As the spin slows, lower the attitude leg and step down gracefully.',
+        timestamp: 50,
+      },
+    ],
+    stepsData_pl: [
+      {
+        text: 'Stań twarzą do słupa. Dominującą rękę wysoko w split gripie, drugą niżej dłonią na zewnątrz.',
+        timestamp: 5,
+      },
+      { text: 'Wahnij zewnętrzną nogą do przodu, by zbudować impuls i skocz.', timestamp: 14 },
+      {
+        text: 'Unosząc się, ugnij przednią nogę w górę do wysokości biodra — to pozycja attitude.',
+        timestamp: 22,
+      },
+      {
+        text: 'Zegnij stopę nogi w attitude za siebie; trzymaj kolano skręcone na zewnątrz.',
+        timestamp: 28,
+      },
+      {
+        text: 'Wyciągnij tylną nogę długo i z wyciągniętymi palcami dla równowagi.',
+        timestamp: 34,
+      },
+      { text: 'Otwórz klatkę piersiową, wzrok do przodu — unikaj garbienia się.', timestamp: 40 },
+      { text: 'Gdy spin zwalnia, opuść nogę w attitude i elegancko zejdź.', timestamp: 50 },
+    ],
+  },
+  {
+    title_en: 'Pole Sit',
+    gripType_pl: 'Standardowy chwyt',
+    gripType_en: 'Standard grip',
+    entry_pl: 'Ze wspinaczki',
+    entry_en: 'From basic climb',
+    duration: 'Hold 2–4 counts',
+    poleTypes: ['STATIC'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      {
+        text: 'Climb to a comfortable height using basic climb — at least one metre off the ground.',
+        timestamp: 8,
+      },
+      {
+        text: 'Bring the pole between your inner thighs, pressing it firmly against your legs.',
+        timestamp: 18,
+      },
+      {
+        text: 'Cross the inner thigh over the pole first, then wrap the outside leg on top.',
+        timestamp: 26,
+      },
+      {
+        text: 'Squeeze your thighs together — the pole is gripped between them, not by your ankle.',
+        timestamp: 34,
+      },
+      {
+        text: 'Slowly loosen your hand grip, testing the leg hold before fully releasing.',
+        timestamp: 42,
+      },
+      {
+        text: 'Sit upright or lean back slightly, arms out to the sides for balance.',
+        timestamp: 50,
+      },
+      {
+        text: 'To dismount, reach both hands back to the pole before uncrossing your legs.',
+        timestamp: 60,
+      },
+    ],
+    stepsData_pl: [
+      { text: 'Wspinaj się na wygodną wysokość — co najmniej metr nad ziemią.', timestamp: 8 },
+      { text: 'Przysuń słup między wewnętrzne uda, mocno go dociskając.', timestamp: 18 },
+      {
+        text: 'Skrzyżuj najpierw wewnętrzne udo nad słupem, potem zewnętrzną nogę na wierzchu.',
+        timestamp: 26,
+      },
+      {
+        text: 'Ściśnij uda razem — słup jest trzymany między nimi, nie przez kostkę.',
+        timestamp: 34,
+      },
+      {
+        text: 'Powoli luzuj chwyt rąk, testując chwyt nóg przed pełnym zwolnieniem.',
+        timestamp: 42,
+      },
+      { text: 'Siedź prosto lub lekko się odchyl, ręce na boki dla równowagi.', timestamp: 50 },
+      {
+        text: 'Aby zejść, sięgnij obiema rękami z powrotem do słupa przed rozkrzyżowaniem nóg.',
+        timestamp: 60,
+      },
+    ],
+  },
+  {
+    title_en: 'Butterfly to Jade',
+    gripType_pl: 'Split grip',
+    gripType_en: 'Split grip',
+    entry_pl: 'Z inversji w powietrzu',
+    entry_en: 'From aerial inversion',
+    duration: 'Transition + hold 2–3 counts',
+    poleTypes: ['STATIC'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      {
+        text: 'From a high climb, tuck into butterfly: inside leg hooks at the knee, outside leg wraps across.',
+        timestamp: 10,
+      },
+      {
+        text: 'Open your hips wide to create the butterfly shape — thighs parallel to the floor.',
+        timestamp: 20,
+      },
+      { text: 'Feel completely stable in butterfly before transitioning.', timestamp: 28 },
+      { text: 'Slowly extend the top leg upward, reaching toward the ceiling.', timestamp: 36 },
+      { text: 'Simultaneously lower the bottom leg to extend it fully downward.', timestamp: 44 },
+      {
+        text: 'Both legs now form a vertical split with the pole running between them.',
+        timestamp: 52,
+      },
+      { text: 'Hold the jade: core braced, hips open, both legs long and pointed.', timestamp: 58 },
+    ],
+    stepsData_pl: [
+      {
+        text: 'Z wysokiej wspinaczki wejdź w butterfly: wewnętrzna noga hookuje przy kolanie, zewnętrzna owija się przez.',
+        timestamp: 10,
+      },
+      {
+        text: 'Otwórz szeroko biodra, by stworzyć kształt motyla — uda równolegle do podłogi.',
+        timestamp: 20,
+      },
+      { text: 'Poczuj pełną stabilność w butterfly przed przejściem.', timestamp: 28 },
+      { text: 'Powoli wyciągnij górną nogę w górę, sięgając ku sufitowi.', timestamp: 36 },
+      { text: 'Jednocześnie opuść dolną nogę, w pełni ją prostując w dół.', timestamp: 44 },
+      {
+        text: 'Obie nogi tworzą teraz pionowy szpagat ze słupem biegnącym między nimi.',
+        timestamp: 52,
+      },
+      {
+        text: 'Utrzymaj jade: core napięte, biodra otwarte, obie nogi długie i z wyciągniętymi palcami.',
+        timestamp: 58,
+      },
+    ],
+  },
+  {
+    title_en: 'Flag',
+    gripType_pl: 'Chwyt na ramieniu',
+    gripType_en: 'Shoulder mount grip',
+    entry_pl: 'Ze stojącej lub hip hold',
+    entry_en: 'From standing or hip hold',
+    duration: 'Hold 2–4 counts',
+    poleTypes: ['STATIC'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      { text: 'Stand beside the pole with it positioned at your near shoulder.', timestamp: 6 },
+      {
+        text: 'Press your upper arm firmly against the pole at shoulder height — this is your primary anchor.',
+        timestamp: 14,
+      },
+      { text: 'Place the same-side hand below the elbow for secondary support.', timestamp: 20 },
+      { text: 'Kick the far leg out to the side and let your body go horizontal.', timestamp: 28 },
+      {
+        text: 'Stack the near leg directly on top — both legs parallel to the floor.',
+        timestamp: 36,
+      },
+      {
+        text: 'Isometrically push the arm into the pole; the body stays up through pressure, not gripping.',
+        timestamp: 44,
+      },
+      {
+        text: 'Point both feet and extend through the toes for a clean horizontal line.',
+        timestamp: 50,
+      },
+    ],
+    stepsData_pl: [
+      { text: 'Stań obok słupa ustawionym przy bliższym ramieniu.', timestamp: 6 },
+      {
+        text: 'Przyciśnij mocno górną część ramienia do słupa na jego wysokości — to twoja główna kotwica.',
+        timestamp: 14,
+      },
+      {
+        text: 'Umieść rękę tej samej strony poniżej łokcia dla dodatkowego wsparcia.',
+        timestamp: 20,
+      },
+      {
+        text: 'Kopnij dalszą nogą w bok i pozwól ciału przejść do poziomej pozycji.',
+        timestamp: 28,
+      },
+      {
+        text: 'Ułóż bliższą nogę bezpośrednio na wierzchu — obie nogi równolegle do podłogi.',
+        timestamp: 36,
+      },
+      {
+        text: 'Izometrycznie naciskaj ramieniem w słup; ciało unosi się przez nacisk, nie przez chwyt.',
+        timestamp: 44,
+      },
+      { text: 'Wyciągnij obie stopy i palce, by uzyskać czystą poziomą linię.', timestamp: 50 },
+    ],
+  },
+  {
+    title_en: 'Body Roll',
+    gripType_pl: 'Bez chwytu (podłoga)',
+    gripType_en: 'No grip (floor)',
+    entry_pl: 'Na czworakach lub klęcząc',
+    entry_en: 'On hands and knees or kneeling',
+    duration: '4–8 counts',
+    poleTypes: ['STATIC'] as ('STATIC' | 'SPIN')[],
+    stepsData_en: [
+      { text: 'Kneel beside the pole, one hand resting lightly on it for balance.', timestamp: 5 },
+      {
+        text: 'Begin the wave at the crown of your head — let it nod gently forward.',
+        timestamp: 12,
+      },
+      {
+        text: 'Follow through the chest: drop it down and draw it forward through the space.',
+        timestamp: 20,
+      },
+      { text: 'Continue the ripple through the ribcage and into the pelvis.', timestamp: 28 },
+      {
+        text: 'At the peak, push the hips forward and upward to complete the wave.',
+        timestamp: 36,
+      },
+      {
+        text: 'Let the wave reverse back up through the spine to reset and repeat.',
+        timestamp: 44,
+      },
+    ],
+    stepsData_pl: [
+      {
+        text: 'Klęcz obok słupa, jedną ręką lekko opierając się na nim dla równowagi.',
+        timestamp: 5,
+      },
+      {
+        text: 'Zacznij falę od czubka głowy — pozwól jej delikatnie opaść do przodu.',
+        timestamp: 12,
+      },
+      {
+        text: 'Kontynuuj przez klatkę piersiową: opuść ją i przeciągnij do przodu przez przestrzeń.',
+        timestamp: 20,
+      },
+      { text: 'Prowadź falowanie przez żebra i do miednicy.', timestamp: 28 },
+      { text: 'W kulminacji pchnij biodra do przodu i do góry, kończąc falę.', timestamp: 36 },
+      { text: 'Pozwól fali cofnąć się przez kręgosłup, by zresetować i powtórzyć.', timestamp: 44 },
+    ],
+  },
 ];
 
 async function main() {

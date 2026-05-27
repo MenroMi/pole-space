@@ -50,7 +50,7 @@ export default function MoveTabs({ breakdown }: { breakdown: ReactNode }) {
                 tabRefs.current[prevIndex]?.focus();
               }
             }}
-            className={`shrink-0 py-3 font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
+            className={`shrink-0 cursor-pointer font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
               active === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
