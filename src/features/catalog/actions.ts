@@ -30,9 +30,8 @@ function buildPoleTypeConditions(selected: PoleType[]): Prisma.MoveWhereInput[] 
   ];
 }
 
-function buildTagConditions(tags: string[], locale: Locale): Prisma.MoveWhereInput[] {
-  const nameField = locale === 'pl' ? 'name_pl' : 'name_en';
-  return tags.map((tag) => ({ tags: { some: { [nameField]: tag } } }));
+function buildTagConditions(tags: string[]): Prisma.MoveWhereInput[] {
+  return tags.map((tag) => ({ tags: { some: { name_en: tag } } }));
 }
 
 export async function getMovesAction(
@@ -48,7 +47,7 @@ export async function getMovesAction(
 
   const andConditions = [
     ...buildPoleTypeConditions(parsed.data.poleTypes ?? []),
-    ...buildTagConditions(parsed.data.tags ?? [], locale),
+    ...buildTagConditions(parsed.data.tags ?? []),
   ];
 
   const where = {

@@ -252,14 +252,14 @@ export default function CatalogFilters({
             <AccordionContent>
               <div className="flex flex-wrap gap-1.5 px-1 pt-3 pb-1">
                 {availableTags.map((tag) => {
-                  const active = selectedTags.includes(tag.name);
+                  const active = selectedTags.includes(tag.nameEn);
                   return (
                     <button
                       key={tag.id}
                       type="button"
                       aria-label={tag.name}
                       aria-pressed={active}
-                      onClick={() => toggleTag(tag.name)}
+                      onClick={() => toggleTag(tag.nameEn)}
                       className={cn(
                         'cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-all',
                         !active && 'bg-accent/70 text-muted-foreground hover:bg-accent',

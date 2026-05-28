@@ -58,7 +58,7 @@ export type LocalizedMove = Omit<
   coachNote: string | null;
 };
 
-export type LocalizedTag = Omit<RawTag, 'name_pl' | 'name_en'> & { name: string };
+export type LocalizedTag = Omit<RawTag, 'name_pl' | 'name_en'> & { name: string; nameEn: string };
 
 export function localizeMove(move: RawMove, locale: Locale): LocalizedMove {
   const pl = locale === 'pl';
@@ -90,5 +90,5 @@ export function localizeMove(move: RawMove, locale: Locale): LocalizedMove {
 
 export function localizeTag(tag: RawTag, locale: Locale): LocalizedTag {
   const { name_pl, name_en, ...rest } = tag;
-  return { ...rest, name: locale === 'pl' ? name_pl : name_en };
+  return { ...rest, name: locale === 'pl' ? name_pl : name_en, nameEn: name_en };
 }
