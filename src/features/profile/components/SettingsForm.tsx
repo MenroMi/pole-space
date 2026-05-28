@@ -1,6 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BadgeCheck, Lock, User } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
@@ -133,6 +134,7 @@ export default function SettingsForm({
 }: SettingsFormProps) {
   const t = useTranslations('profile');
   const router = useRouter();
+  const { update } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
@@ -167,6 +169,10 @@ export default function SettingsForm({
         setProfileError(profileResult.error);
         return;
       }
+
+      const newName =
+        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+      await update({ name: newName });
 
       const preCheck = passwordForm.getValues();
       if (preCheck.currentPassword || preCheck.newPassword || preCheck.confirmPassword) {
