@@ -197,10 +197,13 @@ export default function SettingsForm({
   return (
     <form onSubmit={handleSave} className="space-y-6 px-4 pt-4 pb-28 sm:space-y-8 sm:p-6 md:p-12">
       <div className="space-y-2">
-        <h1 className="font-display text-3xl tracking-tight text-primary lowercase sm:text-4xl md:text-5xl">
+        <div className="mb-3 h-[3px] w-8 rounded-full bg-primary sm:hidden" />
+        <h1 className="font-display text-[28px] leading-tight tracking-tight text-on-surface lowercase sm:text-4xl sm:text-primary md:text-5xl">
           {t('settingsHeading')}
         </h1>
-        <p className="text-base text-on-surface-variant sm:text-lg">{t('settingsSubtitle')}</p>
+        <p className="text-sm text-on-surface-variant/70 sm:text-base sm:text-on-surface-variant md:text-lg">
+          {t('settingsSubtitle')}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-12">
@@ -356,14 +359,14 @@ export default function SettingsForm({
           <button
             type="button"
             onClick={handleDiscard}
-            className="order-1 cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first"
+            className="order-1 w-full cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first lg:w-auto"
           >
             {t('discardButton')}
           </button>
           <button
             type="submit"
             disabled={isPending}
-            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
+            className="kinetic-gradient w-full cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50 lg:w-auto"
           >
             {isPending ? t('saving') : t('saveChanges')}
           </button>
