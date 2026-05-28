@@ -2,16 +2,12 @@
 import { ImageOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { extractVideoId } from '@/features/moves/lib/youtube';
 import { Link } from '@/i18n/navigation';
 
 import type { LocalizedMoveWithTags } from '../types';
 
 import MoveCardImage from './MoveCardImage';
-
-function extractVideoId(youtubeUrl: string): string | null {
-  const match = youtubeUrl.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
 
 const DIFFICULTY_BADGE: Record<string, { style: React.CSSProperties }> = {
   BEGINNER: { style: { backgroundColor: 'rgba(132,88,179,0.15)', color: 'rgb(197,175,226)' } },

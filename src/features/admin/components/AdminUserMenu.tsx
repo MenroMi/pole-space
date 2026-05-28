@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Link } from '@/i18n/navigation';
 import {
@@ -43,6 +43,15 @@ export function AdminUserMenu({
   const tc = useTranslations('common');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [signOutError, setSignOutError] = useState(false);
+
+  // Close the dialog when the viewport crosses the lg breakpoint — prevents a
+  // ghost portal from staying open after a CSS-hidden instance is no longer visible.
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const close = () => setConfirmOpen(false);
+    mq.addEventListener('change', close);
+    return () => mq.removeEventListener('change', close);
+  }, []);
 
   const handleDialogOpenChange = (open: boolean) => {
     setConfirmOpen(open);

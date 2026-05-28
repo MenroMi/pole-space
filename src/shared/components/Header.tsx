@@ -3,7 +3,6 @@ import { getTranslations } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
-import { prisma } from '@/shared/lib/prisma';
 
 import FavouritesButton from './FavouritesButton';
 import HeaderNav from './HeaderNav';
@@ -12,19 +11,10 @@ import UserMenu from './UserMenu';
 
 export default async function Header() {
   const [session, t] = await Promise.all([auth(), getTranslations('nav')]);
-  let user: { name: string | null; image: string | null } | null = null;
-  let role: string | null = null;
-  if (session?.user?.id) {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { firstName: true, lastName: true, image: true, role: true },
-    });
-    if (dbUser) {
-      const name = [dbUser.firstName, dbUser.lastName].filter(Boolean).join(' ') || null;
-      user = { name, image: dbUser.image ?? null };
-      role = dbUser.role;
-    }
-  }
+  const user = session?.user
+    ? { name: session.user.name ?? null, image: session.user.image ?? null }
+    : null;
+  const role = (session?.user?.role as string | null) ?? null;
 
   return (
     <header

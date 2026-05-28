@@ -1,6 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 import type { LearnStatus } from '@/shared/types';
 
@@ -26,7 +26,7 @@ export default function ProgressStatusPicker({
   const [pill, setPill] = useState<PillGeometry | null>(null);
 
   // Sync pill position when status changes externally (e.g. from ProgressCard strip)
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current || !hasActive) {
       setPill(null);
       return;
@@ -65,7 +65,7 @@ export default function ProgressStatusPicker({
             aria-pressed={active}
             className={`relative z-10 cursor-pointer rounded-md px-3 py-2 font-sans text-xs font-semibold transition-colors duration-200 disabled:cursor-default sm:text-sm ${
               active ? 'text-[#f8ebff]' : 'text-on-surface-variant hover:text-on-surface'
-            } ${i === 0 ? 'flex-[2]' : 'flex-1'}`}
+            } flex-1`}
           >
             {te(`learnStatus.${value}`)}
           </button>
