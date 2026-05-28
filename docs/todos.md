@@ -519,13 +519,23 @@ _Negative:_
 
 ### Pending
 
-- [ ] Profile Overview page — review if mobile polish needed (bento cards, stats)
-- [ ] Profile Settings page — no pixel-perfect mobile pass yet
-- [ ] Profile: 2-col tablet layout (768–1279px) for bento cards
 - [ ] `username` always NULL — no UI to set it
 - [ ] Elite Member badge — hardcoded stub, no membership logic
 - [ ] Facebook OAuth JWT callback — `src/shared/lib/auth.config.ts:13`, `profile.picture` shape fix before enabling
 - [ ] Playwright e2e tests
+
+~~**Profile Overview — mobile polish**~~ ✅ Done (2026-05-28, commit 9777924)
+
+- `ProfileOverview`: bento grid 2-col from `md` (768px) instead of `lg`
+- `ProfileFavouritesPreview`: `grid-cols-2` on mobile, `grid-cols-3` from `sm`
+
+~~**Profile Settings — mobile pass**~~ ✅ Done (2026-05-28, commit 0fc717b)
+
+- Accent line (`sm:hidden`) before heading, matching ProgressTracker/FavouriteMovesGallery pattern
+- `h1`: `text-[28px]` + `text-on-surface` on mobile, `sm:text-primary` on desktop
+- Action buttons: `w-full` on mobile, `lg:w-auto` on desktop
+
+~~**Profile: 2-col tablet layout**~~ ✅ Done (2026-05-28, commit 9777924)
 
 ### Tech Debt (admin + mobile, 2026-05-28)
 
