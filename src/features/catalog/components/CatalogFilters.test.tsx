@@ -20,8 +20,8 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 const mockTags = [
-  { id: 'tag-1', name: 'aerial', color: '#3b82f6' },
-  { id: 'tag-2', name: 'flexibility', color: '#a855f7' },
+  { id: 'tag-1', name: 'aerial', nameEn: 'aerial', color: '#3b82f6' },
+  { id: 'tag-2', name: 'flexibility', nameEn: 'flexibility', color: '#a855f7' },
 ];
 
 describe('CatalogFilters', () => {

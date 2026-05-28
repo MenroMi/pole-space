@@ -39,11 +39,6 @@ export default function MoveBreakdown({
             <div className="flex flex-1 flex-col gap-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-1 flex-col gap-0.5">
-                  {step.title && (
-                    <p className="font-display text-sm font-semibold text-on-surface">
-                      {step.title}
-                    </p>
-                  )}
                   <p className="font-sans text-sm leading-relaxed text-on-surface-variant">
                     {step.text}
                   </p>
