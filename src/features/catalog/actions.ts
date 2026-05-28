@@ -31,7 +31,9 @@ function buildPoleTypeConditions(selected: PoleType[]): Prisma.MoveWhereInput[] 
 }
 
 function buildTagConditions(tags: string[]): Prisma.MoveWhereInput[] {
-  return tags.map((tag) => ({ tags: { some: { name_en: tag } } }));
+  return tags.map((tag) => ({
+    tags: { some: { OR: [{ name_en: tag }, { name_pl: tag }] } },
+  }));
 }
 
 export async function getMovesAction(

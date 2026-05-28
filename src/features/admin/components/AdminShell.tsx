@@ -377,6 +377,7 @@ export function AdminShell({
           return (
             <button
               key={key}
+              type="button"
               onClick={() => onSectionChange(key)}
               aria-current={active ? 'page' : undefined}
               style={{
