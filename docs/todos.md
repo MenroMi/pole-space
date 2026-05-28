@@ -593,3 +593,34 @@ _Negative:_
 ~~**`ProgressStatusPicker` — `flex-[2]` breaks WantToLearnRow pill geometry**~~ ✅
 
 - All buttons now `flex-1` (equal width)
+
+### Round 3 (commit 1a5b4b6)
+
+~~**4× duplicate `isMobile` resize listeners**~~ ✅
+
+- Extracted `src/shared/hooks/useIsMobile.ts` (matchMedia-based, lazy init, no debounce)
+- Replaced ad-hoc `useState+useEffect` in `AdminMoves`, `AdminUsers`, `AdminTags`, `MoveModal`
+
+~~**`AdminShell` safe-area `calc()` — missing whitespace**~~ ✅
+
+- `pb-[calc(56px+env(...))]` → `pb-[calc(56px_+_env(...))]` (Tailwind underscore for space)
+
+~~**`CatalogFilters` mobile sheet — no Escape key handler**~~ ✅
+
+- `useEffect` closes sheet on `Escape`; cleanup removes listener
+
+~~**`CatalogFilters` `toggleTag` — OR-fallback missing for tag display**~~ ✅
+
+- `active` check: `selectedTags.includes(tag.nameEn) || selectedTags.includes(tag.name)` — consistent with backend `buildTagConditions`
+
+~~**`SettingsForm` — `update()` called before password validation**~~ ✅
+
+- `await update({ name: newName })` moved to after password action succeeds
+
+~~**`SettingsForm` — `watch()` incompatible with React Compiler**~~ ✅
+
+- `profileForm.watch('firstName')` → `useWatch({ control, name: 'firstName' })`
+
+~~**`admin/page.tsx` — `image: true` in DB select**~~ ✅
+
+- Removed `image` from `findUnique` select; reads from `session.user.image` instead
