@@ -537,30 +537,59 @@ _Negative:_
 
 ~~**Profile: 2-col tablet layout**~~ ✅ Done (2026-05-28, commit 9777924)
 
-### Tech Debt (admin + mobile, 2026-05-28)
+~~**Tech Debt — admin + mobile**~~ ✅ All resolved (2026-05-28, commits dbb43c9, 238cbd5, c696afa)
 
-**`admin/page.tsx` — redundant `prisma.user.findUnique` for image**
+~~**`admin/page.tsx` — always-fresh name/image**~~ ✅ Fixed (238cbd5)
 
-- `session.user.image` is already populated from `token.picture` via the session callback in `auth.config.ts` — the DB call to fetch `image` is a wasted round-trip on every admin page load
-- `session.user.name` is NOT explicitly assigned in the session callback (only `token.name` is set, but the implicit NextAuth merge may be suppressed by the explicit `session` callback) — needs audit before removing the `firstName`+`lastName` DB fetch
-- Fix: audit `auth.config.ts` session callback; if `token.name` maps to `session.user.name` automatically, replace the entire `findUnique` with `session.user.name` + `session.user.image`; otherwise keep DB fetch only for `firstName`+`lastName` and read image from `session.user.image`
-- File: `src/app/[locale]/admin/page.tsx:11`
+- `admin/page.tsx` now reads `firstName`/`lastName`/`image` from DB directly — shows updated profile immediately after settings save
+- `SettingsForm` calls `update({ name })` after save — JWT synced for client-side `useSession()` consumers
 
-**`AdminShell` — `isMobile` JS detection causes button flash on mobile**
+~~**`Header` + `MobileBottomNav` — redundant DB calls for role**~~ ✅ Fixed (c696afa)
 
-- `isMobile` initialises as `false` (SSR-safe), so the topbar renders the sidebar-toggle button on first paint, then swaps to the back-to-catalog Link after `useEffect` fires — visible flicker on slow connections
-- Same problem affects sidebar visibility (`display: isMobile ? 'none' : 'flex'`) and main content `paddingBottom` — all three cause CLS on mobile first paint
-- Fix: replace `isMobile` state with CSS-only visibility (`hidden lg:flex` / `lg:hidden`) for the topbar toggle/link and sidebar; use `pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0` for the content wrapper — eliminates JS dependency and layout shift entirely
-- File: `src/features/admin/components/AdminShell.tsx:41`
+- Both now read `role` from `session.user.role` (already in JWT via auth.config.ts) — eliminates 2 DB queries per main-layout page load
 
-~~**`AdminUserMenu` — stale `confirmOpen` on resize**~~ ✅ Fixed (2026-05-28)
+~~**`AdminShell` — `isMobile` JS detection causes CLS**~~ ✅ Fixed (dbb43c9)
 
-- Sidebar `AdminUserMenu` now conditionally rendered (`{!isMobile && ...}`) — AlertDialog portal is never created while the sidebar is hidden
+- Replaced with CSS-only (`hidden lg:flex` / `flex lg:hidden`); `paddingBottom` via Tailwind `pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0`
 
-~~**`AdminUserMenu` — missing `type="button"` on trigger buttons**~~ ✅ Fixed (2026-05-28)
+~~**`AdminUserMenu` — ghost AlertDialog portal on breakpoint resize**~~ ✅ Fixed (c696afa)
 
-- Both `<button>` elements in `AdminUserMenu.tsx` now have `type="button"`
+- `useEffect` closes `confirmOpen` on `matchMedia('(min-width: 1024px)')` change — Radix portal can't stay open after CSS-hidden instance transitions away
 
-~~**`AdminUserMenu` — `collapsed` required but ignored in compact mode**~~ ✅ Fixed (2026-05-28)
+~~**`AdminUserMenu` — missing `type="button"`, `collapsed` required**~~ ✅ Fixed (dbb43c9)
 
-- Prop changed to `collapsed?: boolean`; component uses `collapsed ?? false` internally
+---
+
+## Code Review Fixes (feat/mobile-design, 2026-05-28)
+
+### Round 1 (commit 7b7ba66)
+
+~~**`AdminShell` mobile bottom nav — missing `type="button"`**~~ ✅
+
+~~**`ProgressStatusPicker` — `flex-2` invalid Tailwind class**~~ ✅ → `flex-[2]` then → `flex-1` (see round 2)
+
+~~**`catalog/actions.ts` — old Polish-locale tag bookmarks silently return 0 results**~~ ✅
+
+- `buildTagConditions` now uses `OR [name_en, name_pl]` for backward-compat
+
+### Round 2 (commit c696afa)
+
+~~**`AdminUserMenu` — ghost AlertDialog on breakpoint resize**~~ ✅ (see tech debt above)
+
+~~**`Header` + `MobileBottomNav` — redundant DB queries for role**~~ ✅ (see tech debt above)
+
+~~**`MoveFavouriteButton` — toggle race: closed-over `isFavourited` prop**~~ ✅
+
+- Toggle now branches on `optimisticFav` — fixes double-add/remove on rapid taps
+
+~~**`MoveCard` — local `extractVideoId` misses `embed/` URLs**~~ ✅
+
+- Replaced with shared `extractVideoId` from `features/moves/lib/youtube.ts`
+
+~~**`ProgressStatusPicker` — pill flash on first render**~~ ✅
+
+- `useEffect` → `useLayoutEffect` for pill sync (no first-paint jump)
+
+~~**`ProgressStatusPicker` — `flex-[2]` breaks WantToLearnRow pill geometry**~~ ✅
+
+- All buttons now `flex-1` (equal width)
