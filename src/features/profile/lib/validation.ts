@@ -11,7 +11,15 @@ export const profileSchema = z.object({
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
 // Narrower schema for the settings form — location is read-only there and never submitted
-export const profileNameSchema = profileSchema.pick({ firstName: true, lastName: true });
+export const profileNameSchema = profileSchema.pick({ firstName: true, lastName: true }).extend({
+  username: z
+    .string()
+    .trim()
+    .refine((v) => v.length === 0 || (v.length >= 3 && v.length <= 30 && /^[a-z0-9_-]+$/.test(v)), {
+      message: 'Username must be 3–30 characters: lowercase letters, numbers, _ and -',
+    })
+    .transform((v) => (v.length === 0 ? null : v)),
+});
 export type ProfileNameFormValues = z.infer<typeof profileNameSchema>;
 
 export const changePasswordSchema = z

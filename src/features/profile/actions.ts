@@ -12,7 +12,7 @@ import { localizeMove, localizeTag } from '@/shared/lib/localize';
 import { prisma } from '@/shared/lib/prisma';
 import type { LearnStatus } from '@/shared/types';
 
-import { profileSchema } from './lib/validation';
+import { profileNameSchema } from './lib/validation';
 import type { FavouriteWithMove, ProgressWithMove } from './types';
 
 async function requireAuth() {
@@ -64,19 +64,34 @@ export async function removeProgressAction(moveId: string) {
 export async function updateProfileAction(data: {
   firstName: string;
   lastName: string;
+  username?: string | null;
   location?: string | null;
 }) {
   const userId = await requireAuth();
-  const parsed = profileSchema.safeParse(data);
+  const parsed = profileNameSchema.safeParse(data);
   if (!parsed.success) return { success: false as const, error: 'Invalid input' };
 
-  const updateData: { firstName: string; lastName: string; location?: string | null } = {
+  const updateData: {
+    firstName: string;
+    lastName: string;
+    username?: string | null;
+    location?: string | null;
+  } = {
     firstName: parsed.data.firstName,
     lastName: parsed.data.lastName,
+    username: parsed.data.username ?? null,
   };
-  if (parsed.data.location !== undefined) updateData.location = parsed.data.location;
+  if ('location' in data) updateData.location = data.location;
 
-  await prisma.user.update({ where: { id: userId }, data: updateData });
+  try {
+    await prisma.user.update({ where: { id: userId }, data: updateData });
+  } catch (e) {
+    const { Prisma } = await import('@prisma/client');
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return { success: false as const, error: 'USERNAME_TAKEN' };
+    }
+    throw e;
+  }
   revalidatePath('/', 'layout');
   return { success: true as const };
 }
@@ -194,7 +209,14 @@ export async function getProfileSettingsAction() {
   const userId = await requireAuth();
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { firstName: true, lastName: true, image: true, location: true, password: true },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      image: true,
+      location: true,
+      password: true,
+    },
   });
   if (!user) return null;
   const { password, ...profile } = user;

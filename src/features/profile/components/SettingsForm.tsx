@@ -117,6 +117,7 @@ PasswordField.displayName = 'PasswordField';
 type SettingsFormProps = {
   firstName: string | null;
   lastName: string | null;
+  username: string | null;
   image: string | null;
   location: string | null;
   email: string | null;
@@ -126,6 +127,7 @@ type SettingsFormProps = {
 export default function SettingsForm({
   firstName,
   lastName,
+  username,
   image,
   location,
   email,
@@ -141,6 +143,7 @@ export default function SettingsForm({
     defaultValues: {
       firstName: firstName ?? '',
       lastName: lastName ?? '',
+      username: username ?? '',
     },
   });
 
@@ -161,10 +164,15 @@ export default function SettingsForm({
       const profileResult = await updateProfileAction({
         firstName: profileValues.firstName,
         lastName: profileValues.lastName,
+        username: profileValues.username,
       });
 
       if (!profileResult.success) {
-        setProfileError(profileResult.error);
+        if (profileResult.error === 'USERNAME_TAKEN') {
+          profileForm.setError('username', { message: t('settingsUsernameTaken') });
+        } else {
+          setProfileError(profileResult.error);
+        }
         return;
       }
 
@@ -270,6 +278,33 @@ export default function SettingsForm({
               {profileForm.formState.errors.lastName && (
                 <p id="lastName-error" role="alert" className="text-sm text-destructive">
                   {profileForm.formState.errors.lastName.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="username"
+                className="text-xs tracking-widest text-on-surface-variant uppercase"
+              >
+                {t('settingsUsernameLabel')}
+              </label>
+              <Input
+                id="username"
+                {...profileForm.register('username')}
+                placeholder={t('settingsUsernamePlaceholder')}
+                aria-invalid={!!profileForm.formState.errors.username}
+                aria-describedby={
+                  profileForm.formState.errors.username ? 'username-error' : 'username-hint'
+                }
+                className="placeholder:text-on-surface-variant/40"
+              />
+              {profileForm.formState.errors.username ? (
+                <p id="username-error" role="alert" className="text-sm text-destructive">
+                  {profileForm.formState.errors.username.message}
+                </p>
+              ) : (
+                <p id="username-hint" className="text-xs text-on-surface-variant/60">
+                  {t('settingsUsernameHint')}
                 </p>
               )}
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 
 import { Link } from '@/i18n/navigation';
 import LocaleSwitcher from '@/shared/components/LocaleSwitcher';
@@ -38,15 +38,7 @@ export function AdminShell({
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === 'true',
   );
-  const [isMobile, setIsMobile] = useState(false);
   const t = useTranslations('admin');
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
 
   function toggleCollapsed() {
     setCollapsed((c) => {
@@ -77,8 +69,8 @@ export function AdminShell({
     >
       {/* Sidebar — hidden on mobile */}
       <aside
+        className="hidden lg:flex"
         style={{
-          display: isMobile ? 'none' : 'flex',
           flexDirection: 'column',
           width: collapsed ? 64 : 240,
           minWidth: collapsed ? 64 : 240,
@@ -252,26 +244,24 @@ export function AdminShell({
             flexShrink: 0,
           }}
         >
-          {!isMobile && (
-            <AdminUserMenu
-              currentUserName={currentUserName}
-              currentUserImage={currentUserImage}
-              initials={initials}
-              collapsed={collapsed}
-            />
-          )}
+          <AdminUserMenu
+            currentUserName={currentUserName}
+            currentUserImage={currentUserImage}
+            initials={initials}
+            collapsed={collapsed}
+          />
         </div>
       </aside>
 
       {/* Main content */}
       <div
+        className="pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0"
         style={{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           minWidth: 0,
           overflow: 'hidden',
-          paddingBottom: isMobile ? 'calc(56px + env(safe-area-inset-bottom, 0px))' : 0,
         }}
       >
         {/* Topbar */}
@@ -292,53 +282,51 @@ export function AdminShell({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {isMobile ? (
-              <Link
-                href="/catalog"
-                aria-label={t('nav.backToCatalog')}
-                style={{
-                  background: 'transparent',
-                  color: '#978e9b',
-                  display: 'flex',
-                  padding: 6,
-                  borderRadius: 6,
-                  transition: 'color 150ms',
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = '#e2e2e2';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = '#978e9b';
-                }}
-              >
-                <NavIcon name="ArrowLeft" size={18} />
-              </Link>
-            ) : (
-              <button
-                onClick={toggleCollapsed}
-                aria-label={t('nav.toggleSidebar')}
-                aria-expanded={!collapsed}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#978e9b',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  padding: 6,
-                  borderRadius: 6,
-                  transition: 'color 150ms',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#e2e2e2';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#978e9b';
-                }}
-              >
-                <NavIcon name="BarChart" size={18} />
-              </button>
-            )}
+            <Link
+              href="/catalog"
+              aria-label={t('nav.backToCatalog')}
+              className="flex lg:hidden"
+              style={{
+                background: 'transparent',
+                color: '#978e9b',
+                padding: 6,
+                borderRadius: 6,
+                transition: 'color 150ms',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = '#e2e2e2';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = '#978e9b';
+              }}
+            >
+              <NavIcon name="ArrowLeft" size={18} />
+            </Link>
+            <button
+              type="button"
+              onClick={toggleCollapsed}
+              aria-label={t('nav.toggleSidebar')}
+              aria-expanded={!collapsed}
+              className="hidden lg:flex"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#978e9b',
+                cursor: 'pointer',
+                padding: 6,
+                borderRadius: 6,
+                transition: 'color 150ms',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e2e2e2';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#978e9b';
+              }}
+            >
+              <NavIcon name="BarChart" size={18} />
+            </button>
             <span
               style={{
                 fontFamily: 'var(--font-space-grotesk)',
@@ -355,75 +343,72 @@ export function AdminShell({
             <Suspense fallback={null}>
               <LocaleSwitcher />
             </Suspense>
-            {isMobile && (
+            <div className="flex lg:hidden">
               <AdminUserMenu
                 compact
                 currentUserName={currentUserName}
                 currentUserImage={currentUserImage}
                 initials={initials}
-                collapsed={false}
               />
-            )}
+            </div>
           </div>
         </header>
         <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
       </div>
 
       {/* Mobile bottom tab bar */}
-      {isMobile && (
-        <nav
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 56,
-            zIndex: 100,
-            display: 'flex',
-            background: 'rgba(13,13,13,0.94)',
-            backdropFilter: 'blur(24px)',
-            borderTop: '1px solid rgba(75,68,80,0.2)',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          }}
-        >
-          {NAV_ITEMS.map(({ key, icon }) => {
-            const active = activeSection === key;
-            return (
-              <button
-                key={key}
-                onClick={() => onSectionChange(key)}
-                aria-current={active ? 'page' : undefined}
+      <nav
+        className="flex lg:hidden"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          zIndex: 100,
+          background: 'rgba(13,13,13,0.94)',
+          backdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(75,68,80,0.2)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        {NAV_ITEMS.map(({ key, icon }) => {
+          const active = activeSection === key;
+          return (
+            <button
+              key={key}
+              onClick={() => onSectionChange(key)}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: active ? '#dcb8ff' : '#978e9b',
+                transition: 'color 150ms',
+              }}
+            >
+              <NavIcon name={icon} size={20} />
+              <span
                 style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 3,
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: active ? '#dcb8ff' : '#978e9b',
-                  transition: 'color 150ms',
+                  fontFamily: 'var(--font-manrope)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
                 }}
               >
-                <NavIcon name={icon} size={20} />
-                <span
-                  style={{
-                    fontFamily: 'var(--font-manrope)',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {t(`nav.${key}`)}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-      )}
+                {t(`nav.${key}`)}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
