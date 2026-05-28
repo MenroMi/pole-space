@@ -661,7 +661,7 @@ function RecentMoves({ moves }: { moves: AdminStats['recentMoves'] }) {
   );
 }
 
-export function AdminDashboard() {
+export function AdminDashboard({ currentUserName }: { currentUserName?: string | null }) {
   const t = useTranslations('admin');
   const locale = useLocale();
   const tRef = useRef(t);
@@ -771,7 +771,7 @@ export function AdminDashboard() {
         >
           {t('dashboard.greeting')}{' '}
           <em style={{ color: '#dcb8ff', fontStyle: 'italic', fontWeight: 500 }}>
-            {t('dashboard.greetingAdmin')}
+            {currentUserName ?? 'Admin'}
           </em>
         </h1>
         <p

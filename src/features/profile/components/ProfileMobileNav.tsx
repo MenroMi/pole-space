@@ -17,7 +17,7 @@ export default function ProfileMobileNav() {
   return (
     <nav
       aria-label={t('profileNavLabel')}
-      className="scrollbar-none sticky top-14 z-10 flex gap-1.5 overflow-x-auto border-b border-outline-variant/20 bg-surface/80 px-3.5 py-2.5 backdrop-blur-md sm:top-[60px] lg:hidden"
+      className="scrollbar-none sticky top-14 z-20 flex gap-1.5 overflow-x-auto border-b border-outline-variant/20 bg-surface/80 px-3.5 py-2.5 backdrop-blur-md sm:top-[60px] lg:hidden"
     >
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href;

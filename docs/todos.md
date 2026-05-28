@@ -526,3 +526,31 @@ _Negative:_
 - [ ] Elite Member badge — hardcoded stub, no membership logic
 - [ ] Facebook OAuth JWT callback — `src/shared/lib/auth.config.ts:13`, `profile.picture` shape fix before enabling
 - [ ] Playwright e2e tests
+
+### Tech Debt (admin + mobile, 2026-05-28)
+
+**`admin/page.tsx` — redundant `prisma.user.findUnique` for image**
+
+- `session.user.image` is already populated from `token.picture` via the session callback in `auth.config.ts` — the DB call to fetch `image` is a wasted round-trip on every admin page load
+- `session.user.name` is NOT explicitly assigned in the session callback (only `token.name` is set, but the implicit NextAuth merge may be suppressed by the explicit `session` callback) — needs audit before removing the `firstName`+`lastName` DB fetch
+- Fix: audit `auth.config.ts` session callback; if `token.name` maps to `session.user.name` automatically, replace the entire `findUnique` with `session.user.name` + `session.user.image`; otherwise keep DB fetch only for `firstName`+`lastName` and read image from `session.user.image`
+- File: `src/app/[locale]/admin/page.tsx:11`
+
+**`AdminShell` — `isMobile` JS detection causes button flash on mobile**
+
+- `isMobile` initialises as `false` (SSR-safe), so the topbar renders the sidebar-toggle button on first paint, then swaps to the back-to-catalog Link after `useEffect` fires — visible flicker on slow connections
+- Same problem affects sidebar visibility (`display: isMobile ? 'none' : 'flex'`) and main content `paddingBottom` — all three cause CLS on mobile first paint
+- Fix: replace `isMobile` state with CSS-only visibility (`hidden lg:flex` / `lg:hidden`) for the topbar toggle/link and sidebar; use `pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0` for the content wrapper — eliminates JS dependency and layout shift entirely
+- File: `src/features/admin/components/AdminShell.tsx:41`
+
+~~**`AdminUserMenu` — stale `confirmOpen` on resize**~~ ✅ Fixed (2026-05-28)
+
+- Sidebar `AdminUserMenu` now conditionally rendered (`{!isMobile && ...}`) — AlertDialog portal is never created while the sidebar is hidden
+
+~~**`AdminUserMenu` — missing `type="button"` on trigger buttons**~~ ✅ Fixed (2026-05-28)
+
+- Both `<button>` elements in `AdminUserMenu.tsx` now have `type="button"`
+
+~~**`AdminUserMenu` — `collapsed` required but ignored in compact mode**~~ ✅ Fixed (2026-05-28)
+
+- Prop changed to `collapsed?: boolean`; component uses `collapsed ?? false` internally

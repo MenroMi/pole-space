@@ -22,9 +22,11 @@ function getSavedSection(): Section {
 export function AdminApp({
   currentUserId,
   currentUserName,
+  currentUserImage,
 }: {
   currentUserId: string | null;
   currentUserName?: string | null;
+  currentUserImage?: string | null;
 }) {
   const [section, setSection] = useState<Section>(getSavedSection);
 
@@ -38,8 +40,9 @@ export function AdminApp({
       activeSection={section}
       onSectionChange={handleSectionChange}
       currentUserName={currentUserName}
+      currentUserImage={currentUserImage}
     >
-      {section === 'dashboard' && <AdminDashboard />}
+      {section === 'dashboard' && <AdminDashboard currentUserName={currentUserName} />}
       {section === 'moves' && <AdminMoves />}
       {section === 'users' && <AdminUsers currentUserId={currentUserId} />}
       {section === 'tags' && <AdminTags />}

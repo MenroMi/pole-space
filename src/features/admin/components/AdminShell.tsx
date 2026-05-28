@@ -8,6 +8,7 @@ import LocaleSwitcher from '@/shared/components/LocaleSwitcher';
 
 import { SIDEBAR_KEY } from '../constants';
 
+import { AdminUserMenu } from './AdminUserMenu';
 import { NavIcon } from './NavIcon';
 
 type Section = 'dashboard' | 'moves' | 'users' | 'tags';
@@ -17,6 +18,7 @@ interface AdminShellProps {
   activeSection: Section;
   onSectionChange: (section: Section) => void;
   currentUserName?: string | null;
+  currentUserImage?: string | null;
 }
 
 const NAV_ITEMS: { key: Section; icon: string }[] = [
@@ -31,6 +33,7 @@ export function AdminShell({
   activeSection,
   onSectionChange,
   currentUserName,
+  currentUserImage,
 }: AdminShellProps) {
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === 'true',
@@ -249,65 +252,14 @@ export function AdminShell({
             flexShrink: 0,
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: collapsed ? 0 : 10,
-              padding: collapsed ? '10px 0' : '10px 14px',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              borderRadius: 8,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: '50%',
-                flexShrink: 0,
-                background: 'linear-gradient(135deg,#52416c,#dcb8ff)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'var(--font-space-grotesk)',
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#1b1b1b',
-              }}
-            >
-              {initials}
-            </div>
-            {!collapsed && (
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#e2e2e2',
-                    fontFamily: 'var(--font-manrope)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {currentUserName || 'Admin'}
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: '#8458b3',
-                    fontFamily: 'var(--font-manrope)',
-                    fontWeight: 700,
-                  }}
-                >
-                  Admin
-                </div>
-              </div>
-            )}
-          </div>
+          {!isMobile && (
+            <AdminUserMenu
+              currentUserName={currentUserName}
+              currentUserImage={currentUserImage}
+              initials={initials}
+              collapsed={collapsed}
+            />
+          )}
         </div>
       </aside>
 
@@ -319,7 +271,7 @@ export function AdminShell({
           flexDirection: 'column',
           minWidth: 0,
           overflow: 'hidden',
-          paddingBottom: isMobile ? 56 : 0,
+          paddingBottom: isMobile ? 'calc(56px + env(safe-area-inset-bottom, 0px))' : 0,
         }}
       >
         {/* Topbar */}
@@ -340,29 +292,53 @@ export function AdminShell({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button
-              onClick={toggleCollapsed}
-              aria-label={t('nav.toggleSidebar')}
-              aria-expanded={!collapsed}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#978e9b',
-                cursor: 'pointer',
-                display: 'flex',
-                padding: 6,
-                borderRadius: 6,
-                transition: 'color 150ms',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#e2e2e2';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#978e9b';
-              }}
-            >
-              <NavIcon name="BarChart" size={18} />
-            </button>
+            {isMobile ? (
+              <Link
+                href="/catalog"
+                aria-label={t('nav.backToCatalog')}
+                style={{
+                  background: 'transparent',
+                  color: '#978e9b',
+                  display: 'flex',
+                  padding: 6,
+                  borderRadius: 6,
+                  transition: 'color 150ms',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = '#e2e2e2';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = '#978e9b';
+                }}
+              >
+                <NavIcon name="ArrowLeft" size={18} />
+              </Link>
+            ) : (
+              <button
+                onClick={toggleCollapsed}
+                aria-label={t('nav.toggleSidebar')}
+                aria-expanded={!collapsed}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#978e9b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  padding: 6,
+                  borderRadius: 6,
+                  transition: 'color 150ms',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#e2e2e2';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#978e9b';
+                }}
+              >
+                <NavIcon name="BarChart" size={18} />
+              </button>
+            )}
             <span
               style={{
                 fontFamily: 'var(--font-space-grotesk)',
@@ -379,6 +355,15 @@ export function AdminShell({
             <Suspense fallback={null}>
               <LocaleSwitcher />
             </Suspense>
+            {isMobile && (
+              <AdminUserMenu
+                compact
+                currentUserName={currentUserName}
+                currentUserImage={currentUserImage}
+                initials={initials}
+                collapsed={false}
+              />
+            )}
           </div>
         </header>
         <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
