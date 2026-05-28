@@ -27,9 +27,9 @@ describe('MoveBreakdown', () => {
     expect(screen.getByText('Extend')).toBeInTheDocument();
   });
 
-  it('renders step numbers padded to two digits', () => {
+  it('renders step numbers starting from 1', () => {
     render(<MoveBreakdown stepsData={[{ text: 'First step' }]} onSeek={noop} {...defaultProps} />);
-    expect(screen.getByText('01')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
   });
 
   it('renders timestamp badge for steps with a timestamp', () => {

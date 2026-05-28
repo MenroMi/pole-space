@@ -1,11 +1,11 @@
 'use client';
-import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 import { RESEND_COOLDOWN_S } from '@/features/auth';
 import { checkEmailVerifiedAction } from '@/features/auth/actions';
+import { useRouter } from '@/i18n/navigation';
 
 function SubmitButton({ remaining }: { remaining: number }) {
   const t = useTranslations('auth.verifyEmail');

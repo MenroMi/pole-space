@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 
 import MoveCardImage from '@/features/catalog/components/MoveCardImage';
+import { Link } from '@/i18n/navigation';
 
 import { extractVideoId } from '../lib/youtube';
 

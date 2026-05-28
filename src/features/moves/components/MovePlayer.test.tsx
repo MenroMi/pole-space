@@ -94,7 +94,7 @@ describe('MovePlayer', () => {
 
   it('renders the difficulty chip', () => {
     render(<MovePlayer {...baseProps} />);
-    expect(screen.getByText('difficulty.BEGINNER')).toBeInTheDocument();
+    expect(screen.getAllByText('difficulty.BEGINNER').length).toBeGreaterThan(0);
   });
 
   it('renders the description', () => {

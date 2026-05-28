@@ -69,11 +69,8 @@ describe('Header', () => {
   });
 
   it('passes user object to UserMenu when session exists', async () => {
-    mockAuth.mockResolvedValue({ user: { id: '1', role: 'USER' } });
-    mockFindUnique.mockResolvedValue({
-      firstName: 'Alice',
-      lastName: null,
-      image: 'https://example.com/avatar.jpg',
+    mockAuth.mockResolvedValue({
+      user: { id: '1', role: 'USER', name: 'Alice', image: 'https://example.com/avatar.jpg' },
     });
     render(await Header());
     const menu = screen.getByTestId('user-menu');

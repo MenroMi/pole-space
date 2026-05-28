@@ -1,4 +1,5 @@
 import type { UserFavourite } from '@prisma/client';
+
 import type { LocalizedMove, LocalizedTag } from '@/shared/lib/localize';
 import type { LearnStatus } from '@/shared/types';
 

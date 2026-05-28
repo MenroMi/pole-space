@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
 import { Space_Grotesk, Manrope } from 'next/font/google';
 import { notFound } from 'next/navigation';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
-import { Providers } from '@/shared/components/Providers';
 import { locales } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
+import { Providers } from '@/shared/components/Providers';
 
 import '@/app/globals.css';
 
