@@ -29,7 +29,7 @@ export default async function ProfileOverview() {
         />
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-[18px] lg:grid-cols-[1.2fr_1fr]">
+      <div className="mt-5 grid grid-cols-1 gap-[18px] md:grid-cols-[1.2fr_1fr]">
         <ProfileCurrentlyLearning moves={currentlyLearning} />
 
         <div className="flex flex-col gap-[18px]">
