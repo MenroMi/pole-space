@@ -255,7 +255,7 @@ export function AdminShell({
 
       {/* Main content */}
       <div
-        className="pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0"
+        className="pb-[calc(56px_+_env(safe-area-inset-bottom,0px))] lg:pb-0"
         style={{
           flex: 1,
           display: 'flex',

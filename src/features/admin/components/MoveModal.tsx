@@ -10,6 +10,7 @@ import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 import {
   createMoveAction,
@@ -777,13 +778,7 @@ function ClearAllBtn({ label, onClear }: { label: string; onClear: () => void })
 
 export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalProps) {
   const t = useTranslations('admin');
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const isMobile = useIsMobile();
   const [tab, setTab] = useState<Tab>('en');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);

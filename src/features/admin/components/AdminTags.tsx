@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 import {
   createTagAction,
   deleteTagAction,
@@ -609,13 +611,7 @@ export function AdminTags() {
   useEffect(() => {
     tRef.current = t;
   });
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const isMobile = useIsMobile();
   const [tags, setTags] = useState<AdminTagRow[]>([]);
   const hasFetchedRef = useRef(false);
   const [loading, setLoading] = useState(true);

@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 import {
   blockUserAction,
   changeUserRoleAction,
@@ -15,10 +17,9 @@ import {
 import type { AdminUserRow } from '../types';
 
 import { ConfirmDialog } from './ConfirmDialog';
+import { NavIcon } from './NavIcon';
 
 type RoleFilter = 'ALL' | 'USER' | 'ADMIN' | 'BLOCKED';
-
-import { NavIcon } from './NavIcon';
 
 const GRID = '2.5fr 1fr 120px 1fr 120px';
 
@@ -508,13 +509,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string | null }) 
   useEffect(() => {
     tRef.current = t;
   }, [t]);
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const isMobile = useIsMobile();
 
   // Only pre-fill from cache when the cached data matches the default view (page 1, no filters).
   // This prevents stale filter/page data from flashing on locale-change remounts.

@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { useRouter } from '@/i18n/navigation';
 import { Input } from '@/shared/components/ui/input';
@@ -170,10 +170,6 @@ export default function SettingsForm({
         return;
       }
 
-      const newName =
-        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
-      await update({ name: newName });
-
       const preCheck = passwordForm.getValues();
       if (preCheck.currentPassword || preCheck.newPassword || preCheck.confirmPassword) {
         const isPasswordValid = await passwordForm.trigger();
@@ -187,6 +183,10 @@ export default function SettingsForm({
         }
       }
 
+      const newName =
+        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+      await update({ name: newName });
+
       router.push('/profile');
     } catch {
       setProfileError(t('genericError'));
@@ -195,8 +195,8 @@ export default function SettingsForm({
     }
   });
 
-  const watchedFirstName = profileForm.watch('firstName');
-  const watchedLastName = profileForm.watch('lastName');
+  const watchedFirstName = useWatch({ control: profileForm.control, name: 'firstName' });
+  const watchedLastName = useWatch({ control: profileForm.control, name: 'lastName' });
   const displayName =
     [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || t('anonymous');
 

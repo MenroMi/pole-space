@@ -4,6 +4,8 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 import {
   deleteMoveAction,
   getMoveByIdAction,
@@ -14,6 +16,7 @@ import type { AdminMoveRow, AdminTagRow, FullAdminMove } from '../types';
 
 import { ConfirmDialog } from './ConfirmDialog';
 import { MoveModal } from './MoveModal';
+import { NavIcon } from './NavIcon';
 
 type DifficultyFilter = 'ALL' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
@@ -24,8 +27,6 @@ const DIFF_STYLES: Record<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED', { bg: string
   INTERMEDIATE: { bg: 'rgba(132,88,179,0.20)', fg: '#c5afe2' },
   ADVANCED: { bg: 'rgba(251,191,36,0.14)', fg: '#fbbf24' },
 };
-
-import { NavIcon } from './NavIcon';
 
 function Chip({ label, bg, fg }: { label: string; bg: string; fg: string }) {
   return (
@@ -409,13 +410,7 @@ export function AdminMoves() {
   useEffect(() => {
     tRef.current = t;
   }, [t]);
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const isMobile = useIsMobile();
 
   const cacheHit = _movesCache !== null && _movesCacheKey === DEFAULT_MOVES_CACHE_KEY;
   const hasFetchedRef = useRef(cacheHit);

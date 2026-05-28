@@ -1,7 +1,7 @@
 'use client';
 import { Check, Gauge, RotateCw, Search, SlidersHorizontal, Tag, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useRouter } from '@/i18n/navigation';
@@ -94,12 +94,24 @@ export default function CatalogFilters({
     navigate({ difficulty: next });
   };
 
-  const toggleTag = (name: string) => {
-    const next = selectedTags.includes(name)
-      ? selectedTags.filter((v) => v !== name)
-      : [...selectedTags, name];
+  const toggleTag = (nameEn: string, nameFallback?: string) => {
+    const isActive =
+      selectedTags.includes(nameEn) ||
+      (nameFallback != null && selectedTags.includes(nameFallback));
+    const next = isActive
+      ? selectedTags.filter((v) => v !== nameEn && v !== nameFallback)
+      : [...selectedTags.filter((v) => v !== nameFallback), nameEn];
     navigate({ tags: next });
   };
+
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSheetOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [sheetOpen]);
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
@@ -252,14 +264,15 @@ export default function CatalogFilters({
             <AccordionContent>
               <div className="flex flex-wrap gap-1.5 px-1 pt-3 pb-1">
                 {availableTags.map((tag) => {
-                  const active = selectedTags.includes(tag.nameEn);
+                  const active =
+                    selectedTags.includes(tag.nameEn) || selectedTags.includes(tag.name);
                   return (
                     <button
                       key={tag.id}
                       type="button"
                       aria-label={tag.name}
                       aria-pressed={active}
-                      onClick={() => toggleTag(tag.nameEn)}
+                      onClick={() => toggleTag(tag.nameEn, tag.name)}
                       className={cn(
                         'cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-all',
                         !active && 'bg-accent/70 text-muted-foreground hover:bg-accent',

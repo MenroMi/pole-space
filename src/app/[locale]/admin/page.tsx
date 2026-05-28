@@ -7,16 +7,15 @@ export default async function AdminPage() {
   const currentUserId = session?.user?.id ?? null;
 
   let currentUserName: string | null = null;
-  let currentUserImage: string | null = null;
+  const currentUserImage: string | null = session?.user?.image ?? null;
 
   if (currentUserId) {
     const user = await prisma.user.findUnique({
       where: { id: currentUserId },
-      select: { firstName: true, lastName: true, image: true },
+      select: { firstName: true, lastName: true },
     });
     if (user) {
       currentUserName = [user.firstName, user.lastName].filter(Boolean).join(' ') || null;
-      currentUserImage = user.image;
     }
   }
 
