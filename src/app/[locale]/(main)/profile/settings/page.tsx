@@ -9,7 +9,6 @@ export default async function SettingsPage() {
     <SettingsForm
       firstName={user?.firstName ?? null}
       lastName={user?.lastName ?? null}
-      username={user?.username ?? null}
       image={user?.image ?? null}
       location={user?.location ?? null}
       email={session?.user?.email ?? null}
