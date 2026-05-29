@@ -603,7 +603,7 @@ _Negative:_
 
 ~~**`AdminShell` safe-area `calc()` — missing whitespace**~~ ✅
 
-- `pb-[calc(56px+env(...))]` → `pb-[calc(56px_+_env(...))]` (Tailwind underscore for space)
+- Missing whitespace inside `calc(56px+env(safe-area-inset-bottom,0px))`; Tailwind v4 requires literal `_+_` (underscore-plus-underscore) in arbitrary values to represent a space. Real fix in `AdminShell.tsx` uses the underscore form.
 
 ~~**`CatalogFilters` mobile sheet — no Escape key handler**~~ ✅
 
@@ -680,8 +680,9 @@ _Negative:_
 
 ~~**`globals.css` — Turbopack CSS parse error from docs/todos.md being scanned by Tailwind**~~ ✅
 
-- Tailwind v4 scans all source files including markdown. Line in `docs/todos.md` contained example `pb-[calc(56px+env(...))]` — Tailwind generated an invalid CSS rule, `yarn build` warned, `next dev --turbo` failed hard.
-- Fix: `@source not "../../docs/**/*";` directive at top of `globals.css`.
+- Tailwind v4 scans all source files including markdown. An example arbitrary-value class with a literal ellipsis placeholder inside `env()` was being picked up — Tailwind generated an invalid CSS rule, `yarn build` warned, `next dev --turbo` failed hard.
+- Attempted fix: `@source not "../../docs/**/*";` directive at top of `globals.css`. Works for `yarn build` but **Turbopack dev does not honor this directive in Tailwind v4.2.2**.
+- Real fix: rewrite the docs prose so it does not contain the literal Tailwind class token. Avoid showing broken `[...]` examples inside docs; describe in prose instead.
 
 ### Round 5 — mobile move detail polish (commit 5971582, 2026-05-29)
 
