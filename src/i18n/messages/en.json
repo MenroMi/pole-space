@@ -22,6 +22,7 @@
     "logOutError": "Something went wrong. Please try again.",
     "changeLanguage": "Change language",
     "favouriteMovesLabel": "Favourite moves",
+    "favourites": "Favourites",
     "admin": "Admin Panel"
   },
   "auth": {
@@ -137,7 +138,10 @@
       "search": "search moves...",
       "searchLabel": "Search",
       "clearSearch": "Clear search",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "applyFilters": "Apply filters",
+      "all": "All",
+      "sheetTitle": "Filters"
     }
   },
   "moves": {
@@ -158,7 +162,8 @@
     "playMove": "Play {title}",
     "saveFavourite": "Save",
     "addToFavourites": "Add to favourites",
-    "removeFromFavourites": "Remove from favourites"
+    "removeFromFavourites": "Remove from favourites",
+    "backToCatalog": "back to catalog"
   },
   "profile": {
     "overview": "Overview",
@@ -236,6 +241,7 @@
     "avatarUploadFailed": "Upload failed",
     "removePhoto": "Remove photo",
     "heroSettingsLabel": "Profile settings",
+    "profileNavLabel": "Profile sections",
     "joinedYear": "Joined {year}",
     "journeyHeading": "your",
     "journeyHighlight": "journey",
@@ -281,8 +287,7 @@
       "totalTags": "Total Tags",
       "recentMoves": "Recent Moves",
       "loadError": "Failed to load stats",
-      "greeting": "good morning,",
-      "greetingAdmin": "admin.",
+      "greeting": "Hello,",
       "overview": "Here is an overview of your catalog and community.",
       "weeklyActivity": "Weekly Activity",
       "activeUsers": "Active users",

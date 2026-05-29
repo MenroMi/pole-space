@@ -4,6 +4,8 @@ import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 import {
   deleteMoveAction,
   getMoveByIdAction,
@@ -14,6 +16,7 @@ import type { AdminMoveRow, AdminTagRow, FullAdminMove } from '../types';
 
 import { ConfirmDialog } from './ConfirmDialog';
 import { MoveModal } from './MoveModal';
+import { NavIcon } from './NavIcon';
 
 type DifficultyFilter = 'ALL' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
@@ -24,8 +27,6 @@ const DIFF_STYLES: Record<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED', { bg: string
   INTERMEDIATE: { bg: 'rgba(132,88,179,0.20)', fg: '#c5afe2' },
   ADVANCED: { bg: 'rgba(251,191,36,0.14)', fg: '#fbbf24' },
 };
-
-import { NavIcon } from './NavIcon';
 
 function Chip({ label, bg, fg }: { label: string; bg: string; fg: string }) {
   return (
@@ -56,6 +57,7 @@ function MoveRow({
   isLast,
   isEditing,
   isDeleteDisabled,
+  isMobile,
   onEdit,
   onDelete,
 }: {
@@ -63,6 +65,7 @@ function MoveRow({
   isLast: boolean;
   isEditing?: boolean;
   isDeleteDisabled?: boolean;
+  isMobile?: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -72,6 +75,137 @@ function MoveRow({
   const dc =
     DIFF_STYLES[move.difficulty as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'] ??
     DIFF_STYLES.BEGINNER;
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          padding: '14px 16px',
+          borderBottom: isLast ? 'none' : '1px solid rgba(75,68,80,0.12)',
+          background: 'transparent',
+        }}
+      >
+        {/* Top row: identity + actions */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 6,
+              flexShrink: 0,
+              background: 'linear-gradient(135deg,#0e0e0e,#2a2a2a)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(75,68,80,0.2)',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: 'var(--font-space-grotesk)',
+                fontSize: 14,
+                color: 'rgba(220,184,255,0.45)',
+              }}
+            >
+              ◇
+            </span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-space-grotesk)',
+                fontSize: 14,
+                color: '#e2e2e2',
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {move.title_en}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: '#6b6270',
+                fontFamily: 'var(--font-manrope)',
+                marginTop: 2,
+              }}
+            >
+              {move.title_pl}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={onEdit}
+              disabled={isEditing}
+              title={t('edit')}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(75,68,80,0.4)',
+                borderRadius: 6,
+                padding: 7,
+                color: isEditing ? '#dcb8ff' : '#978e9b',
+                cursor: isEditing ? 'default' : 'pointer',
+                display: 'flex',
+                opacity: isEditing ? 0.7 : 1,
+              }}
+            >
+              {isEditing ? (
+                <Loader2 size={13} className="animate-spin" style={{ color: '#dcb8ff' }} />
+              ) : (
+                <NavIcon name="Edit" size={13} />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={isDeleteDisabled}
+              title={t('delete')}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(75,68,80,0.4)',
+                borderRadius: 6,
+                padding: 7,
+                color: '#978e9b',
+                cursor: isDeleteDisabled ? 'default' : 'pointer',
+                display: 'flex',
+                opacity: isDeleteDisabled ? 0.4 : 1,
+              }}
+            >
+              <NavIcon name="Trash" size={13} />
+            </button>
+          </div>
+        </div>
+        {/* Bottom row: chips + stats */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Chip
+            label={tEnums(
+              `difficulty.${move.difficulty as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'}`,
+            )}
+            bg={dc.bg}
+            fg={dc.fg}
+          />
+          <Chip
+            label={tEnums(
+              `category.${move.category as 'SPINS' | 'CLIMBS' | 'HOLDS' | 'COMBOS' | 'FLOORWORK'}`,
+            )}
+            bg="rgba(75,68,80,0.15)"
+            fg="#978e9b"
+          />
+          {move.tags.slice(0, 2).map((tag) => (
+            <Chip key={tag.id} label={tag.name_en} bg="rgba(75,68,80,0.2)" fg="#cdc3d2" />
+          ))}
+          {move.tags.length > 2 && (
+            <span style={{ fontSize: 11, color: '#6b6270', fontFamily: 'var(--font-manrope)' }}>
+              +{move.tags.length - 2}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -276,6 +410,7 @@ export function AdminMoves() {
   useEffect(() => {
     tRef.current = t;
   }, [t]);
+  const isMobile = useIsMobile();
 
   const cacheHit = _movesCache !== null && _movesCacheKey === DEFAULT_MOVES_CACHE_KEY;
   const hasFetchedRef = useRef(cacheHit);
@@ -407,11 +542,19 @@ export function AdminMoves() {
       }}
     >
       {/* Page header */}
-      <div style={{ padding: '32px 40px 0', flexShrink: 0, marginBottom: 28 }}>
+      <div
+        style={{
+          padding: isMobile ? '20px 16px 0' : '32px 40px 0',
+          flexShrink: 0,
+          marginBottom: 28,
+        }}
+      >
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-end',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'flex-start' : 'flex-end',
+            gap: isMobile ? 16 : 0,
             justifyContent: 'space-between',
           }}
         >
@@ -459,7 +602,9 @@ export function AdminMoves() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: 8,
+              width: isMobile ? '100%' : undefined,
               boxShadow: '0 4px 16px -2px rgba(132,88,179,0.4)',
               transition: 'background-position 400ms, box-shadow 300ms',
             }}
@@ -481,17 +626,18 @@ export function AdminMoves() {
       <div
         style={{
           display: 'flex',
-          gap: 12,
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 8,
           marginBottom: 16,
-          alignItems: 'center',
-          padding: '0 40px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          padding: isMobile ? '0 16px' : '0 40px',
           flexShrink: 0,
         }}
       >
         <div
           style={{
             flex: 1,
-            maxWidth: 360,
+            maxWidth: isMobile ? '100%' : 360,
             display: 'flex',
             alignItems: 'center',
             gap: 10,
@@ -519,7 +665,14 @@ export function AdminMoves() {
             }}
           />
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 6,
+            overflowX: isMobile ? 'auto' : undefined,
+            flexShrink: 0,
+          }}
+        >
           {(['ALL', ...DIFFICULTIES] as DifficultyFilter[]).map((d) => {
             const active = diffFilter === d;
             const ds = d !== 'ALL' ? DIFF_STYLES[d] : null;
@@ -565,7 +718,7 @@ export function AdminMoves() {
       {error && (
         <div
           style={{
-            margin: '0 40px 12px',
+            margin: isMobile ? '0 16px 12px' : '0 40px 12px',
             background: 'rgba(248,113,113,0.1)',
             border: '1px solid rgba(248,113,113,0.3)',
             borderRadius: 12,
@@ -605,7 +758,7 @@ export function AdminMoves() {
         style={{
           flex: 1,
           minHeight: 0,
-          padding: '0 40px',
+          padding: isMobile ? '0 16px' : '0 40px',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -622,10 +775,10 @@ export function AdminMoves() {
             overflow: 'hidden',
           }}
         >
-          {/* Header row */}
+          {/* Header row — hidden on mobile */}
           <div
             style={{
-              display: 'grid',
+              display: isMobile ? 'none' : 'grid',
               gridTemplateColumns: GRID,
               padding: '10px 20px',
               borderBottom: '1px solid rgba(75,68,80,0.2)',
@@ -698,6 +851,7 @@ export function AdminMoves() {
                     isLast={i === moves.length - 1}
                     isEditing={editingId === move.id}
                     isDeleteDisabled={deleteTarget !== null}
+                    isMobile={isMobile}
                     onEdit={() => handleEditMove(move.id)}
                     onDelete={() => {
                       setDeleteTarget(move);
@@ -718,7 +872,7 @@ export function AdminMoves() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 16,
-          padding: '12px 40px',
+          padding: isMobile ? '12px 16px' : '12px 40px',
           flexShrink: 0,
         }}
       >

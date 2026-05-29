@@ -8,6 +8,7 @@ import LocaleSwitcher from '@/shared/components/LocaleSwitcher';
 
 import { SIDEBAR_KEY } from '../constants';
 
+import { AdminUserMenu } from './AdminUserMenu';
 import { NavIcon } from './NavIcon';
 
 type Section = 'dashboard' | 'moves' | 'users' | 'tags';
@@ -17,6 +18,7 @@ interface AdminShellProps {
   activeSection: Section;
   onSectionChange: (section: Section) => void;
   currentUserName?: string | null;
+  currentUserImage?: string | null;
 }
 
 const NAV_ITEMS: { key: Section; icon: string }[] = [
@@ -31,6 +33,7 @@ export function AdminShell({
   activeSection,
   onSectionChange,
   currentUserName,
+  currentUserImage,
 }: AdminShellProps) {
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === 'true',
@@ -64,9 +67,11 @@ export function AdminShell({
         width: '100%',
       }}
     >
-      {/* Sidebar */}
+      {/* Sidebar — hidden on mobile */}
       <aside
+        className="hidden lg:flex"
         style={{
+          flexDirection: 'column',
           width: collapsed ? 64 : 240,
           minWidth: collapsed ? 64 : 240,
           height: '100vh',
@@ -74,8 +79,6 @@ export function AdminShell({
           top: 0,
           background: '#0e0e0e',
           borderRight: '1px solid rgba(75,68,80,0.3)',
-          display: 'flex',
-          flexDirection: 'column',
           transition:
             'width 280ms cubic-bezier(0.16,1,0.3,1), min-width 280ms cubic-bezier(0.16,1,0.3,1)',
           overflow: 'hidden',
@@ -241,70 +244,18 @@ export function AdminShell({
             flexShrink: 0,
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: collapsed ? 0 : 10,
-              padding: collapsed ? '10px 0' : '10px 14px',
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              borderRadius: 8,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: '50%',
-                flexShrink: 0,
-                background: 'linear-gradient(135deg,#52416c,#dcb8ff)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'var(--font-space-grotesk)',
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#1b1b1b',
-              }}
-            >
-              {initials}
-            </div>
-            {!collapsed && (
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#e2e2e2',
-                    fontFamily: 'var(--font-manrope)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {currentUserName || 'Admin'}
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: '#8458b3',
-                    fontFamily: 'var(--font-manrope)',
-                    fontWeight: 700,
-                  }}
-                >
-                  Admin
-                </div>
-              </div>
-            )}
-          </div>
+          <AdminUserMenu
+            currentUserName={currentUserName}
+            currentUserImage={currentUserImage}
+            initials={initials}
+            collapsed={collapsed}
+          />
         </div>
       </aside>
 
       {/* Main content */}
       <div
+        className="pb-[calc(56px_+_env(safe-area-inset-bottom,0px))] lg:pb-0"
         style={{
           flex: 1,
           display: 'flex',
@@ -331,16 +282,38 @@ export function AdminShell({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Link
+              href="/catalog"
+              aria-label={t('nav.backToCatalog')}
+              className="flex lg:hidden"
+              style={{
+                background: 'transparent',
+                color: '#978e9b',
+                padding: 6,
+                borderRadius: 6,
+                transition: 'color 150ms',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = '#e2e2e2';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = '#978e9b';
+              }}
+            >
+              <NavIcon name="ArrowLeft" size={18} />
+            </Link>
             <button
+              type="button"
               onClick={toggleCollapsed}
               aria-label={t('nav.toggleSidebar')}
               aria-expanded={!collapsed}
+              className="hidden lg:flex"
               style={{
                 background: 'transparent',
                 border: 'none',
                 color: '#978e9b',
                 cursor: 'pointer',
-                display: 'flex',
                 padding: 6,
                 borderRadius: 6,
                 transition: 'color 150ms',
@@ -370,10 +343,73 @@ export function AdminShell({
             <Suspense fallback={null}>
               <LocaleSwitcher />
             </Suspense>
+            <div className="flex lg:hidden">
+              <AdminUserMenu
+                compact
+                currentUserName={currentUserName}
+                currentUserImage={currentUserImage}
+                initials={initials}
+              />
+            </div>
           </div>
         </header>
         <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
       </div>
+
+      {/* Mobile bottom tab bar */}
+      <nav
+        className="flex lg:hidden"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 56,
+          zIndex: 100,
+          background: 'rgba(13,13,13,0.94)',
+          backdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(75,68,80,0.2)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        {NAV_ITEMS.map(({ key, icon }) => {
+          const active = activeSection === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => onSectionChange(key)}
+              aria-current={active ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: active ? '#dcb8ff' : '#978e9b',
+                transition: 'color 150ms',
+              }}
+            >
+              <NavIcon name={icon} size={20} />
+              <span
+                style={{
+                  fontFamily: 'var(--font-manrope)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {t(`nav.${key}`)}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

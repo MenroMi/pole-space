@@ -1,3 +1,6 @@
+import { Shield } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
@@ -8,41 +11,57 @@ import LocaleSwitcher from './LocaleSwitcher';
 import UserMenu from './UserMenu';
 
 export default async function Header() {
-  const session = await auth();
-  let user: { name: string | null; image: string | null } | null = null;
-  let role: string | null = null;
-  if (session?.user?.id) {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { firstName: true, lastName: true, image: true, role: true },
-    });
-    if (dbUser) {
-      const name = [dbUser.firstName, dbUser.lastName].filter(Boolean).join(' ') || null;
-      user = { name, image: dbUser.image ?? null };
-      role = dbUser.role;
-    }
-  }
+  const [session, t] = await Promise.all([auth(), getTranslations('nav')]);
+  const user = session?.user
+    ? { name: session.user.name ?? null, image: session.user.image ?? null }
+    : null;
+  // Role is read fresh from DB (not session JWT) so admin demotion takes effect
+  // immediately rather than persisting up to 7 days until JWT expiry.
+  const userId = session?.user?.id;
+  const dbUser = userId
+    ? await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    : null;
+  const role = dbUser?.role ?? null;
 
   return (
     <header
-      className="sticky top-0 z-50 h-[60px] border-b border-outline-variant/30 backdrop-blur-xl"
-      style={{ backgroundColor: 'rgba(19, 19, 19, 0.85)' }}
+      className="sticky top-0 z-50 h-14 border-b border-outline-variant/30 backdrop-blur-xl sm:h-[60px]"
+      style={{ backgroundColor: 'rgba(19, 19, 19, 0.92)' }}
     >
-      <div className="mx-auto grid h-full w-full max-w-[2560px] grid-cols-[1fr_auto_1fr] items-center px-6">
-        <div className="justify-self-start">
-          <Link
-            href={session ? '/catalog' : '/'}
-            className="font-display text-[17px] font-semibold tracking-tight text-on-surface lowercase"
-          >
-            pole space<span className="text-primary">.</span>
-          </Link>
+      <div className="relative mx-auto flex h-full w-full max-w-[2560px] items-center justify-between px-5 sm:px-6">
+        {/* Left: brand */}
+        <Link
+          href={session ? '/catalog' : '/'}
+          className="font-display text-[16px] font-semibold tracking-tight text-on-surface lowercase sm:text-[17px]"
+        >
+          pole space<span className="text-primary">.</span>
+        </Link>
+
+        {/* Center: pill nav — desktop only, truly centered via absolute */}
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center sm:flex">
+          <div className="pointer-events-auto">
+            <HeaderNav />
+          </div>
         </div>
 
-        <HeaderNav />
-
-        <div className="flex items-center gap-1 justify-self-end">
-          <FavouritesButton />
-          <UserMenu user={user} role={role} />
+        {/* Right: actions */}
+        <div className="flex items-center gap-1">
+          {/* Desktop-only */}
+          <div className="hidden items-center gap-1 sm:flex">
+            <FavouritesButton />
+            <UserMenu user={user} role={role} />
+          </div>
+          {/* Admin shortcut — mobile only, admin role only */}
+          {role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              aria-label={t('admin')}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent transition-colors hover:border-primary/20 hover:bg-primary/[0.06] sm:hidden"
+            >
+              <Shield size={18} aria-hidden="true" />
+            </Link>
+          )}
+          {/* Always: locale switcher */}
           <LocaleSwitcher />
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
-import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+
+import { Link } from '@/i18n/navigation';
 
 type Props = {
   error: Error & { digest?: string };

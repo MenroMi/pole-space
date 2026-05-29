@@ -22,6 +22,13 @@ export default function FavouritesButton({ hasNew = false }: FavouritesButtonPro
         fill="currentColor"
         strokeWidth={0}
       />
+      {hasNew && (
+        <span
+          aria-hidden
+          className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary"
+          style={{ boxShadow: '0 0 6px rgba(220,184,255,0.7)' }}
+        />
+      )}
     </Link>
   );
 }

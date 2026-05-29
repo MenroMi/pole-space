@@ -8,11 +8,11 @@ type SpecItem = { label: string; value: string };
 
 function SpecCard({ label, value }: SpecItem) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-outline-variant/15 bg-surface-lowest p-6">
-      <dt className="font-sans text-[10px] tracking-widest text-on-surface-variant uppercase">
+    <div className="flex flex-col gap-1 rounded-lg border border-outline-variant/15 bg-surface-lowest p-3 sm:gap-2 sm:p-6">
+      <dt className="font-sans text-[9px] tracking-widest text-on-surface-variant uppercase sm:text-[10px]">
         {label}
       </dt>
-      <dd className="font-display text-lg text-on-surface">{value}</dd>
+      <dd className="font-display text-sm text-on-surface sm:text-lg">{value}</dd>
     </div>
   );
 }
@@ -39,11 +39,11 @@ export default function MoveSpecs({ gripType, entry, duration, poleTypes }: Move
   if (specs.length === 0) return null;
 
   return (
-    <section aria-label={t('specs')} className="mt-8 pb-4">
-      <p className="mb-3 font-sans text-[10px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase">
+    <section aria-label={t('specs')} className="mt-6 pb-3 sm:mt-8 sm:pb-4">
+      <p className="mb-2 font-sans text-[9px] font-semibold tracking-[0.18em] text-on-surface-variant uppercase sm:mb-3 sm:text-[10px]">
         {t('specs')}
       </p>
-      <dl className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-4">
         {specs.map(({ label, value }) => (
           <SpecCard key={label} label={label} value={value} />
         ))}

@@ -14,16 +14,27 @@
 .page::before {
   content: '';
   position: absolute;
-  top: 30%;
-  left: 50%;
-  width: 600px;
-  height: 600px;
-  transform: translate(-50%, -30%);
+  top: 28%;
+  left: 15%;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220, 184, 255, 0.08), transparent 70%);
-  filter: blur(40px);
+  background: radial-gradient(circle, rgba(220, 184, 255, 0.1), transparent 70%);
+  filter: blur(55px);
   pointer-events: none;
   animation: landingDrift 18s ease-in-out infinite alternate;
+}
+
+.blob {
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(132, 88, 179, 0.25);
+  filter: blur(70px);
+  pointer-events: none;
 }
 
 @keyframes landingDrift {
@@ -90,7 +101,7 @@
   max-width: 560px;
   position: relative;
   z-index: 2;
-  padding: 80px 0;
+  padding: 64px 0;
 }
 
 .eyebrow {
@@ -233,8 +244,34 @@
     display: none;
   }
 
+  .center {
+    padding: 24px 0;
+  }
+
+  .eyebrow {
+    margin-bottom: 16px;
+  }
+
+  .h1 {
+    font-size: 28px;
+    margin-bottom: 16px;
+    letter-spacing: -0.04em;
+  }
+
+  .lede {
+    font-size: 13px;
+    line-height: 1.65;
+    margin-bottom: 32px;
+  }
+
   .footer {
     flex-direction: column;
     align-items: flex-start;
+    gap: 4px;
+  }
+
+  .madeBy,
+  .footer > span:last-child {
+    display: none;
   }
 }

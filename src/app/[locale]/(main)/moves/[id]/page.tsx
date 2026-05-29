@@ -6,9 +6,9 @@ import { getMoveByIdAction, getRelatedMovesAction, MovePlayer } from '@/features
 import MoveBreadcrumb from '@/features/moves/components/MoveBreadcrumb';
 import RelatedMoves from '@/features/moves/components/RelatedMoves';
 import { extractVideoId } from '@/features/moves/lib/youtube';
+import type { Locale } from '@/i18n/routing';
 import { auth } from '@/shared/lib/auth';
 import { prisma } from '@/shared/lib/prisma';
-import type { Locale } from '@/i18n/routing';
 
 export async function generateStaticParams() {
   try {
@@ -69,9 +69,12 @@ export default async function MoveDetailPage({
 
   return (
     <main>
-      <MoveBreadcrumb category={move.category} moveName={move.title} />
+      <div className="hidden sm:block">
+        <MoveBreadcrumb category={move.category} moveName={move.title} />
+      </div>
       <MovePlayer
         title={move.title}
+        category={move.category}
         youtubeUrl={move.youtubeUrl}
         imageUrl={move.imageUrl}
         stepsData={move.stepsData}

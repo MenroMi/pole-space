@@ -103,14 +103,17 @@ describe('MoveCard', () => {
     expect(tag).toHaveStyle({ backgroundColor: '#3b82f628', color: '#3b82f6' });
   });
 
-  it('renders tag without inline style when color is null', () => {
+  it('renders tag with fallback purple style when color is null', () => {
     const move = {
       ...baseMove,
       tags: [{ id: '1', name: 'aerial', color: null }] as LocalizedMoveWithTags['tags'],
     };
     render(<MoveCard move={move} />);
     const tag = screen.getByText('aerial');
-    expect(tag).not.toHaveAttribute('style');
+    expect(tag).toHaveStyle({
+      backgroundColor: 'rgba(132,88,179,0.12)',
+      color: 'rgb(197,175,226)',
+    });
   });
 
   it('card wraps content in a link to /moves/{id}', () => {
@@ -118,12 +121,11 @@ describe('MoveCard', () => {
     expect(screen.getByRole('link')).toHaveAttribute('href', '/moves/move-1');
   });
 
-  it('renders INTERMEDIATE badge with primary-container styling', () => {
+  it('renders INTERMEDIATE badge with inline style', () => {
     const move = { ...baseMove, difficulty: 'INTERMEDIATE' as const };
     render(<MoveCard move={move} />);
     const badge = screen.getByText('difficulty.INTERMEDIATE');
-    expect(badge.className).toContain('bg-primary-container');
-    expect(badge.className).toContain('text-on-surface');
+    expect(badge).toHaveStyle({ backgroundColor: 'rgba(220,184,255,0.15)', color: '#dcb8ff' });
   });
 
   it('renders placeholder icon when imageUrl is null and youtubeUrl has no valid id', () => {

@@ -11,7 +11,7 @@ export default async function ProfileOverview() {
     await getProfileOverviewAction();
 
   return (
-    <div className="px-6 pt-8 pb-24 md:px-12">
+    <div className="px-4 pt-5 pb-24 sm:px-6 sm:pt-8 md:px-12">
       <ProfileHero
         firstName={user?.firstName ?? null}
         lastName={user?.lastName ?? null}
@@ -21,7 +21,7 @@ export default async function ProfileOverview() {
         createdAt={user?.createdAt ?? new Date()}
       />
 
-      <div className="mt-8">
+      <div className="mt-4 sm:mt-8">
         <ProfileStats
           masteredCount={stats.masteredCount}
           inProgressCount={stats.inProgressCount}
@@ -29,7 +29,7 @@ export default async function ProfileOverview() {
         />
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-[18px] lg:grid-cols-[1.2fr_1fr]">
+      <div className="mt-5 grid grid-cols-1 gap-[18px] md:grid-cols-[1.2fr_1fr]">
         <ProfileCurrentlyLearning moves={currentlyLearning} />
 
         <div className="flex flex-col gap-[18px]">

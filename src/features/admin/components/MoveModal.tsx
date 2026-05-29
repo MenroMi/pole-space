@@ -10,6 +10,7 @@ import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 import {
   createMoveAction,
@@ -777,6 +778,7 @@ function ClearAllBtn({ label, onClear }: { label: string; onClear: () => void })
 
 export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalProps) {
   const t = useTranslations('admin');
+  const isMobile = useIsMobile();
   const [tab, setTab] = useState<Tab>('en');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
@@ -1025,9 +1027,9 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
         zIndex: 200,
         background: 'rgba(0,0,0,0.7)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: isMobile ? 'flex-end' : 'center',
         justifyContent: 'center',
-        padding: 24,
+        padding: isMobile ? 0 : 24,
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget && !saving) onClose();
@@ -1040,15 +1042,16 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
         aria-labelledby="modal-title"
         style={{
           background: '#1a1a1a',
-          borderRadius: 16,
+          borderRadius: isMobile ? '20px 20px 0 0' : 16,
           border: '1px solid rgba(255,255,255,0.1)',
           width: '100%',
-          maxWidth: 640,
-          minHeight: 480,
+          maxWidth: isMobile ? '100%' : 640,
+          minHeight: isMobile ? undefined : 480,
           overflowX: 'hidden',
-          maxHeight: 'min(870px, 90vh)',
+          maxHeight: isMobile ? '96dvh' : 'min(870px, 90vh)',
           display: 'flex',
           flexDirection: 'column',
+          animation: isMobile ? 'slideUp 280ms cubic-bezier(0.16,1,0.3,1) both' : undefined,
         }}
       >
         {/* Header */}

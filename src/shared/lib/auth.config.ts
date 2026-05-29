@@ -11,7 +11,14 @@ export const authBaseConfig = {
         token.blockedAt = (user as { blockedAt?: Date | null }).blockedAt?.toISOString() ?? null;
         if (account?.type === 'oauth' || account?.type === 'oidc') {
           token.name = profile?.name ?? null;
-          token.picture = profile?.picture ?? null;
+          // Facebook returns picture as { data: { url } }; Google/credentials return string.
+          const rawPicture = (profile as { picture?: unknown } | undefined)?.picture;
+          token.picture =
+            typeof rawPicture === 'string'
+              ? rawPicture
+              : rawPicture !== null && typeof rawPicture === 'object' && 'data' in rawPicture
+                ? ((rawPicture as { data?: { url?: string } }).data?.url ?? null)
+                : null;
         } else {
           const u = user as {
             firstName?: string | null;

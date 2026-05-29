@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Exclude docs from class scanning — markdown examples like `pb-[calc(56px+env(...))]`
+   would otherwise generate invalid CSS rules that fail Turbopack's parser. */
+@source not '../../docs/**/*';
+
 :root {
   /* Stitch design system tokens */
   --surface: #131313;
@@ -197,6 +201,22 @@
 
 @utility animate-blob-b {
   animation: blob-drift-b 31s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .kinetic-gradient {

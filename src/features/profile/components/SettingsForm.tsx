@@ -1,10 +1,11 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BadgeCheck, Lock, User } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { forwardRef, useState } from 'react';
 import type { InputHTMLAttributes } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { useRouter } from '@/i18n/navigation';
 import { Input } from '@/shared/components/ui/input';
@@ -133,6 +134,7 @@ export default function SettingsForm({
 }: SettingsFormProps) {
   const t = useTranslations('profile');
   const router = useRouter();
+  const { update } = useSession();
   const [isPending, setIsPending] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
@@ -181,6 +183,10 @@ export default function SettingsForm({
         }
       }
 
+      const newName =
+        [profileValues.firstName, profileValues.lastName].filter(Boolean).join(' ') || null;
+      await update({ name: newName });
+
       router.push('/profile');
     } catch {
       setProfileError(t('genericError'));
@@ -189,23 +195,26 @@ export default function SettingsForm({
     }
   });
 
-  const watchedFirstName = profileForm.watch('firstName');
-  const watchedLastName = profileForm.watch('lastName');
+  const watchedFirstName = useWatch({ control: profileForm.control, name: 'firstName' });
+  const watchedLastName = useWatch({ control: profileForm.control, name: 'lastName' });
   const displayName =
     [watchedFirstName, watchedLastName].filter(Boolean).join(' ') || t('anonymous');
 
   return (
-    <form onSubmit={handleSave} className="space-y-8 p-6 md:p-12">
+    <form onSubmit={handleSave} className="space-y-6 px-4 pt-4 pb-28 sm:space-y-8 sm:p-6 md:p-12">
       <div className="space-y-2">
-        <h1 className="font-display text-4xl tracking-tight text-primary lowercase md:text-5xl">
+        <div className="mb-3 h-[3px] w-8 rounded-full bg-primary sm:hidden" />
+        <h1 className="font-display text-[28px] leading-tight tracking-tight text-on-surface lowercase sm:text-4xl sm:text-primary md:text-5xl">
           {t('settingsHeading')}
         </h1>
-        <p className="text-lg text-on-surface-variant">{t('settingsSubtitle')}</p>
+        <p className="text-sm text-on-surface-variant/70 sm:text-base sm:text-on-surface-variant md:text-lg">
+          {t('settingsSubtitle')}
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-12">
         {/* Profile block */}
-        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-8 text-center lg:col-span-4">
+        <section className="col-span-12 flex flex-col items-center space-y-6 rounded-2xl bg-surface-low p-5 text-center sm:p-8 lg:col-span-4">
           <AvatarUpload currentImage={image} onUploadSuccess={() => router.refresh()} />
           <div className="space-y-2">
             <p className="font-display text-xl text-on-surface capitalize">{displayName}</p>
@@ -218,7 +227,7 @@ export default function SettingsForm({
         </section>
 
         {/* Personal Information */}
-        <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8 lg:col-span-8">
+        <section className="col-span-12 space-y-4 rounded-2xl bg-surface-low p-5 sm:space-y-6 sm:p-8 lg:col-span-8">
           <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
             <User size={20} className="text-primary" aria-hidden="true" />
             <h2 className="font-display text-lg text-on-surface">{t('personalInfo')}</h2>
@@ -299,7 +308,7 @@ export default function SettingsForm({
 
         {/* Security */}
         {hasPassword && (
-          <section className="col-span-12 space-y-6 rounded-2xl bg-surface-low p-8">
+          <section className="col-span-12 space-y-4 rounded-2xl bg-surface-low p-5 sm:space-y-6 sm:p-8">
             <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
               <Lock size={20} className="text-primary" aria-hidden="true" />
               <h2 className="font-display text-lg text-on-surface">{t('securitySection')}</h2>
@@ -356,14 +365,14 @@ export default function SettingsForm({
           <button
             type="button"
             onClick={handleDiscard}
-            className="order-1 cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first"
+            className="order-1 w-full cursor-pointer rounded-lg border border-outline-variant/20 px-8 py-3 font-display font-bold text-primary lowercase transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95 lg:order-first lg:w-auto"
           >
             {t('discardButton')}
           </button>
           <button
             type="submit"
             disabled={isPending}
-            className="kinetic-gradient cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50"
+            className="kinetic-gradient w-full cursor-pointer rounded-lg px-8 py-3 font-display text-sm font-semibold tracking-wide text-on-primary-container lowercase transition-transform duration-150 active:scale-95 disabled:opacity-50 lg:w-auto"
           >
             {isPending ? t('saving') : t('saveChanges')}
           </button>

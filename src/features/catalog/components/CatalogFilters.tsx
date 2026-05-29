@@ -1,9 +1,10 @@
 'use client';
-import { Check, Gauge, RotateCw, Search, Tag, X } from 'lucide-react';
-import { useRouter } from '@/i18n/navigation';
+import { Check, Gauge, RotateCw, Search, SlidersHorizontal, Tag, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
+import { useRouter } from '@/i18n/navigation';
 import {
   Accordion,
   AccordionContent,
@@ -12,11 +13,10 @@ import {
 } from '@/shared/components/ui/accordion';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/utils';
-import { Difficulty, PoleType } from '@/shared/types/enums';
-
-import type { MoveFilters } from '@/shared/types';
 import type { LocalizedTag } from '@/shared/lib/localize';
+import { cn } from '@/shared/lib/utils';
+import type { MoveFilters } from '@/shared/types';
+import { Difficulty, PoleType } from '@/shared/types/enums';
 
 const POLE_TYPES = Object.values(PoleType);
 const DIFFICULTIES = Object.values(Difficulty);
@@ -39,13 +39,19 @@ function buildQuery(
 type CatalogFiltersProps = {
   filters: MoveFilters;
   availableTags: LocalizedTag[];
+  mode?: 'sidebar' | 'trigger';
 };
 
-export default function CatalogFilters({ filters, availableTags }: CatalogFiltersProps) {
+export default function CatalogFilters({
+  filters,
+  availableTags,
+  mode = 'sidebar',
+}: CatalogFiltersProps) {
   const t = useTranslations('catalog.filters');
   const te = useTranslations('enums');
   const router = useRouter();
   const [searchValue, setSearchValue] = useState(filters.search ?? '');
+  const [sheetOpen, setSheetOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedPoleTypes = filters.poleTypes ?? [];
@@ -88,12 +94,24 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     navigate({ difficulty: next });
   };
 
-  const toggleTag = (name: string) => {
-    const next = selectedTags.includes(name)
-      ? selectedTags.filter((v) => v !== name)
-      : [...selectedTags, name];
+  const toggleTag = (nameEn: string, nameFallback?: string) => {
+    const isActive =
+      selectedTags.includes(nameEn) ||
+      (nameFallback != null && selectedTags.includes(nameFallback));
+    const next = isActive
+      ? selectedTags.filter((v) => v !== nameEn && v !== nameFallback)
+      : [...selectedTags.filter((v) => v !== nameFallback), nameEn];
     navigate({ tags: next });
   };
+
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSheetOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [sheetOpen]);
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
@@ -111,29 +129,33 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
     selectedTags.length > 0 ||
     !!filters.search;
 
-  return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          aria-label={t('searchLabel')}
-          placeholder={t('search')}
-          value={searchValue}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="pr-9 pl-9"
-        />
-        {searchValue && (
-          <button
-            type="button"
-            aria-label={t('clearSearch')}
-            onClick={() => navigate({ resetSearch: true })}
-            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+  const activeCount = selectedPoleTypes.length + selectedDifficulties.length + selectedTags.length;
 
+  const searchInput = (
+    <div className="relative">
+      <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        aria-label={t('searchLabel')}
+        placeholder={t('search')}
+        value={searchValue}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        className="pr-9 pl-9"
+      />
+      {searchValue && (
+        <button
+          type="button"
+          aria-label={t('clearSearch')}
+          onClick={() => navigate({ resetSearch: true })}
+          className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+
+  const filterBody = (
+    <>
       <Accordion
         type="multiple"
         defaultValue={['pole-state', 'difficulty', 'tags']}
@@ -242,14 +264,15 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
             <AccordionContent>
               <div className="flex flex-wrap gap-1.5 px-1 pt-3 pb-1">
                 {availableTags.map((tag) => {
-                  const active = selectedTags.includes(tag.name);
+                  const active =
+                    selectedTags.includes(tag.nameEn) || selectedTags.includes(tag.name);
                   return (
                     <button
                       key={tag.id}
                       type="button"
                       aria-label={tag.name}
                       aria-pressed={active}
-                      onClick={() => toggleTag(tag.name)}
+                      onClick={() => toggleTag(tag.nameEn, tag.name)}
                       className={cn(
                         'cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-all',
                         !active && 'bg-accent/70 text-muted-foreground hover:bg-accent',
@@ -280,6 +303,144 @@ export default function CatalogFilters({ filters, availableTags }: CatalogFilter
           {t('clearFilters')}
         </Button>
       )}
-    </div>
+    </>
   );
+
+  const filterContent = (
+    <>
+      {searchInput}
+      {filterBody}
+    </>
+  );
+
+  if (mode === 'trigger') {
+    return (
+      <>
+        {/* Search + filter button row — always visible on mobile */}
+        <div className="flex gap-2">
+          <div className="flex flex-1 items-center gap-[9px] rounded-[10px] border border-outline-variant/20 bg-surface-container px-[13px] py-[9px]">
+            <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <input
+              type="text"
+              aria-label={t('searchLabel')}
+              placeholder={t('search')}
+              value={searchValue}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent font-sans text-[13px] text-on-surface outline-none placeholder:text-muted-foreground"
+            />
+            {searchValue && (
+              <button
+                type="button"
+                aria-label={t('clearSearch')}
+                onClick={() => navigate({ resetSearch: true })}
+                className="shrink-0 cursor-pointer text-muted-foreground transition-colors hover:text-on-surface"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-label={t('label')}
+            className="relative flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-outline-variant/20 bg-surface-container text-on-surface-variant transition-colors hover:border-outline-variant hover:text-on-surface"
+            style={{
+              width: 42,
+              height: 42,
+              ...(activeCount > 0
+                ? { borderColor: 'rgba(220,184,255,0.4)', color: '#dcb8ff' }
+                : {}),
+            }}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-on-primary">
+                {activeCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {sheetOpen &&
+          createPortal(
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 z-[60] bg-black/60"
+                onClick={() => setSheetOpen(false)}
+              />
+              {/* Sheet */}
+              <div
+                className="fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-[20px] border border-b-0 border-outline-variant/40"
+                style={{
+                  background: '#171717',
+                  animation: 'slideUp 280ms cubic-bezier(0.16,1,0.3,1) both',
+                }}
+              >
+                {/* Handle + sticky header */}
+                <div
+                  className="sticky top-0 z-10 shrink-0 rounded-t-[20px]"
+                  style={{ background: '#171717' }}
+                >
+                  <div className="flex justify-center pt-3 pb-[14px]">
+                    <div
+                      style={{
+                        width: 40,
+                        height: 4,
+                        borderRadius: 2,
+                        background: 'rgba(75,68,80,0.5)',
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between px-5 pb-[18px]">
+                    <div className="flex items-center gap-3">
+                      <span className="font-display text-[18px] font-semibold text-on-surface">
+                        {t('sheetTitle')}
+                      </span>
+                      {activeCount > 0 && (
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary">
+                          {activeCount}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSheetOpen(false)}
+                      aria-label="Close filters"
+                      className="cursor-pointer border-0 bg-transparent text-on-surface-variant transition-colors hover:text-on-surface"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scrollable filter content */}
+                <div className="flex-1 overflow-y-auto px-5 pb-2">{filterBody}</div>
+
+                {/* Fixed bottom — apply button */}
+                <div className="shrink-0 px-5 pt-3 pb-6" style={{ background: '#171717' }}>
+                  <button
+                    type="button"
+                    onClick={() => setSheetOpen(false)}
+                    className="w-full cursor-pointer rounded-lg border-0 font-sans text-[12px] font-bold tracking-[0.1em] uppercase"
+                    style={{
+                      padding: '14px 20px',
+                      background:
+                        'linear-gradient(135deg, #dcb8ff, #8458b3, #dcb8ff) 0% 0% / 200% 200%',
+                      color: '#ffffff',
+                      boxShadow: 'rgba(132,88,179,0.4) 0px 4px 16px -2px',
+                    }}
+                  >
+                    {t('applyFilters')}
+                  </button>
+                </div>
+              </div>
+            </>,
+            document.body,
+          )}
+      </>
+    );
+  }
+
+  return <div className="flex flex-col gap-4 p-4">{filterContent}</div>;
 }

@@ -1,5 +1,5 @@
 'use client';
-import { Heart, LayoutDashboard, TrendingUp } from 'lucide-react';
+import { Heart, LayoutDashboard, Settings, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -7,10 +7,9 @@ import { Link, usePathname } from '@/i18n/navigation';
 
 type NavItem = {
   href: string;
-  labelKey: 'overview' | 'favourites' | 'progress';
+  labelKey: 'overview' | 'progress' | 'favourites' | 'settings';
   icon: LucideIcon;
   matches: string[];
-  disabled: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -19,21 +18,24 @@ const NAV_ITEMS: NavItem[] = [
     labelKey: 'overview',
     icon: LayoutDashboard,
     matches: ['/profile'],
-    disabled: false,
-  },
-  {
-    href: '/profile/favourite-moves',
-    labelKey: 'favourites',
-    icon: Heart,
-    matches: ['/profile/favourite-moves'],
-    disabled: false,
   },
   {
     href: '/profile/progress',
     labelKey: 'progress',
     icon: TrendingUp,
     matches: ['/profile/progress'],
-    disabled: false,
+  },
+  {
+    href: '/profile/favourite-moves',
+    labelKey: 'favourites',
+    icon: Heart,
+    matches: ['/profile/favourite-moves'],
+  },
+  {
+    href: '/profile/settings',
+    labelKey: 'settings',
+    icon: Settings,
+    matches: ['/profile/settings'],
   },
 ];
 
@@ -46,24 +48,8 @@ export default function ProfileAside() {
 
   return (
     <nav className="flex h-full flex-col gap-2 py-10">
-      {NAV_ITEMS.map(({ href, labelKey, icon: Icon, matches, disabled }) => {
+      {NAV_ITEMS.map(({ href, labelKey, icon: Icon, matches }) => {
         const label = t(labelKey);
-        if (disabled) {
-          return (
-            <span
-              key={href}
-              aria-disabled="true"
-              className={`${BASE} cursor-not-allowed text-outline opacity-50 select-none`}
-            >
-              <Icon size={20} aria-hidden="true" />
-              <span className="flex-1">{label}</span>
-              <span className="rounded-full bg-surface-container px-2 py-0.5 text-[10px] tracking-widest text-on-surface-variant">
-                {t('comingSoon')}
-              </span>
-            </span>
-          );
-        }
-
         const isActive = matches.includes(pathname);
         if (isActive) {
           return (

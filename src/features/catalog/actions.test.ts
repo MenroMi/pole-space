@@ -157,28 +157,30 @@ describe('getMovesAction', () => {
     );
   });
 
-  it('filters tags with AND: each tag must be present (pl uses name_pl)', async () => {
+  it('filters tags with AND: each tag must match by name_en OR name_pl', async () => {
     mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
     await getMovesAction({ tags: ['aerial', 'flexibility'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           AND: expect.arrayContaining([
-            { tags: { some: { name_pl: 'aerial' } } },
-            { tags: { some: { name_pl: 'flexibility' } } },
+            { tags: { some: { OR: [{ name_en: 'aerial' }, { name_pl: 'aerial' }] } } },
+            { tags: { some: { OR: [{ name_en: 'flexibility' }, { name_pl: 'flexibility' }] } } },
           ]),
         }),
       }),
     );
   });
 
-  it('filters tags with name_en when locale is en', async () => {
+  it('filters tags with OR fallback regardless of locale', async () => {
     mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
     await getMovesAction({ tags: ['aerial'] }, 'en');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          AND: expect.arrayContaining([{ tags: { some: { name_en: 'aerial' } } }]),
+          AND: expect.arrayContaining([
+            { tags: { some: { OR: [{ name_en: 'aerial' }, { name_pl: 'aerial' }] } } },
+          ]),
         }),
       }),
     );
@@ -190,7 +192,9 @@ describe('getMovesAction', () => {
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          AND: expect.arrayContaining([{ tags: { some: { name_pl: 'aerial' } } }]),
+          AND: expect.arrayContaining([
+            { tags: { some: { OR: [{ name_en: 'aerial' }, { name_pl: 'aerial' }] } } },
+          ]),
         }),
       }),
     );
@@ -219,7 +223,9 @@ describe('getMovesAction', () => {
     await getMovesAction({ poleTypes: ['STATIC'], tags: ['aerial'] }, 'pl');
     const call = mockFindMany.mock.calls[0][0] as { where: { AND: object[] } };
     expect(call.where.AND).toContainEqual({ poleTypes: { hasEvery: ['STATIC'] } });
-    expect(call.where.AND).toContainEqual({ tags: { some: { name_pl: 'aerial' } } });
+    expect(call.where.AND).toContainEqual({
+      tags: { some: { OR: [{ name_en: 'aerial' }, { name_pl: 'aerial' }] } },
+    });
   });
 
   it('filters by search with case-insensitive title_pl match when locale is pl', async () => {

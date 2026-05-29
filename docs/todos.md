@@ -482,3 +482,210 @@ _Negative:_
 **Sticky sidebar:**
 
 - `PageShell`: `aside` gets `self-start sticky top-[60px] h-[calc(100vh-120px)] overflow-y-auto` — `self-start` prevents CSS grid stretch so sticky has room to scroll
+
+## Mobile Design (feat/mobile-design — in progress, 2026-05-19)
+
+### ~~Full responsive redesign~~ ✅ Done (commits a5d9746, 3cddeab, 8b67f4b)
+
+- Nav, catalog, profile, admin shell responsive pass
+- Admin tables as cards on mobile; MoveModal as bottom sheet
+- Catalog `CatalogFilters` `mode="trigger"`: search row flex-row layout (icon in flow, not absolute), filter button 42×42px
+- Filter sheet: `createPortal` z-[61] > bottom nav z-50; sticky header (`sticky top-0 shrink-0`); scrollable body (`flex-1 overflow-y-auto`); fixed apply button (`shrink-0` footer, gradient bg, white text)
+- `MoveCard`: `h-full flex-col` on Link + `flex-1` on card body → equal-height rows via CSS Grid `align-items: stretch`; works on both mobile (2-col) and desktop (auto-fill)
+- `MoveGrid`: `motion.div className="h-full"` wrapper so framer-motion doesn't break height propagation
+- i18n: `applyFilters`, `all`, `sheetTitle` added to `en.json` and `pl.json`
+
+### ~~Auth layout mobile brand overlap~~ ✅ Done (2026-05-18)
+
+- `src/app/[locale]/(auth)/layout.tsx`: mobile brand was `absolute top-10 left-8` — overlapped form when `justify-center` vertically centered tall forms
+- Fix: brand moved to normal flow (`shrink-0 pt-10 pb-6 lg:hidden`); centering wrapper `flex flex-1 flex-col items-center justify-center py-8 lg:py-16` wraps `{children}`
+
+### ~~Profile — navigation, hero, header~~ ✅ Done (2026-05-18, commits 28e0fb3 → 772907d)
+
+- `ProfileMobileNav`: sticky pill-tab nav (`lg:hidden`, `top-14 sm:top-[60px]`), `aria-current`, gradient active state; `profileNavLabel` i18n key added
+- `ProfileHero`: mobile vertical stack, desktop enhancements (second glow, dot-grid texture, `md:ring-2` avatar, `md:text-[60px]` name); name `capitalize`
+- `Header`: removed mobile avatar circle (ProfileMobileNav covers profile access on mobile)
+- `ProfileAside` + `ProfileMobileNav`: 4 entries (overview/progress/favourites/settings), aligned mobile + desktop; Settings re-added in round 4 (hero gear icon was unreachable from sub-pages)
+
+### ~~Profile — Progress page mobile redesign~~ ✅ Done (2026-05-19, commits 6ac6c01, 6991faf)
+
+- `ProgressCard`: 46×46 thumbnail + Play fallback; title+DiffBadge inline (`justify-between`); category italic below; bottom 3-button status strip (WANT_TO_LEARN / IN_PROGRESS / LEARNED) with 1px dividers and `rgba(220,184,255,0.06)` active bg
+- `ProgressTracker`: mobile header (`sm:hidden`) = overline + h1; tab picker always visible — neutral active state (`bg-[#2a2a2a]`), no count badges; search desktop-only (`hidden sm:block`); all tabs use `ProgressCard` (removed `WantToLearnRow` conditional)
+
+### ~~Profile — Favourites page mobile redesign~~ ✅ Done (2026-05-19, commit 528be76)
+
+- `FavouriteMovesGallery`: mobile header (accent line + count overline + h1 + subtitle); mobile search with `bg-surface-container` container; breadcrumb/desktop-header/sort wrapped in `hidden sm:*`
+- `FavouriteCard`: `aspect-[16/9] sm:aspect-[4/5]`; mobile body = compact (title + DiffBadge + category); desktop body = full (description, addedDate); difficulty chip hidden on mobile (moves to card body)
+
+### Pending
+
+- [ ] `username` always NULL — no UI to set it
+- [ ] Elite Member badge — hardcoded stub, no membership logic
+- [ ] Playwright e2e tests
+- [ ] `buildTagConditions` cross-locale OR — latent risk (no current data triggers it): if two distinct tags ever share `name_pl` of one and `name_en` of another, the filter will silently merge them. Long-term fix: resolve URL-tag → id server-side instead of OR-fallback.
+
+~~**Profile Overview — mobile polish**~~ ✅ Done (2026-05-28, commit 9777924)
+
+- `ProfileOverview`: bento grid 2-col from `md` (768px) instead of `lg`
+- `ProfileFavouritesPreview`: `grid-cols-2` on mobile, `grid-cols-3` from `sm`
+
+~~**Profile Settings — mobile pass**~~ ✅ Done (2026-05-28, commit 0fc717b)
+
+- Accent line (`sm:hidden`) before heading, matching ProgressTracker/FavouriteMovesGallery pattern
+- `h1`: `text-[28px]` + `text-on-surface` on mobile, `sm:text-primary` on desktop
+- Action buttons: `w-full` on mobile, `lg:w-auto` on desktop
+
+~~**Profile: 2-col tablet layout**~~ ✅ Done (2026-05-28, commit 9777924)
+
+~~**Tech Debt — admin + mobile**~~ ✅ All resolved (2026-05-28, commits dbb43c9, 238cbd5, c696afa)
+
+~~**`admin/page.tsx` — always-fresh name/image**~~ ✅ Fixed (238cbd5)
+
+- `admin/page.tsx` now reads `firstName`/`lastName`/`image` from DB directly — shows updated profile immediately after settings save
+- `SettingsForm` calls `update({ name })` after save — JWT synced for client-side `useSession()` consumers
+
+~~**`Header` + `MobileBottomNav` — redundant DB calls for role**~~ ✅ Fixed (c696afa)
+
+- Both now read `role` from `session.user.role` (already in JWT via auth.config.ts) — eliminates 2 DB queries per main-layout page load
+
+~~**`AdminShell` — `isMobile` JS detection causes CLS**~~ ✅ Fixed (dbb43c9)
+
+- Replaced with CSS-only (`hidden lg:flex` / `flex lg:hidden`); `paddingBottom` via Tailwind `pb-[calc(56px+env(safe-area-inset-bottom,0px))] lg:pb-0`
+
+~~**`AdminUserMenu` — ghost AlertDialog portal on breakpoint resize**~~ ✅ Fixed (c696afa)
+
+- `useEffect` closes `confirmOpen` on `matchMedia('(min-width: 1024px)')` change — Radix portal can't stay open after CSS-hidden instance transitions away
+
+~~**`AdminUserMenu` — missing `type="button"`, `collapsed` required**~~ ✅ Fixed (dbb43c9)
+
+---
+
+## Code Review Fixes (feat/mobile-design, 2026-05-28)
+
+### Round 1 (commit 7b7ba66)
+
+~~**`AdminShell` mobile bottom nav — missing `type="button"`**~~ ✅
+
+~~**`ProgressStatusPicker` — `flex-2` invalid Tailwind class**~~ ✅ → `flex-[2]` then → `flex-1` (see round 2)
+
+~~**`catalog/actions.ts` — old Polish-locale tag bookmarks silently return 0 results**~~ ✅
+
+- `buildTagConditions` now uses `OR [name_en, name_pl]` for backward-compat
+
+### Round 2 (commit c696afa)
+
+~~**`AdminUserMenu` — ghost AlertDialog on breakpoint resize**~~ ✅ (see tech debt above)
+
+~~**`Header` + `MobileBottomNav` — redundant DB queries for role**~~ ✅ (see tech debt above)
+
+~~**`MoveFavouriteButton` — toggle race: closed-over `isFavourited` prop**~~ ✅
+
+- Toggle now branches on `optimisticFav` — fixes double-add/remove on rapid taps
+
+~~**`MoveCard` — local `extractVideoId` misses `embed/` URLs**~~ ✅
+
+- Replaced with shared `extractVideoId` from `features/moves/lib/youtube.ts`
+
+~~**`ProgressStatusPicker` — pill flash on first render**~~ ✅
+
+- `useEffect` → `useLayoutEffect` for pill sync (no first-paint jump)
+
+~~**`ProgressStatusPicker` — `flex-[2]` breaks WantToLearnRow pill geometry**~~ ✅
+
+- All buttons now `flex-1` (equal width)
+
+### Round 3 (commit 1a5b4b6)
+
+~~**4× duplicate `isMobile` resize listeners**~~ ✅
+
+- Extracted `src/shared/hooks/useIsMobile.ts` (matchMedia-based, lazy init, no debounce)
+- Replaced ad-hoc `useState+useEffect` in `AdminMoves`, `AdminUsers`, `AdminTags`, `MoveModal`
+
+~~**`AdminShell` safe-area `calc()` — missing whitespace**~~ ✅
+
+- `pb-[calc(56px+env(...))]` → `pb-[calc(56px_+_env(...))]` (Tailwind underscore for space)
+
+~~**`CatalogFilters` mobile sheet — no Escape key handler**~~ ✅
+
+- `useEffect` closes sheet on `Escape`; cleanup removes listener
+
+~~**`CatalogFilters` `toggleTag` — OR-fallback missing for tag display**~~ ✅
+
+- `active` check: `selectedTags.includes(tag.nameEn) || selectedTags.includes(tag.name)` — consistent with backend `buildTagConditions`
+
+~~**`SettingsForm` — `update()` called before password validation**~~ ✅
+
+- `await update({ name: newName })` moved to after password action succeeds
+
+~~**`SettingsForm` — `watch()` incompatible with React Compiler**~~ ✅
+
+- `profileForm.watch('firstName')` → `useWatch({ control, name: 'firstName' })`
+
+~~**`admin/page.tsx` — `image: true` in DB select**~~ ✅
+
+- Removed `image` from `findUnique` select; reads from `session.user.image` instead
+
+### Round 4 — full-branch review (commit f052a66, 2026-05-29)
+
+10 findings from a 3-angle / 1-verifier review pass over `main...HEAD`.
+
+~~**`auth.config.ts` — Facebook `profile.picture` not unwrapped in JWT callback**~~ ✅
+
+- Facebook returns `picture: { data: { url } }`; previous code stored the raw object as `token.picture`, which then crashed `next/image` in Header on any FB-authenticated session.
+- Fix: same unwrap logic as `signIn` callback in `auth.ts` — checks if string vs nested-object shape.
+
+~~**`MovePlayer` — `MoveSpecs` hidden on mobile (`hidden sm:block`)**~~ ✅
+
+- Mobile users lost visibility of PoleType (key decision info: does my pole support this move?), gripType, entry, duration.
+- Fix: removed the wrapper; `MoveSpecs` already responsive (`grid-cols-2 md:grid-cols-4`).
+- Also tightened `MoveSpecs` spacing for mobile: `p-3 sm:p-6`, `text-sm sm:text-lg` for values, `gap-2.5 sm:gap-4` grid.
+
+~~**`ProgressCard` + `FavouriteMovesGallery` — raw enum `category` rendered without `te()`**~~ ✅
+
+- Both showed `'SPINS'`/`'CLIMBS'` etc instead of localized labels (`'Spiny'`/`'Wspinaczki'`).
+- Fix: wrap in `te(\`category.${category}\`)`— keys already exist in`en.json`+`pl.json`.
+
+~~**`Header` — stale role from JWT (7-day window)**~~ ✅
+
+- Role was read from `session.user.role` (cached in JWT); admin demotion stayed invisible to UI until token expiry or re-login.
+- Fix: per-request `prisma.user.findUnique({ select: { role: true } })` for authenticated users. Single indexed query; image still from session (synced via `session.update({ picture })` from `AvatarUpload`).
+- Trade-off accepted vs round 2 optimization (DB-free header) — security-UI correctness wins.
+
+~~**`ProfileAside` + `ProfileMobileNav` — Settings unreachable from sub-pages**~~ ✅
+
+- The hero gear icon was the only entry, but `ProfileHero` renders only on `/profile` (overview), not on sub-pages.
+- Fix: added 4th `settings` entry to both navs (uses existing `profile.settings` i18n key + `Settings` lucide icon).
+
+~~**`useIsMobile` — SSR hydration mismatch + lint warning**~~ ✅
+
+- Lazy init `typeof window !== 'undefined' && window.innerWidth < bp` gave `false` on server but `true` on mobile clients → React hydration warnings for admin table-vs-card branch.
+- Also `setState` directly inside `useEffect` tripped `react-hooks/set-state-in-effect`.
+- Fix: rewrote with `useSyncExternalStore` — tolerates SSR=`false` / client=`true` without warning, and idiomatic for matchMedia subscription.
+
+~~**`ProgressStatusPicker` + `MoveTabs` — pill/indicator stale on viewport resize**~~ ✅
+
+- Pill/underline measurement (`offsetLeft`/`offsetWidth`) ran only on `active` change; viewport rotation or breakpoint cross left geometry misaligned.
+- Fix: `ResizeObserver` on container in both components; jsdom stub added to `test-setup.ts`.
+
+~~**`AvatarUpload` — 32×32 hit target below iOS HIG / WCAG AAA**~~ ✅
+
+- Camera icon button was `h-8 w-8` (32×32), positioned partially over avatar edge; first-time users had no visible CTA.
+- Fix: `h-11 w-11 sm:h-8 sm:w-8` (44×44 on mobile, 32×32 desktop). Icon scales `h-5 sm:h-4`. `aria-label` already present.
+
+~~**`MoveTabs` — phantom scrollbar from undefined `scrollbar-none`**~~ ✅
+
+- Used `overflow-x-auto` + `scrollbar-none`, but the latter was never defined as a utility — browser scrollbar showed up.
+- Fix: removed `overflow-x-auto` (3 tabs always fit). Added real `@utility scrollbar-none` in `globals.css` (Firefox + WebKit) for `ProfileMobileNav` which has 4 entries and may need horizontal scroll.
+- Also resized `MoveTabs` for mobile: `text-sm sm:text-lg`, `gap-5 sm:gap-8`, `pb-3 sm:pb-4`, `mb-6 sm:mb-8`.
+
+~~**`globals.css` — Turbopack CSS parse error from docs/todos.md being scanned by Tailwind**~~ ✅
+
+- Tailwind v4 scans all source files including markdown. Line in `docs/todos.md` contained example `pb-[calc(56px+env(...))]` — Tailwind generated an invalid CSS rule, `yarn build` warned, `next dev --turbo` failed hard.
+- Fix: `@source not "../../docs/**/*";` directive at top of `globals.css`.
+
+### Round 5 — mobile move detail polish (commit 5971582, 2026-05-29)
+
+~~**`MovePlayer` — mobile page header not sticky**~~ ✅
+
+- Mobile header (back arrow · title · favourite) scrolled out of view, losing the navigation surface.
+- Fix: `sticky top-14 z-40` (below global Header `h-14`); `-mx-4 px-4` extends bg to viewport edges (parent has `px-4`); `bg-surface/80 backdrop-blur-md` + subtle `border-b` for separation. Matches `ProfileMobileNav` visual pattern.

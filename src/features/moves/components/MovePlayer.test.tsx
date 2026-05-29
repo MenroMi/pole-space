@@ -60,7 +60,8 @@ const baseProps = {
   stepsData: [] as StepItem[],
   difficulty: 'BEGINNER' as const,
   description: 'A graceful spinning move.',
-  tags: [] as { id: string; name: string; color: string | null }[],
+  tags: [] as { id: string; name: string; nameEn: string; color: string | null }[],
+  category: 'spins',
   poleTypes: [] as import('@prisma/client').PoleType[],
   moveId: 'move-1',
   isFavourited: false,
@@ -93,7 +94,7 @@ describe('MovePlayer', () => {
 
   it('renders the difficulty chip', () => {
     render(<MovePlayer {...baseProps} />);
-    expect(screen.getByText('difficulty.BEGINNER')).toBeInTheDocument();
+    expect(screen.getAllByText('difficulty.BEGINNER').length).toBeGreaterThan(0);
   });
 
   it('renders the description', () => {
@@ -103,8 +104,8 @@ describe('MovePlayer', () => {
 
   it('renders tags when provided', () => {
     const tags = [
-      { id: '1', name: 'Beginner Friendly', color: null },
-      { id: '2', name: 'Core', color: null },
+      { id: '1', name: 'Beginner Friendly', nameEn: 'Beginner Friendly', color: null },
+      { id: '2', name: 'Core', nameEn: 'Core', color: null },
     ];
     render(<MovePlayer {...baseProps} tags={tags} />);
     expect(screen.getByText('Beginner Friendly')).toBeInTheDocument();

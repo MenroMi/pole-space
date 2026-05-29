@@ -1,5 +1,5 @@
-import { getLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
 
 import { findResetToken } from '@/features/auth/lib/reset-tokens';
 

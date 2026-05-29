@@ -85,15 +85,61 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
-      <div className="relative h-20 w-20 overflow-hidden rounded-2xl bg-surface-high">
-        {displayImage ? (
-          <Image src={displayImage} alt={t('avatarAlt')} fill className="object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-on-surface-variant">
-            {t('noPhoto')}
-          </div>
-        )}
+      {/* Avatar + camera button overlay */}
+      <div className="relative">
+        <div className="relative h-24 w-24 overflow-hidden rounded-2xl bg-surface-high">
+          {displayImage ? (
+            <Image src={displayImage} alt={t('avatarAlt')} fill className="object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-on-surface-variant/30">
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
+            </div>
+          )}
+        </div>
+
+        {/* Camera button — 44x44 mobile (iOS HIG / WCAG AAA), 32x32 desktop */}
+        <button
+          type="button"
+          aria-label={t('choosePhoto')}
+          disabled={pendingAction !== null}
+          onClick={() => inputRef.current?.click()}
+          className="absolute -right-1.5 -bottom-1.5 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-primary-container text-on-surface shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-8 sm:w-8"
+        >
+          {pendingAction === 'upload' ? (
+            <Loader2 className="h-5 w-5 animate-spin sm:h-4 sm:w-4" />
+          ) : (
+            <svg
+              width="20"
+              height="20"
+              className="sm:h-4 sm:w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+          )}
+        </button>
       </div>
+
       <input
         ref={inputRef}
         type="file"
@@ -102,16 +148,9 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
         className="hidden"
         onChange={handleFileChange}
       />
+
+      {/* Upload / Remove actions */}
       <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={pendingAction !== null}
-          onClick={() => inputRef.current?.click()}
-        >
-          {t('choosePhoto')}
-        </Button>
         {preview && (
           <Button type="button" size="sm" onClick={handleUpload} disabled={pendingAction !== null}>
             {pendingAction === 'upload' && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -131,6 +170,7 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
           </Button>
         )}
       </div>
+
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

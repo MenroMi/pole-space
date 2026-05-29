@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -77,10 +77,10 @@ const mockProgress: ProgressWithMove[] = [
 beforeEach(() => vi.clearAllMocks());
 
 describe('ProgressTracker', () => {
-  it('shows "In Progress" tab active by default and renders its moves', () => {
+  it('shows "Want to Learn" tab active by default and renders its moves', () => {
     render(<ProgressTracker initialProgress={mockProgress} userName="Mira" />);
-    expect(screen.getByText('Fireman Spin')).toBeInTheDocument();
-    expect(screen.queryByText('Butterfly')).not.toBeInTheDocument();
+    expect(screen.getByText('Butterfly')).toBeInTheDocument();
+    expect(screen.queryByText('Fireman Spin')).not.toBeInTheDocument();
     expect(screen.queryByText('Crucifix')).not.toBeInTheDocument();
   });
 
@@ -126,6 +126,7 @@ describe('ProgressTracker', () => {
       },
     ];
     render(<ProgressTracker initialProgress={progress} userName={null} />);
+    await user.click(screen.getByRole('tab', { name: /IN_PROGRESS/ }));
     await user.type(screen.getByPlaceholderText('searchMovesPlaceholder'), 'fire');
     expect(screen.getByText('Fireman Spin')).toBeInTheDocument();
     expect(screen.queryByText('Pole Sit')).not.toBeInTheDocument();
@@ -142,6 +143,7 @@ describe('ProgressTracker', () => {
       },
     ];
     render(<ProgressTracker initialProgress={progress} userName={null} />);
+    fireEvent.click(screen.getByRole('tab', { name: /IN_PROGRESS/ }));
     expect(screen.getByText('emptyInProgress')).toBeInTheDocument();
   });
 
@@ -154,7 +156,7 @@ describe('ProgressTracker', () => {
 
   it('shows total tracked count in header', () => {
     render(<ProgressTracker initialProgress={mockProgress} userName="Mira" />);
-    expect(screen.getByText(/3 tracked/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/3 tracked/i).length).toBeGreaterThan(0);
   });
 
   it('tab remains clickable after status change (regression: exiting layer blocking clicks)', async () => {

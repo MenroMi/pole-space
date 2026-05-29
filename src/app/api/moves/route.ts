@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-import type { Locale } from '@/i18n/routing';
 import { getMovesAction } from '@/features/catalog';
+import type { Locale } from '@/i18n/routing';
 
 export const dynamic = 'force-dynamic';
 

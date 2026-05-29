@@ -52,9 +52,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       </div>
 
       {/* Form side */}
-      <main className="relative flex w-full flex-col items-center justify-center overflow-y-auto bg-surface px-8 py-16 sm:px-16 lg:w-2/5 xl:w-1/3">
-        {/* Mobile brand */}
-        <div className="absolute top-10 left-8 lg:hidden">
+      <main className="flex w-full flex-col overflow-y-auto bg-surface px-8 sm:px-16 lg:w-2/5 xl:w-1/3">
+        {/* Mobile brand — in normal flow so it doesn't overlap the form */}
+        <div className="shrink-0 pt-10 pb-6 lg:hidden">
           <Link
             href="/"
             className="font-display text-xl font-bold tracking-tight text-on-surface lowercase"
@@ -62,7 +62,10 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             pole space<span className="text-primary">.</span>
           </Link>
         </div>
-        {children}
+        {/* Centering wrapper */}
+        <div className="flex flex-1 flex-col items-center justify-center py-8 lg:py-16">
+          {children}
+        </div>
       </main>
     </div>
   );

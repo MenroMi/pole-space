@@ -1,8 +1,9 @@
 'use client';
 
-import { useRouter } from '@/i18n/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef } from 'react';
+
+import { useRouter } from '@/i18n/navigation';
 
 export function SessionGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();

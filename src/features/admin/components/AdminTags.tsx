@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
+
 import {
   createTagAction,
   deleteTagAction,
@@ -34,10 +36,12 @@ const emptyForm: TagFormState = { name_en: '', name_pl: '', color: DEFAULT_COLOR
 
 function TagCard({
   tag,
+  isMobile,
   onEdit,
   onDelete,
 }: {
   tag: AdminTagRow;
+  isMobile: boolean;
   onEdit: (t: AdminTagRow) => void;
   onDelete: (t: AdminTagRow) => void;
 }) {
@@ -141,8 +145,15 @@ function TagCard({
           </span>
         </div>
       )}
-      {/* Actions (hover-reveal) */}
-      <div style={{ display: 'flex', gap: 6, opacity: hov ? 1 : 0, transition: 'opacity 150ms' }}>
+      {/* Actions (hover-reveal, always visible on touch) */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          opacity: isMobile || hov ? 1 : 0,
+          transition: 'opacity 150ms',
+        }}
+      >
         <button
           onClick={() => onEdit(tag)}
           style={{
@@ -600,6 +611,7 @@ export function AdminTags() {
   useEffect(() => {
     tRef.current = t;
   });
+  const isMobile = useIsMobile();
   const [tags, setTags] = useState<AdminTagRow[]>([]);
   const hasFetchedRef = useRef(false);
   const [loading, setLoading] = useState(true);
@@ -704,13 +716,15 @@ export function AdminTags() {
   }
 
   return (
-    <div style={{ padding: '32px 40px 80px' }}>
+    <div style={{ padding: isMobile ? '20px 16px 80px' : '32px 40px 80px' }}>
       {/* Header */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'flex-end',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'flex-start' : 'flex-end',
           justifyContent: 'space-between',
+          gap: isMobile ? 16 : 0,
           marginBottom: 28,
         }}
       >
@@ -760,7 +774,9 @@ export function AdminTags() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: 8,
+            width: isMobile ? '100%' : undefined,
             boxShadow: '0 4px 16px -2px rgba(132,88,179,0.4)',
             transition: 'background-position 400ms',
           }}
@@ -778,7 +794,7 @@ export function AdminTags() {
       {/* Search */}
       <div
         style={{
-          maxWidth: 360,
+          maxWidth: isMobile ? '100%' : 360,
           display: 'flex',
           alignItems: 'center',
           gap: 10,
@@ -868,6 +884,7 @@ export function AdminTags() {
             <TagCard
               key={t.id}
               tag={t}
+              isMobile={isMobile}
               onEdit={(tag) => {
                 setEditTag(tag);
                 setModalError(null);
