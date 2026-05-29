@@ -25,15 +25,24 @@ export default function ProgressStatusPicker({
   const hasActive = activeIndex !== -1;
   const [pill, setPill] = useState<PillGeometry | null>(null);
 
-  // Sync pill position when status changes externally (e.g. from ProgressCard strip)
+  // Sync pill position when status changes, container resizes, or viewport changes.
+  // ResizeObserver covers fluid parent layouts (e.g. flex-1 inside a grid that reflows
+  // at the lg breakpoint); without it the pill keeps stale pixel geometry on resize.
   useLayoutEffect(() => {
     if (!containerRef.current || !hasActive) {
       setPill(null);
       return;
     }
-    const buttons = containerRef.current.querySelectorAll<HTMLButtonElement>('button');
-    const btn = buttons[activeIndex];
-    if (btn) setPill({ left: btn.offsetLeft, width: btn.offsetWidth });
+    const container = containerRef.current;
+    function measure() {
+      const buttons = container.querySelectorAll<HTMLButtonElement>('button');
+      const btn = buttons[activeIndex];
+      if (btn) setPill({ left: btn.offsetLeft, width: btn.offsetWidth });
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
   }, [hasActive, activeIndex]);
 
   function handleChange(status: LearnStatus | null, el: HTMLButtonElement) {

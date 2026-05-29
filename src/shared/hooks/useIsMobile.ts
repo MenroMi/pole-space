@@ -1,17 +1,16 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
+// useSyncExternalStore tolerates the SSR=`false` / client=`true` divergence
+// without logging a hydration mismatch warning, and subscribes via matchMedia.
 export function useIsMobile(breakpoint = 1024): boolean {
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth < breakpoint,
+  return useSyncExternalStore(
+    (notify) => {
+      const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+      mq.addEventListener('change', notify);
+      return () => mq.removeEventListener('change', notify);
+    },
+    () => window.matchMedia(`(max-width: ${breakpoint - 1}px)`).matches,
+    () => false,
   );
-
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, [breakpoint]);
-
-  return isMobile;
 }

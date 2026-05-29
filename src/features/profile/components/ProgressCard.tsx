@@ -61,7 +61,7 @@ export default function ProgressCard({ item, onStatusChange, isPending }: Progre
           {/* Row 2: category · poleTypes · duration */}
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <p className="font-sans text-[11px] text-on-surface-variant/70 italic sm:text-xs md:text-sm">
-              {item.move.category}
+              {te(`category.${item.move.category}`)}
             </p>
             {item.move.poleTypes.length > 0 && (
               <>

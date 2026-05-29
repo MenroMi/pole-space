@@ -110,20 +110,21 @@ export default function AvatarUpload({ currentImage, onUploadSuccess }: AvatarUp
           )}
         </div>
 
-        {/* Camera button */}
+        {/* Camera button — 44x44 mobile (iOS HIG / WCAG AAA), 32x32 desktop */}
         <button
           type="button"
           aria-label={t('choosePhoto')}
           disabled={pendingAction !== null}
           onClick={() => inputRef.current?.click()}
-          className="absolute -right-1.5 -bottom-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary-container text-on-surface shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute -right-1.5 -bottom-1.5 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-primary-container text-on-surface shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-8 sm:w-8"
         >
           {pendingAction === 'upload' ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin sm:h-4 sm:w-4" />
           ) : (
             <svg
-              width="16"
-              height="16"
+              width="20"
+              height="20"
+              className="sm:h-4 sm:w-4"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

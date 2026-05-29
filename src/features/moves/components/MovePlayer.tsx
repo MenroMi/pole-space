@@ -202,10 +202,7 @@ export default function MovePlayer({
         </div>
       </div>
 
-      {/* Specs — desktop only (design omits on mobile) */}
-      <div className="hidden sm:block">
-        <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleTypes={poleTypes} />
-      </div>
+      <MoveSpecs gripType={gripType} entry={entry} duration={duration} poleTypes={poleTypes} />
 
       {/* Tabs */}
       <div className="mt-6 sm:mt-10">

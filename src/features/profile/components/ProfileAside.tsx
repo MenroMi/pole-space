@@ -1,5 +1,5 @@
 'use client';
-import { Heart, LayoutDashboard, TrendingUp } from 'lucide-react';
+import { Heart, LayoutDashboard, Settings, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -7,7 +7,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 
 type NavItem = {
   href: string;
-  labelKey: 'overview' | 'progress' | 'favourites';
+  labelKey: 'overview' | 'progress' | 'favourites' | 'settings';
   icon: LucideIcon;
   matches: string[];
 };
@@ -30,6 +30,12 @@ const NAV_ITEMS: NavItem[] = [
     labelKey: 'favourites',
     icon: Heart,
     matches: ['/profile/favourite-moves'],
+  },
+  {
+    href: '/profile/settings',
+    labelKey: 'settings',
+    icon: Settings,
+    matches: ['/profile/settings'],
   },
 ];
 

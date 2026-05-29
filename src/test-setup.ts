@@ -3,6 +3,14 @@ import { createElement } from 'react';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// jsdom lacks ResizeObserver; components that observe layout fall back to no-op.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+globalThis.ResizeObserver = globalThis.ResizeObserver ?? ResizeObserverStub;
+
 vi.mock('framer-motion', () => ({
   motion: new Proxy(
     {},

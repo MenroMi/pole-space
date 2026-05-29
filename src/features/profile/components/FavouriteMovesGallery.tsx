@@ -178,7 +178,7 @@ function FavouriteCard({
             {te(`difficulty.${fav.move.difficulty}`)}
           </span>
           <span className="font-sans text-[9px]" style={{ color: '#6b6270' }}>
-            {fav.move.category}
+            {te(`category.${fav.move.category}`)}
           </span>
         </div>
       </div>

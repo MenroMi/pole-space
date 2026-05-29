@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
 import { auth } from '@/shared/lib/auth';
+import { prisma } from '@/shared/lib/prisma';
 
 import FavouritesButton from './FavouritesButton';
 import HeaderNav from './HeaderNav';
@@ -14,7 +15,13 @@ export default async function Header() {
   const user = session?.user
     ? { name: session.user.name ?? null, image: session.user.image ?? null }
     : null;
-  const role = (session?.user?.role as string | null) ?? null;
+  // Role is read fresh from DB (not session JWT) so admin demotion takes effect
+  // immediately rather than persisting up to 7 days until JWT expiry.
+  const userId = session?.user?.id;
+  const dbUser = userId
+    ? await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    : null;
+  const role = dbUser?.role ?? null;
 
   return (
     <header

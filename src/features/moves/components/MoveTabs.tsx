@@ -12,18 +12,29 @@ export default function MoveTabs({ breakdown }: { breakdown: ReactNode }) {
   const [active, setActive] = useState<Tab>('breakdown');
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const listRef = useRef<HTMLDivElement>(null);
 
+  // Re-measure on active change AND on container/viewport resize so the
+  // underline stays aligned when font size changes across the sm breakpoint.
   useLayoutEffect(() => {
-    const activeIndex = TAB_IDS.indexOf(active);
-    const el = tabRefs.current[activeIndex];
-    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+    function measure() {
+      const activeIndex = TAB_IDS.indexOf(active);
+      const el = tabRefs.current[activeIndex];
+      if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+    }
+    measure();
+    if (!listRef.current) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(listRef.current);
+    return () => ro.disconnect();
   }, [active]);
 
   return (
     <div>
       <div
+        ref={listRef}
         role="tablist"
-        className="scrollbar-none relative mb-8 flex gap-8 overflow-x-auto border-b border-outline-variant/15 pb-4"
+        className="relative mb-6 flex gap-5 border-b border-outline-variant/15 pb-3 sm:mb-8 sm:gap-8 sm:pb-4"
       >
         {TAB_IDS.map((id, i) => (
           <button
@@ -50,7 +61,7 @@ export default function MoveTabs({ breakdown }: { breakdown: ReactNode }) {
                 tabRefs.current[prevIndex]?.focus();
               }
             }}
-            className={`shrink-0 cursor-pointer font-display text-lg tracking-wide uppercase transition-colors duration-200 ${
+            className={`shrink-0 cursor-pointer font-display text-sm tracking-wide uppercase transition-colors duration-200 sm:text-lg ${
               active === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
