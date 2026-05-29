@@ -91,9 +91,9 @@ export default function MovePlayer({
   const categoryLabel = te(`category.${category}`);
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 pt-3 pb-8 sm:px-8 sm:py-8">
-      {/* Mobile page header: ← title ♡ */}
-      <div className="mb-3 flex items-center gap-2 sm:hidden">
+    <div className="mx-auto max-w-[1280px] px-4 pb-8 sm:px-8 sm:py-8">
+      {/* Mobile page header: ← title ♡ — sticky below global Header (h-14) */}
+      <div className="sticky top-14 z-40 -mx-4 mb-3 flex items-center gap-2 border-b border-outline-variant/15 bg-surface/80 px-4 py-2 backdrop-blur-md sm:hidden">
         <Link
           href="/catalog"
           aria-label={t('backToCatalog')}
