@@ -727,4 +727,14 @@ Day Streak feature + Header fix. 628 tests, typecheck/lint/build clean. Not yet 
 - #3 client-trusted streak day boundary → **backlog** (see "Day Streak — client-trusted day boundary" under Security Hardening).
 - #4 `bestStreak` subtitle shown at personal best → **fixed** (commit c9484b9): gated on `longestStreak > currentStreak`, +1 test.
 - #5 stat card shows `0` for new users → **accepted** (honest value, consistent with other cards).
-- Remaining review notes #6–#10 (Header fix altitude, StreakPing daily-ping client guard, `fullName()` / `DATE_RE` dedup, split StreakPing useEffect) — not yet addressed.
+- #6 Header fix is a per-component bandaid; JWT/`useSession` stays stale → **accepted after verification**: grepped all `useSession()` consumers — none read `session.user.name`/`image` (SettingsForm/AvatarUpload use only `update`; StreakPing/SessionGuard only `status`; UserMenu reads name/image from a prop fed by Header→DB; admin reads from DB objects). The fresh-on-server/stale-on-client split has no actual victim, so no fix needed.
+- #7 + #8 StreakPing placement + no daily ping guard → **backlog** (see "StreakPing — daily client-side ping guard" below).
+- #9 `fullName()` / `DATE_RE` dedup → **deferred** (not touching now; low drift risk).
+- #10 StreakPing re-registers `visibilitychange` listener per nav; `computeNewStreak` null branch duplicates reset path → **backlog** (folded into the StreakPing optimization task below).
+
+### StreakPing — daily client-side ping guard + listener cleanup (2026-05-30)
+
+- Not blocking and negligible perf impact on a low-traffic app — deferred by decision.
+- `StreakPing` (`src/features/profile/components/StreakPing.tsx`) fires `recordStreakActivityAction` (→ `auth()` + `prisma.user.findUnique`) on every mount, every client navigation (pathname dep), and every `visibilitychange→visible`, even though the streak changes at most once/day. Compounds with `SessionProvider refetchOnWindowFocus` (double server chatter on tab focus).
+- Fix (later): add a `localStorage` flag `streak-pinged:YYYY-MM-DD`; after the first successful ping of the day, skip all subsequent pings until midnight. This also neutralizes the #7 altitude concern (it stops firing app-wide on every interaction).
+- While editing the file (#10): split the effect into `[status, pathname]` (calls ping) and `[status]` (owns the `visibilitychange` listener) so the listener isn't torn down/re-added on every navigation.
