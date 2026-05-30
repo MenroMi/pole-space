@@ -629,6 +629,7 @@ describe('recordStreakActivityAction', () => {
         timezone: 'America/Los_Angeles',
       },
     });
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
   it('increments both current and longest on +1 day when tied', async () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);

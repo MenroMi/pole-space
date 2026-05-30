@@ -277,6 +277,7 @@ export async function getProfileOverviewAction() {
 
 export async function recordStreakActivityAction(today: string, timezone: string): Promise<void> {
   try {
+    // silent no-op (not requireAuth) — this fire-and-forget action must never throw
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return;
