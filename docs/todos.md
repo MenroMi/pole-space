@@ -53,6 +53,20 @@
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
+### Session revocation — deleted/blocked user keeps access mid-session (2026-05-30)
+
+- JWT session strategy: middleware (`src/middleware.ts`) and `auth()` validate only the token's signature + expiry (`maxAge` 7 days), never that the user still exists or isn't `blockedAt` in the DB. So a user deleted (or blocked) **after** login keeps a valid JWT and can navigate the app for up to 7 days. Confirmed by experiment: deleting a logged-in user does not interrupt their browsing.
+- Existing checks only fire at **login** (`authorize` in `auth.ts`) and in `Header` for `role` (UI-only, doesn't gate access).
+- Symptom-level note: after the Header DB-source fix, a valid session with a missing DB row also makes `UserMenu` render the logged-out menu — cosmetic, the real issue is access not being revoked.
+- Proper fix (later): a per-request DB check (in `middleware.ts` or a shared guard) that the user exists and `blockedAt == null` — trades the DB-free JWT benefit for immediate revocation. Same class as the Day Streak hardening item above.
+
+### Day Streak — client-trusted day boundary (2026-05-30)
+
+- `recordStreakActivityAction` (`src/features/profile/actions.ts`) only validates the _format_ of the client-supplied `today` (`/^\d{4}-\d{2}-\d{2}$/`); it never checks it against server time or the supplied `timezone`. The `timezone` column is persisted but `computeNewStreak` never uses it.
+- Consequences: the streak is **spoofable** (a crafted client can pass tomorrow's date to inflate `currentStreak`/`longestStreak`, or yesterday's to never break it) and **unearnable** for JS-disabled clients / bots.
+- Accepted for now: the streak is cosmetic (no rewards), so abuse is harmless. Documented as a known tradeoff (the spec chose a client-supplied local date for timezone correctness).
+- Proper fix (later): derive `today` **server-side** from the client-supplied IANA `timezone` via `Intl.DateTimeFormat('en-CA', { timeZone })` — removes `today` spoofing and gives the `timezone` column a real consumer. Stronger still: derive the streak server-side from trusted time + `UserProgress` timestamps and drop the client `StreakPing` ping.
+
 ### session.user.id type mismatch (minor)
 
 - `src/shared/types/next-auth.d.ts` augments `Session.user.id` as `string` (inherited from `DefaultSession`)
@@ -203,11 +217,15 @@
 - Нужно: мобильная навигация (bottom bar или drawer), адаптация ProfileHero (вертикальная компоновка, меньший шрифт), адаптация кнопок Share/Edit Profile
 - Бенто карточки: ниже 1280px идут в одну колонку — приемлемо, но стоит рассмотреть 2-колоночный лейаут для планшетов (768–1279px)
 
-**Profile — Current Streak stub** (2026-04-24)
+~~**Profile — Current Streak stub**~~ ✅ Resolved (2026-05-30) — Day Streak feature, branch `worktree-feat+profile-completeness`
 
-- `ProfileStats` renders `"—"` for Current Streak — no streak tracking logic exists
-- Needs: `UserStreak` model (or derived from `UserProgress` timestamps), server action, cron/trigger to reset on missed day
-- Design: show consecutive days with at least one progress update; reset to 0 if a day is skipped
+- 4 new `User` columns (`timezone`, `lastActiveDate`, `currentStreak`, `longestStreak`) + migration `20260530065313_add_user_streak_fields`
+- `computeNewStreak` pure fn (`src/features/profile/lib/streak.ts`, 15 tests) — increment on +1 day, reset to 1 on gap, no-op same-day / clock-skew
+- `recordStreakActivityAction` (`src/features/profile/actions.ts`, 11 tests) — idempotent per-day, `revalidatePath('/profile')` only on real change, errors swallowed
+- `StreakPing` client component (`src/features/profile/components/StreakPing.tsx`, 6 tests) mounted in `(main)/layout` — pings on mount / nav / `visibilitychange→visible`
+- `ProfileStats` 4th card → Day Streak (Flame icon), `bestStreak` subtitle shown only when `longestStreak > currentStreak`
+- Spec/Plan: `docs/superpowers/{specs,plans}/2026-05-29-day-streak*.md`
+- ⚠️ Known tradeoff in backlog: client-trusted day boundary (see "Day Streak — client-trusted day boundary" under Security Hardening)
 
 **Profile — Skill Tier stub** (2026-04-24)
 
@@ -224,11 +242,11 @@
 - ProfileAside: Favourite Moves icon changed Star → Heart
 - e2e test cases written (Playwright not installed yet)
 
-**Profile — Elite Member badge stub** (2026-04-24)
+~~**Profile — Elite Member badge stub**~~ ✅ Resolved (2026-05-30) — branch `worktree-feat+profile-completeness`
 
-- `ProfileHero` always renders the "Elite Member" badge — no membership or achievement check
-- Needs: criteria definition (e.g. moves mastered ≥ N, account age, admin-granted flag), conditional rendering
-- Until criteria are defined, badge is hardcoded and misleading for new users
+- Hardcoded badge removed from `SettingsForm` (Day Streak branch, Task 11); `BadgeCheck` import dropped, `eliteMember` i18n key removed from en/pl
+- Confirmed no `"Elite Member"`/`eliteMember` references remain anywhere in `src/`
+- If a membership/achievement tier is wanted later, it needs proper criteria + conditional rendering (was misleading as a hardcoded stub)
 
 ~~**Password reset (`/forgot-password`)**~~ ✅ Resolved (PR #29)
 
@@ -520,7 +538,7 @@ _Negative:_
 ### Pending
 
 - [ ] `username` always NULL — no UI to set it
-- [ ] Elite Member badge — hardcoded stub, no membership logic
+- [x] ~~Elite Member badge — hardcoded stub~~ ✅ removed (Day Streak branch, 2026-05-30)
 - [ ] Playwright e2e tests
 - [ ] `buildTagConditions` cross-locale OR — latent risk (no current data triggers it): if two distinct tags ever share `name_pl` of one and `name_en` of another, the filter will silently merge them. Long-term fix: resolve URL-tag → id server-side instead of OR-fallback.
 
@@ -603,7 +621,7 @@ _Negative:_
 
 ~~**`AdminShell` safe-area `calc()` — missing whitespace**~~ ✅
 
-- `pb-[calc(56px+env(...))]` → `pb-[calc(56px_+_env(...))]` (Tailwind underscore for space)
+- Missing whitespace inside `calc(56px+env(safe-area-inset-bottom,0px))`; Tailwind v4 requires literal `_+_` (underscore-plus-underscore) in arbitrary values to represent a space. Real fix in `AdminShell.tsx` uses the underscore form.
 
 ~~**`CatalogFilters` mobile sheet — no Escape key handler**~~ ✅
 
@@ -680,8 +698,9 @@ _Negative:_
 
 ~~**`globals.css` — Turbopack CSS parse error from docs/todos.md being scanned by Tailwind**~~ ✅
 
-- Tailwind v4 scans all source files including markdown. Line in `docs/todos.md` contained example `pb-[calc(56px+env(...))]` — Tailwind generated an invalid CSS rule, `yarn build` warned, `next dev --turbo` failed hard.
-- Fix: `@source not "../../docs/**/*";` directive at top of `globals.css`.
+- Tailwind v4 scans all source files including markdown. An example arbitrary-value class with a literal ellipsis placeholder inside `env()` was being picked up — Tailwind generated an invalid CSS rule, `yarn build` warned, `next dev --turbo` failed hard.
+- Attempted fix: `@source not "../../docs/**/*";` directive at top of `globals.css`. Works for `yarn build` but **Turbopack dev does not honor this directive in Tailwind v4.2.2**.
+- Real fix: rewrite the docs prose so it does not contain the literal Tailwind class token. Avoid showing broken `[...]` examples inside docs; describe in prose instead.
 
 ### Round 5 — mobile move detail polish (commit 5971582, 2026-05-29)
 
@@ -689,3 +708,33 @@ _Negative:_
 
 - Mobile header (back arrow · title · favourite) scrolled out of view, losing the navigation surface.
 - Fix: `sticky top-14 z-40` (below global Header `h-14`); `-mx-4 px-4` extends bg to viewport edges (parent has `px-4`); `bg-surface/80 backdrop-blur-md` + subtle `border-b` for separation. Matches `ProfileMobileNav` visual pattern.
+
+---
+
+## Profile Completeness branch (worktree-feat+profile-completeness, 2026-05-30)
+
+Day Streak feature + Header fix. 628 tests, typecheck/lint/build clean. Not yet merged.
+
+~~**Header dropdown shows stale initials/name after profile edit**~~ ✅ Fixed (commit 58d8218)
+
+- `Header` read name/image from the JWT session, but `update({ name })` in `SettingsForm` updates the JWT only AFTER `updateProfileAction`'s `revalidatePath('/', 'layout')` has already re-rendered the layout with the old token → stale dropdown (overview was fine — it reads from DB).
+- Fix: `Header` reads `firstName`/`lastName`/`image` from the same `findUnique` already used for `role` (no extra query). Header is now fresh immediately after the DB write + revalidate, independent of JWT timing. `Header.test.tsx` updated + regression test ("name from DB, not stale session").
+
+**Full-branch code review (high effort, 2026-05-30) — outcomes:**
+
+- #1 OAuth provider field changes not reflected in header → **accepted** (DB is source of truth; in-app edits win — intended).
+- #2 deleted/blocked user keeps mid-session access → **backlog** (see "Session revocation" under Security Hardening).
+- #3 client-trusted streak day boundary → **backlog** (see "Day Streak — client-trusted day boundary" under Security Hardening).
+- #4 `bestStreak` subtitle shown at personal best → **fixed** (commit c9484b9): gated on `longestStreak > currentStreak`, +1 test.
+- #5 stat card shows `0` for new users → **accepted** (honest value, consistent with other cards).
+- #6 Header fix is a per-component bandaid; JWT/`useSession` stays stale → **accepted after verification**: grepped all `useSession()` consumers — none read `session.user.name`/`image` (SettingsForm/AvatarUpload use only `update`; StreakPing/SessionGuard only `status`; UserMenu reads name/image from a prop fed by Header→DB; admin reads from DB objects). The fresh-on-server/stale-on-client split has no actual victim, so no fix needed.
+- #7 + #8 StreakPing placement + no daily ping guard → **backlog** (see "StreakPing — daily client-side ping guard" below).
+- #9 `fullName()` / `DATE_RE` dedup → **deferred** (not touching now; low drift risk).
+- #10 StreakPing re-registers `visibilitychange` listener per nav; `computeNewStreak` null branch duplicates reset path → **backlog** (folded into the StreakPing optimization task below).
+
+### StreakPing — daily client-side ping guard + listener cleanup (2026-05-30)
+
+- Not blocking and negligible perf impact on a low-traffic app — deferred by decision.
+- `StreakPing` (`src/features/profile/components/StreakPing.tsx`) fires `recordStreakActivityAction` (→ `auth()` + `prisma.user.findUnique`) on every mount, every client navigation (pathname dep), and every `visibilitychange→visible`, even though the streak changes at most once/day. Compounds with `SessionProvider refetchOnWindowFocus` (double server chatter on tab focus).
+- Fix (later): add a `localStorage` flag `streak-pinged:YYYY-MM-DD`; after the first successful ping of the day, skip all subsequent pings until midnight. This also neutralizes the #7 altitude concern (it stops firing app-wide on every interaction).
+- While editing the file (#10): split the effect into `[status, pathname]` (calls ping) and `[status]` (owns the `visibilitychange` listener) so the listener isn't torn down/re-added on every navigation.

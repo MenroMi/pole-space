@@ -26,6 +26,8 @@ export default async function ProfileOverview() {
           masteredCount={stats.masteredCount}
           inProgressCount={stats.inProgressCount}
           favouritesCount={stats.favouritesCount}
+          currentStreak={user?.currentStreak ?? 0}
+          longestStreak={user?.longestStreak ?? 0}
         />
       </div>
 

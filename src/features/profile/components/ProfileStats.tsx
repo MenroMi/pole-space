@@ -1,4 +1,4 @@
-import { Award, CheckCircle2, Heart, Rotate3D } from 'lucide-react';
+import { CheckCircle2, Flame, Heart, Rotate3D } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 
@@ -6,15 +6,18 @@ type ProfileStatsProps = {
   masteredCount: number;
   inProgressCount: number;
   favouritesCount: number;
+  currentStreak: number;
+  longestStreak: number;
 };
 
 type StatCardProps = {
   icon: ReactNode;
   value: string | number;
   label: string;
+  subtitle?: string;
 };
 
-function StatCard({ icon, value, label }: StatCardProps) {
+function StatCard({ icon, value, label, subtitle }: StatCardProps) {
   return (
     <div className="group flex flex-col justify-between bg-surface-low p-[18px_16px] transition-colors hover:bg-surface-container sm:p-6 md:p-8">
       <div className="mb-3 text-primary/50 transition-colors group-hover:text-primary sm:mb-6">
@@ -29,6 +32,11 @@ function StatCard({ icon, value, label }: StatCardProps) {
         <p className="mt-1 text-[9px] tracking-[0.12em] text-on-surface-variant uppercase sm:text-xs">
           {label}
         </p>
+        {subtitle && (
+          <p className="mt-0.5 font-sans text-[10px] text-on-surface-variant/60 sm:text-xs">
+            {subtitle}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -38,6 +46,8 @@ export default async function ProfileStats({
   masteredCount,
   inProgressCount,
   favouritesCount,
+  currentStreak,
+  longestStreak,
 }: ProfileStatsProps) {
   const t = await getTranslations('profile');
   const te = await getTranslations('enums');
@@ -60,9 +70,10 @@ export default async function ProfileStats({
         label={t('favourites')}
       />
       <StatCard
-        icon={<Award size={32} aria-hidden="true" />}
-        value="—"
-        label={t('trainingSessions')}
+        icon={<Flame size={32} aria-hidden="true" />}
+        value={currentStreak}
+        label={t('dayStreak')}
+        subtitle={longestStreak > currentStreak ? t('bestStreak', { n: longestStreak }) : undefined}
       />
     </div>
   );
