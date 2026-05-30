@@ -237,6 +237,8 @@ export async function getProfileOverviewAction() {
           image: true,
           location: true,
           createdAt: true,
+          currentStreak: true,
+          longestStreak: true,
         },
       }),
     ]);
