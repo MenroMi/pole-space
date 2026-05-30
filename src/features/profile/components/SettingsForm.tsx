@@ -1,6 +1,6 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BadgeCheck, Lock, User } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { forwardRef, useState } from 'react';
@@ -219,10 +219,6 @@ export default function SettingsForm({
           <div className="space-y-2">
             <p className="font-display text-xl text-on-surface capitalize">{displayName}</p>
             {email && <p className="text-sm text-on-surface-variant">{email}</p>}
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary-container/50 px-3 py-1.5 text-xs tracking-widest text-on-secondary-container uppercase ring-1 ring-outline-variant/15">
-              <BadgeCheck size={14} aria-hidden="true" />
-              {t('eliteMember')}
-            </div>
           </div>
         </section>
 
