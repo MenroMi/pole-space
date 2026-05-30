@@ -53,6 +53,13 @@
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
+### Day Streak — client-trusted day boundary (2026-05-30)
+
+- `recordStreakActivityAction` (`src/features/profile/actions.ts`) only validates the _format_ of the client-supplied `today` (`/^\d{4}-\d{2}-\d{2}$/`); it never checks it against server time or the supplied `timezone`. The `timezone` column is persisted but `computeNewStreak` never uses it.
+- Consequences: the streak is **spoofable** (a crafted client can pass tomorrow's date to inflate `currentStreak`/`longestStreak`, or yesterday's to never break it) and **unearnable** for JS-disabled clients / bots.
+- Accepted for now: the streak is cosmetic (no rewards), so abuse is harmless. Documented as a known tradeoff (the spec chose a client-supplied local date for timezone correctness).
+- Proper fix (later): derive `today` **server-side** from the client-supplied IANA `timezone` via `Intl.DateTimeFormat('en-CA', { timeZone })` — removes `today` spoofing and gives the `timezone` column a real consumer. Stronger still: derive the streak server-side from trusted time + `UserProgress` timestamps and drop the client `StreakPing` ping.
+
 ### session.user.id type mismatch (minor)
 
 - `src/shared/types/next-auth.d.ts` augments `Session.user.id` as `string` (inherited from `DefaultSession`)
