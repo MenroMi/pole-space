@@ -25,7 +25,12 @@ describe('ProfileStats', () => {
     expect(screen.queryByText(/bestStreak/)).not.toBeInTheDocument();
   });
 
-  it('shows best-streak subtitle when longestStreak > 0', async () => {
+  it('hides best-streak subtitle when longestStreak equals currentStreak (at personal best)', async () => {
+    render(await ProfileStats({ ...defaults, currentStreak: 7, longestStreak: 7 }));
+    expect(screen.queryByText(/bestStreak/)).not.toBeInTheDocument();
+  });
+
+  it('shows best-streak subtitle only when longestStreak exceeds currentStreak', async () => {
     render(await ProfileStats({ ...defaults, currentStreak: 5, longestStreak: 9 }));
     // Subtitle renders the bestStreak key (next-intl mock returns the key as-is).
     expect(screen.getByText(/bestStreak/)).toBeInTheDocument();

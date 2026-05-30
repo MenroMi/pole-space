@@ -73,7 +73,7 @@ export default async function ProfileStats({
         icon={<Flame size={32} aria-hidden="true" />}
         value={currentStreak}
         label={t('dayStreak')}
-        subtitle={longestStreak > 0 ? t('bestStreak', { n: longestStreak }) : undefined}
+        subtitle={longestStreak > currentStreak ? t('bestStreak', { n: longestStreak }) : undefined}
       />
     </div>
   );
