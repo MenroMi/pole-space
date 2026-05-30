@@ -22,6 +22,11 @@ model User {
   blockReason   String?
   createdAt     DateTime  @default(now())
 
+  timezone        String?
+  lastActiveDate  String?
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+
   progress   UserProgress[]
   favourites UserFavourite[]
   accounts   Account[]
