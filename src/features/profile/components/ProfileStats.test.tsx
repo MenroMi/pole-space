@@ -26,7 +26,8 @@ describe('ProfileStats', () => {
   });
 
   it('shows best-streak subtitle when longestStreak > 0', async () => {
-    render(await ProfileStats({ ...defaults, currentStreak: 5, longestStreak: 12 }));
-    expect(screen.getByText(/bestStreak|12/)).toBeInTheDocument();
+    render(await ProfileStats({ ...defaults, currentStreak: 5, longestStreak: 9 }));
+    // Subtitle renders the bestStreak key (next-intl mock returns the key as-is).
+    expect(screen.getByText(/bestStreak/)).toBeInTheDocument();
   });
 });

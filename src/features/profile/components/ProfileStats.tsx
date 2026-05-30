@@ -1,4 +1,4 @@
-import { Award, CheckCircle2, Heart, Rotate3D } from 'lucide-react';
+import { CheckCircle2, Flame, Heart, Rotate3D } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 
@@ -70,9 +70,10 @@ export default async function ProfileStats({
         label={t('favourites')}
       />
       <StatCard
-        icon={<Award size={32} aria-hidden="true" />}
+        icon={<Flame size={32} aria-hidden="true" />}
         value={currentStreak}
-        label={t('trainingSessions')}
+        label={t('dayStreak')}
+        subtitle={longestStreak > 0 ? t('bestStreak', { n: longestStreak }) : undefined}
       />
     </div>
   );
