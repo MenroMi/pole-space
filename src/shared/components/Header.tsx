@@ -12,16 +12,24 @@ import UserMenu from './UserMenu';
 
 export default async function Header() {
   const [session, t] = await Promise.all([auth(), getTranslations('nav')]);
-  const user = session?.user
-    ? { name: session.user.name ?? null, image: session.user.image ?? null }
-    : null;
-  // Role is read fresh from DB (not session JWT) so admin demotion takes effect
-  // immediately rather than persisting up to 7 days until JWT expiry.
+  // Name, image and role are read fresh from DB (not the session JWT): the JWT can
+  // lag behind a profile edit (it's updated client-side after revalidatePath has
+  // already re-rendered this layout), and admin demotion must take effect immediately
+  // rather than persisting up to 7 days until JWT expiry.
   const userId = session?.user?.id;
   const dbUser = userId
-    ? await prisma.user.findUnique({ where: { id: userId }, select: { role: true } })
+    ? await prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true, firstName: true, lastName: true, image: true },
+      })
     : null;
   const role = dbUser?.role ?? null;
+  const user = dbUser
+    ? {
+        name: [dbUser.firstName, dbUser.lastName].filter(Boolean).join(' ') || null,
+        image: dbUser.image ?? null,
+      }
+    : null;
 
   return (
     <header

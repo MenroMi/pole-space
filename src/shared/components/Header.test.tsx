@@ -68,15 +68,38 @@ describe('Header', () => {
     expect(JSON.parse(menu.getAttribute('data-user')!)).toBeNull();
   });
 
-  it('passes user object to UserMenu when session exists', async () => {
-    mockAuth.mockResolvedValue({
-      user: { id: '1', role: 'USER', name: 'Alice', image: 'https://example.com/avatar.jpg' },
+  it('passes user object (name + image from DB) to UserMenu when session exists', async () => {
+    mockAuth.mockResolvedValue({ user: { id: '1', role: 'USER' } });
+    mockFindUnique.mockResolvedValue({
+      role: 'USER',
+      firstName: 'Alice',
+      lastName: 'Smith',
+      image: 'https://example.com/avatar.jpg',
     });
     render(await Header());
     const menu = screen.getByTestId('user-menu');
     expect(JSON.parse(menu.getAttribute('data-user')!)).toEqual({
-      name: 'Alice',
+      name: 'Alice Smith',
       image: 'https://example.com/avatar.jpg',
+    });
+  });
+
+  it('sources name/image from DB, not the (possibly stale) JWT session', async () => {
+    // Session JWT still carries the OLD name/image after a profile edit; the DB row is fresh.
+    mockAuth.mockResolvedValue({
+      user: { id: '1', role: 'USER', name: 'Old Name', image: 'https://old.example.com/a.jpg' },
+    });
+    mockFindUnique.mockResolvedValue({
+      role: 'USER',
+      firstName: 'New',
+      lastName: 'Name',
+      image: 'https://new.example.com/b.jpg',
+    });
+    render(await Header());
+    const menu = screen.getByTestId('user-menu');
+    expect(JSON.parse(menu.getAttribute('data-user')!)).toEqual({
+      name: 'New Name',
+      image: 'https://new.example.com/b.jpg',
     });
   });
 });
