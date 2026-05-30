@@ -1,5 +1,18 @@
 # Project TODOs
 
+## ⚠️ Known Bugs — High Priority
+
+### Move detail page: `auth()` in a static route → `DYNAMIC_SERVER_USAGE` 500 on on-demand render (2026-05-30)
+
+- **Priority: IMPORTANT.** Discovered on the dev environment (empty DB at build time → every move rendered on-demand → 500). Latent on prod too: any move added **after** a build (e.g. via admin, before a redeploy) will 500 when first requested.
+- **File:** `src/app/[locale]/(main)/moves/[id]/page.tsx`.
+- **Root cause:** the page declares `generateStaticParams` (line ~13, statically generated) but calls `const session = await auth()` (line ~55) during render. `auth()` reads cookies = dynamic. At build (no request) `auth()` returns null, so pre-rendered pages are fine — that's why prod "works" for moves present at build time. But on-demand ISR generation runs in a request context, so `auth()` throws `DYNAMIC_SERVER_USAGE` → 500.
+- **Current workaround:** redeploy after seeding so `generateStaticParams` pre-renders all existing moves (does not fix newly-added moves).
+- **Proper fix (pick one):**
+  - **Clean (preferred):** remove `auth()` from the page; keep it static; fetch user-specific `currentProgress` / `isFavourited` client-side in the already-client `MoveProgressPicker` / favourite button (preserves SEO/ISR).
+  - **Quick:** add `export const dynamic = 'force-dynamic'` to the move page — renders per-request, `auth()` becomes legal, newly-added moves work immediately (loses static/ISR caching; acceptable at current scale).
+- Add a regression test that an on-demand render of a move not in the build manifest returns 200.
+
 ## ~~Error Boundaries (feat/error-boundaries)~~ ✅ Done — смерджено в main
 
 - `src/app/global-error.tsx` — root error boundary (`'use client'`, включает `<html><body>`, заменяет root layout при краше; импортирует globals.css для CSS vars)
