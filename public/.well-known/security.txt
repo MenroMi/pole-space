@@ -1,0 +1,7 @@
+# Security policy for pole space — https://securitytxt.org (RFC 9116)
+# To report a security issue, email the contact below.
+
+Contact: mailto:support@pole-space.com
+Canonical: https://pole-space.com/.well-known/security.txt
+Expires: 2027-05-30T23:59:59.000Z
+Preferred-Languages: en, pl
