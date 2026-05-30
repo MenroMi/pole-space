@@ -53,6 +53,13 @@
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
+### Session revocation — deleted/blocked user keeps access mid-session (2026-05-30)
+
+- JWT session strategy: middleware (`src/middleware.ts`) and `auth()` validate only the token's signature + expiry (`maxAge` 7 days), never that the user still exists or isn't `blockedAt` in the DB. So a user deleted (or blocked) **after** login keeps a valid JWT and can navigate the app for up to 7 days. Confirmed by experiment: deleting a logged-in user does not interrupt their browsing.
+- Existing checks only fire at **login** (`authorize` in `auth.ts`) and in `Header` for `role` (UI-only, doesn't gate access).
+- Symptom-level note: after the Header DB-source fix, a valid session with a missing DB row also makes `UserMenu` render the logged-out menu — cosmetic, the real issue is access not being revoked.
+- Proper fix (later): a per-request DB check (in `middleware.ts` or a shared guard) that the user exists and `blockedAt == null` — trades the DB-free JWT benefit for immediate revocation. Same class as the Day Streak hardening item above.
+
 ### Day Streak — client-trusted day boundary (2026-05-30)
 
 - `recordStreakActivityAction` (`src/features/profile/actions.ts`) only validates the _format_ of the client-supplied `today` (`/^\d{4}-\d{2}-\d{2}$/`); it never checks it against server time or the supplied `timezone`. The `timezone` column is persisted but `computeNewStreak` never uses it.
