@@ -12,6 +12,7 @@ import { localizeMove, localizeTag } from '@/shared/lib/localize';
 import { prisma } from '@/shared/lib/prisma';
 import type { LearnStatus } from '@/shared/types';
 
+import { computeNewStreak } from './lib/streak';
 import { profileSchema } from './lib/validation';
 import type { FavouriteWithMove, ProgressWithMove } from './types';
 
@@ -270,4 +271,46 @@ export async function getProfileOverviewAction() {
       },
     })),
   };
+}
+
+export async function recordStreakActivityAction(today: string, timezone: string): Promise<void> {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) return;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { lastActiveDate: true, currentStreak: true, longestStreak: true, timezone: true },
+    });
+    if (!user) return;
+
+    const update = computeNewStreak(
+      user.lastActiveDate,
+      today,
+      user.currentStreak,
+      user.longestStreak,
+    );
+
+    const tzChanged = user.timezone !== timezone;
+    if (!update.shouldUpdate && !tzChanged) return;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        lastActiveDate: update.shouldUpdate ? today : user.lastActiveDate,
+        currentStreak: update.newCurrentStreak,
+        longestStreak: update.newLongestStreak,
+        timezone,
+      },
+    });
+
+    if (update.shouldUpdate) {
+      revalidatePath('/profile');
+    }
+  } catch (err) {
+    console.error('[streak] activity record failed:', err);
+  }
 }

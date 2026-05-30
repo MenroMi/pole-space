@@ -71,6 +71,7 @@ import {
   getProfileSettingsAction,
   getProfileStatsAction,
   getProfileOverviewAction,
+  recordStreakActivityAction,
 } from './actions';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
@@ -552,5 +553,147 @@ describe('getProfileOverviewAction', () => {
 
     expect(result.stats).toEqual({ masteredCount: 0, inProgressCount: 0, favouritesCount: 0 });
     expect(result.breakdown).toEqual({ learned: 0, inProgress: 0, wantToLearn: 0 });
+  });
+});
+
+describe('recordStreakActivityAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  it('does nothing when session is unauthenticated', async () => {
+    mockAuth.mockResolvedValue(null);
+    await recordStreakActivityAction('2026-05-29', 'UTC');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+  it('does nothing for invalid date format', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    await recordStreakActivityAction('2026/05/29', 'UTC');
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+  it('does nothing when user row not found', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    await recordStreakActivityAction('2026-05-29', 'UTC');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+  it('initialises streak for first-visit user (lastActiveDate=null)', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: null,
+      currentStreak: 0,
+      longestStreak: 0,
+      timezone: null,
+    } as never);
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    await recordStreakActivityAction('2026-05-29', 'Europe/Warsaw');
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: {
+        lastActiveDate: '2026-05-29',
+        currentStreak: 1,
+        longestStreak: 1,
+        timezone: 'Europe/Warsaw',
+      },
+    });
+  });
+  it('is a no-op when lastActiveDate equals today AND tz unchanged', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: '2026-05-29',
+      currentStreak: 5,
+      longestStreak: 10,
+      timezone: 'Europe/Warsaw',
+    } as never);
+    await recordStreakActivityAction('2026-05-29', 'Europe/Warsaw');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+  it('updates timezone only when same day but tz changed', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: '2026-05-29',
+      currentStreak: 5,
+      longestStreak: 10,
+      timezone: 'Europe/Warsaw',
+    } as never);
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    await recordStreakActivityAction('2026-05-29', 'America/Los_Angeles');
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: {
+        lastActiveDate: '2026-05-29',
+        currentStreak: 5,
+        longestStreak: 10,
+        timezone: 'America/Los_Angeles',
+      },
+    });
+  });
+  it('increments both current and longest on +1 day when tied', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: '2026-05-28',
+      currentStreak: 10,
+      longestStreak: 10,
+      timezone: 'Europe/Warsaw',
+    } as never);
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    await recordStreakActivityAction('2026-05-29', 'Europe/Warsaw');
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: {
+        lastActiveDate: '2026-05-29',
+        currentStreak: 11,
+        longestStreak: 11,
+        timezone: 'Europe/Warsaw',
+      },
+    });
+  });
+  it('resets current to 1 on gap, longest unchanged', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: '2026-05-25',
+      currentStreak: 5,
+      longestStreak: 10,
+      timezone: 'Europe/Warsaw',
+    } as never);
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    await recordStreakActivityAction('2026-05-29', 'Europe/Warsaw');
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+      data: {
+        lastActiveDate: '2026-05-29',
+        currentStreak: 1,
+        longestStreak: 10,
+        timezone: 'Europe/Warsaw',
+      },
+    });
+  });
+  it('silently swallows DB errors (no throw)', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: null,
+      currentStreak: 0,
+      longestStreak: 0,
+      timezone: null,
+    } as never);
+    vi.mocked(prisma.user.update).mockRejectedValue(new Error('DB down'));
+    await expect(
+      recordStreakActivityAction('2026-05-29', 'Europe/Warsaw'),
+    ).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalled();
+  });
+  it('calls revalidatePath only on real streak change', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: '2026-05-28',
+      currentStreak: 5,
+      longestStreak: 10,
+      timezone: 'Europe/Warsaw',
+    } as never);
+    vi.mocked(prisma.user.update).mockResolvedValue({} as never);
+    await recordStreakActivityAction('2026-05-29', 'Europe/Warsaw');
+    expect(revalidatePath).toHaveBeenCalledWith('/profile');
   });
 });
