@@ -404,6 +404,7 @@
       "title": "Tagi",
       "addTag": "Dodaj tag",
       "editTag": "Edytuj tag",
+      "close": "Zamknij",
       "deleteTag": "Usuń tag",
       "confirmDelete": "zostanie usunięty ze wszystkich ruchów.",
       "movesCount": "{count} ruchów",

@@ -404,6 +404,7 @@
       "title": "Tags",
       "addTag": "Add Tag",
       "editTag": "Edit Tag",
+      "close": "Close",
       "deleteTag": "Delete Tag",
       "confirmDelete": "will be removed from all moves.",
       "movesCount": "{count} moves",

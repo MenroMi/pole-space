@@ -1026,13 +1026,11 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
         inset: 0,
         zIndex: 200,
         background: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: isMobile ? 'flex-end' : 'center',
         justifyContent: 'center',
         padding: isMobile ? 0 : 24,
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget && !saving) onClose();
       }}
     >
       <div

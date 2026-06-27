@@ -364,11 +364,8 @@ export default function CatalogFilters({
         {sheetOpen &&
           createPortal(
             <>
-              {/* Backdrop */}
-              <div
-                className="fixed inset-0 z-[60] bg-black/60"
-                onClick={() => setSheetOpen(false)}
-              />
+              {/* Backdrop — intentionally NOT click-to-close; dismiss via Esc, close button, or Apply */}
+              <div className="fixed inset-0 z-[60] bg-black/60" />
               {/* Sheet */}
               <div
                 className="fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-[20px] border border-b-0 border-outline-variant/40"
