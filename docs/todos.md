@@ -334,6 +334,13 @@
 
 ## Infrastructure
 
+~~**Catalog listing — `$transaction` times out on Neon cold start (P2028)**~~ ✅ Resolved (2026-06-27, commit `fdaa133`, branch `fix+catalog-tx`)
+
+- **Symptom:** `getMovesAction` threw `Transaction API error: Unable to start a transaction in the given time` — intermittently, on the first request after the DB had been idle.
+- **Root cause:** `src/features/catalog/actions.ts` wrapped `move.findMany` + `move.count` in `prisma.$transaction([...])`. The transaction must acquire a connection within `maxWait` (default 2000ms). Neon autosuspends compute after inactivity; the cold start exceeds 2s → P2028. (`prisma.move.findMany` alone with `include` already runs an implicit transaction, but the explicit `$transaction` is what surfaced the timeout here.)
+- **Fix:** replaced `$transaction` with `Promise.all` — a read-only listing needs no transactional consistency, so the "start transaction" step (and its 2s window) disappears. Test mock switched from `$transaction` to direct `findMany`/`count` mocks. 628 tests green.
+- **Grabla / rule:** on Neon, do **not** wrap read-only reads in `$transaction`. The other real `$transaction` (`src/app/api/auth/verify/route.ts:42`) is a write — left as-is (atomicity needed); raise its `maxWait` if it ever cold-starts.
+
 ~~**Neon DB not connected**~~ ✅ Resolved — DB connected, schema pushed (2026-04-19)
 
 ~~**Vitest picks up .worktrees/ test files**~~ ✅ Resolved (2026-04-20) — added `'.worktrees/**'` to `exclude` in `vitest.config.ts`
