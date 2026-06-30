@@ -50,9 +50,11 @@ describe('MoveCard', () => {
     expect(screen.getByText('Jade Split')).toBeInTheDocument();
   });
 
-  it('renders description', () => {
+  it('does not render description (image-forward card)', () => {
     render(<MoveCard move={baseMove} />);
-    expect(screen.getByText('A beautiful aerial move requiring flexibility.')).toBeInTheDocument();
+    expect(
+      screen.queryByText('A beautiful aerial move requiring flexibility.'),
+    ).not.toBeInTheDocument();
   });
 
   it('renders difficulty badge', () => {

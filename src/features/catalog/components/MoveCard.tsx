@@ -35,51 +35,44 @@ export default function MoveCard({ move }: MoveCardProps) {
       href={`/moves/${move.id}`}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
     >
-      <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-accent">
+      {/* Image dominates the card (portrait on desktop, like the favourites gallery) */}
+      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-accent sm:aspect-[4/5]">
         {imageSrc ? (
           <MoveCardImage src={imageSrc} alt={move.title} />
         ) : (
           <ImageOff className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
         )}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(circle at 50% 50%, rgba(220,184,255,0.06), transparent 60%)',
-          }}
-        />
+        {/* Difficulty chip overlaid on the image with a top gradient for legibility */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start bg-linear-to-b from-surface/70 to-transparent p-[8px] sm:p-3">
+          <span
+            className="rounded-full px-[9px] py-[3px] text-[11px] font-bold tracking-[0.05em] uppercase sm:px-2.5 sm:py-1 sm:text-xs"
+            style={badge}
+          >
+            {te(`difficulty.${move.difficulty}`)}
+          </span>
+        </div>
       </div>
-      <div className="flex flex-1 flex-col gap-[5px] px-[11px] py-[9px] sm:gap-2 sm:p-4">
-        <span
-          className="self-start rounded-full px-[8px] py-[3px] text-[9px] font-bold tracking-[0.05em] uppercase sm:px-2 sm:py-0.5 sm:text-[10px]"
-          style={badge}
-        >
-          {te(`difficulty.${move.difficulty}`)}
-        </span>
-        <h3 className="truncate font-display text-[12px] font-semibold text-on-surface sm:text-sm">
+      <div className="flex flex-1 flex-col px-[11px] py-[9px] sm:p-4">
+        <h3 className="truncate font-display text-[15px] font-semibold text-on-surface sm:text-lg">
           {move.title}
         </h3>
-        {move.description && (
-          <p className="line-clamp-2 hidden font-sans text-sm text-on-surface-variant sm:block">
-            {move.description}
-          </p>
+        {visibleTags.length > 0 && (
+          <div className="mt-auto flex flex-wrap gap-1 overflow-hidden pt-[7px] sm:pt-2">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag.id}
+                className="shrink-0 rounded-full px-[8px] py-[3px] text-[11px] font-semibold sm:px-2.5 sm:py-1 sm:text-xs"
+                style={
+                  tag.color
+                    ? { backgroundColor: `${tag.color}28`, color: tag.color }
+                    : { backgroundColor: 'rgba(132,88,179,0.12)', color: 'rgb(197,175,226)' }
+                }
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
         )}
-        <div className="flex flex-wrap gap-1 overflow-hidden">
-          {visibleTags.map((tag) => (
-            <span
-              key={tag.id}
-              className="shrink-0 rounded-full px-[6px] py-[2px] text-[9px] font-semibold sm:px-2 sm:py-0.5 sm:text-[10px]"
-              style={
-                tag.color
-                  ? { backgroundColor: `${tag.color}28`, color: tag.color }
-                  : { backgroundColor: 'rgba(132,88,179,0.12)', color: 'rgb(197,175,226)' }
-              }
-            >
-              {tag.name}
-            </span>
-          ))}
-        </div>
       </div>
     </Link>
   );
