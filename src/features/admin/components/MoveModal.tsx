@@ -230,16 +230,25 @@ function ImageDropZone({
     />
   );
 
-  const safePreviewUrl = (() => {
+  const safePreviewUrl = ((previewUrl?: string): string => {
+    if (!previewUrl) return '';
     try {
-      const { protocol, hostname } = new URL(previewUrl);
-      if (protocol === 'blob:') return previewUrl;
-      if (protocol === 'https:' && hostname === 'res.cloudinary.com') return previewUrl;
+      const url = new URL(previewUrl);
+
+      const isAllowedBlob = url.protocol === 'blob:' && url.origin === window.location.origin;
+
+      const isAllowedCloudinary =
+        url.protocol === 'https:' && url.hostname === 'res.cloudinary.com';
+
+      if (isAllowedBlob || isAllowedCloudinary) {
+        return url.href;
+      }
+
       return '';
     } catch {
       return '';
     }
-  })();
+  })(previewUrl);
 
   if (safePreviewUrl) {
     return (
