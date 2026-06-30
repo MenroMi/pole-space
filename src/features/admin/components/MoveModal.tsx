@@ -263,7 +263,6 @@ function ImageDropZone({
           }}
         >
           {fileInput}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={safePreviewUrl}
             alt=""
@@ -328,7 +327,6 @@ function ImageDropZone({
               flexShrink: 0,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={safePreviewUrl}
               alt=""
