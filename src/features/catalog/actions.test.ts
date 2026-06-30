@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/shared/lib/prisma', () => ({
   prisma: {
-    $transaction: vi.fn(),
     move: {
       findMany: vi.fn(),
       count: vi.fn(),
@@ -22,7 +21,6 @@ import { prisma } from '@/shared/lib/prisma';
 
 import { getMovesAction, getTagsAction } from './actions';
 
-const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
 const mockFindMany = prisma.move.findMany as ReturnType<typeof vi.fn>;
 const mockCount = prisma.move.count as ReturnType<typeof vi.fn>;
 const mockTagFindMany = prisma.tag.findMany as ReturnType<typeof vi.fn>;
@@ -68,19 +66,22 @@ describe('getMovesAction', () => {
   });
 
   it('returns PaginatedResult shape with defaults page=1 pageSize=12', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     const result = await getMovesAction({}, 'pl');
     expect(result).toEqual({ items: mockMoves, total: 2, page: 1, pageSize: 12 });
   });
 
   it('applies skip=(page-1)*pageSize and take=pageSize for page 2', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 24]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(24);
     await getMovesAction({ page: 2, pageSize: 12 }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 12, take: 12 }));
   });
 
   it('does not add AND when poleTypes is empty', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ poleTypes: [] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -90,7 +91,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters STATIC-only: hasEvery STATIC + NOT has SPIN', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ poleTypes: ['STATIC'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -105,7 +107,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters SPIN-only: hasEvery SPIN + NOT has STATIC', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[1]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[1]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ poleTypes: ['SPIN'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -120,7 +123,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters STATIC+SPIN (universal): hasEvery both, no exclusions', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ poleTypes: ['STATIC', 'SPIN'] }, 'pl');
     const call = mockFindMany.mock.calls[0][0] as { where: { AND: object[] } };
     expect(call.where.AND).toContainEqual({ poleTypes: { hasEvery: ['STATIC', 'SPIN'] } });
@@ -128,7 +132,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters by difficulty with { in: [...] }', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ difficulty: ['BEGINNER'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -138,7 +143,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters by multiple difficulties (OR logic)', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ difficulty: ['BEGINNER', 'INTERMEDIATE'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -148,7 +154,8 @@ describe('getMovesAction', () => {
   });
 
   it('does not add difficulty to where when array is empty', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ difficulty: [] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -158,7 +165,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters tags with AND: each tag must match by name_en OR name_pl', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ tags: ['aerial', 'flexibility'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -173,7 +181,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters tags with OR fallback regardless of locale', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ tags: ['aerial'] }, 'en');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -187,7 +196,8 @@ describe('getMovesAction', () => {
   });
 
   it('single tag produces single AND condition', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ tags: ['aerial'] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -201,7 +211,8 @@ describe('getMovesAction', () => {
   });
 
   it('does not add AND when tags is empty', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ tags: [] }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -211,7 +222,8 @@ describe('getMovesAction', () => {
   });
 
   it('includes poleType AND conditions when poleTypes non-empty but tags empty', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ poleTypes: ['STATIC'], tags: [] }, 'pl');
     const call = mockFindMany.mock.calls[0][0] as { where: { AND: object[] } };
     expect(call.where.AND).toContainEqual({ poleTypes: { hasEvery: ['STATIC'] } });
@@ -219,7 +231,8 @@ describe('getMovesAction', () => {
   });
 
   it('merges poleTypes and tags into a single AND array', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     await getMovesAction({ poleTypes: ['STATIC'], tags: ['aerial'] }, 'pl');
     const call = mockFindMany.mock.calls[0][0] as { where: { AND: object[] } };
     expect(call.where.AND).toContainEqual({ poleTypes: { hasEvery: ['STATIC'] } });
@@ -229,7 +242,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters by search with case-insensitive title_pl match when locale is pl', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ search: 'jade' }, 'pl');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -241,7 +255,8 @@ describe('getMovesAction', () => {
   });
 
   it('filters by search with case-insensitive title_en match when locale is en', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ search: 'jade' }, 'en');
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -253,14 +268,16 @@ describe('getMovesAction', () => {
   });
 
   it('total reflects filtered count not all moves', async () => {
-    mockTransaction.mockResolvedValue([[mockMoves[0]], 1]);
+    mockFindMany.mockResolvedValue([mockMoves[0]]);
+    mockCount.mockResolvedValue(1);
     const result = await getMovesAction({ poleTypes: ['STATIC'] }, 'pl');
     expect(result.total).toBe(1);
     expect(result.items).toHaveLength(1);
   });
 
   it('count uses same where clause as findMany', async () => {
-    mockTransaction.mockResolvedValue([mockMoves, 2]);
+    mockFindMany.mockResolvedValue(mockMoves);
+    mockCount.mockResolvedValue(2);
     await getMovesAction({ poleTypes: ['STATIC'], difficulty: ['BEGINNER'] }, 'pl');
     const findManyWhere = (mockFindMany.mock.calls[0][0] as { where: object }).where;
     const countWhere = (mockCount.mock.calls[0][0] as { where: object }).where;

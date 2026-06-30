@@ -1,5 +1,14 @@
 # Project TODOs
 
+## ✅ Recently shipped — branch `fix+catalog-tx` (2026-06-30)
+
+Three independent pieces, each squashed into one commit on the shared
+`fix+catalog-tx` branch (off `develop`).
+
+- **YouTube Shorts/live URLs** (`5c0ba0b`) — `extractVideoId` (`src/features/moves/lib/youtube.ts`) only matched `v=`/`youtu.be/`/`embed/`; `youtube.com/shorts/<id>` passed form validation but produced a `null` videoId → broken embed + thumbnails. Added `shorts/`, `live/`, `/v/` to the regex; unit tests cover all formats.
+- **Admin-selectable image focal point** (`4336485`) — admin drags a focal marker on the upload preview in `MoveModal` (with a live 4:5 crop preview). Stored as `Move.focalX`/`focalY` `Float @default(0.5)` (migration `20260630082336_add_move_focal_point`; center = prior behavior, no data migration). Applied via CSS `object-position` (helper `focalToObjectPosition`) over the existing `object-cover` everywhere the image is cropped — `MoveCard`, `MoveHero`, `RelatedMoves`. Spec/plan under `docs/superpowers/{specs,plans}/2026-06-30-image-focal-point*`.
+- **Instant navigation feedback (UI responsiveness)** (`5392a59`) — closes the silent gap between click and visible feedback. Per-segment `loading.tsx` skeletons (catalog / moves[id] / profile overview+progress+favourites+settings / admin), each mirroring its page's real block layout AND box sizes (real typography classes + inline shimmer → no CLS). Global `NavigationProgress` top bar (starts on internal `<a>` pathname-changing clicks; query/hash-only skipped; safety timeout; respects reduced-motion). Catalog filters/search: shared `useTransition` context dims the grid + shows a spinner only for search-originated pending (sidebar + mobile trigger). New shared `Skeleton`/`Spinner` primitives; `MoveModal` shimmer switched to `Skeleton`. Spec/plan under `docs/superpowers/{specs,plans}/2026-06-30-ui-responsiveness*`. 657 tests green. Two full-branch reviews resolved.
+
 ## ⚠️ Known Bugs — High Priority
 
 ### Move detail page: `auth()` in a static route → `DYNAMIC_SERVER_USAGE` 500 on on-demand render (2026-05-30)
@@ -333,6 +342,13 @@
 - Both defined as `@utility` in `globals.css` (Tailwind v4 does not auto-generate font utilities beyond sans/serif/mono)
 
 ## Infrastructure
+
+~~**Catalog listing — `$transaction` times out on Neon cold start (P2028)**~~ ✅ Resolved (2026-06-27, commit `fdaa133`, branch `fix+catalog-tx`)
+
+- **Symptom:** `getMovesAction` threw `Transaction API error: Unable to start a transaction in the given time` — intermittently, on the first request after the DB had been idle.
+- **Root cause:** `src/features/catalog/actions.ts` wrapped `move.findMany` + `move.count` in `prisma.$transaction([...])`. The transaction must acquire a connection within `maxWait` (default 2000ms). Neon autosuspends compute after inactivity; the cold start exceeds 2s → P2028. (`prisma.move.findMany` alone with `include` already runs an implicit transaction, but the explicit `$transaction` is what surfaced the timeout here.)
+- **Fix:** replaced `$transaction` with `Promise.all` — a read-only listing needs no transactional consistency, so the "start transaction" step (and its 2s window) disappears. Test mock switched from `$transaction` to direct `findMany`/`count` mocks. 628 tests green.
+- **Grabla / rule:** on Neon, do **not** wrap read-only reads in `$transaction`. The other real `$transaction` (`src/app/api/auth/verify/route.ts:42`) is a write — left as-is (atomicity needed); raise its `maxWait` if it ever cold-starts.
 
 ~~**Neon DB not connected**~~ ✅ Resolved — DB connected, schema pushed (2026-04-19)
 

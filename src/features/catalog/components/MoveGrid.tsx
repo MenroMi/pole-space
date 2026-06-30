@@ -10,6 +10,7 @@ import type { MoveFilters } from '@/shared/types';
 import { getMovesAction } from '../actions';
 import type { LocalizedMoveWithTags } from '../types';
 
+import { useCatalogTransition } from './CatalogTransitionContext';
 import MoveCard from './MoveCard';
 
 const PAGE_SIZE = 12;
@@ -30,6 +31,7 @@ export default function MoveGrid({
   locale,
 }: MoveGridProps) {
   const t = useTranslations('catalog');
+  const { isPending } = useCatalogTransition();
   const [moves, setMoves] = useState(initialMoves);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -92,7 +94,15 @@ export default function MoveGrid({
 
   if (moves.length === 0) {
     return (
-      <div className="px-3.5 pt-3 pb-4 sm:p-6">
+      <div
+        data-pending={isPending}
+        className="px-3.5 pt-3 pb-4 sm:p-6"
+        style={{
+          opacity: isPending ? 0.5 : 1,
+          pointerEvents: isPending ? 'none' : 'auto',
+          transition: 'opacity 150ms ease',
+        }}
+      >
         {header}
         <p className="py-12 text-center text-sm text-on-surface-variant">{t('empty')}</p>
       </div>
@@ -100,7 +110,15 @@ export default function MoveGrid({
   }
 
   return (
-    <div className="px-3.5 pt-3 pb-4 sm:p-6">
+    <div
+      data-pending={isPending}
+      className="px-3.5 pt-3 pb-4 sm:p-6"
+      style={{
+        opacity: isPending ? 0.5 : 1,
+        pointerEvents: isPending ? 'none' : 'auto',
+        transition: 'opacity 150ms ease',
+      }}
+    >
       {header}
       <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] sm:gap-4">
         {moves.map((move) => (

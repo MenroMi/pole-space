@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
+import { focalToObjectPosition } from '../lib/focal';
 import { extractVideoId } from '../lib/youtube';
 
 type Phase = 'idle' | 'transitioning' | 'playing';
@@ -12,13 +13,22 @@ type MoveHeroProps = {
   title: string;
   youtubeUrl: string;
   imageUrl: string | null;
+  focalX: number;
+  focalY: number;
   seekRequest?: { seconds: number };
 };
 
 // YouTube returns a 120x90 "Unavailable" thumbnail (HTTP 200) for non-existent IDs
 const YOUTUBE_PLACEHOLDER_MAX_WIDTH = 120;
 
-export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: MoveHeroProps) {
+export default function MoveHero({
+  title,
+  youtubeUrl,
+  imageUrl,
+  focalX,
+  focalY,
+  seekRequest,
+}: MoveHeroProps) {
   const t = useTranslations('moves');
   const [phase, setPhase] = useState<Phase>('idle');
   const [startAt, setStartAt] = useState<number | null>(null);
@@ -101,6 +111,7 @@ export default function MoveHero({ title, youtubeUrl, imageUrl, seekRequest }: M
             alt={title}
             fill
             priority
+            style={{ objectPosition: focalToObjectPosition(focalX, focalY) }}
             className={`object-cover transition-all duration-500 ${
               phase === 'transitioning'
                 ? 'scale-110 opacity-0 blur-sm'

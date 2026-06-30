@@ -11,6 +11,8 @@ type RelatedMove = {
   difficulty: string;
   imageUrl: string | null;
   youtubeUrl: string;
+  focalX: number;
+  focalY: number;
 };
 
 type RelatedMovesProps = {
@@ -49,7 +51,14 @@ export default async function RelatedMoves({ moves }: RelatedMovesProps) {
               className="group overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40"
             >
               <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-accent">
-                {thumb && <MoveCardImage src={thumb} alt={move.title} />}
+                {thumb && (
+                  <MoveCardImage
+                    src={thumb}
+                    alt={move.title}
+                    focalX={move.focalX}
+                    focalY={move.focalY}
+                  />
+                )}
               </div>
               <div className="p-3">
                 <p className="truncate font-display text-sm font-semibold text-on-surface">

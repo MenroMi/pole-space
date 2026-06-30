@@ -116,6 +116,8 @@ const validCreateInput = {
   category: 'SPINS' as const,
   poleTypes: [] as import('@prisma/client').PoleType[],
   youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+  focalX: 0.5,
+  focalY: 0.5,
   stepsData_pl: [],
   stepsData_en: [],
   tagIds: ['tag-1'],

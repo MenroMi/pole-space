@@ -25,6 +25,8 @@ const baseProps = {
   title: 'Fireman Spin',
   youtubeUrl: 'https://www.youtube.com/watch?v=abc1234abcd',
   imageUrl: null,
+  focalX: 0.5,
+  focalY: 0.5,
 };
 
 function getIframe() {
@@ -216,6 +218,8 @@ describe('MoveHero', () => {
           title="Fireman Spin"
           youtubeUrl="https://example.com/not-youtube"
           imageUrl={null}
+          focalX={0.5}
+          focalY={0.5}
         />,
       );
 
@@ -224,6 +228,8 @@ describe('MoveHero', () => {
           title="Fireman Spin"
           youtubeUrl="https://example.com/not-youtube"
           imageUrl={null}
+          focalX={0.5}
+          focalY={0.5}
           seekRequest={{ seconds: 42 }}
         />,
       );

@@ -23,6 +23,8 @@ export type RawMove = {
   poleTypes: PoleType[];
   youtubeUrl: string;
   imageUrl: string | null;
+  focalX: number;
+  focalY: number;
   duration: string | null;
   createdAt: Date;
   updatedAt: Date;

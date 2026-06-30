@@ -244,6 +244,15 @@ function TagModal({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !saving) onClose();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [saving, onClose]);
+
+  // Intentionally NOT click-to-close on the backdrop; dismiss via Esc or the Cancel button.
   return (
     <div
       style={{
@@ -256,11 +265,9 @@ function TagModal({
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      onClick={onClose}
     >
       <style>{`@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }`}</style>
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
           background: '#171717',
           border: '1px solid rgba(75,68,80,0.4)',
@@ -271,18 +278,72 @@ function TagModal({
           animation: 'fadeUp 200ms cubic-bezier(0.16,1,0.3,1) both',
         }}
       >
-        <h2
+        <div
           style={{
-            fontFamily: 'var(--font-space-grotesk)',
-            fontSize: 24,
-            fontWeight: 600,
-            color: '#e2e2e2',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 12,
             margin: '0 0 24px',
-            letterSpacing: '-0.02em',
           }}
         >
-          {isEdit ? t('tags.editTag') : t('tags.addTag')}
-        </h2>
+          <h2
+            style={{
+              fontFamily: 'var(--font-space-grotesk)',
+              fontSize: 24,
+              fontWeight: 600,
+              color: '#e2e2e2',
+              margin: 0,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {isEdit ? t('tags.editTag') : t('tags.addTag')}
+          </h2>
+          <button
+            type="button"
+            aria-label={t('tags.close')}
+            onClick={() => {
+              if (!saving) onClose();
+            }}
+            style={{
+              flexShrink: 0,
+              background: 'rgba(75,68,80,0.15)',
+              border: '1px solid rgba(75,68,80,0.35)',
+              borderRadius: 8,
+              width: 34,
+              height: 34,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: saving ? '#4b4450' : '#978e9b',
+              cursor: saving ? 'default' : 'pointer',
+              transition: 'all 150ms',
+            }}
+            onMouseEnter={(e) => {
+              if (saving) return;
+              e.currentTarget.style.background = 'rgba(75,68,80,0.25)';
+              e.currentTarget.style.color = '#e2e2e2';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(75,68,80,0.15)';
+              e.currentTarget.style.color = '#978e9b';
+            }}
+          >
+            <svg
+              width={15}
+              height={15}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* EN */}
           <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -628,6 +689,18 @@ export function AdminTags() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!deleteTag) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !deleting) {
+        setDeleteTag(null);
+        setDeleteError(null);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [deleteTag, deleting]);
+
+  useEffect(() => {
     let cancelled = false;
     if (!hasFetchedRef.current) setLoading(true);
     else setIsFetching(true);
@@ -910,7 +983,7 @@ export function AdminTags() {
         />
       )}
 
-      {/* Delete confirm */}
+      {/* Delete confirm — intentionally NOT click-to-close; dismiss via Esc or Cancel. */}
       {deleteTag && (
         <div
           style={{
@@ -923,14 +996,9 @@ export function AdminTags() {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onClick={() => {
-            setDeleteTag(null);
-            setDeleteError(null);
-          }}
         >
           <style>{`@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }`}</style>
           <div
-            onClick={(e) => e.stopPropagation()}
             style={{
               background: '#1b1b1b',
               border: '1px solid rgba(75,68,80,0.4)',

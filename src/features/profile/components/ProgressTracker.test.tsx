@@ -35,6 +35,8 @@ function makeMove(id: string, title: string, difficulty: 'BEGINNER' | 'INTERMEDI
     title,
     difficulty,
     imageUrl: null,
+    focalX: 0.5,
+    focalY: 0.5,
     youtubeUrl: 'https://youtube.com/watch?v=abc',
     description: null,
     category: 'SPINS' as const,

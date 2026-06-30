@@ -7,6 +7,7 @@ import { getMessages } from 'next-intl/server';
 import { locales } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { Providers } from '@/shared/components/Providers';
+import NavigationProgress from '@/shared/components/ui/NavigationProgress';
 
 import '@/app/globals.css';
 
@@ -43,6 +44,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} className={`${spaceGrotesk.variable} ${manrope.variable}`}>
       <body className="antialiased">
+        <NavigationProgress />
         <NextIntlClientProvider messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

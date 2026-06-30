@@ -13,10 +13,13 @@ import {
 } from '@/shared/components/ui/accordion';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import { Spinner } from '@/shared/components/ui/spinner';
 import type { LocalizedTag } from '@/shared/lib/localize';
 import { cn } from '@/shared/lib/utils';
 import type { MoveFilters } from '@/shared/types';
 import { Difficulty, PoleType } from '@/shared/types/enums';
+
+import { useCatalogTransition } from './CatalogTransitionContext';
 
 const POLE_TYPES = Object.values(PoleType);
 const DIFFICULTIES = Object.values(Difficulty);
@@ -50,9 +53,13 @@ export default function CatalogFilters({
   const t = useTranslations('catalog.filters');
   const te = useTranslations('enums');
   const router = useRouter();
+  const { isPending, startFilterTransition } = useCatalogTransition();
   const [searchValue, setSearchValue] = useState(filters.search ?? '');
   const [sheetOpen, setSheetOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tracks what started the in-flight transition, so the search-box spinner only
+  // shows for search changes (not for pole/difficulty/tag filter changes).
+  const [lastAction, setLastAction] = useState<'search' | 'filter'>('filter');
 
   const selectedPoleTypes = filters.poleTypes ?? [];
   const selectedDifficulties = filters.difficulty ?? [];
@@ -76,8 +83,16 @@ export default function CatalogFilters({
 
     if (overrides.resetSearch) setSearchValue('');
 
+    // 'search' only when clearing the search field in isolation (the X in the
+    // search box); bulk "clear all filters" also passes resetSearch but is a filter.
+    const isSearchOnlyReset =
+      overrides.resetSearch === true &&
+      !('poleTypes' in overrides) &&
+      !('difficulty' in overrides) &&
+      !('tags' in overrides);
+    setLastAction(isSearchOnlyReset ? 'search' : 'filter');
     const query = buildQuery(nextPoleType, nextDifficulty, nextTags, nextSearch);
-    router.replace(`/catalog${query ? `?${query}` : ''}`);
+    startFilterTransition(() => router.replace(`/catalog${query ? `?${query}` : ''}`));
   };
 
   const togglePoleType = (value: PoleType) => {
@@ -118,10 +133,14 @@ export default function CatalogFilters({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       debounceRef.current = null;
+      setLastAction('search');
       const query = buildQuery(selectedPoleTypes, selectedDifficulties, selectedTags, value);
-      router.replace(`/catalog${query ? `?${query}` : ''}`);
+      startFilterTransition(() => router.replace(`/catalog${query ? `?${query}` : ''}`));
     }, 300);
   };
+
+  // Spinner belongs in the search box only when the pending transition is a search.
+  const searchPending = isPending && lastAction === 'search';
 
   const isActive =
     selectedPoleTypes.length > 0 ||
@@ -141,15 +160,24 @@ export default function CatalogFilters({
         onChange={(e) => handleSearchChange(e.target.value)}
         className="pr-9 pl-9"
       />
-      {searchValue && (
-        <button
-          type="button"
-          aria-label={t('clearSearch')}
-          onClick={() => navigate({ resetSearch: true })}
-          className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      {searchPending ? (
+        <span
+          data-testid="search-spinner"
+          className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
         >
-          <X className="h-4 w-4" />
-        </button>
+          <Spinner size={16} />
+        </span>
+      ) : (
+        searchValue && (
+          <button
+            type="button"
+            aria-label={t('clearSearch')}
+            onClick={() => navigate({ resetSearch: true })}
+            className="absolute top-1/2 right-2 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )
       )}
     </div>
   );
@@ -328,15 +356,21 @@ export default function CatalogFilters({
               onChange={(e) => handleSearchChange(e.target.value)}
               className="min-w-0 flex-1 bg-transparent font-sans text-[13px] text-on-surface outline-none placeholder:text-muted-foreground"
             />
-            {searchValue && (
-              <button
-                type="button"
-                aria-label={t('clearSearch')}
-                onClick={() => navigate({ resetSearch: true })}
-                className="shrink-0 cursor-pointer text-muted-foreground transition-colors hover:text-on-surface"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+            {searchPending ? (
+              <span data-testid="search-spinner-trigger" className="shrink-0 text-muted-foreground">
+                <Spinner size={14} />
+              </span>
+            ) : (
+              searchValue && (
+                <button
+                  type="button"
+                  aria-label={t('clearSearch')}
+                  onClick={() => navigate({ resetSearch: true })}
+                  className="shrink-0 cursor-pointer text-muted-foreground transition-colors hover:text-on-surface"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )
             )}
           </div>
           <button
@@ -364,11 +398,8 @@ export default function CatalogFilters({
         {sheetOpen &&
           createPortal(
             <>
-              {/* Backdrop */}
-              <div
-                className="fixed inset-0 z-[60] bg-black/60"
-                onClick={() => setSheetOpen(false)}
-              />
+              {/* Backdrop — intentionally NOT click-to-close; dismiss via Esc, close button, or Apply */}
+              <div className="fixed inset-0 z-[60] bg-black/60" />
               {/* Sheet */}
               <div
                 className="fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-[20px] border border-b-0 border-outline-variant/40"

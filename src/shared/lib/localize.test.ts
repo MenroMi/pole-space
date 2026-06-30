@@ -22,6 +22,8 @@ const baseMove: RawMove = {
   poleTypes: [],
   youtubeUrl: 'https://youtube.com',
   imageUrl: null,
+  focalX: 0.5,
+  focalY: 0.5,
   duration: null,
   createdAt: new Date(),
   updatedAt: new Date(),

@@ -60,7 +60,10 @@ export async function getMovesAction(
     ...(andConditions.length && { AND: andConditions }),
   };
 
-  const [rawItems, total] = await prisma.$transaction([
+  // Read-only listing: no transactional consistency required. Using Promise.all
+  // instead of $transaction avoids the implicit "start transaction" step, which
+  // times out (P2028, maxWait 2s) on Neon cold starts after autosuspend.
+  const [rawItems, total] = await Promise.all([
     prisma.move.findMany({
       where,
       include: { tags: true },

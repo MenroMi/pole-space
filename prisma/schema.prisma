@@ -93,6 +93,8 @@ model Move {
   poleTypes      PoleType[]
   youtubeUrl     String
   imageUrl       String?
+  focalX         Float      @default(0.5)
+  focalY         Float      @default(0.5)
   stepsData_pl   Json       @default("[]")
   stepsData_en   Json       @default("[]")
   gripType_pl    String?

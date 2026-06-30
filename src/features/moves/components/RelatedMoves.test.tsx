@@ -30,6 +30,8 @@ const makeMove = (overrides: Partial<RelatedMove> = {}): RelatedMove => ({
   difficulty: 'BEGINNER',
   imageUrl: null,
   youtubeUrl: 'https://youtube.com/watch?v=abc1234abcd',
+  focalX: 0.5,
+  focalY: 0.5,
   ...overrides,
 });
 
