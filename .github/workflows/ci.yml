@@ -22,16 +22,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+          cache: npm
+      - run: npm ci
         env:
           HUSKY: '0'
-      - run: yarn prisma generate
+      - run: npx prisma generate
         env:
           DATABASE_URL: postgresql://x:x@localhost/x
-      - run: yarn lint
-      - run: yarn typecheck
-      - run: yarn test:run
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:run
 
   build:
     name: Build
@@ -41,14 +41,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+          cache: npm
+      - run: npm ci
         env:
           HUSKY: '0'
-      - run: yarn prisma generate
+      - run: npx prisma generate
         env:
           DATABASE_URL: postgresql://x:x@localhost/x
-      - run: yarn build
+      - run: npm run build
         env:
           DATABASE_URL: postgresql://x:x@localhost/x
           NEXTAUTH_SECRET: ci-secret-placeholder
@@ -70,16 +70,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+          cache: npm
+      - run: npm ci
         env:
           HUSKY: '0'
-      # `yarn audit` (Classic) exit code is a severity bitmask: 8=high, 16=critical.
-      # Fail only on high+ to mirror npm's `--audit-level=high`.
-      - name: Audit (high and above)
-        run: |
-          yarn audit --level high || code=$?
-          if [ $(( ${code:-0} & 24 )) -ne 0 ]; then
-            echo "High or critical vulnerabilities found"
-            exit 1
-          fi
+      - run: npm audit --audit-level=high
