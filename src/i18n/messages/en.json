@@ -396,6 +396,7 @@
         "imageDrop": "Drop image here, or click to browse",
         "imageChange": "Change image",
         "imageRemove": "Remove image",
+        "focalHint": "Drag the dot to choose the visible part",
         "imageOnlyImages": "Only image files are allowed",
         "imageMaxSize": "Max 5 MB"
       }

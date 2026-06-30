@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { type FieldError, type FieldErrors, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
+import { focalToObjectPosition } from '@/features/moves/lib/focal';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { useIsMobile } from '@/shared/hooks/useIsMobile';
@@ -93,6 +94,8 @@ const clientMoveSchema = z.object({
   category: z.enum(['SPINS', 'CLIMBS', 'HOLDS', 'COMBOS', 'FLOORWORK']),
   poleTypes: z.array(z.string()),
   imageUrl: z.string(),
+  focalX: z.number(),
+  focalY: z.number(),
   duration: z.string(),
   coachNoteAuthor: z.string(),
   tagIds: z.array(z.string()).min(1, 'fieldRequired'),
@@ -123,6 +126,8 @@ function initFormValues(move: FullAdminMove | null): FormValues {
       category: 'SPINS',
       poleTypes: [],
       imageUrl: '',
+      focalX: 0.5,
+      focalY: 0.5,
       duration: '',
       coachNoteAuthor: '',
       tagIds: [],
@@ -147,6 +152,8 @@ function initFormValues(move: FullAdminMove | null): FormValues {
     category: move.category,
     poleTypes: move.poleTypes as string[],
     imageUrl: move.imageUrl ?? '',
+    focalX: move.focalX,
+    focalY: move.focalY,
     duration: move.duration ?? '',
     coachNoteAuthor: move.coachNoteAuthor ?? '',
     tagIds: move.tags.map((t) => t.id),
@@ -169,15 +176,31 @@ function ImageDropZone({
   previewUrl,
   onFileSelect,
   onRemove,
+  focalX,
+  focalY,
+  onFocalChange,
 }: {
   previewUrl: string;
   onFileSelect: (file: File) => void;
   onRemove: () => void;
+  focalX: number;
+  focalY: number;
+  onFocalChange: (x: number, y: number) => void;
 }) {
   const t = useTranslations('admin');
   const inputRef = useRef<HTMLInputElement>(null);
+  const imageBoxRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function pickFocal(e: React.PointerEvent<HTMLDivElement>) {
+    const box = imageBoxRef.current;
+    if (!box) return;
+    const r = box.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+    onFocalChange(x, y);
+  }
 
   function handleFile(file: File) {
     if (!file.type.startsWith('image/')) {
@@ -221,11 +244,21 @@ function ImageDropZone({
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div
+          ref={imageBoxRef}
+          onPointerDown={(e) => {
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            pickFocal(e);
+          }}
+          onPointerMove={(e) => {
+            if (e.buttons === 1) pickFocal(e);
+          }}
           style={{
             position: 'relative',
             borderRadius: 8,
             overflow: 'hidden',
             border: '1px solid rgba(75,68,80,0.3)',
+            cursor: 'crosshair',
+            touchAction: 'none',
           }}
         >
           {fileInput}
@@ -233,9 +266,36 @@ function ImageDropZone({
           <img
             src={safePreviewUrl}
             alt=""
-            style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
+            draggable={false}
+            style={{
+              width: '100%',
+              height: 220,
+              objectFit: 'contain',
+              display: 'block',
+              background: '#000',
+            }}
           />
-          <div style={{ position: 'absolute', bottom: 8, right: 8, display: 'flex', gap: 6 }}>
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: `${focalX * 100}%`,
+              top: `${focalY * 100}%`,
+              width: 22,
+              height: 22,
+              marginLeft: -11,
+              marginTop: -11,
+              borderRadius: '50%',
+              border: '2px solid #fff',
+              background: 'rgba(220,184,255,0.45)',
+              boxShadow: '0 0 0 2px rgba(0,0,0,0.5)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            onPointerDown={(e) => e.stopPropagation()}
+            style={{ position: 'absolute', bottom: 8, right: 8, display: 'flex', gap: 6 }}
+          >
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
@@ -250,6 +310,34 @@ function ImageDropZone({
             >
               {t('moves.fields.imageRemove')}
             </button>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 12, color: '#8a8190', fontFamily: 'var(--font-manrope)' }}>
+            {t('moves.fields.focalHint')}
+          </span>
+          <div
+            style={{
+              position: 'relative',
+              width: 56,
+              aspectRatio: '4 / 5',
+              borderRadius: 6,
+              overflow: 'hidden',
+              border: '1px solid rgba(75,68,80,0.3)',
+              flexShrink: 0,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={safePreviewUrl}
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: focalToObjectPosition(focalX, focalY),
+              }}
+            />
           </div>
         </div>
         {error && (
@@ -817,10 +905,11 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
     mode: 'onTouched',
   });
 
-  const [watchedPoleTypes, watchedTagIds, watchedRelatedMoveIds, watchedImageUrl] = useWatch({
-    control,
-    name: ['poleTypes', 'tagIds', 'relatedMoveIds', 'imageUrl'],
-  });
+  const [watchedPoleTypes, watchedTagIds, watchedRelatedMoveIds, watchedImageUrl, focalX, focalY] =
+    useWatch({
+      control,
+      name: ['poleTypes', 'tagIds', 'relatedMoveIds', 'imageUrl', 'focalX', 'focalY'],
+    });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -905,6 +994,8 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
         poleTypes: data.poleTypes as CreateMoveInput['poleTypes'],
         youtubeUrl: data.youtubeUrl,
         imageUrl: resolvedImageUrl,
+        focalX: data.focalX,
+        focalY: data.focalY,
         gripType_en: data.gripType_en || undefined,
         gripType_pl: data.gripType_pl || undefined,
         entry_en: data.entry_en || undefined,
@@ -1373,10 +1464,18 @@ export function MoveModal({ move, availableTags, onClose, onSaved }: MoveModalPr
                 <label style={labelStyle}>{t('moves.fields.imageUrl')}</label>
                 <ImageDropZone
                   previewUrl={objectUrl ?? watchedImageUrl}
+                  focalX={focalX}
+                  focalY={focalY}
+                  onFocalChange={(x, y) => {
+                    setValue('focalX', x);
+                    setValue('focalY', y);
+                  }}
                   onFileSelect={(file) => setPendingFile(file)}
                   onRemove={() => {
                     setPendingFile(null);
                     setValue('imageUrl', '');
+                    setValue('focalX', 0.5);
+                    setValue('focalY', 0.5);
                   }}
                 />
               </div>

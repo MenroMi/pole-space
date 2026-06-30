@@ -396,6 +396,7 @@
         "imageDrop": "Przeciągnij zdjęcie lub kliknij, żeby wybrać",
         "imageChange": "Zmień zdjęcie",
         "imageRemove": "Usuń zdjęcie",
+        "focalHint": "Przeciągnij punkt, aby wybrać widoczny fragment",
         "imageOnlyImages": "Dozwolone są tylko pliki graficzne",
         "imageMaxSize": "Maks. 5 MB"
       }

@@ -38,7 +38,12 @@ export default function MoveCard({ move }: MoveCardProps) {
       {/* Image dominates the card (portrait on desktop, like the favourites gallery) */}
       <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-accent sm:aspect-[4/5]">
         {imageSrc ? (
-          <MoveCardImage src={imageSrc} alt={move.title} />
+          <MoveCardImage
+            src={imageSrc}
+            alt={move.title}
+            focalX={move.focalX}
+            focalY={move.focalY}
+          />
         ) : (
           <ImageOff className="h-10 w-10 text-muted-foreground" aria-hidden="true" />
         )}

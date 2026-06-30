@@ -10,6 +10,8 @@ export interface CreateMoveInput {
   poleTypes: PoleType[];
   youtubeUrl: string;
   imageUrl?: string | null;
+  focalX: number;
+  focalY: number;
   gripType_pl?: string;
   gripType_en?: string;
   entry_pl?: string;
@@ -50,6 +52,8 @@ export interface FullAdminMove {
   poleTypes: PoleType[];
   youtubeUrl: string;
   imageUrl: string | null;
+  focalX: number;
+  focalY: number;
   stepsData_pl: { text: string; timestamp?: number }[];
   stepsData_en: { text: string; timestamp?: number }[];
   gripType_pl: string | null;

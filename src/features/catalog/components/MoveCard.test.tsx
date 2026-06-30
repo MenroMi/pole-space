@@ -33,6 +33,8 @@ const baseMove: LocalizedMoveWithTags = {
   poleTypes: [],
   youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   imageUrl: null,
+  focalX: 0.5,
+  focalY: 0.5,
   createdAt: new Date(),
   updatedAt: new Date(),
   tags: [],

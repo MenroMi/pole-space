@@ -77,6 +77,8 @@ export default async function MoveDetailPage({
         category={move.category}
         youtubeUrl={move.youtubeUrl}
         imageUrl={move.imageUrl}
+        focalX={move.focalX}
+        focalY={move.focalY}
         stepsData={move.stepsData}
         difficulty={move.difficulty}
         description={move.description}

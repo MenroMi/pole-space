@@ -57,6 +57,8 @@ const moveSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform((v) => (v === '' || v == null ? null : v)),
+  focalX: z.number().min(0).max(1).default(0.5),
+  focalY: z.number().min(0).max(1).default(0.5),
   gripType_pl: z.string().optional(),
   gripType_en: z.string().optional(),
   entry_pl: z.string().optional(),

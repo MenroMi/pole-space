@@ -26,6 +26,8 @@ function makeMoves(count: number, offset = 0): LocalizedMoveWithTags[] {
     poleTypes: [],
     youtubeUrl: '',
     imageUrl: null,
+    focalX: 0.5,
+    focalY: 0.5,
     createdAt: new Date(),
     updatedAt: new Date(),
     tags: [],

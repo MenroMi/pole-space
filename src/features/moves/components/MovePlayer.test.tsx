@@ -57,6 +57,8 @@ const baseProps = {
   title: 'Fireman Spin',
   youtubeUrl: 'https://www.youtube.com/watch?v=abc123',
   imageUrl: null,
+  focalX: 0.5,
+  focalY: 0.5,
   stepsData: [] as StepItem[],
   difficulty: 'BEGINNER' as const,
   description: 'A graceful spinning move.',

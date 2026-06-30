@@ -29,6 +29,8 @@ type MovePlayerProps = {
   category: string;
   youtubeUrl: string;
   imageUrl: string | null;
+  focalX: number;
+  focalY: number;
   stepsData: StepItem[];
   difficulty: Difficulty;
   description: string | null;
@@ -50,6 +52,8 @@ export default function MovePlayer({
   category,
   youtubeUrl,
   imageUrl,
+  focalX,
+  focalY,
   stepsData,
   difficulty,
   description,
@@ -119,6 +123,8 @@ export default function MovePlayer({
           title={title}
           youtubeUrl={youtubeUrl}
           imageUrl={imageUrl}
+          focalX={focalX}
+          focalY={focalY}
           seekRequest={seekRequest ?? undefined}
         />
 

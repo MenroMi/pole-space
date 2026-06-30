@@ -54,6 +54,8 @@ export async function getRelatedMovesAction(tagIds: string[], excludeId: string,
     difficulty: true,
     imageUrl: true,
     youtubeUrl: true,
+    focalX: true,
+    focalY: true,
   } as const;
 
   const explicit = await prisma.move.findUnique({
@@ -86,5 +88,7 @@ export async function getRelatedMovesAction(tagIds: string[], excludeId: string,
     difficulty: move.difficulty,
     imageUrl: move.imageUrl,
     youtubeUrl: move.youtubeUrl,
+    focalX: move.focalX,
+    focalY: move.focalY,
   }));
 }
