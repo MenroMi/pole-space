@@ -1,5 +1,14 @@
 # Project TODOs
 
+## ✅ Recently shipped — branch `fix+catalog-tx` (2026-06-30)
+
+Three independent pieces, each squashed into one commit on the shared
+`fix+catalog-tx` branch (off `develop`).
+
+- **YouTube Shorts/live URLs** (`5c0ba0b`) — `extractVideoId` (`src/features/moves/lib/youtube.ts`) only matched `v=`/`youtu.be/`/`embed/`; `youtube.com/shorts/<id>` passed form validation but produced a `null` videoId → broken embed + thumbnails. Added `shorts/`, `live/`, `/v/` to the regex; unit tests cover all formats.
+- **Admin-selectable image focal point** (`4336485`) — admin drags a focal marker on the upload preview in `MoveModal` (with a live 4:5 crop preview). Stored as `Move.focalX`/`focalY` `Float @default(0.5)` (migration `20260630082336_add_move_focal_point`; center = prior behavior, no data migration). Applied via CSS `object-position` (helper `focalToObjectPosition`) over the existing `object-cover` everywhere the image is cropped — `MoveCard`, `MoveHero`, `RelatedMoves`. Spec/plan under `docs/superpowers/{specs,plans}/2026-06-30-image-focal-point*`.
+- **Instant navigation feedback (UI responsiveness)** (`5392a59`) — closes the silent gap between click and visible feedback. Per-segment `loading.tsx` skeletons (catalog / moves[id] / profile overview+progress+favourites+settings / admin), each mirroring its page's real block layout AND box sizes (real typography classes + inline shimmer → no CLS). Global `NavigationProgress` top bar (starts on internal `<a>` pathname-changing clicks; query/hash-only skipped; safety timeout; respects reduced-motion). Catalog filters/search: shared `useTransition` context dims the grid + shows a spinner only for search-originated pending (sidebar + mobile trigger). New shared `Skeleton`/`Spinner` primitives; `MoveModal` shimmer switched to `Skeleton`. Spec/plan under `docs/superpowers/{specs,plans}/2026-06-30-ui-responsiveness*`. 657 tests green. Two full-branch reviews resolved.
+
 ## ⚠️ Known Bugs — High Priority
 
 ### Move detail page: `auth()` in a static route → `DYNAMIC_SERVER_USAGE` 500 on on-demand render (2026-05-30)

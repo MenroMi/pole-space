@@ -1,4 +1,10 @@
-import { getMovesAction, getTagsAction, CatalogFilters, MoveGrid } from '@/features/catalog';
+import {
+  getMovesAction,
+  getTagsAction,
+  CatalogFilters,
+  MoveGrid,
+  CatalogTransitionProvider,
+} from '@/features/catalog';
 import type { Locale } from '@/i18n/routing';
 import PageShell from '@/shared/components/PageShell';
 import type { MoveFilters } from '@/shared/types';
@@ -48,21 +54,23 @@ export default async function CatalogPage({ params, searchParams }: Props) {
   const initialHasMore = result.total > result.items.length;
 
   return (
-    <PageShell aside={<CatalogFilters filters={filters} availableTags={availableTags} />}>
-      <div
-        className="sticky top-14 z-10 border-b border-outline-variant/20 px-3.5 py-[10px] lg:hidden"
-        style={{ backgroundColor: '#131313' }}
-      >
-        <CatalogFilters filters={filters} availableTags={availableTags} mode="trigger" />
-      </div>
-      <MoveGrid
-        key={JSON.stringify(filters)}
-        initialMoves={result.items}
-        initialHasMore={initialHasMore}
-        totalCount={result.total}
-        filters={filters}
-        locale={locale}
-      />
-    </PageShell>
+    <CatalogTransitionProvider>
+      <PageShell aside={<CatalogFilters filters={filters} availableTags={availableTags} />}>
+        <div
+          className="sticky top-14 z-10 border-b border-outline-variant/20 px-3.5 py-[10px] lg:hidden"
+          style={{ backgroundColor: '#131313' }}
+        >
+          <CatalogFilters filters={filters} availableTags={availableTags} mode="trigger" />
+        </div>
+        <MoveGrid
+          key={JSON.stringify(filters)}
+          initialMoves={result.items}
+          initialHasMore={initialHasMore}
+          totalCount={result.total}
+          filters={filters}
+          locale={locale}
+        />
+      </PageShell>
+    </CatalogTransitionProvider>
   );
 }

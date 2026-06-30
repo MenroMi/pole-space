@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { focalToObjectPosition } from '@/features/moves/lib/focal';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 import {
@@ -730,25 +731,18 @@ function SelectedPill({ move: m, onRemove }: { move: RelatedMoveInfo; onRemove: 
 }
 
 function SkeletonRow({ i }: { i: number }) {
-  const shimmer: React.CSSProperties = {
-    background:
-      'linear-gradient(90deg, rgba(75,68,80,0.1) 25%, rgba(75,68,80,0.25) 50%, rgba(75,68,80,0.1) 75%)',
-    backgroundSize: '200% 100%',
-    animation: `shimmer 1.4s ease-in-out infinite`,
-    animationDelay: `${i * 80}ms`,
-    borderRadius: 4,
-  };
+  const delay = { animationDelay: `${i * 80}ms` } as React.CSSProperties;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px' }}>
-      <div style={{ width: 18, height: 18, borderRadius: 5, ...shimmer, flexShrink: 0 }} />
-      <div style={{ width: 36, height: 36, borderRadius: 8, ...shimmer, flexShrink: 0 }} />
+      <Skeleton style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, ...delay }} />
+      <Skeleton style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0, ...delay }} />
       <div style={{ flex: 1 }}>
-        <div
-          style={{ height: 13, width: `${55 + ((i * 17) % 30)}%`, ...shimmer, marginBottom: 6 }}
+        <Skeleton
+          style={{ height: 13, width: `${55 + ((i * 17) % 30)}%`, marginBottom: 6, ...delay }}
         />
-        <div style={{ height: 11, width: `${30 + ((i * 13) % 20)}%`, ...shimmer }} />
+        <Skeleton style={{ height: 11, width: `${30 + ((i * 13) % 20)}%`, ...delay }} />
       </div>
-      <div style={{ height: 20, width: 70, ...shimmer, borderRadius: 9999 }} />
+      <Skeleton style={{ height: 20, width: 70, borderRadius: 9999, ...delay }} />
     </div>
   );
 }
