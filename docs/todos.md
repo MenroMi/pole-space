@@ -1,5 +1,34 @@
 # Project TODOs
 
+## 🎯 Priority queue — full project audit (2026-11-12)
+
+Work top-down, one task at a time. Size: XS < S < M. 👤 = manual (dashboard), not code.
+
+### P0 — security / broken functionality
+
+- [ ] **1. Bump vulnerable deps** (`npm audit`: 4 critical, 10 high) — `next` 16.4.5, `next-auth` 5.0.0-beta.32, `@auth/prisma-adapter` 2.11.3, `prisma` + `@prisma/client` + `@prisma/adapter-pg` 7.10.1, `zod` 4.6.7. Exact versions, npm only. Verify typecheck/lint/tests + `next build`; skim Next 16.3/16.4 changelog. — S
+- [ ] **2. 👤 Cloudflare: ACME Bypass + SSL Full (strict)** — see Infrastructure → "Dev domain". Otherwise cert renewal fails → 526. — XS
+- [ ] **3. Re-check `role` / `blockedAt` from DB** — `requireAdmin()` (`src/features/admin/actions.ts`) trusts JWT `role` (demoted admin keeps admin access); `requireAuth()` (`src/features/profile/actions.ts`) ignores `blockedAt`. Closes "Session revocation" below. — S
+- [ ] **4. `UserProgress` relations without `onDelete: Cascade`** (`prisma/schema.prisma`) — `deleteUserAction` / `deleteMoveAction` fail with P2003 when progress rows exist. Schema + migration. — S
+- [ ] **5. Move detail `DYNAMIC_SERVER_USAGE`** — see Known Bugs below. — S/M
+
+### P1 — important
+
+- [ ] **6. "Verify email" error string mismatch** — `src/shared/lib/auth.ts:50` throws `'Please verify your email first.'` (trailing dot), `src/features/auth/actions.ts:81` + `LoginForm.tsx:66` compare without it → resend-verification UI never shows. Tests mock the wrong string. Use a shared error-code constant. — XS
+- [ ] **7. 👤 `*.vercel.app` bypasses Cloudflare Access** — Vercel Deployment Protection. See Infrastructure → "Dev domain". — XS
+- [ ] **8. `prisma/promote.ts` hardening + commit** — tags upserted by `name_en` but created with dev `id` (P2002 on rename / `name_pl` clash); `.env.local` `override: true` + only `SOURCE === TARGET` guard (compare host/db, refuse prod as source); no transaction; cleared `relatedMoves` never cleared in prod. Also: prod guard in `prisma/seed.ts` (wipes any `DATABASE_URL`); add `PROD_DATABASE_URL`, `SEED_USER_EMAIL` to `.env.example`. — M
+- [ ] **9. Upload / rate-limit hardening** — `uploadAvatarAction` has no magic-byte check (reuse `isImageBuffer`) and no rate limit; `src/shared/lib/ratelimit.ts` silently allows everything when Upstash env is missing — fail loudly in production. — S
+
+### P2 — hardening
+
+- [ ] **10. Auth hardening** — normalize email `.trim().toLowerCase()` in zod schemas (check prod for case-duplicates first); `checkEmailVerifiedAction` — rate limit + uniform response (account enumeration); `resetPasswordAction` — rate limit + `$transaction` with `deleteMany` (concurrent submits → 500). — M
+- [ ] **11. Misc correctness** — `revalidatePath` calls in `src/features/profile/actions.ts` lack the `[locale]` segment (no-op); Day Streak `today`/`timezone` validated server-side (see "Day Streak — client-trusted day boundary"); `serverActions.bodySizeLimit` 5mb → 6mb (multipart overhead); `getMoveByIdAction` trusts caller `userId` in a `'use server'` file → make server-only. — S/M
+
+### P3 — cleanup
+
+- [ ] **12. Dead code / duplication** — remove unused `src/app/api/moves/route.ts`; dedupe `x-forwarded-for` IP parsing (4 copies) and OAuth picture parsing (`auth.ts` / `auth.config.ts`); move page fetches the move twice (`cache` only used by metadata); redundant `@@unique([identifier, token])`; lint warning `src/test-setup.ts:1`; prettier on `prisma/promote.ts` + `specs/2026-05-30-dev-prod-environments-design.md`. — S
+- [ ] **13. Docs** — README is create-next-app boilerplate (yarn/pnpm/bun, no setup); `yarn` in `specs/2026-05-29-day-streak-design.md` + this file; `middleware.ts` → `src/proxy.ts`; paths missing `[locale]`; stale/duplicate items in this file (Elite Member, related moves `orderBy`, Facebook picture, `localizeMove` casts, "in progress"/"not merged" labels); plan checkboxes + spec status headers; commit hash `5392a59` → `218fae8`; `vitest.config.ts` should also exclude `.claude/worktrees/**`. — M
+
 ## ✅ Recently shipped — branch `fix+catalog-tx` (2026-06-30)
 
 Three independent pieces, each squashed into one commit on the shared
@@ -342,6 +371,16 @@ Three independent pieces, each squashed into one commit on the shared
 - Both defined as `@utility` in `globals.css` (Tailwind v4 does not auto-generate font utilities beyond sans/serif/mono)
 
 ## Infrastructure
+
+### Dev domain `dev.pole-space.com` — Cloudflare Zero Trust Access in front of Vercel (2026-10-22)
+
+Setup: DNS in Cloudflare, CNAME `dev` → Vercel, **proxied (orange cloud) on purpose** — Access (team `pole-space-team.cloudflareaccess.com`) only works on proxied traffic. Vercel shows "Invalid Configuration" for this domain (it sees Cloudflare IPs) — **expected, do not disable the proxy**.
+
+- [ ] **ACME challenge blocked by Access (IMPORTANT).** Verified 2026-11-09: `curl -I https://dev.pole-space.com/.well-known/acme-challenge/test` → 302 to the Access login. Vercel renews its Let's Encrypt cert via HTTP-01 on this path → renewal will fail → once the origin cert expires Cloudflare (Full strict) returns **526** and dev goes down. Fix: Zero Trust → Access → add an application for path `dev.pole-space.com/.well-known/acme-challenge/*` with a **Bypass / Everyone** policy. Re-check with the same `curl` (expect a non-Access response).
+- [ ] **Verify SSL/TLS mode = Full (strict).** Cloudflare dashboard → SSL/TLS → Overview. Flexible → redirect loop with Vercel; Full (non-strict) does not validate the origin cert. Not checkable from outside.
+- [ ] **`*.vercel.app` / preview URLs bypass Access.** Deployment URLs go straight to Vercel, skipping Cloudflare → anyone with the URL reaches the dev env (real DB) without Access. Not yet confirmed (real deployment URL not tested). Options:
+  - **Vercel Deployment Protection** (Standard Protection) — dashboard only, no code; check whether it also covers the production `*.vercel.app` alias. Preferred first step.
+  - **Verify the Access JWT in `src/proxy.ts`** — require `Cf-Access-Jwt-Assertion` (verify signature against the team JWKS + app AUD) → 403 otherwise. Bulletproof, but must fit the `next-auth` + `next-intl` chain, and the current `matcher` skips `/api` and static files. Read `node_modules/next/dist/docs/` on proxy before implementing.
 
 ~~**Catalog listing — `$transaction` times out on Neon cold start (P2028)**~~ ✅ Resolved (2026-06-27, commit `fdaa133`, branch `fix+catalog-tx`)
 
