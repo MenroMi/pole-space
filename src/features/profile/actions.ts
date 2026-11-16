@@ -10,6 +10,7 @@ import { auth } from '@/shared/lib/auth';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { localizeMove, localizeTag } from '@/shared/lib/localize';
 import { prisma } from '@/shared/lib/prisma';
+import { getActiveSessionUser } from '@/shared/lib/session-user';
 import type { LearnStatus } from '@/shared/types';
 
 import { computeNewStreak } from './lib/streak';
@@ -17,11 +18,11 @@ import { profileSchema } from './lib/validation';
 import type { FavouriteWithMove, ProgressWithMove } from './types';
 
 async function requireAuth() {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const user = await getActiveSessionUser();
+  if (!user) {
     throw new Error('Unauthorized');
   }
-  return session.user.id;
+  return user.id;
 }
 
 const changePasswordSchema = z.object({
@@ -286,9 +287,15 @@ export async function recordStreakActivityAction(today: string, timezone: string
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { lastActiveDate: true, currentStreak: true, longestStreak: true, timezone: true },
+      select: {
+        lastActiveDate: true,
+        currentStreak: true,
+        longestStreak: true,
+        timezone: true,
+        blockedAt: true,
+      },
     });
-    if (!user) return;
+    if (!user || user.blockedAt) return;
 
     const update = computeNewStreak(
       user.lastActiveDate,

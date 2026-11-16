@@ -6,9 +6,9 @@ Work top-down, one task at a time. Size: XS < S < M. 👤 = manual (dashboard), 
 
 ### P0 — security / broken functionality
 
-- [ ] **1. Bump vulnerable deps** (`npm audit`: 4 critical, 10 high) — `next` 16.4.5, `next-auth` 5.0.0-beta.32, `@auth/prisma-adapter` 2.11.3, `prisma` + `@prisma/client` + `@prisma/adapter-pg` 7.10.1, `zod` 4.6.7. Exact versions, npm only. Verify typecheck/lint/tests + `next build`; skim Next 16.3/16.4 changelog. — S
-- [ ] **2. 👤 Cloudflare: ACME Bypass + SSL Full (strict)** — see Infrastructure → "Dev domain". Otherwise cert renewal fails → 526. — XS
-- [ ] **3. Re-check `role` / `blockedAt` from DB** — `requireAdmin()` (`src/features/admin/actions.ts`) trusts JWT `role` (demoted admin keeps admin access); `requireAuth()` (`src/features/profile/actions.ts`) ignores `blockedAt`. Closes "Session revocation" below. — S
+- [x] **1. Bump vulnerable deps** ✅ PR #48 (2026-11-16) — (`npm audit`: 4 critical, 10 high) — `next` 16.4.5, `next-auth` 5.0.0-beta.32, `@auth/prisma-adapter` 2.11.3, `prisma` + `@prisma/client` + `@prisma/adapter-pg` 7.10.1, `zod` 4.6.7. Exact versions, npm only. Verify typecheck/lint/tests + `next build`; skim Next 16.3/16.4 changelog. — S
+- [x] **2. 👤 Cloudflare: ACME Bypass + SSL Full (strict)** ✅ 2026-11-16 — — see Infrastructure → "Dev domain". Otherwise cert renewal fails → 526. — XS
+- [x] **3. Re-check `role` / `blockedAt` from DB** ✅ branch `fix+auth-db-checks` — shared `getActiveSessionUser()` (`src/shared/lib/session-user.ts`) used by `requireAdmin`, `requireAuth`, admin + profile layouts; streak skips blocked users. Was: — `requireAdmin()` (`src/features/admin/actions.ts`) trusts JWT `role` (demoted admin keeps admin access); `requireAuth()` (`src/features/profile/actions.ts`) ignores `blockedAt`. Closes "Session revocation" below. — S
 - [ ] **4. `UserProgress` relations without `onDelete: Cascade`** (`prisma/schema.prisma`) — `deleteUserAction` / `deleteMoveAction` fail with P2003 when progress rows exist. Schema + migration. — S
 - [ ] **5. Move detail `DYNAMIC_SERVER_USAGE`** — see Known Bugs below. — S/M
 
@@ -104,9 +104,13 @@ Three independent pieces, each squashed into one commit on the shared
 - Expired session doesn't preserve `callbackUrl` on redirect to login
 - No account lockout after N failed login attempts
 
-### Session revocation — deleted/blocked user keeps access mid-session (2026-05-30)
+### ~~Session revocation — deleted/blocked user keeps access mid-session~~ ✅ Resolved (2026-11-16, priority task 3)
 
-- JWT session strategy: middleware (`src/middleware.ts`) and `auth()` validate only the token's signature + expiry (`maxAge` 7 days), never that the user still exists or isn't `blockedAt` in the DB. So a user deleted (or blocked) **after** login keeps a valid JWT and can navigate the app for up to 7 days. Confirmed by experiment: deleting a logged-in user does not interrupt their browsing.
+- **Fix:** every server-side guard re-reads the user from the DB via `getActiveSessionUser()` (`src/shared/lib/session-user.ts`): `requireAdmin` (also requires DB `role === 'ADMIN'`), `requireAuth`, admin layout, profile layout (→ `/catalog`), streak action (silent no-op). The JWT itself is not revoked (no forced sign-out) — a revoked user just can't do anything protected with it; public pages stay visible. `proxy.ts` still uses JWT claims as a fast pre-filter only.
+
+Original report (2026-05-30):
+
+- JWT session strategy: proxy (`src/proxy.ts`) and `auth()` validate only the token's signature + expiry (`maxAge` 7 days), never that the user still exists or isn't `blockedAt` in the DB. So a user deleted (or blocked) **after** login keeps a valid JWT and can navigate the app for up to 7 days. Confirmed by experiment: deleting a logged-in user does not interrupt their browsing.
 - Existing checks only fire at **login** (`authorize` in `auth.ts`) and in `Header` for `role` (UI-only, doesn't gate access).
 - Symptom-level note: after the Header DB-source fix, a valid session with a missing DB row also makes `UserMenu` render the logged-out menu — cosmetic, the real issue is access not being revoked.
 - Proper fix (later): a per-request DB check (in `middleware.ts` or a shared guard) that the user exists and `blockedAt == null` — trades the DB-free JWT benefit for immediate revocation. Same class as the Day Streak hardening item above.
@@ -376,8 +380,8 @@ Three independent pieces, each squashed into one commit on the shared
 
 Setup: DNS in Cloudflare, CNAME `dev` → Vercel, **proxied (orange cloud) on purpose** — Access (team `pole-space-team.cloudflareaccess.com`) only works on proxied traffic. Vercel shows "Invalid Configuration" for this domain (it sees Cloudflare IPs) — **expected, do not disable the proxy**.
 
-- [ ] **ACME challenge blocked by Access (IMPORTANT).** Verified 2026-11-09: `curl -I https://dev.pole-space.com/.well-known/acme-challenge/test` → 302 to the Access login. Vercel renews its Let's Encrypt cert via HTTP-01 on this path → renewal will fail → once the origin cert expires Cloudflare (Full strict) returns **526** and dev goes down. Fix: Zero Trust → Access → add an application for path `dev.pole-space.com/.well-known/acme-challenge/*` with a **Bypass / Everyone** policy. Re-check with the same `curl` (expect a non-Access response).
-- [ ] **Verify SSL/TLS mode = Full (strict).** Cloudflare dashboard → SSL/TLS → Overview. Flexible → redirect loop with Vercel; Full (non-strict) does not validate the origin cert. Not checkable from outside.
+- [x] ✅ 2026-11-16: Access app `dev ACME bypass` (Bypass/Everyone) added; `/.well-known/acme-challenge/test` → 404 from Vercel over HTTP and HTTPS, `/` still → Access. **ACME challenge blocked by Access (IMPORTANT).** Verified 2026-11-09: `curl -I https://dev.pole-space.com/.well-known/acme-challenge/test` → 302 to the Access login. Vercel renews its Let's Encrypt cert via HTTP-01 on this path → renewal will fail → once the origin cert expires Cloudflare (Full strict) returns **526** and dev goes down. Fix: Zero Trust → Access → add an application for path `dev.pole-space.com/.well-known/acme-challenge/*` with a **Bypass / Everyone** policy. Re-check with the same `curl` (expect a non-Access response).
+- [x] ✅ 2026-11-16: confirmed Full (strict). **Verify SSL/TLS mode = Full (strict).** Cloudflare dashboard → SSL/TLS → Overview. Flexible → redirect loop with Vercel; Full (non-strict) does not validate the origin cert. Not checkable from outside.
 - [ ] **`*.vercel.app` / preview URLs bypass Access.** Deployment URLs go straight to Vercel, skipping Cloudflare → anyone with the URL reaches the dev env (real DB) without Access. Not yet confirmed (real deployment URL not tested). Options:
   - **Vercel Deployment Protection** (Standard Protection) — dashboard only, no code; check whether it also covers the production `*.vercel.app` alias. Preferred first step.
   - **Verify the Access JWT in `src/proxy.ts`** — require `Cf-Access-Jwt-Assertion` (verify signature against the team JWKS + app AUD) → 403 otherwise. Bulletproof, but must fit the `next-auth` + `next-intl` chain, and the current `matcher` skips `/api` and static files. Read `node_modules/next/dist/docs/` on proxy before implementing.

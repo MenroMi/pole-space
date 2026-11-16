@@ -33,6 +33,18 @@ vi.mock('@/shared/lib/auth', () => ({
   auth: vi.fn(),
 }));
 
+// Keeps prisma.user.findUnique free for profile data: by default an authenticated
+// session is an active user; DB-revocation cases override with mockResolvedValueOnce(null).
+vi.mock('@/shared/lib/session-user', async () => {
+  const { auth } = await import('@/shared/lib/auth');
+  return {
+    getActiveSessionUser: vi.fn(async () => {
+      const s = (await auth()) as { user?: { id?: string } } | null;
+      return s?.user?.id ? { id: s.user.id, role: 'USER' } : null;
+    }),
+  };
+});
+
 vi.mock('bcryptjs', () => ({
   default: {
     compare: vi.fn(),
@@ -53,6 +65,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/shared/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { cloudinary } from '@/shared/lib/cloudinary';
+import { getActiveSessionUser } from '@/shared/lib/session-user';
 
 const mockRevalidatePath = revalidatePath as ReturnType<typeof vi.fn>;
 
@@ -75,6 +88,7 @@ import {
 } from './actions';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
+const mockGetActiveSessionUser = getActiveSessionUser as ReturnType<typeof vi.fn>;
 const mockFindMany = prisma.userProgress.findMany as ReturnType<typeof vi.fn>;
 const mockUpsert = prisma.userProgress.upsert as ReturnType<typeof vi.fn>;
 const mockProgressDeleteMany = prisma.userProgress.deleteMany as ReturnType<typeof vi.fn>;
@@ -93,6 +107,22 @@ const mockUploadStream = cloudinary.uploader.upload_stream as ReturnType<typeof 
 const session = { user: { id: 'user-123' } };
 
 beforeEach(() => vi.clearAllMocks());
+
+describe('requireAuth DB revocation', () => {
+  it('throws Unauthorized when the user is blocked or deleted despite a valid JWT', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockGetActiveSessionUser.mockResolvedValueOnce(null);
+    await expect(updateProgressAction('move-1', 'IN_PROGRESS')).rejects.toThrow('Unauthorized');
+    expect(mockUpsert).not.toHaveBeenCalled();
+  });
+
+  it('blocks profile writes for a revoked user', async () => {
+    mockAuth.mockResolvedValue(session);
+    mockGetActiveSessionUser.mockResolvedValueOnce(null);
+    await expect(addFavouriteAction('move-1')).rejects.toThrow('Unauthorized');
+    expect(mockFavouriteUpsert).not.toHaveBeenCalled();
+  });
+});
 
 describe('getUserProgressAction', () => {
   it('throws Unauthorized when not authenticated', async () => {
@@ -576,6 +606,18 @@ describe('recordStreakActivityAction', () => {
   it('does nothing when user row not found', async () => {
     vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    await recordStreakActivityAction('2026-05-29', 'UTC');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+  it('does nothing when user is blocked', async () => {
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'u1' } } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      lastActiveDate: null,
+      currentStreak: 0,
+      longestStreak: 0,
+      timezone: null,
+      blockedAt: new Date(),
+    } as never);
     await recordStreakActivityAction('2026-05-29', 'UTC');
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
