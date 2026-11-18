@@ -128,15 +128,33 @@ const validUpdateInput = { ...validCreateInput, id: 'move-1' };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockUserFindUnique.mockResolvedValue({ blockedAt: null });
+  // requireAdmin re-reads role/blockedAt from the DB; mirror the sessions above
+  mockUserFindUnique.mockImplementation(async ({ where }: { where: { id: string } }) => ({
+    role: where.id === adminSession.user.id ? 'ADMIN' : 'USER',
+    blockedAt: null,
+  }));
 });
 
-describe('requireAdmin blockedAt check', () => {
+describe('requireAdmin DB checks', () => {
   it('throws Unauthorized when admin is blocked', async () => {
     mockAuth.mockResolvedValue(adminSession);
-    mockUserFindUnique.mockResolvedValue({ blockedAt: new Date() });
+    mockUserFindUnique.mockResolvedValue({ role: 'ADMIN', blockedAt: new Date() });
     await expect(createMoveAction(validCreateInput)).rejects.toThrow('Unauthorized');
     expect(mockMoveCreate).not.toHaveBeenCalled();
+  });
+
+  it('throws Unauthorized when admin was demoted after sign-in (JWT still says ADMIN)', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockUserFindUnique.mockResolvedValue({ role: 'USER', blockedAt: null });
+    await expect(deleteUserAction('user-2')).rejects.toThrow('Unauthorized');
+    expect(mockUserDelete).not.toHaveBeenCalled();
+  });
+
+  it('throws Unauthorized when admin was deleted after sign-in', async () => {
+    mockAuth.mockResolvedValue(adminSession);
+    mockUserFindUnique.mockResolvedValue(null);
+    await expect(changeUserRoleAction('user-2', 'ADMIN')).rejects.toThrow('Unauthorized');
+    expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 });
 
