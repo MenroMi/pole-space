@@ -43,6 +43,13 @@ vi.mock('@/shared/lib/auth', () => ({
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 
+vi.mock('@/i18n/navigation', () => ({
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT');
+  }),
+}));
+vi.mock('next-intl/server', () => ({ getLocale: vi.fn(async () => 'pl') }));
+
 vi.mock('@/shared/lib/cloudinary', () => ({
   cloudinary: {
     uploader: {
@@ -53,6 +60,7 @@ vi.mock('@/shared/lib/cloudinary', () => ({
 }));
 
 import { auth } from '@/shared/lib/auth';
+import { redirect } from '@/i18n/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/shared/lib/prisma';
 import { cloudinary } from '@/shared/lib/cloudinary';
@@ -136,38 +144,39 @@ beforeEach(() => {
 });
 
 describe('requireAdmin DB checks', () => {
-  it('throws Unauthorized when admin is blocked', async () => {
+  it('redirects home when admin is blocked', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockUserFindUnique.mockResolvedValue({ role: 'ADMIN', blockedAt: new Date() });
-    await expect(createMoveAction(validCreateInput)).rejects.toThrow('Unauthorized');
+    await expect(createMoveAction(validCreateInput)).rejects.toThrow('NEXT_REDIRECT');
     expect(mockMoveCreate).not.toHaveBeenCalled();
   });
 
-  it('throws Unauthorized when admin was demoted after sign-in (JWT still says ADMIN)', async () => {
+  it('redirects home when admin was demoted after sign-in (JWT still says ADMIN)', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockUserFindUnique.mockResolvedValue({ role: 'USER', blockedAt: null });
-    await expect(deleteUserAction('user-2')).rejects.toThrow('Unauthorized');
+    await expect(deleteUserAction('user-2')).rejects.toThrow('NEXT_REDIRECT');
+    expect(redirect).toHaveBeenCalledWith({ href: '/', locale: 'pl' });
     expect(mockUserDelete).not.toHaveBeenCalled();
   });
 
-  it('throws Unauthorized when admin was deleted after sign-in', async () => {
+  it('redirects home when admin was deleted after sign-in', async () => {
     mockAuth.mockResolvedValue(adminSession);
     mockUserFindUnique.mockResolvedValue(null);
-    await expect(changeUserRoleAction('user-2', 'ADMIN')).rejects.toThrow('Unauthorized');
+    await expect(changeUserRoleAction('user-2', 'ADMIN')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockUserUpdate).not.toHaveBeenCalled();
   });
 });
 
 describe('createMoveAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(createMoveAction(validCreateInput)).rejects.toThrow('Unauthorized');
+    await expect(createMoveAction(validCreateInput)).rejects.toThrow('NEXT_REDIRECT');
     expect(mockMoveCreate).not.toHaveBeenCalled();
   });
 
-  it('throws Unauthorized when role is not ADMIN', async () => {
+  it('redirects home when role is not ADMIN', async () => {
     mockAuth.mockResolvedValue(userSession);
-    await expect(createMoveAction(validCreateInput)).rejects.toThrow('Unauthorized');
+    await expect(createMoveAction(validCreateInput)).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when youtubeUrl is not a URL', async () => {
@@ -200,9 +209,9 @@ describe('createMoveAction', () => {
 });
 
 describe('updateMoveAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(updateMoveAction(validUpdateInput)).rejects.toThrow('Unauthorized');
+    await expect(updateMoveAction(validUpdateInput)).rejects.toThrow('NEXT_REDIRECT');
     expect(mockMoveUpdate).not.toHaveBeenCalled();
   });
 
@@ -266,9 +275,9 @@ describe('updateMoveAction', () => {
 });
 
 describe('deleteMoveAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(deleteMoveAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(deleteMoveAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('deletes move when ADMIN', async () => {
@@ -294,9 +303,9 @@ describe('deleteMoveAction', () => {
 });
 
 describe('getMovesForAdminAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getMovesForAdminAction()).rejects.toThrow('Unauthorized');
+    await expect(getMovesForAdminAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns { moves, total } when ADMIN', async () => {
@@ -394,9 +403,9 @@ describe('getMovesForAdminAction', () => {
 });
 
 describe('getMoveByIdAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getMoveByIdAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(getMoveByIdAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns null when move not found', async () => {
@@ -449,18 +458,18 @@ describe('getMoveByIdAction', () => {
 });
 
 describe('deleteUploadedImageAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     const url =
       'https://res.cloudinary.com/test/image/upload/v1234/pole-dance-catalog/moves/img.jpg';
-    await expect(deleteUploadedImageAction(url)).rejects.toThrow('Unauthorized');
+    await expect(deleteUploadedImageAction(url)).rejects.toThrow('NEXT_REDIRECT');
   });
 
-  it('throws Unauthorized when not ADMIN', async () => {
+  it('redirects home when not ADMIN', async () => {
     mockAuth.mockResolvedValue(userSession);
     const url =
       'https://res.cloudinary.com/test/image/upload/v1234/pole-dance-catalog/moves/img.jpg';
-    await expect(deleteUploadedImageAction(url)).rejects.toThrow('Unauthorized');
+    await expect(deleteUploadedImageAction(url)).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('calls Cloudinary destroy with the correct public ID when ADMIN', async () => {
@@ -553,9 +562,9 @@ describe('getAdminStatsAction', () => {
     mockQueryRaw.mockResolvedValueOnce(recentUserGroups).mockResolvedValueOnce(recentFavGroups);
   }
 
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getAdminStatsAction()).rejects.toThrow('Unauthorized');
+    await expect(getAdminStatsAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns all 14 fields when ADMIN', async () => {
@@ -641,9 +650,9 @@ describe('getAdminStatsAction', () => {
 });
 
 describe('getTagsForAdminAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getTagsForAdminAction()).rejects.toThrow('Unauthorized');
+    await expect(getTagsForAdminAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns tags when ADMIN', async () => {
@@ -658,9 +667,9 @@ describe('getTagsForAdminAction', () => {
 });
 
 describe('createTagAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(createTagAction({ name_en: 'T', name_pl: 'T' })).rejects.toThrow('Unauthorized');
+    await expect(createTagAction({ name_en: 'T', name_pl: 'T' })).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when name_en is empty', async () => {
@@ -679,10 +688,10 @@ describe('createTagAction', () => {
 });
 
 describe('updateTagAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     await expect(updateTagAction({ id: 'tag-1', name_en: 'T', name_pl: 'T' })).rejects.toThrow(
-      'Unauthorized',
+      'NEXT_REDIRECT',
     );
   });
 
@@ -698,9 +707,9 @@ describe('updateTagAction', () => {
 });
 
 describe('deleteTagAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(deleteTagAction('tag-1')).rejects.toThrow('Unauthorized');
+    await expect(deleteTagAction('tag-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('deletes tag when ADMIN', async () => {
@@ -713,9 +722,9 @@ describe('deleteTagAction', () => {
 });
 
 describe('getUsersForAdminAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getUsersForAdminAction()).rejects.toThrow('Unauthorized');
+    await expect(getUsersForAdminAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when page is less than 1', async () => {
@@ -816,9 +825,9 @@ describe('getUsersForAdminAction', () => {
 });
 
 describe('changeUserRoleAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(changeUserRoleAction('u-1', 'ADMIN')).rejects.toThrow('Unauthorized');
+    await expect(changeUserRoleAction('u-1', 'ADMIN')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when userId is empty', async () => {
@@ -853,9 +862,9 @@ describe('changeUserRoleAction', () => {
 });
 
 describe('blockUserAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(blockUserAction('u-1')).rejects.toThrow('Unauthorized');
+    await expect(blockUserAction('u-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when userId is empty', async () => {
@@ -902,9 +911,9 @@ describe('blockUserAction', () => {
 });
 
 describe('unblockUserAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(unblockUserAction('u-1')).rejects.toThrow('Unauthorized');
+    await expect(unblockUserAction('u-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when userId is empty', async () => {
@@ -932,9 +941,9 @@ describe('unblockUserAction', () => {
 });
 
 describe('deleteUserAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(deleteUserAction('u-1')).rejects.toThrow('Unauthorized');
+    await expect(deleteUserAction('u-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when userId is empty', async () => {
@@ -959,15 +968,15 @@ describe('deleteUserAction', () => {
 });
 
 describe('searchRelatedMovesAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(searchRelatedMovesAction({ query: 'spin' })).rejects.toThrow('Unauthorized');
+    await expect(searchRelatedMovesAction({ query: 'spin' })).rejects.toThrow('NEXT_REDIRECT');
     expect(mockMoveFindMany).not.toHaveBeenCalled();
   });
 
-  it('throws Unauthorized when role is not ADMIN', async () => {
+  it('redirects home when role is not ADMIN', async () => {
     mockAuth.mockResolvedValue(userSession);
-    await expect(searchRelatedMovesAction({ query: 'spin' })).rejects.toThrow('Unauthorized');
+    await expect(searchRelatedMovesAction({ query: 'spin' })).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('throws Invalid input when query is empty', async () => {
@@ -1044,9 +1053,9 @@ describe('uploadMoveImageAction', () => {
 
   const jpegMagic = [0xff, 0xd8, 0xff, 0xe0, ...Array(100).fill(0)];
 
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects home when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(uploadMoveImageAction(makeFormData(null))).rejects.toThrow('Unauthorized');
+    await expect(uploadMoveImageAction(makeFormData(null))).rejects.toThrow('NEXT_REDIRECT');
     expect(mockUploadStream).not.toHaveBeenCalled();
   });
 

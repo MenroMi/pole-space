@@ -1,8 +1,11 @@
 'use server';
 import { Category, Difficulty, PoleType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { getLocale } from 'next-intl/server';
 import { z } from 'zod';
 
+import { redirect } from '@/i18n/navigation';
+import { checkedLocale } from '@/i18n/routing';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { prisma } from '@/shared/lib/prisma';
 import { getActiveSessionUser } from '@/shared/lib/session-user';
@@ -22,7 +25,9 @@ import type {
 async function requireAdmin() {
   const admin = await getActiveSessionUser();
   if (!admin || admin.role !== 'ADMIN') {
-    throw new Error('Unauthorized');
+    // The admin panel is a client SPA, so the layout guard never re-runs between tabs. Redirecting
+    // from the action itself moves a demoted or blocked admin out on their next request.
+    return redirect({ href: '/', locale: checkedLocale(await getLocale()) });
   }
   return admin;
 }
