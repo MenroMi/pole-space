@@ -1,11 +1,14 @@
 'use server';
 import { Category, Difficulty, PoleType } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { getLocale } from 'next-intl/server';
 import { z } from 'zod';
 
-import { auth } from '@/shared/lib/auth';
+import { redirect } from '@/i18n/navigation';
+import { checkedLocale } from '@/i18n/routing';
 import { cloudinary } from '@/shared/lib/cloudinary';
 import { prisma } from '@/shared/lib/prisma';
+import { getActiveSessionUser } from '@/shared/lib/session-user';
 
 import type {
   AdminMoveRow,
@@ -20,18 +23,13 @@ import type {
 } from './types';
 
 async function requireAdmin() {
-  const session = await auth();
-  if (!session || session.user?.role !== 'ADMIN') {
-    throw new Error('Unauthorized');
+  const admin = await getActiveSessionUser();
+  if (!admin || admin.role !== 'ADMIN') {
+    // The admin panel is a client SPA, so the layout guard never re-runs between tabs. Redirecting
+    // from the action itself moves a demoted or blocked admin out on their next request.
+    return redirect({ href: '/', locale: checkedLocale(await getLocale()) });
   }
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id! },
-    select: { blockedAt: true },
-  });
-  if (!dbUser || dbUser.blockedAt) {
-    throw new Error('Unauthorized');
-  }
-  return session;
+  return admin;
 }
 
 const moveSchema = z.object({
@@ -573,12 +571,12 @@ export async function getUsersForAdminAction(
 }
 
 export async function changeUserRoleAction(userId: string, role: 'USER' | 'ADMIN') {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
   const parsedId = z.string().min(1).safeParse(userId);
   if (!parsedId.success) throw new Error('Invalid input');
   const parsedRole = z.enum(['USER', 'ADMIN']).safeParse(role);
   if (!parsedRole.success) throw new Error('Invalid input');
-  if (session.user?.id === userId) throw new Error('Cannot change your own role');
+  if (admin.id === userId) throw new Error('Cannot change your own role');
   const result = await prisma.user.update({
     where: { id: parsedId.data },
     data: { role: parsedRole.data },
@@ -588,12 +586,12 @@ export async function changeUserRoleAction(userId: string, role: 'USER' | 'ADMIN
 }
 
 export async function blockUserAction(userId: string, reason?: string) {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
   const parsedId = z.string().min(1).safeParse(userId);
   if (!parsedId.success) throw new Error('Invalid input');
   const parsedReason = z.string().max(500).optional().safeParse(reason);
   if (!parsedReason.success) throw new Error('Invalid input');
-  if (session.user?.id === userId) throw new Error('Cannot block yourself');
+  if (admin.id === userId) throw new Error('Cannot block yourself');
   const result = await prisma.user.update({
     where: { id: parsedId.data },
     data: { blockedAt: new Date(), blockReason: parsedReason.data ?? null },
@@ -603,10 +601,10 @@ export async function blockUserAction(userId: string, reason?: string) {
 }
 
 export async function unblockUserAction(userId: string) {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
   const parsedId = z.string().min(1).safeParse(userId);
   if (!parsedId.success) throw new Error('Invalid input');
-  if (session.user?.id === userId) throw new Error('Cannot unblock yourself');
+  if (admin.id === userId) throw new Error('Cannot unblock yourself');
   const result = await prisma.user.update({
     where: { id: parsedId.data },
     data: { blockedAt: null, blockReason: null },
@@ -616,10 +614,10 @@ export async function unblockUserAction(userId: string) {
 }
 
 export async function deleteUserAction(userId: string) {
-  const session = await requireAdmin();
+  const admin = await requireAdmin();
   const parsedId = z.string().min(1).safeParse(userId);
   if (!parsedId.success) throw new Error('Invalid input');
-  if (session.user?.id === userId) throw new Error('Cannot delete yourself');
+  if (admin.id === userId) throw new Error('Cannot delete yourself');
   const result = await prisma.user.delete({ where: { id: parsedId.data } });
   revalidatePath('/', 'layout');
   return result;
