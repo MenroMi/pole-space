@@ -31,6 +31,30 @@ Work top-down, one task at a time. Size: XS < S < M. 👤 = manual (dashboard), 
 - [ ] **14. Docs** — README is create-next-app boilerplate (yarn/pnpm/bun, no setup); `yarn` in `specs/2026-05-29-day-streak-design.md` + this file; `middleware.ts` → `src/proxy.ts`; paths missing `[locale]`; stale/duplicate items in this file (Elite Member, related moves `orderBy`, Facebook picture, `localizeMove` casts, "in progress"/"not merged" labels); plan checkboxes + spec status headers; commit hash `5392a59` → `218fae8`; `vitest.config.ts` should also exclude `.claude/worktrees/**`. — M
 - [ ] **15. Forgot-password form: raw i18n key + no error feedback** (`src/app/[locale]/(auth)/forgot-password/ForgotPasswordForm.tsx`) — `?expired=true` renders the literal `auth.forgotPassword.expiredAlert`: the form uses `useTranslations('auth.forgotPassword')` but `expiredAlert` lives under `auth.resetPassword` in `pl.json`/`en.json` → move the key. `onSubmit` ignores `{ error }` and thrown action errors (e.g. the 500 from task 4) → button just stops, no message; show a generic error alert. Test mocks `t` to return the key, so it can't catch a wrong namespace — assert against real messages. — XS
 
+### Product feedback (2026-11-22)
+
+Bugs:
+
+- [ ] **16. Pole-type filter hides multi-type moves** (`src/features/catalog/actions.ts` → `buildPoleTypeConditions`) — selecting "Spin" returns only moves whose `poleTypes` are exactly `[SPIN]`: `hasEvery` + `NOT has` for every unselected type excludes a `[STATIC, SPIN]` move. Expected: match moves that have any selected type (`hasSome`). Update the existing tests that pin the exact-match behaviour. — XS
+- [ ] **17. Favourite button needs two clicks** (`src/features/moves/components/MoveFavouriteButton.tsx`) — likely `useOptimistic` falls back to the stale `isFavourited` prop after the transition, because the move page is never revalidated (see task 12: `revalidatePath` without `[locale]`). Confirm the cause first. — S
+- [ ] **18. Progress status ("Chcę się nauczyć" etc.) needs two clicks to switch** (`src/features/moves/components/MoveProgressPicker.tsx`) — same symptom; check together with task 17. — S
+- [ ] **19. Move breadcrumb links only to the catalog** (`src/features/moves/components/MoveBreadcrumb.tsx`) — the tag segment isn't a link; make it open the catalog filtered by that tag. — XS
+
+Content / copy (`src/i18n/messages/pl.json`, `en.json`):
+
+- [ ] **20. Catalog copy**
+  - filter label `catalog.filters.poleState`: «Stan słupa» → «Położenie rury»;
+  - headline (`catalog.tagline` + `taglineHighlight`): en «Every move, indexed.» → «Every move. One space», pl «Każdy ruch, skatalogowany.» → «Wszystkie figury. Jedno miejsce»;
+  - search placeholder (pl): «szukaj ruchów» → «znajdź element». Also check `searchMovesPlaceholder` / `searchMovesLabel` and the second `search` key (~line 322).
+
+  — XS
+
+Features:
+
+- [ ] **21. Home page: add a sign-in button** (`src/app/[locale]/page.tsx`) — only «create account» (`/signup`) exists; add a link to `/login` next to it. — XS
+- [ ] **22. Move page: remove the tabs** (`src/features/moves/components/MoveTabs.tsx`, `moves/[id]/page.tsx` + `loading.tsx`) — drop «Muscles» and «Safety» (placeholders) and the «Breakdown» wrapper; render its content directly. Clean up the i18n keys and the skeleton. — S
+- [ ] **23. Move page: «Next move / combo» section** — new feature, needs a design first: data model (reuse `relatedMoves`, or a new relation with an order?), admin UI, and placement on the page. — M
+
 ## ✅ Recently shipped — branch `fix+catalog-tx` (2026-06-30)
 
 Three independent pieces, each squashed into one commit on the shared
