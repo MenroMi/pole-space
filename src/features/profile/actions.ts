@@ -5,6 +5,7 @@ import { getLocale } from 'next-intl/server';
 import { z } from 'zod';
 
 import { applyPasswordComplexity } from '@/features/auth/lib/validation';
+import { redirect } from '@/i18n/navigation';
 import { checkedLocale } from '@/i18n/routing';
 import { auth } from '@/shared/lib/auth';
 import { cloudinary } from '@/shared/lib/cloudinary';
@@ -20,7 +21,9 @@ import type { FavouriteWithMove, ProgressWithMove } from './types';
 async function requireAuth() {
   const user = await getActiveSessionUser();
   if (!user) {
-    throw new Error('Unauthorized');
+    // A thrown error from a client-side call (e.g. favourites) lands in error.tsx, so a blocked
+    // user is sent to the public catalog instead, matching the profile layout.
+    return redirect({ href: '/catalog', locale: checkedLocale(await getLocale()) });
   }
   return user.id;
 }

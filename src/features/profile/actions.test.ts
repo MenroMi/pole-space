@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('@/i18n/navigation', () => ({
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT');
+  }),
+}));
+vi.mock('next-intl/server', () => ({ getLocale: vi.fn(async () => 'pl') }));
 
 vi.mock('@/shared/lib/localize', () => ({
   localizeMove: vi.fn((m: unknown) => m),
@@ -61,6 +67,7 @@ vi.mock('@/shared/lib/cloudinary', () => ({
 }));
 
 import { auth } from '@/shared/lib/auth';
+import { redirect } from '@/i18n/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/shared/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -109,25 +116,26 @@ const session = { user: { id: 'user-123' } };
 beforeEach(() => vi.clearAllMocks());
 
 describe('requireAuth DB revocation', () => {
-  it('throws Unauthorized when the user is blocked or deleted despite a valid JWT', async () => {
+  it('redirects to the catalog when the user is blocked or deleted despite a valid JWT', async () => {
     mockAuth.mockResolvedValue(session);
     mockGetActiveSessionUser.mockResolvedValueOnce(null);
-    await expect(updateProgressAction('move-1', 'IN_PROGRESS')).rejects.toThrow('Unauthorized');
+    await expect(updateProgressAction('move-1', 'IN_PROGRESS')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockUpsert).not.toHaveBeenCalled();
   });
 
   it('blocks profile writes for a revoked user', async () => {
     mockAuth.mockResolvedValue(session);
     mockGetActiveSessionUser.mockResolvedValueOnce(null);
-    await expect(addFavouriteAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(addFavouriteAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockFavouriteUpsert).not.toHaveBeenCalled();
+    expect(redirect).toHaveBeenCalledWith({ href: '/catalog', locale: 'pl' });
   });
 });
 
 describe('getUserProgressAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getUserProgressAction()).rejects.toThrow('Unauthorized');
+    await expect(getUserProgressAction()).rejects.toThrow('NEXT_REDIRECT');
     expect(mockFindMany).not.toHaveBeenCalled();
   });
 
@@ -152,9 +160,9 @@ describe('getUserProgressAction', () => {
 });
 
 describe('updateProgressAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(updateProgressAction('move-1', 'IN_PROGRESS')).rejects.toThrow('Unauthorized');
+    await expect(updateProgressAction('move-1', 'IN_PROGRESS')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockUpsert).not.toHaveBeenCalled();
   });
 
@@ -186,9 +194,9 @@ describe('updateProgressAction', () => {
 });
 
 describe('removeProgressAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(removeProgressAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(removeProgressAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockProgressDeleteMany).not.toHaveBeenCalled();
   });
 
@@ -210,10 +218,10 @@ describe('removeProgressAction', () => {
 });
 
 describe('updateProfileAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     await expect(updateProfileAction({ firstName: 'Alice', lastName: 'Pole' })).rejects.toThrow(
-      'Unauthorized',
+      'NEXT_REDIRECT',
     );
   });
 
@@ -237,9 +245,9 @@ describe('updateProfileAction', () => {
 });
 
 describe('uploadAvatarAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(uploadAvatarAction(new FormData())).rejects.toThrow('Unauthorized');
+    await expect(uploadAvatarAction(new FormData())).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns error when no file provided', async () => {
@@ -291,9 +299,9 @@ describe('uploadAvatarAction', () => {
 });
 
 describe('removeAvatarAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(removeAvatarAction()).rejects.toThrow('Unauthorized');
+    await expect(removeAvatarAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('sets image to null and revalidates paths', async () => {
@@ -310,11 +318,11 @@ describe('removeAvatarAction', () => {
 });
 
 describe('changePasswordAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     await expect(
       changePasswordAction({ currentPassword: 'old', newPassword: 'newpassword123' }),
-    ).rejects.toThrow('Unauthorized');
+    ).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns error when user has no password (OAuth account)', async () => {
@@ -370,9 +378,9 @@ describe('changePasswordAction', () => {
 });
 
 describe('addFavouriteAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(addFavouriteAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(addFavouriteAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('upserts favourite and returns success (idempotent)', async () => {
@@ -392,9 +400,9 @@ describe('addFavouriteAction', () => {
 });
 
 describe('removeFavouriteAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(removeFavouriteAction('move-1')).rejects.toThrow('Unauthorized');
+    await expect(removeFavouriteAction('move-1')).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('deletes favourite and returns success', async () => {
@@ -412,9 +420,9 @@ describe('removeFavouriteAction', () => {
 });
 
 describe('getUserFavouritesAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getUserFavouritesAction()).rejects.toThrow('Unauthorized');
+    await expect(getUserFavouritesAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns favourites with move for the authenticated user', async () => {
@@ -433,9 +441,9 @@ describe('getUserFavouritesAction', () => {
 });
 
 describe('getProfileStatsAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getProfileStatsAction()).rejects.toThrow('Unauthorized');
+    await expect(getProfileStatsAction()).rejects.toThrow('NEXT_REDIRECT');
     expect(mockProgressCount).not.toHaveBeenCalled();
     expect(mockFavouriteCount).not.toHaveBeenCalled();
   });
@@ -456,9 +464,9 @@ describe('getProfileStatsAction', () => {
 });
 
 describe('getProfileUserAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getProfileUserAction()).rejects.toThrow('Unauthorized');
+    await expect(getProfileUserAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns null when user is not found', async () => {
@@ -484,9 +492,9 @@ describe('getProfileUserAction', () => {
 });
 
 describe('getProfileSettingsAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getProfileSettingsAction()).rejects.toThrow('Unauthorized');
+    await expect(getProfileSettingsAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns null when user is not found', async () => {
@@ -538,9 +546,9 @@ describe('getProfileSettingsAction', () => {
 });
 
 describe('getProfileOverviewAction', () => {
-  it('throws Unauthorized when not authenticated', async () => {
+  it('redirects when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
-    await expect(getProfileOverviewAction()).rejects.toThrow('Unauthorized');
+    await expect(getProfileOverviewAction()).rejects.toThrow('NEXT_REDIRECT');
   });
 
   it('returns aggregated overview data for authenticated user', async () => {
