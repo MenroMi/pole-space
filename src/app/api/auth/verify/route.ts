@@ -10,8 +10,13 @@ export async function GET(req: NextRequest) {
     req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
     process.env.RATELIMIT_FALLBACK_IP ??
     '';
-  const { success } = await verifyRatelimit.limit(ip);
-  if (!success) {
+  const limit = await verifyRatelimit.limit(ip);
+  if (limit.unavailable) {
+    return NextResponse.redirect(
+      new URL(`/${defaultLocale}/verify-email?error=unavailable`, req.url),
+    );
+  }
+  if (!limit.success) {
     return NextResponse.redirect(new URL(`/${defaultLocale}/verify-email?error=invalid`, req.url));
   }
 

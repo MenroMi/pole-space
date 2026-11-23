@@ -185,9 +185,12 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     );
   }
 
-  if (error === 'invalid' || error === 'server') {
-    const heading = error === 'server' ? t('serverHeading') : t('invalidHeading');
-    const message = error === 'server' ? t('serverBody') : t('invalidBody');
+  if (error === 'invalid' || error === 'server' || error === 'unavailable') {
+    const { heading, message } = {
+      invalid: { heading: t('invalidHeading'), message: t('invalidBody') },
+      server: { heading: t('serverHeading'), message: t('serverBody') },
+      unavailable: { heading: t('unavailableHeading'), message: t('unavailableBody') },
+    }[error];
 
     return (
       <div className="w-full max-w-sm animate-fade-in-up space-y-10">

@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { checkedLocale, defaultLocale } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { signIn } from '@/shared/lib/auth';
+import { SERVICE_UNAVAILABLE } from '@/shared/lib/error-codes';
 import { prisma } from '@/shared/lib/prisma';
 import { signupRatelimit, resendRatelimit, forgotPasswordRatelimit } from '@/shared/lib/ratelimit';
 
@@ -30,8 +31,9 @@ export async function signupAction(data: SignupFormData) {
     (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ??
     process.env.RATELIMIT_FALLBACK_IP ??
     '';
-  const { success: withinLimit } = await signupRatelimit.limit(ip);
-  if (!withinLimit) return { error: 'Too many requests' };
+  const limit = await signupRatelimit.limit(ip);
+  if (limit.unavailable) return { error: SERVICE_UNAVAILABLE };
+  if (!limit.success) return { error: 'Too many requests' };
 
   const parsed = signupSchema.safeParse(data);
   if (!parsed.success) return { error: 'Invalid input' };
@@ -88,9 +90,10 @@ export async function loginAction(data: LoginFormData) {
 }
 
 export async function resendVerificationAction(email: string) {
-  const { success: withinLimit } = await resendRatelimit.limit(email);
+  const limit = await resendRatelimit.limit(email);
   const locale = checkedLocale(await getLocale());
-  if (!withinLimit) redirect(`/${locale}/verify-email?error=rate-limited`);
+  if (limit.unavailable) redirect(`/${locale}/verify-email?error=unavailable`);
+  if (!limit.success) redirect(`/${locale}/verify-email?error=rate-limited`);
 
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -140,8 +143,10 @@ export async function forgotPasswordAction(
     (await headers()).get('x-forwarded-for')?.split(',')[0].trim() ??
     process.env.RATELIMIT_FALLBACK_IP ??
     '';
-  const { success: withinLimit } = await forgotPasswordRatelimit.limit(ip);
-  if (!withinLimit) return { sent: true };
+  const limit = await forgotPasswordRatelimit.limit(ip);
+  // Unlike the silent rate-limit path, this leaks nothing about the account: it fails before any lookup.
+  if (limit.unavailable) return { error: SERVICE_UNAVAILABLE };
+  if (!limit.success) return { sent: true };
 
   const parsed = forgotPasswordSchema.safeParse({ email });
   if (!parsed.success) return { error: 'Invalid email' };

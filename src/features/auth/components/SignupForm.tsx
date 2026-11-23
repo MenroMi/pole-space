@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 
 import { Link } from '@/i18n/navigation';
 import { PasswordInput } from '@/shared/components/PasswordInput';
+import { SERVICE_UNAVAILABLE } from '@/shared/lib/error-codes';
 
 import { signupAction, signInWithOAuthAction } from '../actions';
 import { signupSchema } from '../lib/validation';
@@ -263,6 +264,7 @@ export function SignupForm() {
             {(
               {
                 'Too many requests': te('tooManyRequests'),
+                [SERVICE_UNAVAILABLE]: te('serviceUnavailable'),
                 'Invalid input': te('invalidInput'),
                 'Email already in use': te('emailAlreadyInUse'),
                 'Failed to send email, please try again': te('sendEmailFailed'),

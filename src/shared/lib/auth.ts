@@ -6,6 +6,7 @@ import Facebook from 'next-auth/providers/facebook';
 import Google from 'next-auth/providers/google';
 
 import { authBaseConfig } from './auth.config';
+import { SERVICE_UNAVAILABLE } from './error-codes';
 import { prisma } from './prisma';
 import { signinRatelimit } from './ratelimit';
 
@@ -38,8 +39,9 @@ export const authConfig = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const { success } = await signinRatelimit.limit(credentials.email as string);
-        if (!success) throw new Error('Too many login attempts. Please try again later.');
+        const limit = await signinRatelimit.limit(credentials.email as string);
+        if (limit.unavailable) throw new Error(SERVICE_UNAVAILABLE);
+        if (!limit.success) throw new Error('Too many login attempts. Please try again later.');
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },

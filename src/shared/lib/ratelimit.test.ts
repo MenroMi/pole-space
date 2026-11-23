@@ -41,12 +41,25 @@ describe('ratelimit with Upstash configured', () => {
     await expect(signinRatelimit.limit('a@b.c')).resolves.toEqual({ success: false });
   });
 
-  it('fails open and logs when Redis throws', async () => {
+  it('rejects auth requests as unavailable and logs when Redis throws', async () => {
     mockLimit.mockRejectedValue(new Error('getaddrinfo ENOTFOUND'));
     const { forgotPasswordRatelimit } = await loadModule();
-    await expect(forgotPasswordRatelimit.limit('1.2.3.4')).resolves.toEqual({ success: true });
+    await expect(forgotPasswordRatelimit.limit('1.2.3.4')).resolves.toEqual({
+      success: false,
+      unavailable: true,
+    });
     expect(consoleError).toHaveBeenCalledWith(
       expect.stringContaining('rl:forgotpw'),
+      expect.any(Error),
+    );
+  });
+
+  it('lets geocode requests through when Redis throws', async () => {
+    mockLimit.mockRejectedValue(new Error('getaddrinfo ENOTFOUND'));
+    const { geocodeRatelimit } = await loadModule();
+    await expect(geocodeRatelimit.limit('1.2.3.4')).resolves.toEqual({ success: true });
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('rl:geocode'),
       expect.any(Error),
     );
   });

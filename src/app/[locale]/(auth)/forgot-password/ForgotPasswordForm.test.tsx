@@ -3,6 +3,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const mockPush = vi.hoisted(() => vi.fn());
+
 vi.mock('@/features/auth/actions', () => ({
   forgotPasswordAction: vi.fn(),
 }));
@@ -16,7 +18,7 @@ vi.mock('@/i18n/navigation', () => ({
     children?: React.ReactNode;
   }) => React.createElement('a', { href, ...props }, children),
   usePathname: () => '/catalog',
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useRouter: () => ({ replace: vi.fn(), push: mockPush }),
   redirect: vi.fn(),
 }));
 
@@ -55,5 +57,29 @@ describe('ForgotPasswordForm', () => {
     await user.click(screen.getByRole('button', { name: 'submit' }));
 
     expect(mockAction).toHaveBeenCalledWith('user@example.com');
+  });
+
+  it('shows the service-unavailable message instead of the success panel', async () => {
+    mockAction.mockResolvedValue({ error: 'ServiceUnavailable' });
+    const user = userEvent.setup();
+    render(<ForgotPasswordForm sent={false} expired={false} />);
+
+    await user.type(screen.getByLabelText(/email/i), 'user@example.com');
+    await user.click(screen.getByRole('button', { name: 'submit' }));
+
+    expect(await screen.findByText('serviceUnavailable')).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('shows a generic error when the action throws', async () => {
+    mockAction.mockRejectedValue(new Error('boom'));
+    const user = userEvent.setup();
+    render(<ForgotPasswordForm sent={false} expired={false} />);
+
+    await user.type(screen.getByLabelText(/email/i), 'user@example.com');
+    await user.click(screen.getByRole('button', { name: 'submit' }));
+
+    expect(await screen.findByText('generic')).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

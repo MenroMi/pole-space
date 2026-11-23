@@ -137,6 +137,20 @@ describe('SignupForm', () => {
     );
   });
 
+  it('displays the service-unavailable message', async () => {
+    mockSignupAction.mockResolvedValue({ error: 'ServiceUnavailable' });
+    const user = userEvent.setup();
+    render(<SignupForm />);
+
+    await user.type(screen.getByLabelText('firstNameLabel'), 'Alice');
+    await user.type(screen.getByLabelText('lastNameLabel'), 'Smith');
+    await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'Password1!');
+    await user.click(screen.getByRole('button', { name: 'submit' }));
+
+    expect(await screen.findByText('serviceUnavailable')).toBeInTheDocument();
+  });
+
   it('displays server error returned from signupAction', async () => {
     mockSignupAction.mockResolvedValue({ error: 'Email already in use' });
     const user = userEvent.setup();
