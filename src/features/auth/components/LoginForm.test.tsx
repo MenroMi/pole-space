@@ -81,6 +81,18 @@ describe('LoginForm', () => {
     expect(screen.getByText('verifiedBanner')).toBeInTheDocument();
   });
 
+  it('displays the service-unavailable message', async () => {
+    mockLoginAction.mockResolvedValue({ error: 'ServiceUnavailable' });
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.type(screen.getByLabelText(/email/i), 'a@b.com');
+    await user.type(screen.getByPlaceholderText('••••••••'), 'password123');
+    await user.click(screen.getByRole('button', { name: 'submit' }));
+
+    expect(await screen.findByText('serviceUnavailable')).toBeInTheDocument();
+  });
+
   it('displays server error returned from loginAction', async () => {
     mockLoginAction.mockResolvedValue({ error: 'Invalid credentials' });
     const user = userEvent.setup();

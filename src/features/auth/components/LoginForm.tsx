@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { PasswordInput } from '@/shared/components/PasswordInput';
+import { SERVICE_UNAVAILABLE } from '@/shared/lib/error-codes';
 
 import { loginAction, signInWithOAuthAction } from '../actions';
 import { loginSchema } from '../lib/validation';
@@ -63,6 +64,7 @@ export function LoginForm() {
   const CRED_ERROR_MAP: Record<string, string> = {
     'Invalid credentials': te('invalidCredentials'),
     AccountBlocked: te('accountBlocked'),
+    [SERVICE_UNAVAILABLE]: te('serviceUnavailable'),
     'Please verify your email first': te('verifyEmailFirst'),
     'Please sign in with Google or Facebook': te('pleaseSignInWithOAuth'),
   };

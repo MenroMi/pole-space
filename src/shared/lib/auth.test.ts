@@ -416,6 +416,15 @@ describe('authorize', () => {
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
+  it('throws ServiceUnavailable when the rate limiter is unavailable', async () => {
+    mockRatelimit.mockResolvedValue({ success: false, unavailable: true });
+    const authorize = getAuthorize();
+    await expect(authorize({ email: 'a@b.com', password: 'pass' })).rejects.toThrow(
+      'ServiceUnavailable',
+    );
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('throws if user not found', async () => {
     mockFindUnique.mockResolvedValue(null);
     const authorize = getAuthorize();

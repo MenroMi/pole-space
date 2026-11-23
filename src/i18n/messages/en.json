@@ -78,7 +78,9 @@
       "resendSubmit": "resend verification email",
       "resendWait": "resend in {seconds}s",
       "emailPlaceholder": "your@email.com",
-      "sending": "sending..."
+      "sending": "sending...",
+      "unavailableHeading": "temporarily unavailable.",
+      "unavailableBody": "we cannot verify your email right now. please contact us at support@pole-space.com."
     },
     "forgotPassword": {
       "heading": "forgot password.",
@@ -88,7 +90,8 @@
       "submitting": "sending...",
       "successHeading": "check your inbox.",
       "successBody": "if that address is registered, a reset link is on its way. it expires in 1 hour.",
-      "backToSignIn": "back to sign in"
+      "backToSignIn": "back to sign in",
+      "expiredAlert": "That link has expired — enter your email to get a new one."
     },
     "resetPassword": {
       "heading": "new password.",
@@ -101,8 +104,7 @@
       "passwordsDoNotMatch": "Passwords do not match",
       "invalidToken": "The password reset link is invalid or has expired.",
       "requestNewLink": "request a new one",
-      "backToSignIn": "back to sign in",
-      "expiredAlert": "That link has expired — enter your email to get a new one."
+      "backToSignIn": "back to sign in"
     },
     "errors": {
       "invalidCredentials": "Invalid email or password.",
@@ -116,7 +118,9 @@
       "oauthSignin": "Could not start sign-in. Please try again.",
       "oauthGeneric": "Sign-in failed. Please try again.",
       "accountBlocked": "Your account has been blocked. If you believe this is a mistake, contact us at support@pole-space.com.",
-      "pleaseSignInWithOAuth": "This account uses Google or Facebook sign-in. Please use one of the buttons below."
+      "pleaseSignInWithOAuth": "This account uses Google or Facebook sign-in. Please use one of the buttons below.",
+      "serviceUnavailable": "This operation is temporarily unavailable. Please contact us at support@pole-space.com.",
+      "generic": "Something went wrong. Please try again."
     },
     "layout": {
       "version": "v.0.1 — kinetic gallery",

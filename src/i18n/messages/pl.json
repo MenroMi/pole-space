@@ -78,7 +78,9 @@
       "resendSubmit": "wyślij ponownie",
       "resendWait": "wyślij ponownie za {seconds}s",
       "emailPlaceholder": "twoj@email.com",
-      "sending": "wysyłanie..."
+      "sending": "wysyłanie...",
+      "unavailableHeading": "chwilowo niedostępne.",
+      "unavailableBody": "nie możemy teraz zweryfikować twojego e-maila. napisz do nas na support@pole-space.com."
     },
     "forgotPassword": {
       "heading": "zresetuj hasło.",
@@ -88,7 +90,8 @@
       "submitting": "wysyłanie...",
       "successHeading": "sprawdź swoją skrzynkę.",
       "successBody": "jeśli konto istnieje, wysłaliśmy link do resetowania hasła. wygasa za 1 godzinę.",
-      "backToSignIn": "wróć do logowania"
+      "backToSignIn": "wróć do logowania",
+      "expiredAlert": "Ten link wygasł — podaj e-mail, żeby dostać nowy."
     },
     "resetPassword": {
       "heading": "nowe hasło.",
@@ -101,8 +104,7 @@
       "passwordsDoNotMatch": "Hasła nie są identyczne",
       "invalidToken": "Link do resetowania hasła jest nieprawidłowy lub wygasł.",
       "requestNewLink": "poproś o nowy",
-      "backToSignIn": "wróć do logowania",
-      "expiredAlert": "Ten link wygasł — podaj e-mail, żeby dostać nowy."
+      "backToSignIn": "wróć do logowania"
     },
     "errors": {
       "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
@@ -116,7 +118,9 @@
       "oauthSignin": "Nie można rozpocząć logowania. Spróbuj ponownie.",
       "oauthGeneric": "Logowanie nie powiodło się. Spróbuj ponownie.",
       "accountBlocked": "Twoje konto zostało zablokowane. Jeśli uważasz, że to pomyłka, napisz do nas na support@pole-space.com.",
-      "pleaseSignInWithOAuth": "To konto używa logowania przez Google lub Facebook. Użyj jednego z przycisków poniżej."
+      "pleaseSignInWithOAuth": "To konto używa logowania przez Google lub Facebook. Użyj jednego z przycisków poniżej.",
+      "serviceUnavailable": "Ta operacja jest chwilowo niedostępna. Napisz do nas na support@pole-space.com.",
+      "generic": "Coś poszło nie tak. Spróbuj ponownie."
     },
     "layout": {
       "version": "v.0.1 — galeria kinetyczna",

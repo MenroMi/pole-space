@@ -49,6 +49,13 @@ describe('GET /api/auth/verify', () => {
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
+  it('redirects to /pl/verify-email?error=unavailable when the rate limiter is unavailable', async () => {
+    mockVerifyLimit.mockResolvedValue({ success: false, unavailable: true });
+    const res = await GET(makeReq('?token=any'));
+    expect(res.headers.get('location')).toContain('/pl/verify-email?error=unavailable');
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('redirects to /pl/verify-email?error=invalid when token query param is missing', async () => {
     const res = await GET(makeReq(''));
     expect(res.status).toBe(307);

@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { forgotPasswordAction } from '@/features/auth/actions';
 import { Link, useRouter } from '@/i18n/navigation';
+import { SERVICE_UNAVAILABLE } from '@/shared/lib/error-codes';
 
 const schema = z.object({ email: z.string().email('Please enter a valid email') });
 type FormData = z.infer<typeof schema>;
@@ -17,17 +18,27 @@ type ForgotPasswordFormProps = {
 
 export default function ForgotPasswordForm({ sent, expired }: ForgotPasswordFormProps) {
   const t = useTranslations('auth.forgotPassword');
+  const te = useTranslations('auth.errors');
   const router = useRouter();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
-    const result = await forgotPasswordAction(data.email);
-    if ('sent' in result) {
-      router.push('/forgot-password?sent=true');
+    try {
+      const result = await forgotPasswordAction(data.email);
+      if ('sent' in result) {
+        router.push('/forgot-password?sent=true');
+        return;
+      }
+      setError('root', {
+        message: result.error === SERVICE_UNAVAILABLE ? te('serviceUnavailable') : te('generic'),
+      });
+    } catch {
+      setError('root', { message: te('generic') });
     }
   };
 
@@ -95,6 +106,12 @@ export default function ForgotPasswordForm({ sent, expired }: ForgotPasswordForm
             </p>
           )}
         </div>
+
+        {errors.root && (
+          <p role="alert" className="text-sm text-red-400">
+            {errors.root.message}
+          </p>
+        )}
 
         <button
           type="submit"

@@ -134,6 +134,13 @@ describe('signupAction', () => {
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
+  it('returns ServiceUnavailable when the rate limiter is unavailable', async () => {
+    mockSignupLimit.mockResolvedValue({ success: false, unavailable: true });
+    const result = await signupAction(validData);
+    expect(result).toEqual({ error: 'ServiceUnavailable' });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
   it('returns error if email is already in use', async () => {
     mockFindUnique.mockResolvedValue({ id: 'existing-user' });
 
@@ -246,6 +253,13 @@ describe('resendVerificationAction', () => {
     mockResendLimit.mockResolvedValue({ success: false });
     await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
     expect(mockRedirect).toHaveBeenCalledWith('/pl/verify-email?error=rate-limited');
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
+  it('redirects to unavailable when the rate limiter is unavailable', async () => {
+    mockResendLimit.mockResolvedValue({ success: false, unavailable: true });
+    await expect(resendVerificationAction('alice@example.com')).rejects.toThrow('NEXT_REDIRECT');
+    expect(mockRedirect).toHaveBeenCalledWith('/pl/verify-email?error=unavailable');
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
@@ -363,6 +377,15 @@ describe('forgotPasswordAction', () => {
     const result = await forgotPasswordAction('user@example.com');
 
     expect(result).toEqual({ sent: true });
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
+  it('returns ServiceUnavailable instead of { sent: true } when the rate limiter is unavailable', async () => {
+    mockForgotPasswordLimit.mockResolvedValue({ success: false, unavailable: true });
+
+    const result = await forgotPasswordAction('user@example.com');
+
+    expect(result).toEqual({ error: 'ServiceUnavailable' });
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
